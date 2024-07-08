@@ -18,7 +18,7 @@ major version change.
 
 To contribute to this set of libraries:
 
-1. Checkout `master`
+1. Checkout `main`
 2. Create new branch for your contribution
 3. Commit your work. While commiting, use [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/). Scope tag should
    be the name of the module you are updating.
