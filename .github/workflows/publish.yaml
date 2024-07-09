@@ -26,11 +26,11 @@ jobs:
       - name: Validate Gradle Wrapper
         uses: gradle/wrapper-validation-action@55e685c48d84285a5b0418cd094606e199cca3b6
       - run: "v=$(cat version.txt);echo \"OLD_VERSION=$v\" > $GITHUB_ENV"
-#      - name: Check if there were any new fix or feature commits
-#        id: version-check
-#        uses: inovait/actions-common/bump-version-since-last-build@v8
-#        with:
-#          version: '${{ env.OLD_VERSION }}'
+      - name: Check if there were any new fix or feature commits
+        id: version-check
+        uses: inovait/actions-common/bump-version-since-last-build@v8
+        with:
+          version: '${{ env.OLD_VERSION }}'
       - run: "echo \"No feature or fix commits. Skipping build...\""
         if: "${{ steps.version-check.outputs.version == env.OLD_VERSION }}"
       - uses: andymckay/cancel-action@0.3
