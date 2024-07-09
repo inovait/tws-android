@@ -28,7 +28,7 @@ jobs:
       - run: "v=$(cat version.txt);echo \"OLD_VERSION=$v\" > $GITHUB_ENV"
       - name: Check if there were any new fix or feature commits
         id: version-check
-        uses: inovait/actions-common/bump-version-since-last-build@21a4069c8686686b5d0a1429f4d1f7ebf0d59f1a
+        uses: inovait/actions-common/bump-version-since-last-build@v8
         with:
           version: '${{ env.OLD_VERSION }}'
       - run: "echo \"No feature or fix commits. Skipping build...\""
@@ -45,7 +45,7 @@ jobs:
         run: "./gradlew --parallel assemble :tws-gradle:jar"
       - name: Generate Changelog
         id: changelog
-        uses: inovait/actions-common/changelog-since-last-build@21a4069c8686686b5d0a1429f4d1f7ebf0d59f1a
+        uses: inovait/actions-common/changelog-since-last-build@v8
         with:
           git_commit_url_prefix: 'https://github.com/inovait/tws-android-sdk/commit/'
       - run: "old_changelog=$(cat CHANGELOG.MD); echo \"# ${{ env.VERSION }}\n\n${{ steps.changelog.outputs.changelog }}\n\n$old_changelog\" > CHANGELOG.MD"
