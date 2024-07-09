@@ -102,11 +102,11 @@ jobs:
           name: ${{ env.VERSION }}
           tag: ${{ env.VERSION }}
           body: ${{ steps.changelog.outputs.changelog }}
-      - name: Publish Test Results
-        uses: EnricoMi/publish-unit-test-result-action/composite@v2
-        if: always()
-        with:
-          comment_mode: failures
-          junit_files: |
-            **/build/outputs/*-results/**/*.xml
-            **/build/*-results/**/*.xml
+#      - name: Publish Test Results
+#        uses: EnricoMi/publish-unit-test-result-action/composite@v2
+#        if: always()
+#        with:
+#          comment_mode: failures
+#          junit_files: |
+#            **/build/outputs/*-results/**/*.xml
+#            **/build/*-results/**/*.xml
