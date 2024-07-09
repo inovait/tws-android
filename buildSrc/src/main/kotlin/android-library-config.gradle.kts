@@ -43,7 +43,11 @@ publishing {
       register<MavenPublication>("release") {
          groupId = project.group.toString()
          artifactId = project.name
+         println("dsdsdsdsd: project.version.toString(): ${project.version}")
+
          version = project.version.toString()
+
+         println("dsdsdsdsd: version: $version")
 
          afterEvaluate {
             from(components["release"])
