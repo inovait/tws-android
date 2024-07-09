@@ -90,6 +90,8 @@ private fun Project.configureForMavenCentral() {
             maven {
                val repositoryId =
                   property("ossrhRepId") ?: error("Missing property: ossrhRepId")
+
+               println("dsdsdsd: repositoryId: $repositoryId")
                setUrl("https://oss.sonatype.org/service/local/staging/deployByRepositoryId/$repositoryId/")
                credentials {
                   username = property("ossrhUsername") as String
