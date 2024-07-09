@@ -33,11 +33,9 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
     }
-    includeBuild("tws-gradle")
 }
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 rootProject.name = "TheWebSnippetSdk"
 include(":core")
-includeBuild("tws-gradle")

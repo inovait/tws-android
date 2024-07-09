@@ -42,7 +42,7 @@ jobs:
       - run: "v=$(cat version.txt);echo \"VERSION=$v\" > $GITHUB_ENV"
       - run: "echo \"# Release version ${{ env.VERSION }}\" > $GITHUB_STEP_SUMMARY"
       - name: Compile library
-        run: "./gradlew --parallel assemble :tws-gradle:jar"
+        run: "./gradlew --parallel assemble"
       - name: Generate Changelog
         id: changelog
         uses: inovait/actions-common/changelog-since-last-build@v8
@@ -63,7 +63,7 @@ jobs:
           # a description to identify your repository in the UI
           description: Created by Automatic Github flow
       - name: 'Publish'
-        run: './gradlew publish :tws-gradle:publish
+        run: './gradlew publish
                 -PossrhUsername=''${{ secrets.OSSRH_USERNAME }}''
                 -PossrhPassword=''${{ secrets.OSSRH_PASSWORD }}''
                 -PossrhRepId=''${{ steps.create_staging_repository.outputs.repository_id }}''
