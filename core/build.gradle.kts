@@ -43,6 +43,7 @@ dependencies {
     implementation(libs.compose.foundation)
     implementation(libs.androidx.compose.material3)
     implementation(libs.timber)
+    implementation(libs.androidx.browser)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.runner)

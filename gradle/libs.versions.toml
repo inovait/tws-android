@@ -20,6 +20,7 @@ desugarJdkLibs = "2.0.4"
 orgJson = "20240303"
 tomlj = "1.1.1"
 nexusPublish = "0.30.0"
+androidx-browser = "1.8.0"
 
 [libraries]
 androidGradleCacheFix = { module = "org.gradle.android.cache-fix:org.gradle.android.cache-fix.gradle.plugin", version.ref = "androidGradleCacheFix" }
@@ -28,6 +29,7 @@ junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+androidx-browser = { module = "androidx.browser:browser", version.ref = "androidx-browser" }
 runner = { group = "com.android.support.test", name = "runner", version.ref = "runner" }
 espresso-core = { group = "com.android.support.test.espresso", name = "espresso-core", version.ref = "espressoCoreVersion" }
 kotlin-immutableCollections = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "kotlin-immutableCollections" }

@@ -16,6 +16,7 @@
 
 package si.inova.tws.core
 
+import android.content.Intent
 import android.webkit.WebView
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -39,6 +40,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -55,7 +57,9 @@ import si.inova.tws.core.data.rememberWebViewNavigator
 import si.inova.tws.core.lifecycle.DoOnScreenReset
 import si.inova.tws.core.util.initializeSettings
 import si.inova.tws.core.util.onScreenReset
-
+import androidx.activity.ComponentActivity
+import androidx.compose.runtime.DisposableEffect
+import androidx.core.util.Consumer
 
 /**
  *
@@ -208,6 +212,21 @@ private fun PopUpWebView(
     val displayErrorContent = displayErrorViewOnError && popupState.hasError
     val displayLoadingContent =
         displayPlaceholderWhileLoading && popupState.loadingState is LoadingState.Loading
+
+    val activity = LocalContext.current as ComponentActivity
+    DisposableEffect(Unit) {
+        val newIntentListener = Consumer<Intent> { intent ->
+            intent.data?.toString()?.let {
+                popupNavigator.loadUrl(it, loadOnlyInitial = false)
+            }
+        }
+
+        activity.addOnNewIntentListener(newIntentListener)
+
+        onDispose {
+            activity.removeOnNewIntentListener(newIntentListener)
+        }
+    }
 
     Dialog(
         onDismissRequest = {

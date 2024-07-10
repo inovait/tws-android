@@ -81,7 +81,7 @@ fun WebView(
     onCreated: (WebView) -> Unit = {},
     onDispose: (WebView) -> Unit = {},
     popupStateCallback: ((WebViewState, Boolean) -> Unit)? = null,
-    client: TwsWebViewClient = remember { TwsWebViewClient() },
+    client: TwsWebViewClient = remember { TwsWebViewClient(popupStateCallback) },
     chromeClient: TwsWebChromeClient = remember { TwsWebChromeClient(popupStateCallback) },
     interceptOverrideUrl: (String) -> Boolean = { false },
     factory: ((Context) -> WebView)? = null
@@ -162,7 +162,7 @@ fun WebView(
     onCreated: (WebView) -> Unit = {},
     onDispose: (WebView) -> Unit = {},
     popupStateCallback: ((WebViewState, Boolean) -> Unit)? = null,
-    client: TwsWebViewClient = remember { TwsWebViewClient() },
+    client: TwsWebViewClient = remember { TwsWebViewClient(popupStateCallback) },
     chromeClient: TwsWebChromeClient = remember { TwsWebChromeClient(popupStateCallback) },
     interceptOverrideUrl: (String) -> Boolean = { false },
     factory: ((Context) -> WebView)? = null
