@@ -128,6 +128,23 @@ fun WebSnippetComponent(
         }
     }
 
+    val activity = LocalContext.current as ComponentActivity
+    DisposableEffect(Unit) {
+        val newIntentListener = Consumer<Intent> { intent ->
+            if (popupStates.value.isEmpty()) {
+                intent.data?.toString()?.let {
+                    navigator.loadUrl(it, loadOnlyInitial = false)
+                }
+            }
+        }
+
+        activity.addOnNewIntentListener(newIntentListener)
+
+        onDispose {
+            activity.removeOnNewIntentListener(newIntentListener)
+        }
+    }
+
     SnippetContentWithLoadingAndError(
         modifier = modifier,
         key = target.id,
