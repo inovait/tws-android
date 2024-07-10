@@ -45,7 +45,7 @@ private fun Project.setProjectMetadata(
             name.set(userFriendlyName)
             this.description.set(description)
             val projectGitUrl = "https://github.com/inovait/tws-android-sdk"
-            url.set("$projectGitUrl/tree/master/$githubPath")
+            url.set("$projectGitUrl/tree/main/$githubPath")
             inceptionYear.set("2024")
             licenses {
                license {
