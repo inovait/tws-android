@@ -19,6 +19,7 @@ versionsChecker = "0.51.0"
 desugarJdkLibs = "2.0.4"
 orgJson = "20240303"
 tomlj = "1.1.1"
+nexusPublish = "0.30.0"
 
 [libraries]
 androidGradleCacheFix = { module = "org.gradle.android.cache-fix:org.gradle.android.cache-fix.gradle.plugin", version.ref = "androidGradleCacheFix" }
@@ -49,3 +50,4 @@ compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "
 android-library = { id = "com.android.library", version.ref = "agp" }
 versions = { id = "com.github.ben-manes.versions", version.ref = "versionsChecker" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+nexusPublish = { id = "io.codearte.nexus-staging", version.ref = "nexusPublish" }
