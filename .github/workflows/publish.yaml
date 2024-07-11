@@ -25,30 +25,30 @@ jobs:
         uses: android-actions/setup-android@7c5672355aaa8fde5f97a91aa9a99616d1ace6bc
       - name: Validate Gradle Wrapper
         uses: gradle/wrapper-validation-action@55e685c48d84285a5b0418cd094606e199cca3b6
-#      - run: "v=$(cat version.txt);echo \"OLD_VERSION=$v\" > $GITHUB_ENV"
-#      - name: Check if there were any new fix or feature commits
-#        id: version-check
-#        uses: inovait/actions-common/bump-version-since-last-build@v8
-#        with:
-#          version: '${{ env.OLD_VERSION }}'
-#      - run: "echo \"No feature or fix commits. Skipping build...\""
-#        if: "${{ steps.version-check.outputs.version == env.OLD_VERSION }}"
-#      - uses: andymckay/cancel-action@0.3
-#        if: "${{ steps.version-check.outputs.version == env.OLD_VERSION }}"
-#      - name: "Wait for cancel to stick"
-#        run: "sleep 99999"
-#        if: "${{ steps.version-check.outputs.version == env.OLD_VERSION }}"
-#      - run: "./bump_version.sh ${{ steps.version-check.outputs.version }}"
+      - run: "v=$(cat version.txt);echo \"OLD_VERSION=$v\" > $GITHUB_ENV"
+      - name: Check if there were any new fix or feature commits
+        id: version-check
+        uses: inovait/actions-common/bump-version-since-last-build@v8
+        with:
+          version: '${{ env.OLD_VERSION }}'
+      - run: "echo \"No feature or fix commits. Skipping build...\""
+        if: "${{ steps.version-check.outputs.version == env.OLD_VERSION }}"
+      - uses: andymckay/cancel-action@0.3
+        if: "${{ steps.version-check.outputs.version == env.OLD_VERSION }}"
+      - name: "Wait for cancel to stick"
+        run: "sleep 99999"
+        if: "${{ steps.version-check.outputs.version == env.OLD_VERSION }}"
+      - run: "./bump_version.sh ${{ steps.version-check.outputs.version }}"
       - run: "v=$(cat version.txt);echo \"VERSION=$v\" > $GITHUB_ENV"
       - run: "echo \"# Release version ${{ env.VERSION }}\" > $GITHUB_STEP_SUMMARY"
       - name: Compile library
         run: "./gradlew --parallel assemble"
-#      - name: Generate Changelog
-#        id: changelog
-#        uses: inovait/actions-common/changelog-since-last-build@v8
-#        with:
-#          git_commit_url_prefix: 'https://github.com/inovait/tws-android-sdk/commit/'
-#      - run: "old_changelog=$(cat CHANGELOG.MD); echo \"# ${{ env.VERSION }}\n\n${{ steps.changelog.outputs.changelog }}\n\n$old_changelog\" > CHANGELOG.MD"
+      - name: Generate Changelog
+        id: changelog
+        uses: inovait/actions-common/changelog-since-last-build@v8
+        with:
+          git_commit_url_prefix: 'https://github.com/inovait/tws-android-sdk/commit/'
+      - run: "old_changelog=$(cat CHANGELOG.MD); echo \"# ${{ env.VERSION }}\n\n${{ steps.changelog.outputs.changelog }}\n\n$old_changelog\" > CHANGELOG.MD"
       - name: 'Save GPG key'
         run: 'echo "${{ secrets.GPG_SIGNING_KEY }}" | base64 -d > signing_key.gpg'
       - id: create_staging_repository
@@ -82,14 +82,14 @@ jobs:
           username: ${{ secrets.SONATYPE_USERNAME }}
           password: ${{ secrets.SONATYPE_PASSWORD }}
           staging_repository_id: ${{ steps.create_staging_repository.outputs.repository_id }}
-#      - name: 'Add changelog and version'
-#        run: 'git add version.txt CHANGELOG.MD'
-#      - run: 'git config --global user.email "ci@inova.si"'
-#      - run: 'git config --global user.name "Build Bot"'
-#      - name: 'Commit changelog and version'
-#        run: 'git commit -m "chore: release ${{ env.VERSION }}"'
-#      - name: 'Push changelog and version'
-#        run: 'git push'
+      - name: 'Add changelog and version'
+        run: 'git add version.txt CHANGELOG.MD'
+      - run: 'git config --global user.email "ci@inova.si"'
+      - run: 'git config --global user.name "Build Bot"'
+      - name: 'Commit changelog and version'
+        run: 'git commit -m "chore: release ${{ env.VERSION }}"'
+      - name: 'Push changelog and version'
+        run: 'git push'
       - name: 'Create tag'
         run: 'git tag ${{ env.VERSION }}'
       - name: 'Push tag'
@@ -101,7 +101,7 @@ jobs:
         with:
           name: ${{ env.VERSION }}
           tag: ${{ env.VERSION }}
-#          body: ${{ steps.changelog.outputs.changelog }}
+          body: ${{ steps.changelog.outputs.changelog }}
 #      - name: Publish Test Results
 #        uses: EnricoMi/publish-unit-test-result-action/composite@v2
 #        if: always()
