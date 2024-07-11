@@ -21,29 +21,28 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.staticCompositionLocalOf
 import kotlinx.coroutines.flow.MutableSharedFlow
 
-internal class ScreenResetNotifier {
-    private val _notifyFlow = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+class ScreenResetNotifier {
+   private val _notifyFlow = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
 
-    fun requestScreenReset() {
-        _notifyFlow.tryEmit(Unit)
-    }
+   fun requestScreenReset() {
+      _notifyFlow.tryEmit(Unit)
+   }
 
-    @Composable
-    fun Listen(callback: suspend () -> Unit) {
-        LaunchedEffect(Unit) {
-            _notifyFlow.collect {
-                callback()
-            }
-        }
-    }
+   @Composable
+   fun Listen(callback: suspend () -> Unit) {
+      LaunchedEffect(Unit) {
+         _notifyFlow.collect {
+            callback()
+         }
+      }
+   }
 }
 
 @Composable
-internal fun DoOnScreenReset(callback: () -> Unit) {
-    LocalScreenResetNotifier.current.Listen(callback)
+fun DoOnScreenReset(callback: () -> Unit) {
+   LocalScreenResetNotifier.current.Listen(callback)
 }
 
-internal val LocalScreenResetNotifier =
-    staticCompositionLocalOf<ScreenResetNotifier> {
-        error("Screen reset notifier should be provided")
-    }
+val LocalScreenResetNotifier = staticCompositionLocalOf<ScreenResetNotifier> {
+   error("Screen reset notifier should be provided")
+}
