@@ -28,3 +28,25 @@ To contribute to this set of libraries:
 6. Create merge request
 7. When your PR is merged, new release will be generated automatically
 
+# How to test locally
+
+## TheWebSnippetSdk project
+
+1. in `version.txt` setup your own version
+2. run `./gradlew publishtomavenlocal`
+
+## Your own project
+
+1. setup your gradle for local repository use
+
+    ```
+    dependencyResolutionManagement {
+        repositories {
+            mavenLocal()
+            ...
+        }
+        ...
+    }
+    ```
+
+2. import library `implementation("si.inova.tws:core:[version]")`
