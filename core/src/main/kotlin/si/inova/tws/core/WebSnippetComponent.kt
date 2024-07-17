@@ -53,6 +53,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.core.util.Consumer
 import si.inova.tws.core.data.LoadingState
 import si.inova.tws.core.data.WebContent
+import si.inova.tws.core.data.WebSnippetData
 import si.inova.tws.core.data.WebViewNavigator
 import si.inova.tws.core.data.WebViewState
 import si.inova.tws.core.data.rememberSaveableWebViewState

@@ -14,29 +14,33 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-pluginManagement {
-    repositories {
-        google {
-            content {
-                includeGroupByRegex("com\\.android.*")
-                includeGroupByRegex("com\\.google.*")
-                includeGroupByRegex("androidx.*")
-            }
-        }
-        mavenCentral()
-        gradlePluginPortal()
-    }
-}
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        google()
-        mavenCentral()
-    }
+package si.inova.tws.web_socket.model
+
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
+
+@JsonClass(generateAdapter = true)
+internal data class SnippetUpdateAction(
+   val type: ActionType,
+   val data: ActionBody
+)
+
+@JsonClass(generateAdapter = false)
+internal enum class ActionType {
+   @Json(name = "SNIPPET_CREATED")
+   CREATED,
+
+   @Json(name = "SNIPPET_UPDATED")
+   UPDATED,
+
+   @Json(name = "SNIPPET_DELETED")
+   DELETED
 }
 
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
-
-rootProject.name = "TheWebSnippetSdk"
-include(":core")
-include(":web-socket")
+@JsonClass(generateAdapter = true)
+internal data class ActionBody(
+   val id: String,
+   val target: String?,
+   val html: String?,
+   val headers: Map<String, String>?
+)
