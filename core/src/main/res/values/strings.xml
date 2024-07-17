@@ -1,9 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="oops_loading_failed">Ooops, loading failed.</string>
-    <string name="delete_icon">Delete</string>
-    <string name="swipe_animated_color">Swipe animated color</string>
-    <string name="try_again_later">Try again later</string>
-    <string name="top_bar_title">TWS - %s</string>
-    <string name="edit_tws_url">https://manage.thewebsnippet.dev/snippets-list</string>
 </resources>
