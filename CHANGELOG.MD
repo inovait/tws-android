@@ -1,3 +1,9 @@
+# 0.2.0
+
+### Features
+
+* **web-socket**: added web socket support ([cef4d53f](https://github.com/inovait/tws-android-sdk/commit/cef4d53ff5021c8953ed9039c0d38135e32062d0))
+
 # 0.1.3
 
 ### Bug Fixes
