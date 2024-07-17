@@ -31,6 +31,11 @@ import si.inova.tws.web_socket.model.ActionType
 import si.inova.tws.web_socket.model.SnippetUpdateAction
 import timber.log.Timber
 
+/**
+ *
+ * Creation of The Web Snippet websocket
+ *
+ */
 class TwsSocket(scope: CoroutineScope) {
 
    private var webSocket: WebSocket? = null
@@ -48,10 +53,22 @@ class TwsSocket(scope: CoroutineScope) {
       }
    }
 
+   /**
+    *
+    * set at the start what your [_snippetsFlow] should look like before of socket triggering
+    *
+    *  @param data to update [_snippetsFlow]
+    */
    fun manuallyUpdateSnippet(data: List<WebSnippetData>) {
       _snippetsFlow.update { data }
    }
 
+   /**
+    * Sets the URL target of this request.
+    *
+    * @throws IllegalArgumentException if [url] is not a valid HTTP or HTTPS URL. Avoid this
+    *     exception by calling [HttpUrl.parse]; it returns null for invalid URLs.
+    */
    fun setupWebSocketConnection(wwsUrl: String) {
       try {
          val client = OkHttpClient()
@@ -64,13 +81,24 @@ class TwsSocket(scope: CoroutineScope) {
       }
    }
 
-   fun socketExists(): Boolean {
-      return webSocket != null
+   /**
+    * Attempts to initiate a graceful shutdown of this web socket.
+    *
+    * This returns true if a graceful shutdown was initiated by this call. It returns false if
+    * a graceful shutdown was already underway or if the web socket is already closed or canceled.
+    *
+    */
+   fun closeWebsocketConnection(): Boolean? {
+      return webSocket?.close(CLOSING_CODE_ERROR_CODE, null).apply {
+         webSocket = null
+      }
    }
 
-   fun closeWebsocketConnection() {
-      webSocket?.close(CLOSING_CODE_ERROR_CODE, null)
-      webSocket = null
+   /**
+    * Returns `true` if websocket exists
+    */
+   fun socketExists(): Boolean {
+      return webSocket != null
    }
 
    private fun updateWithUpdateAction(action: SnippetUpdateAction) {

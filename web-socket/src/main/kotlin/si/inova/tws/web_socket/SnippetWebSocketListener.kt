@@ -27,7 +27,7 @@ import okhttp3.WebSocket
 import okhttp3.WebSocketListener
 import si.inova.tws.web_socket.model.SnippetUpdateAction
 
-class SnippetWebSocketListener: WebSocketListener() {
+internal class SnippetWebSocketListener : WebSocketListener() {
    private val _updateActionFlow: MutableStateFlow<SnippetUpdateAction?> = MutableStateFlow(null)
    val updateActionFlow: Flow<SnippetUpdateAction>
       get() = _updateActionFlow.filterNotNull()
