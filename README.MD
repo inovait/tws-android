@@ -5,6 +5,7 @@ Expanded WebView to create your own application from your webpage.
 ## Modules
 
 ### • [Core](core/README.MD)
+### • [Web Socket](web-socket/README.MD)
 
 ## Versioning
 
@@ -28,14 +29,14 @@ To contribute to this set of libraries:
 6. Create merge request
 7. When your PR is merged, new release will be generated automatically
 
-# How to test locally
+## How to test locally
 
-## TheWebSnippetSdk project
+### TheWebSnippetSdk project
 
 1. in `version.txt` setup your own version
 2. run `./gradlew publishtomavenlocal`
 
-## Your own project
+### Your own project
 
 1. setup your gradle for local repository use
 
@@ -49,4 +50,7 @@ To contribute to this set of libraries:
     }
     ```
 
-2. import library `implementation("si.inova.tws:core:[version]")`
+2. import library
+
+- `implementation("si.inova.tws:core:[version]")`
+- `implementation("si.inova.tws:web-socket:[version]")`
