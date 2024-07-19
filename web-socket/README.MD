@@ -15,7 +15,7 @@ tws = "X.Y.Z"
 
 ```toml
 [libraries]
-tws-ws = { module = "si.inova.tws:core", version.ref = "tws" }
+tws-ws = { module = "si.inova.tws:web-socket", version.ref = "tws" }
 ```
 
 ```kotlin
