@@ -123,7 +123,13 @@ fun WebSnippetComponent(
       }
    }
 
-   NewIntentListener(navigator)
+   NewIntentListener { intent ->
+      if (popupStates.value.isEmpty()) {
+         intent.data?.toString()?.let {
+            navigator.loadUrl(it, loadOnlyInitial = false)
+         }
+      }
+   }
 
    SnippetContentWithLoadingAndError(
       modifier = modifier,
@@ -211,7 +217,11 @@ private fun PopUpWebView(
    val displayLoadingContent =
       displayPlaceholderWhileLoading && popupState.loadingState is LoadingState.Loading
 
-   NewIntentListener(popupNavigator)
+   NewIntentListener { intent ->
+      intent.data?.toString()?.let {
+         popupNavigator.loadUrl(it, loadOnlyInitial = false)
+      }
+   }
 
    Dialog(
       onDismissRequest = {
@@ -251,13 +261,11 @@ private fun PopUpWebView(
 }
 
 @Composable
-private fun NewIntentListener(popupNavigator: WebViewNavigator) {
+private fun NewIntentListener(callback: (Intent) -> Unit) {
    val activity = LocalContext.current as? ComponentActivity
    DisposableEffect(Unit) {
       val newIntentListener = Consumer<Intent> { intent ->
-         intent.data?.toString()?.let {
-            popupNavigator.loadUrl(it, loadOnlyInitial = false)
-         }
+         callback(intent)
       }
 
       activity?.addOnNewIntentListener(newIntentListener)
