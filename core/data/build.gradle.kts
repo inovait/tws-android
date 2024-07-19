@@ -30,11 +30,3 @@ publishLibrary(
    githubPath = "data",
    artifactName = "core-data"
 )
-
-dependencies {
-   implementation(libs.timber)
-
-   testImplementation(libs.junit)
-   androidTestImplementation(libs.runner)
-   androidTestImplementation(libs.espresso.core)
-}
