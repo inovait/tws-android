@@ -93,7 +93,6 @@ fun WebSnippetComponent(
    loadingPlaceholderContent: @Composable () -> Unit = { WebViewLoadingIndicator() },
    interceptOverrideUrl: (String) -> Boolean = { false },
 ) {
-
    LaunchedEffect(navigator, target.loadIteration) {
       if (webViewState.lastLoadedUrl == null || webViewState.loadIteration != target.loadIteration) {
          // This is the first time load, so load the home page.

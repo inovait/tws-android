@@ -85,6 +85,7 @@ import timber.log.Timber
  * @param topBar Optional callback, for showing TopBar, if left empty TopBar is not shown
  * @param resetScreenOnTabReselect If set to true,
  * [DoOnScreenReset] is triggered when tab is reselected
+ * @param onScreenReset Optional callback, set what to do on screen reset
  */
 @Composable
 fun TabsWebSnippetComponent(
