@@ -146,7 +146,8 @@ fun WebSnippetComponent(
          displayErrorViewOnError = displayErrorViewOnError,
          errorViewContent = errorViewContent,
          onDismissRequest = { popupStates.value = popupStates.value.filter { it != state } },
-         popupStateCallback = popupStateCallback
+         popupStateCallback = popupStateCallback,
+         interceptOverrideUrl = interceptOverrideUrl
       )
    }
 }
