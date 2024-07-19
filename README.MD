@@ -4,7 +4,8 @@ Expanded WebView to create your own application from your webpage.
 
 ## Modules
 
-### • [Core](core/README.MD)
+### • [Core - UI](core/ui/README.MD)
+### • [Core - data](core/data/README.MD)
 ### • [Web Socket](web-socket/README.MD)
 
 ## Versioning
@@ -52,5 +53,6 @@ To contribute to this set of libraries:
 
 2. import library
 
-- `implementation("si.inova.tws:core:[version]")`
+- `implementation("si.inova.tws:core-ui:[version]")`
+- `implementation("si.inova.tws:core-data:[version]")`
 - `implementation("si.inova.tws:web-socket:[version]")`

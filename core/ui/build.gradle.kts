@@ -14,31 +14,40 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-pluginManagement {
-    repositories {
-        google {
-            content {
-                includeGroupByRegex("com\\.android.*")
-                includeGroupByRegex("com\\.google.*")
-                includeGroupByRegex("androidx.*")
-            }
-        }
-        mavenCentral()
-        gradlePluginPortal()
-    }
-}
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        google()
-        mavenCentral()
-    }
+import util.publishLibrary
+
+plugins {
+   androidLibraryModule
+   alias(libs.plugins.compose.compiler)
 }
 
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+android {
+   namespace = "si.inova.tws.core.ui"
 
-rootProject.name = "TheWebSnippetSdk"
-//include(":core")
-include(":core:data")
-include(":core:ui")
-include(":web-socket")
+   buildFeatures {
+      androidResources = true
+   }
+}
+
+publishLibrary(
+   userFriendlyName = "tws-core-ui",
+   description = "A collection of core ui utilities",
+   githubPath = "ui",
+   artifactName = "core-ui"
+)
+
+dependencies {
+   implementation(projects.core.data)
+
+   implementation(libs.androidx.activity.compose)
+   implementation(libs.kotlin.immutableCollections)
+   implementation(libs.androidx.compose.ui.tooling.preview)
+   implementation(libs.compose.foundation)
+   implementation(libs.androidx.compose.material3)
+   implementation(libs.timber)
+   implementation(libs.androidx.browser)
+
+   testImplementation(libs.junit)
+   androidTestImplementation(libs.runner)
+   androidTestImplementation(libs.espresso.core)
+}

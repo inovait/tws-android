@@ -14,31 +14,23 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-pluginManagement {
-    repositories {
-        google {
-            content {
-                includeGroupByRegex("com\\.android.*")
-                includeGroupByRegex("com\\.google.*")
-                includeGroupByRegex("androidx.*")
-            }
-        }
-        mavenCentral()
-        gradlePluginPortal()
-    }
-}
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        google()
-        mavenCentral()
-    }
-}
+package si.inova.tws.core.ui.data
 
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+import android.webkit.WebResourceError
+import android.webkit.WebResourceRequest
+import androidx.compose.runtime.Immutable
 
-rootProject.name = "TheWebSnippetSdk"
-//include(":core")
-include(":core:data")
-include(":core:ui")
-include(":web-socket")
+/**
+ * A wrapper class to hold errors from the WebView.
+ */
+@Immutable
+data class WebViewError(
+    /**
+     * The request the error came from.
+     */
+    val request: WebResourceRequest?,
+    /**
+     * The error that was reported.
+     */
+    val error: WebResourceError
+)

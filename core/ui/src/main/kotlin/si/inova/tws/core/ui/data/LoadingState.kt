@@ -14,31 +14,26 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-pluginManagement {
-    repositories {
-        google {
-            content {
-                includeGroupByRegex("com\\.android.*")
-                includeGroupByRegex("com\\.google.*")
-                includeGroupByRegex("androidx.*")
-            }
-        }
-        mavenCentral()
-        gradlePluginPortal()
-    }
-}
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        google()
-        mavenCentral()
-    }
-}
+package si.inova.tws.core.ui.data
 
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+/**
+ * Sealed class for constraining possible loading states.
+ * See [Loading] and [Finished].
+ */
+sealed class LoadingState {
+    /**
+     * Describes a WebView that has not yet loaded for the first time.
+     */
+    data object Initializing : LoadingState()
 
-rootProject.name = "TheWebSnippetSdk"
-//include(":core")
-include(":core:data")
-include(":core:ui")
-include(":web-socket")
+    /**
+     * Describes a webview between `onPageStarted` and `onPageFinished` events, contains a
+     * [progress] property which is updated by the webview.
+     */
+    data class Loading(val progress: Float) : LoadingState()
+
+    /**
+     * Describes a webview that has finished loading content.
+     */
+    data object Finished : LoadingState()
+}
