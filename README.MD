@@ -4,8 +4,7 @@ Expanded WebView to create your own application from your webpage.
 
 ## Modules
 
-### • [Core - UI](core/ui/README.MD)
-### • [Core - data](core/data/README.MD)
+### • [Core](core/README.MD)
 ### • [Web Socket](web-socket/README.MD)
 
 ## Versioning

@@ -32,8 +32,7 @@ android {
 publishLibrary(
    userFriendlyName = "tws-core",
    description = "A collection of core utilities",
-   githubPath = "core",
-   artifactName = "core"
+   githubPath = "core"
 )
 
 dependencies {
