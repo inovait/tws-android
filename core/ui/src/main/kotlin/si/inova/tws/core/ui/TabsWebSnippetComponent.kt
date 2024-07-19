@@ -85,6 +85,7 @@ import timber.log.Timber
  * @param topBar Optional callback, for showing TopBar, if left empty TopBar is not shown
  * @param resetScreenOnTabReselect If set to true,
  * [DoOnScreenReset] is triggered when tab is reselected
+ * @param onScreenReset Optional callback, set what to do on screen reset
  */
 @Composable
 fun TabsWebSnippetComponent(
@@ -98,7 +99,8 @@ fun TabsWebSnippetComponent(
    loadingPlaceholderContent: @Composable () -> Unit = { FullScreenLoadingView() },
    interceptOverrideUrl: (String) -> Boolean = { false },
    topBar: @Composable (String?) -> Unit = { },
-   resetScreenOnTabReselect: Boolean = true
+   resetScreenOnTabReselect: Boolean = true,
+   onScreenReset: (WebViewState) -> Unit = { it.webView?.onScreenReset() }
 ) {
    CompositionLocalProvider(LocalScreenResetNotifier provides ScreenResetNotifier()) {
       val screenResetNotifier = LocalScreenResetNotifier.current
@@ -170,6 +172,11 @@ fun TabsWebSnippetComponent(
                ) { targetIndex ->
                   // can crash because of the animation if tab is deleted
                   val coercedIndex = targetIndex.coerceAtMost(targets.size - 1)
+
+
+                  DoOnScreenReset {
+                     onScreenReset(webViewStatesMap[coercedIndex])
+                  }
 
                   WebSnippetComponent(
                      modifier = Modifier
