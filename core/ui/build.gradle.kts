@@ -32,7 +32,7 @@ android {
 publishLibrary(
    userFriendlyName = "tws-core-ui",
    description = "A collection of core ui utilities",
-   githubPath = "ui",
+   githubPath = "core/ui",
    artifactName = "core-ui"
 )
 
