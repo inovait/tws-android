@@ -19,7 +19,7 @@ publishLibrary(
 )
 
 dependencies {
-   api(projects.core)
+   api(projects.core.data)
 
    implementation(libs.androidx.activity.compose)
    implementation(libs.kotlin.immutableCollections)
@@ -34,5 +34,4 @@ dependencies {
    testImplementation(libs.junit)
    androidTestImplementation(libs.runner)
    androidTestImplementation(libs.espresso.core)
-
 }

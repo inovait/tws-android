@@ -14,31 +14,35 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-pluginManagement {
-    repositories {
-        google {
-            content {
-                includeGroupByRegex("com\\.android.*")
-                includeGroupByRegex("com\\.google.*")
-                includeGroupByRegex("androidx.*")
-            }
-        }
-        mavenCentral()
-        gradlePluginPortal()
-    }
-}
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        google()
-        mavenCentral()
-    }
+package si.inova.tws.core.ui.lifecycle
+
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.staticCompositionLocalOf
+import kotlinx.coroutines.flow.MutableSharedFlow
+
+internal class ScreenResetNotifier {
+   private val _notifyFlow = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+
+   fun requestScreenReset() {
+      _notifyFlow.tryEmit(Unit)
+   }
+
+   @Composable
+   fun Listen(callback: suspend () -> Unit) {
+      LaunchedEffect(Unit) {
+         _notifyFlow.collect {
+            callback()
+         }
+      }
+   }
 }
 
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+@Composable
+internal fun DoOnScreenReset(callback: () -> Unit) {
+   LocalScreenResetNotifier.current.Listen(callback)
+}
 
-rootProject.name = "TheWebSnippetSdk"
-//include(":core")
-include(":core:data")
-include(":core:ui")
-include(":web-socket")
+internal val LocalScreenResetNotifier = staticCompositionLocalOf<ScreenResetNotifier> {
+   error("Screen reset notifier should be provided")
+}

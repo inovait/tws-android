@@ -14,31 +14,27 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-pluginManagement {
-    repositories {
-        google {
-            content {
-                includeGroupByRegex("com\\.android.*")
-                includeGroupByRegex("com\\.google.*")
-                includeGroupByRegex("androidx.*")
-            }
-        }
-        mavenCentral()
-        gradlePluginPortal()
-    }
-}
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        google()
-        mavenCentral()
-    }
+import util.publishLibrary
+
+plugins {
+   androidLibraryModule
 }
 
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+android {
+   namespace = "si.inova.tws.core.data"
+}
 
-rootProject.name = "TheWebSnippetSdk"
-//include(":core")
-include(":core:data")
-include(":core:ui")
-include(":web-socket")
+publishLibrary(
+   userFriendlyName = "tws-core-data",
+   description = "A collection of core data utilities",
+   githubPath = "data",
+   artifactName = "core-data"
+)
+
+dependencies {
+   implementation(libs.timber)
+
+   testImplementation(libs.junit)
+   androidTestImplementation(libs.runner)
+   androidTestImplementation(libs.espresso.core)
+}

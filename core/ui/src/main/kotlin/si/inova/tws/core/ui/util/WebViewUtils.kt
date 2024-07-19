@@ -14,31 +14,39 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-pluginManagement {
-    repositories {
-        google {
-            content {
-                includeGroupByRegex("com\\.android.*")
-                includeGroupByRegex("com\\.google.*")
-                includeGroupByRegex("androidx.*")
-            }
-        }
-        mavenCentral()
-        gradlePluginPortal()
-    }
-}
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        google()
-        mavenCentral()
+package si.inova.tws.core.ui.util
+
+import android.annotation.SuppressLint
+import android.view.View
+import android.webkit.CookieManager
+import android.webkit.WebSettings
+import android.webkit.WebView
+
+@SuppressLint("SetJavaScriptEnabled")
+fun WebView.initializeSettings() {
+    CookieManager.getInstance().setAcceptThirdPartyCookies(this, true)
+    CookieManager.getInstance().setAcceptCookie(true)
+    setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY)
+
+    settings.apply {
+        javaScriptEnabled = true
+        javaScriptCanOpenWindowsAutomatically = true
+        setSupportMultipleWindows(true)
+        domStorageEnabled = true
+        databaseEnabled = true
+        loadWithOverviewMode = true
+        useWideViewPort = true
+        allowFileAccess = true
+        allowContentAccess = true
+        setSupportZoom(true)
+        cacheMode = WebSettings.LOAD_DEFAULT
+        userAgentString = userAgentString.replace("; wv)", ")")
     }
 }
 
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
-rootProject.name = "TheWebSnippetSdk"
-//include(":core")
-include(":core:data")
-include(":core:ui")
-include(":web-socket")
+fun WebView.onScreenReset() {
+    post {
+        evaluateJavascript(JavaScriptCommands.ScrollToTop, null)
+    }
+}
