@@ -98,8 +98,7 @@ fun TabsWebSnippetComponent(
    loadingPlaceholderContent: @Composable () -> Unit = { FullScreenLoadingView() },
    interceptOverrideUrl: (String) -> Boolean = { false },
    topBar: @Composable (String?) -> Unit = { },
-   resetScreenOnTabReselect: Boolean = true,
-   onScreenReset: (WebViewState) -> Unit = { it.webView?.onScreenReset() }
+   resetScreenOnTabReselect: Boolean = true
 ) {
    CompositionLocalProvider(LocalScreenResetNotifier provides ScreenResetNotifier()) {
       val screenResetNotifier = LocalScreenResetNotifier.current
@@ -171,11 +170,6 @@ fun TabsWebSnippetComponent(
                ) { targetIndex ->
                   // can crash because of the animation if tab is deleted
                   val coercedIndex = targetIndex.coerceAtMost(targets.size - 1)
-
-
-                  DoOnScreenReset {
-                     onScreenReset(webViewStatesMap[coercedIndex])
-                  }
 
                   WebSnippetComponent(
                      modifier = Modifier

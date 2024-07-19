@@ -56,7 +56,9 @@ import si.inova.tws.core.ui.data.WebViewNavigator
 import si.inova.tws.core.ui.data.WebViewState
 import si.inova.tws.core.ui.data.rememberSaveableWebViewState
 import si.inova.tws.core.ui.data.rememberWebViewNavigator
+import si.inova.tws.core.ui.lifecycle.DoOnScreenReset
 import si.inova.tws.core.ui.util.initializeSettings
+import si.inova.tws.core.ui.util.onScreenReset
 import si.inova.tws.data.WebContent
 import si.inova.tws.data.WebSnippetData
 
@@ -80,6 +82,7 @@ import si.inova.tws.data.WebSnippetData
  * @param interceptOverrideUrl Optional callback, how to handle intercepted urls,
  * return true if do not want to navigate to the new url and
  * return false if navigation to the new url is intact
+ * @param onScreenReset Optional callback, set what to do on screen reset
  */
 @Composable
 fun WebSnippetComponent(
@@ -92,7 +95,9 @@ fun WebSnippetComponent(
    displayPlaceholderWhileLoading: Boolean = false,
    loadingPlaceholderContent: @Composable () -> Unit = { WebViewLoadingIndicator() },
    interceptOverrideUrl: (String) -> Boolean = { false },
+   onScreenReset: () -> Unit = { webViewState.webView?.onScreenReset() }
 ) {
+   DoOnScreenReset(onScreenReset)
 
    LaunchedEffect(navigator, target.loadIteration) {
       if (webViewState.lastLoadedUrl == null || webViewState.loadIteration != target.loadIteration) {
