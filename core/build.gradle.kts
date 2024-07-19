@@ -14,39 +14,39 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.core.ui.util
+import util.publishLibrary
 
-import android.annotation.SuppressLint
-import android.view.View
-import android.webkit.CookieManager
-import android.webkit.WebSettings
-import android.webkit.WebView
-
-@SuppressLint("SetJavaScriptEnabled")
-fun WebView.initializeSettings() {
-    CookieManager.getInstance().setAcceptThirdPartyCookies(this, true)
-    CookieManager.getInstance().setAcceptCookie(true)
-    setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY)
-
-    settings.apply {
-        javaScriptEnabled = true
-        javaScriptCanOpenWindowsAutomatically = true
-        setSupportMultipleWindows(true)
-        domStorageEnabled = true
-        databaseEnabled = true
-        loadWithOverviewMode = true
-        useWideViewPort = true
-        allowFileAccess = true
-        allowContentAccess = true
-        setSupportZoom(true)
-        cacheMode = WebSettings.LOAD_DEFAULT
-        userAgentString = userAgentString.replace("; wv)", ")")
-    }
+plugins {
+   androidLibraryModule
+   alias(libs.plugins.compose.compiler)
 }
 
+android {
+   namespace = "si.inova.tws.core"
 
-fun WebView.onScreenReset() {
-    post {
-        evaluateJavascript(JavaScriptCommands.ScrollToTop, null)
-    }
+   buildFeatures {
+      androidResources = true
+   }
+}
+
+publishLibrary(
+   userFriendlyName = "tws-core",
+   description = "A collection of core utilities",
+   githubPath = "core"
+)
+
+dependencies {
+   implementation(projects.core.data)
+
+   implementation(libs.androidx.activity.compose)
+   implementation(libs.kotlin.immutableCollections)
+   implementation(libs.androidx.compose.ui.tooling.preview)
+   implementation(libs.compose.foundation)
+   implementation(libs.androidx.compose.material3)
+   implementation(libs.timber)
+   implementation(libs.androidx.browser)
+
+   testImplementation(libs.junit)
+   androidTestImplementation(libs.runner)
+   androidTestImplementation(libs.espresso.core)
 }

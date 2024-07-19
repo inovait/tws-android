@@ -14,35 +14,23 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.core.ui.lifecycle
+package si.inova.tws.core.data
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.staticCompositionLocalOf
-import kotlinx.coroutines.flow.MutableSharedFlow
+import android.webkit.WebResourceError
+import android.webkit.WebResourceRequest
+import androidx.compose.runtime.Immutable
 
-internal class ScreenResetNotifier {
-   private val _notifyFlow = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
-
-   fun requestScreenReset() {
-      _notifyFlow.tryEmit(Unit)
-   }
-
-   @Composable
-   fun Listen(callback: suspend () -> Unit) {
-      LaunchedEffect(Unit) {
-         _notifyFlow.collect {
-            callback()
-         }
-      }
-   }
-}
-
-@Composable
-internal fun DoOnScreenReset(callback: () -> Unit) {
-   LocalScreenResetNotifier.current.Listen(callback)
-}
-
-internal val LocalScreenResetNotifier = staticCompositionLocalOf<ScreenResetNotifier> {
-   error("Screen reset notifier should be provided")
-}
+/**
+ * A wrapper class to hold errors from the WebView.
+ */
+@Immutable
+data class WebViewError(
+    /**
+     * The request the error came from.
+     */
+    val request: WebResourceRequest?,
+    /**
+     * The error that was reported.
+     */
+    val error: WebResourceError
+)

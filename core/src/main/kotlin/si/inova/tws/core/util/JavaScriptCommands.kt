@@ -14,26 +14,8 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.core.ui.data
+package si.inova.tws.core.util
 
-/**
- * Sealed class for constraining possible loading states.
- * See [Loading] and [Finished].
- */
-sealed class LoadingState {
-    /**
-     * Describes a WebView that has not yet loaded for the first time.
-     */
-    data object Initializing : LoadingState()
-
-    /**
-     * Describes a webview between `onPageStarted` and `onPageFinished` events, contains a
-     * [progress] property which is updated by the webview.
-     */
-    data class Loading(val progress: Float) : LoadingState()
-
-    /**
-     * Describes a webview that has finished loading content.
-     */
-    data object Finished : LoadingState()
+object JavaScriptCommands {
+    const val ScrollToTop = "window.scrollTo({ top: 0, behavior: 'smooth' });"
 }

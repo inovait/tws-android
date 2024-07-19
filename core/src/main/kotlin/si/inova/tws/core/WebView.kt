@@ -14,7 +14,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.core.ui
+package si.inova.tws.core
 
 import android.content.Context
 import android.view.ViewGroup
@@ -30,12 +30,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
-import si.inova.tws.core.ui.data.TwsWebChromeClient
-import si.inova.tws.core.ui.data.TwsWebViewClient
-import si.inova.tws.core.ui.data.WebViewNavigator
-import si.inova.tws.core.ui.data.WebViewState
-import si.inova.tws.core.ui.data.rememberWebViewNavigator
-import si.inova.tws.data.WebContent
+import si.inova.tws.core.data.TwsWebChromeClient
+import si.inova.tws.core.data.TwsWebViewClient
+import si.inova.tws.core.data.WebViewNavigator
+import si.inova.tws.core.data.WebViewState
+import si.inova.tws.core.data.rememberWebViewNavigator
+import si.inova.tws.core.data.WebContent
 
 /**
  * NOTE: This is a copy from Accompanists WebView wrapper, since it is not supported anymore and allows

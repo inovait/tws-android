@@ -14,7 +14,7 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.core.ui
+package si.inova.tws.core
 
 import android.content.Intent
 import android.webkit.WebView
@@ -51,14 +51,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.core.util.Consumer
-import si.inova.tws.core.ui.data.LoadingState
-import si.inova.tws.core.ui.data.WebViewNavigator
-import si.inova.tws.core.ui.data.WebViewState
-import si.inova.tws.core.ui.data.rememberSaveableWebViewState
-import si.inova.tws.core.ui.data.rememberWebViewNavigator
-import si.inova.tws.core.ui.util.initializeSettings
-import si.inova.tws.data.WebContent
-import si.inova.tws.data.WebSnippetData
+import si.inova.tws.core.data.LoadingState
+import si.inova.tws.core.data.WebViewNavigator
+import si.inova.tws.core.data.WebViewState
+import si.inova.tws.core.data.rememberSaveableWebViewState
+import si.inova.tws.core.data.rememberWebViewNavigator
+import si.inova.tws.core.util.initializeSettings
+import si.inova.tws.core.data.WebContent
+import si.inova.tws.core.data.WebSnippetData
 
 /**
  *

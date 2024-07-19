@@ -38,7 +38,6 @@ dependencyResolutionManagement {
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 rootProject.name = "TheWebSnippetSdk"
-//include(":core")
+include(":core")
 include(":core:data")
-include(":core:ui")
 include(":web-socket")

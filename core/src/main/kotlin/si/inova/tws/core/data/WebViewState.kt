@@ -14,7 +14,7 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.core.ui.data
+package si.inova.tws.core.data
 
 import android.graphics.Bitmap
 import android.os.Bundle
@@ -33,7 +33,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.persistentMapOf
-import si.inova.tws.data.WebContent
 
 /**
  * A state holder to hold the state for the WebView. In most cases this will be remembered
@@ -96,7 +95,7 @@ class WebViewState(webContent: WebContent) {
      * Errors could be from any resource (iframe, image, etc.), not just for the main page.
      * For more fine grained control use the OnError callback of the WebView.
      */
-    val errorsForCurrentRequest: SnapshotStateList<si.inova.tws.core.ui.data.WebViewError> = mutableStateListOf()
+    val errorsForCurrentRequest: SnapshotStateList<WebViewError> = mutableStateListOf()
 
     /**
      * The saved view state from when the view was destroyed last. To restore state,

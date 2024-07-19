@@ -14,7 +14,7 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.core.ui
+package si.inova.tws.core
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Crossfade
@@ -52,14 +52,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
-import si.inova.tws.core.ui.data.WebViewState
-import si.inova.tws.core.ui.data.rememberSaveableWebViewState
-import si.inova.tws.core.ui.data.rememberWebViewNavigator
-import si.inova.tws.core.ui.lifecycle.DoOnScreenReset
-import si.inova.tws.core.ui.lifecycle.LocalScreenResetNotifier
-import si.inova.tws.core.ui.lifecycle.ScreenResetNotifier
-import si.inova.tws.core.ui.util.onScreenReset
-import si.inova.tws.data.WebSnippetData
+import si.inova.tws.core.data.WebViewState
+import si.inova.tws.core.data.rememberSaveableWebViewState
+import si.inova.tws.core.data.rememberWebViewNavigator
+import si.inova.tws.core.lifecycle.DoOnScreenReset
+import si.inova.tws.core.lifecycle.LocalScreenResetNotifier
+import si.inova.tws.core.lifecycle.ScreenResetNotifier
+import si.inova.tws.core.util.onScreenReset
+import si.inova.tws.core.data.WebSnippetData
 import timber.log.Timber
 
 /**
