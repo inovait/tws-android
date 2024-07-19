@@ -27,6 +27,6 @@ android {
 publishLibrary(
    userFriendlyName = "tws-core-data",
    description = "A collection of core data utilities",
-   githubPath = "core/data",
+   githubPath = "data",
    artifactName = "core-data"
 )

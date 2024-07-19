@@ -14,39 +14,8 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.core.ui.util
+package si.inova.tws.core.util
 
-import android.annotation.SuppressLint
-import android.view.View
-import android.webkit.CookieManager
-import android.webkit.WebSettings
-import android.webkit.WebView
-
-@SuppressLint("SetJavaScriptEnabled")
-fun WebView.initializeSettings() {
-    CookieManager.getInstance().setAcceptThirdPartyCookies(this, true)
-    CookieManager.getInstance().setAcceptCookie(true)
-    setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY)
-
-    settings.apply {
-        javaScriptEnabled = true
-        javaScriptCanOpenWindowsAutomatically = true
-        setSupportMultipleWindows(true)
-        domStorageEnabled = true
-        databaseEnabled = true
-        loadWithOverviewMode = true
-        useWideViewPort = true
-        allowFileAccess = true
-        allowContentAccess = true
-        setSupportZoom(true)
-        cacheMode = WebSettings.LOAD_DEFAULT
-        userAgentString = userAgentString.replace("; wv)", ")")
-    }
-}
-
-
-fun WebView.onScreenReset() {
-    post {
-        evaluateJavascript(JavaScriptCommands.ScrollToTop, null)
-    }
+object JavaScriptCommands {
+    const val ScrollToTop = "window.scrollTo({ top: 0, behavior: 'smooth' });"
 }

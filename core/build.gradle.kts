@@ -22,7 +22,7 @@ plugins {
 }
 
 android {
-   namespace = "si.inova.tws.core.ui"
+   namespace = "si.inova.tws.core"
 
    buildFeatures {
       androidResources = true
@@ -30,10 +30,10 @@ android {
 }
 
 publishLibrary(
-   userFriendlyName = "tws-core-ui",
-   description = "A collection of core ui utilities",
-   githubPath = "core/ui",
-   artifactName = "core-ui"
+   userFriendlyName = "tws-core",
+   description = "A collection of core utilities",
+   githubPath = "core",
+   artifactName = "core"
 )
 
 dependencies {

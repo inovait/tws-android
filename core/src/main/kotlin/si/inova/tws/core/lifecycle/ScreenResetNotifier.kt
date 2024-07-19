@@ -14,8 +14,35 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.core.ui.util
+package si.inova.tws.core.lifecycle
 
-object JavaScriptCommands {
-    const val ScrollToTop = "window.scrollTo({ top: 0, behavior: 'smooth' });"
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.staticCompositionLocalOf
+import kotlinx.coroutines.flow.MutableSharedFlow
+
+internal class ScreenResetNotifier {
+   private val _notifyFlow = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+
+   fun requestScreenReset() {
+      _notifyFlow.tryEmit(Unit)
+   }
+
+   @Composable
+   fun Listen(callback: suspend () -> Unit) {
+      LaunchedEffect(Unit) {
+         _notifyFlow.collect {
+            callback()
+         }
+      }
+   }
+}
+
+@Composable
+internal fun DoOnScreenReset(callback: () -> Unit) {
+   LocalScreenResetNotifier.current.Listen(callback)
+}
+
+internal val LocalScreenResetNotifier = staticCompositionLocalOf<ScreenResetNotifier> {
+   error("Screen reset notifier should be provided")
 }
