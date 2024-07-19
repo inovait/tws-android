@@ -57,8 +57,8 @@ import si.inova.tws.core.ui.data.WebViewState
 import si.inova.tws.core.ui.data.rememberSaveableWebViewState
 import si.inova.tws.core.ui.data.rememberWebViewNavigator
 import si.inova.tws.core.ui.util.initializeSettings
-import si.inova.tws.data.WebContent
-import si.inova.tws.data.WebSnippetData
+import si.inova.tws.core.data.WebContent
+import si.inova.tws.core.data.WebSnippetData
 
 /**
  *

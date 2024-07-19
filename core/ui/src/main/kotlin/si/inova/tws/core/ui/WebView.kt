@@ -35,7 +35,7 @@ import si.inova.tws.core.ui.data.TwsWebViewClient
 import si.inova.tws.core.ui.data.WebViewNavigator
 import si.inova.tws.core.ui.data.WebViewState
 import si.inova.tws.core.ui.data.rememberWebViewNavigator
-import si.inova.tws.data.WebContent
+import si.inova.tws.core.data.WebContent
 
 /**
  * NOTE: This is a copy from Accompanists WebView wrapper, since it is not supported anymore and allows

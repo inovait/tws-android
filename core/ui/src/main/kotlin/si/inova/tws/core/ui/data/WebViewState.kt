@@ -33,7 +33,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.persistentMapOf
-import si.inova.tws.data.WebContent
+import si.inova.tws.core.data.WebContent
 
 /**
  * A state holder to hold the state for the WebView. In most cases this will be remembered

@@ -21,7 +21,7 @@ import android.os.Message
 import android.webkit.PermissionRequest
 import android.webkit.WebChromeClient
 import android.webkit.WebView
-import si.inova.tws.data.WebContent
+import si.inova.tws.core.data.WebContent
 
 /**
  * TwsWebChromeClient, copied, modified and extended version of AccompanistWebChromeClient

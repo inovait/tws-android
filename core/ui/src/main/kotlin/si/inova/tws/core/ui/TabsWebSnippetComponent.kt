@@ -59,7 +59,7 @@ import si.inova.tws.core.ui.lifecycle.DoOnScreenReset
 import si.inova.tws.core.ui.lifecycle.LocalScreenResetNotifier
 import si.inova.tws.core.ui.lifecycle.ScreenResetNotifier
 import si.inova.tws.core.ui.util.onScreenReset
-import si.inova.tws.data.WebSnippetData
+import si.inova.tws.core.data.WebSnippetData
 import timber.log.Timber
 
 /**
