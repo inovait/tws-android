@@ -32,6 +32,7 @@ import androidx.browser.customtabs.CustomTabsCallback
 import androidx.browser.customtabs.CustomTabsClient
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.browser.customtabs.CustomTabsServiceConnection
+import si.inova.tws.core.util.JavaScriptCommands
 
 /**
  * TwsWebViewClient, copied from AccompanistWebViewClient to allow further modifications
@@ -79,6 +80,10 @@ open class TwsWebViewClient(private val popupStateCallback: ((WebViewState, Bool
       Handler(Looper.getMainLooper()).postDelayed({
          state.loadingState = LoadingState.Finished
       }, DELAY_LOADING_MS)
+
+      val code = JavaScriptCommands.hideTopHeader.trimIndent()
+
+      view.loadUrl(code)
    }
 
    override fun doUpdateVisitedHistory(view: WebView, url: String?, isReload: Boolean) {

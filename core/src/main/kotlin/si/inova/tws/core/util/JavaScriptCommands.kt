@@ -17,5 +17,24 @@
 package si.inova.tws.core.util
 
 object JavaScriptCommands {
-    const val ScrollToTop = "window.scrollTo({ top: 0, behavior: 'smooth' });"
+   const val ScrollToTop = "window.scrollTo({ top: 0, behavior: 'smooth' });"
+
+   const val hideTopHeader = """javascript:(function() { 
+    
+         var node = document.createElement('style');
+
+         node.type = 'text/css';
+         node.innerHTML = '
+            header {
+               visibility: hidden;
+            }
+            
+            .pt-58 {
+               padding-top: unset;
+            }
+            ';
+
+         document.head.appendChild(node);
+     
+      })()"""
 }
