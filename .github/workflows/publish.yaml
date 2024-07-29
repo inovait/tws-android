@@ -51,9 +51,6 @@ jobs:
       - run: "old_changelog=$(cat CHANGELOG.MD); echo \"# ${{ env.VERSION }}\n\n${{ steps.changelog.outputs.changelog }}\n\n$old_changelog\" > CHANGELOG.MD"
       - name: 'Save GPG key'
         run: 'echo "${{ secrets.GPG_SIGNING_KEY }}" | base64 -d > signing_key.gpg'
-      - name: Debug JSON Inputs
-        run: |
-          echo '{ "username": "${{ secrets.OSSRH_USERNAME }}", "password": "${{ secrets.OSSRH_PASSWORD }}", "staging_profile_id": "${{ secrets.OSSRH_STAGING_PROFILE_ID }}", "description": "Created by Automatic Github flow", "base_url": "https://oss.sonatype.org/service/local/" }' | jq .
       - id: create_staging_repository
         name: "Create nexus staging repository"
         uses: nexus-actions/create-nexus-staging-repo@v1.3.0
