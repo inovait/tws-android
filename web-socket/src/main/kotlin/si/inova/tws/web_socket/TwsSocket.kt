@@ -123,7 +123,11 @@ class TwsSocket(scope: CoroutineScope) {
             _snippetsFlow.update { data ->
                data.map {
                   if (it.id == action.data.id) {
-                     it.copy(loadIteration = it.loadIteration + 1)
+                     it.copy(
+                        loadIteration = it.loadIteration + 1,
+                        url = action.data.target ?: it.url,
+                        headers = action.data.headers ?: it.headers
+                     )
                   } else {
                      it
                   }
