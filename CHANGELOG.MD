@@ -1,3 +1,9 @@
+# 0.3.1
+
+### Bug Fixes
+
+* **web-socket**: update target url and header over socket update ([78237ff2](https://github.com/inovait/tws-android-sdk/commit/78237ff29c1c6a2e2644ec0b7cdd75c5248ba9fb))
+
 # 0.3.0
 
 ### Features
