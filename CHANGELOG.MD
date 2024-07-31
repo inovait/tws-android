@@ -1,3 +1,9 @@
+# 0.3.2
+
+### Bug Fixes
+
+* **core**: only open new intent for google login ([704c9e0c](https://github.com/inovait/tws-android-sdk/commit/704c9e0c80a381c328743aaaaf59f7d7c69b4b2c))
+
 # 0.3.1
 
 ### Bug Fixes
