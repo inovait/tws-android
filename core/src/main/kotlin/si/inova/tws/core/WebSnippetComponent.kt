@@ -52,13 +52,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.core.util.Consumer
 import si.inova.tws.core.data.LoadingState
+import si.inova.tws.core.data.WebContent
+import si.inova.tws.core.data.WebSnippetData
 import si.inova.tws.core.data.WebViewNavigator
 import si.inova.tws.core.data.WebViewState
 import si.inova.tws.core.data.rememberSaveableWebViewState
 import si.inova.tws.core.data.rememberWebViewNavigator
 import si.inova.tws.core.util.initializeSettings
-import si.inova.tws.core.data.WebContent
-import si.inova.tws.core.data.WebSnippetData
 
 /**
  *
@@ -80,6 +80,7 @@ import si.inova.tws.core.data.WebSnippetData
  * @param interceptOverrideUrl Optional callback, how to handle intercepted urls,
  * return true if do not want to navigate to the new url and
  * return false if navigation to the new url is intact
+ * @param googleLoginRedirectUrl open new intent for google login url
  */
 @Composable
 fun WebSnippetComponent(
@@ -92,6 +93,7 @@ fun WebSnippetComponent(
    displayPlaceholderWhileLoading: Boolean = false,
    loadingPlaceholderContent: @Composable () -> Unit = { WebViewLoadingIndicator() },
    interceptOverrideUrl: (String) -> Boolean = { false },
+   googleLoginRedirectUrl: String? = null
 ) {
    LaunchedEffect(navigator, target.loadIteration) {
       if (webViewState.lastLoadedUrl == null || webViewState.loadIteration != target.loadIteration) {
@@ -123,10 +125,11 @@ fun WebSnippetComponent(
       }
    }
 
-   NewIntentListener { intent ->
-      if (popupStates.value.isEmpty()) {
-         intent.data?.toString()?.let {
-            navigator.loadUrl(it, loadOnlyInitial = false)
+   googleLoginRedirectUrl?.let {
+      NewIntentListener { intent ->
+         val data = intent.data?.toString()
+         if (popupStates.value.isEmpty() && data?.startsWith(googleLoginRedirectUrl) == true) {
+            navigator.loadUrl(data, loadOnlyInitial = false)
          }
       }
    }
@@ -153,7 +156,8 @@ fun WebSnippetComponent(
          errorViewContent = errorViewContent,
          onDismissRequest = { popupStates.value = popupStates.value.filter { it != state } },
          popupStateCallback = popupStateCallback,
-         interceptOverrideUrl = interceptOverrideUrl
+         interceptOverrideUrl = interceptOverrideUrl,
+         googleLoginRedirectUrl = googleLoginRedirectUrl
       )
    }
 }
@@ -211,15 +215,19 @@ private fun PopUpWebView(
    onDismissRequest: () -> Unit,
    interceptOverrideUrl: (String) -> Boolean = { false },
    popupNavigator: WebViewNavigator = rememberWebViewNavigator(),
-   popupStateCallback: ((WebViewState, Boolean) -> Unit)? = null
+   popupStateCallback: ((WebViewState, Boolean) -> Unit)? = null,
+   googleLoginRedirectUrl: String? = null
 ) {
    val displayErrorContent = displayErrorViewOnError && popupState.hasError
    val displayLoadingContent =
       displayPlaceholderWhileLoading && popupState.loadingState is LoadingState.Loading
 
-   NewIntentListener { intent ->
-      intent.data?.toString()?.let {
-         popupNavigator.loadUrl(it, loadOnlyInitial = false)
+   googleLoginRedirectUrl?.let {
+      NewIntentListener { intent ->
+         val data = intent.data?.toString()
+         if (data?.startsWith(googleLoginRedirectUrl) == true) {
+            popupNavigator.loadUrl(data, loadOnlyInitial = false)
+         }
       }
    }
 

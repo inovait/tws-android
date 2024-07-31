@@ -52,6 +52,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
+import si.inova.tws.core.data.WebSnippetData
 import si.inova.tws.core.data.WebViewState
 import si.inova.tws.core.data.rememberSaveableWebViewState
 import si.inova.tws.core.data.rememberWebViewNavigator
@@ -59,7 +60,6 @@ import si.inova.tws.core.lifecycle.DoOnScreenReset
 import si.inova.tws.core.lifecycle.LocalScreenResetNotifier
 import si.inova.tws.core.lifecycle.ScreenResetNotifier
 import si.inova.tws.core.util.onScreenReset
-import si.inova.tws.core.data.WebSnippetData
 import timber.log.Timber
 
 /**
@@ -86,6 +86,7 @@ import timber.log.Timber
  * @param resetScreenOnTabReselect If set to true,
  * [DoOnScreenReset] is triggered when tab is reselected
  * @param onScreenReset Optional callback, set what to do on screen reset
+ * @param googleLoginRedirectUrl open new intent for google login url
  */
 @Composable
 fun TabsWebSnippetComponent(
@@ -100,7 +101,8 @@ fun TabsWebSnippetComponent(
    interceptOverrideUrl: (String) -> Boolean = { false },
    topBar: @Composable (String?) -> Unit = { },
    resetScreenOnTabReselect: Boolean = true,
-   onScreenReset: (WebViewState) -> Unit = { it.webView?.onScreenReset() }
+   onScreenReset: (WebViewState) -> Unit = { it.webView?.onScreenReset() },
+   googleLoginRedirectUrl: String? = null
 ) {
    CompositionLocalProvider(LocalScreenResetNotifier provides ScreenResetNotifier()) {
       val screenResetNotifier = LocalScreenResetNotifier.current
@@ -190,9 +192,9 @@ fun TabsWebSnippetComponent(
                      displayPlaceholderWhileLoading = displayPlaceholderWhileLoading,
                      loadingPlaceholderContent = loadingPlaceholderContent,
                      interceptOverrideUrl = interceptOverrideUrl,
+                     googleLoginRedirectUrl = googleLoginRedirectUrl
                   )
                }
-
             }
          }
       }
