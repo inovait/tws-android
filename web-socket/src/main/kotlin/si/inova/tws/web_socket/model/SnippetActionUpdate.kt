@@ -16,15 +16,18 @@
 
 package si.inova.tws.web_socket.model
 
+import androidx.annotation.Keep
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
+@Keep
 @JsonClass(generateAdapter = true)
 internal data class SnippetUpdateAction(
    val type: ActionType,
    val data: ActionBody
 )
 
+@Keep
 @JsonClass(generateAdapter = false)
 internal enum class ActionType {
    @Json(name = "SNIPPET_CREATED")
@@ -37,6 +40,7 @@ internal enum class ActionType {
    DELETED
 }
 
+@Keep
 @JsonClass(generateAdapter = true)
 internal data class ActionBody(
    val id: String,
