@@ -1,3 +1,10 @@
+# 0.3.3
+
+### Bug Fixes
+
+* **core**: keep on release build web snippet data ([4d6f6420](https://github.com/inovait/tws-android-sdk/commit/4d6f6420f50cb2edcf11350c2d06ca6cc633c060))
+* **core**: keep SnippetUpdateAction not WebSnippetData ([335c926b](https://github.com/inovait/tws-android-sdk/commit/335c926b9f44481c6f1510c2be307744824d532b))
+
 # 0.3.2
 
 ### Bug Fixes
