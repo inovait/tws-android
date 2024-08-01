@@ -16,9 +16,12 @@
 
 package si.inova.tws.core.data
 
+import androidx.annotation.Keep
+
+@Keep
 data class WebSnippetData(
-    val id: String,
-    val url: String,
-    val headers: Map<String, String> = emptyMap(),
-    val loadIteration: Int = 0
+   val id: String,
+   val url: String,
+   val headers: Map<String, String> = emptyMap(),
+   val loadIteration: Int = 0
 )

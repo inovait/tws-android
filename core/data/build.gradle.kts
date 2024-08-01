@@ -30,3 +30,7 @@ publishLibrary(
    githubPath = "data",
    artifactName = "core-data"
 )
+
+dependencies {
+   implementation(libs.androidx.annotation.jvm)
+}

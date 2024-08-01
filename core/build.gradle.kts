@@ -36,7 +36,7 @@ publishLibrary(
 )
 
 dependencies {
-   implementation(projects.core.data)
+   api(projects.core.data)
 
    implementation(libs.androidx.activity.compose)
    implementation(libs.kotlin.immutableCollections)
