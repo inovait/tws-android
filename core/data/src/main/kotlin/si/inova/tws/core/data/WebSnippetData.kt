@@ -16,9 +16,6 @@
 
 package si.inova.tws.core.data
 
-import androidx.annotation.Keep
-
-@Keep
 data class WebSnippetData(
    val id: String,
    val url: String,
