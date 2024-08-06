@@ -50,7 +50,6 @@ open class TwsWebViewClient(private val popupStateCallback: ((WebViewState, Bool
       internal set
 
    override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest?): Boolean {
-
       val url = request?.url
 
       url?.toString()?.let {
