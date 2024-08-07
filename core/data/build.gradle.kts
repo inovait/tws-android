@@ -14,8 +14,6 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-import util.publishLibrary
-
 plugins {
    androidLibraryModule
 }
@@ -23,10 +21,3 @@ plugins {
 android {
    namespace = "si.inova.tws.core.data"
 }
-
-publishLibrary(
-   userFriendlyName = "tws-core-data",
-   description = "A collection of core data utilities",
-   githubPath = "data",
-   artifactName = "core-data"
-)

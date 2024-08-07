@@ -1,74 +1,53 @@
 [versions]
 agp = "8.4.0"
-kotlin = "2.0.0"
+kotlin = "1.9.24"
 coreKtx = "1.13.1"
 junit = "4.13.2"
-junitVersion = "1.1.5"
-espressoCore = "3.6.1"
-appcompat = "1.7.0"
 moshiKotlin = "1.15.1"
 okhttp = "4.12.0"
 runner = "1.0.2"
 androidGradleCacheFix = "3.0.1"
-espressoCoreVersion = "3.0.2"
 kotlin-immutableCollections = "0.3.7"
 androidx-activity-compose = "1.8.2"
 androidx-compose-material3 = "1.2.1"
 androidx-compose = "1.6.8"
-showkase = "1.0.2"
 timber = "5.0.1"
 versionsChecker = "0.51.0"
 desugarJdkLibs = "2.0.4"
-orgJson = "20240303"
-tomlj = "1.1.1"
 nexusPublish = "0.30.0"
 androidx-browser = "1.8.0"
-kotlinVersion = "1.9.0"
-material = "1.10.0"
-androidx-compose-compiler = "1.5.11"
-lifecycleRuntimeKtx = "2.8.3"
-composeBom = "2024.04.01"
+kotlinova = "3.1.0"
+inject = "2.0.1"
+retrofit = "2.11.0"
+certificateTransparency = "2.5.19"
+dispatch = "1.0.0-beta10"
 
 [libraries]
 androidGradleCacheFix = { module = "org.gradle.android.cache-fix:org.gradle.android.cache-fix.gradle.plugin", version.ref = "androidGradleCacheFix" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
-androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
-androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
-androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 androidx-browser = { module = "androidx.browser:browser", version.ref = "androidx-browser" }
 moshi-kotlin = { module = "com.squareup.moshi:moshi-kotlin", version.ref = "moshiKotlin" }
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 runner = { group = "com.android.support.test", name = "runner", version.ref = "runner" }
-espresso-core = { group = "com.android.support.test.espresso", name = "espresso-core", version.ref = "espressoCoreVersion" }
 kotlin-immutableCollections = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "kotlin-immutableCollections" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activity-compose" }
 androidx-compose-material3 = { module = "androidx.compose.material3:material3", version.ref = "androidx-compose-material3" }
 androidx-compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "androidx-compose" }
-showkase = { module = "com.airbnb.android:showkase", version.ref = "showkase" }
-showkase-processor = { module = "com.airbnb.android:showkase-processor", version.ref = "showkase" }
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 kotlin-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 android-agp = { module = "com.android.tools.build:gradle", version.ref = "agp" }
 v-checker-plugin = { module = "com.github.ben-manes:gradle-versions-plugin", version.ref = "versionsChecker" }
 desugarJdkLibs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugarJdkLibs" }
-compose-foundation = {group = "androidx.compose.foundation", name = "foundation", version.ref = "androidx-compose"}
-orgJson = { module = "org.json:json", version.ref = "orgJson" }
-tomlj = { module = "org.tomlj:tomlj", version.ref = "tomlj" }
-material = { group = "com.google.android.material", name = "material", version.ref = "material" }
-androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
-androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
-androidx-ui = { group = "androidx.compose.ui", name = "ui" }
-androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
-androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
-androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
-androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
+compose-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "androidx-compose" }
+kotlinova-retrofit = { module = "si.inova.kotlinova:retrofit", version.ref = "kotlinova" }
+kotlinova-core = { module = "si.inova.kotlinova:core", version.ref = "kotlinova" }
+retrofit-moshi = { module = "com.squareup.retrofit2:converter-moshi", version.ref = "retrofit" }
+retrofit-scalars = { module = "com.squareup.retrofit2:converter-scalars", version.ref = "retrofit" }
+certificateTransparency = { module = "com.appmattus.certificatetransparency:certificatetransparency", version.ref = "certificateTransparency" }
+inject = { module = "jakarta.inject:jakarta.inject-api", version.ref = "inject" }
+dispatch = { module = "com.rickbusarow.dispatch:dispatch-core", version.ref = "dispatch" }
 
 [plugins]
-compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-android-library = { id = "com.android.library", version.ref = "agp" }
 versions = { id = "com.github.ben-manes.versions", version.ref = "versionsChecker" }
-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 nexusPublish = { id = "io.codearte.nexus-staging", version.ref = "nexusPublish" }
-android-application = { id = "com.android.application", version.ref = "agp" }
-jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlinVersion" }

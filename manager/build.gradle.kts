@@ -21,32 +21,25 @@ plugins {
 }
 
 android {
-   namespace = "si.inova.tws.core"
-
-   buildFeatures {
-      androidResources = true
-      compose = true
-   }
-
-   composeOptions {
-      kotlinCompilerExtensionVersion = "1.5.14"
-   }
+   namespace = "si.inova.tws.manager"
 }
 
 publishLibrary(
-   userFriendlyName = "tws-core",
-   description = "A collection of core utilities",
-   githubPath = "core"
+   userFriendlyName = "tws-manager",
+   description = "A collection of manager and network connection",
+   githubPath = "manager",
 )
 
 dependencies {
-   api(projects.core.data)
+   implementation(projects.webSocket)
 
-   implementation(libs.androidx.activity.compose)
-   implementation(libs.kotlin.immutableCollections)
-   implementation(libs.androidx.compose.ui.tooling.preview)
-   implementation(libs.compose.foundation)
-   implementation(libs.androidx.compose.material3)
-   implementation(libs.timber)
-   implementation(libs.androidx.browser)
+   implementation(libs.kotlinova.core)
+   implementation(libs.kotlinova.retrofit)
+   implementation(libs.androidx.core.ktx)
+   implementation(libs.dispatch)
+   implementation(libs.retrofit.moshi)
+   implementation(libs.retrofit.scalars)
+   implementation(libs.certificateTransparency)
+   implementation(libs.moshi.kotlin)
+   implementation(libs.inject)
 }

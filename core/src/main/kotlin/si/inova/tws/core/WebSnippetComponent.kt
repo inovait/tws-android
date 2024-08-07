@@ -148,6 +148,7 @@ fun WebSnippetComponent(
    )
 
    popupStates.value.forEach { state ->
+      println("dsdsdsd: popup!!!!")
       PopUpWebView(
          popupState = state,
          displayPlaceholderWhileLoading = displayPlaceholderWhileLoading,

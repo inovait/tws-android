@@ -14,39 +14,16 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-import util.publishLibrary
+package si.inova.tws.repo
 
-plugins {
-   androidLibraryModule
-}
+import kotlinx.coroutines.flow.Flow
+import si.inova.kotlinova.core.outcome.Outcome
+import si.inova.tws.core.data.WebSnippetData
 
-android {
-   namespace = "si.inova.tws.core"
+interface WebSnippetManager {
+   val snippetsFlow: Flow<Outcome<List<WebSnippetData>>>
 
-   buildFeatures {
-      androidResources = true
-      compose = true
-   }
+   fun closeWebsocketConnection()
 
-   composeOptions {
-      kotlinCompilerExtensionVersion = "1.5.14"
-   }
-}
-
-publishLibrary(
-   userFriendlyName = "tws-core",
-   description = "A collection of core utilities",
-   githubPath = "core"
-)
-
-dependencies {
-   api(projects.core.data)
-
-   implementation(libs.androidx.activity.compose)
-   implementation(libs.kotlin.immutableCollections)
-   implementation(libs.androidx.compose.ui.tooling.preview)
-   implementation(libs.compose.foundation)
-   implementation(libs.androidx.compose.material3)
-   implementation(libs.timber)
-   implementation(libs.androidx.browser)
+   suspend fun loadWebSnippets(organizationsId: String, projectId: String)
 }
