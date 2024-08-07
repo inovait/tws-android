@@ -18,6 +18,7 @@ import util.publishLibrary
 
 plugins {
    androidLibraryModule
+   kotlin("kapt")
 }
 
 android {
@@ -42,4 +43,6 @@ dependencies {
    implementation(libs.certificateTransparency)
    implementation(libs.moshi.kotlin)
    implementation(libs.inject)
+
+   kapt(libs.moshi.codegen)
 }
