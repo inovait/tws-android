@@ -14,23 +14,11 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.repo.network
+package si.inova.tws.manager.service
 
-import jakarta.inject.Singleton
-import retrofit2.http.GET
-import retrofit2.http.Path
-import retrofit2.http.Query
-import si.inova.tws.repo.data.ProjectDto
+import kotlinx.coroutines.flow.Flow
+import si.inova.tws.manager.data.NetworkStatus
 
-@Singleton
-internal interface WebSnippetFunction {
-   @GET("organizations/{organizationId}/projects/{projectId}/register")
-   suspend fun getWebSnippets(
-      @Path("organizationId")
-      organizationId: String,
-      @Path("projectId")
-      projectId: String,
-      @Query("apiKey")
-      apiKey: String? = null
-   ): ProjectDto
+internal interface NetworkConnectivityService {
+    val networkStatus: Flow<NetworkStatus>
 }

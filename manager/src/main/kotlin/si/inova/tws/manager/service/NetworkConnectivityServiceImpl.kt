@@ -14,7 +14,7 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.repo.service
+package si.inova.tws.manager.service
 
 import android.content.Context
 import android.net.ConnectivityManager
@@ -30,7 +30,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
-import si.inova.tws.repo.data.NetworkStatus
+import si.inova.tws.manager.data.NetworkStatus
 
 @Singleton
 internal class NetworkConnectivityServiceImpl(context: Context) : NetworkConnectivityService {

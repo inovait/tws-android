@@ -1,4 +1,4 @@
-package si.inova.tws.repo.factory
+package si.inova.tws.manager.factory
 
 import com.squareup.moshi.Moshi
 import dispatch.core.DefaultCoroutineScope
@@ -12,9 +12,9 @@ import retrofit2.converter.scalars.ScalarsConverterFactory
 import si.inova.kotlinova.retrofit.callfactory.ErrorHandlingAdapterFactory
 import si.inova.kotlinova.retrofit.callfactory.StaleWhileRevalidateCallAdapterFactory
 import si.inova.kotlinova.retrofit.converter.LazyRetrofitConverterFactory
-import si.inova.tws.repo.singleton.provideErrorReporter
-import si.inova.tws.repo.singleton.twsMoshi
-import si.inova.tws.repo.singleton.twsOkHttpClient
+import si.inova.tws.manager.singleton.provideErrorReporter
+import si.inova.tws.manager.singleton.twsMoshi
+import si.inova.tws.manager.singleton.twsOkHttpClient
 
 @Singleton
 internal class BaseServiceFactory : ServiceFactory {

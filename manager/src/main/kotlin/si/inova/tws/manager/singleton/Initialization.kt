@@ -14,7 +14,7 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.repo.singleton
+package si.inova.tws.manager.singleton
 
 import com.appmattus.certificatetransparency.certificateTransparencyInterceptor
 import com.squareup.moshi.Moshi

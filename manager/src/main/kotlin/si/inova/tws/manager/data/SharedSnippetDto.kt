@@ -14,9 +14,12 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.repo.data
+package si.inova.tws.manager.data
 
-sealed class NetworkStatus {
-   data object Connected : NetworkStatus()
-   data object Disconnected : NetworkStatus()
-}
+import com.squareup.moshi.JsonClass
+
+@JsonClass(generateAdapter = true)
+data class SharedSnippetDto(
+   val snippet: WebSnippetDto
+)
+

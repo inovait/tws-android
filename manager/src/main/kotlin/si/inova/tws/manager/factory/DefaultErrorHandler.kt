@@ -1,4 +1,4 @@
-package si.inova.tws.repo.factory
+package si.inova.tws.manager.factory
 
 import jakarta.inject.Singleton
 import retrofit2.Response

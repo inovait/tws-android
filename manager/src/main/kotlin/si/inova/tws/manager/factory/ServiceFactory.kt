@@ -1,4 +1,4 @@
-package si.inova.tws.repo.factory
+package si.inova.tws.manager.factory
 
 import okhttp3.OkHttpClient
 import si.inova.kotlinova.retrofit.callfactory.ErrorHandler

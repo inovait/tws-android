@@ -14,14 +14,19 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.repo.data
+package si.inova.tws.manager
 
-import androidx.annotation.Keep
-import com.squareup.moshi.JsonClass
+import kotlinx.coroutines.flow.Flow
+import si.inova.kotlinova.core.outcome.Outcome
+import si.inova.tws.core.data.WebSnippetData
 
-@JsonClass(generateAdapter = true)
-@Keep
-data class ProjectDto(
-    val snippets: List<WebSnippetDto>,
-    val listenOn: String
-)
+interface WebSnippetManager {
+   val snippetsFlow: Flow<Outcome<List<WebSnippetData>>>
+
+   val mainSnippetIdFlow: Flow<String?>
+
+   fun closeWebsocketConnection()
+
+   suspend fun loadWebSnippets(organizationId: String, projectId: String)
+   suspend fun loadSharedSnippetData(shareId: String)
+}

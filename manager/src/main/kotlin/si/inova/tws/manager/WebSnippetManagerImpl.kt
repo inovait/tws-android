@@ -14,9 +14,10 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.repo
+package si.inova.tws.manager
 
 import android.content.Context
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
@@ -26,14 +27,14 @@ import si.inova.kotlinova.core.outcome.CoroutineResourceManager
 import si.inova.kotlinova.core.outcome.Outcome
 import si.inova.kotlinova.core.outcome.downgradeTo
 import si.inova.tws.core.data.WebSnippetData
-import si.inova.tws.repo.data.NetworkStatus
-import si.inova.tws.repo.data.WebSnippetDto
-import si.inova.tws.repo.factory.BaseServiceFactory
-import si.inova.tws.repo.factory.create
-import si.inova.tws.repo.network.WebSnippetFunction
-import si.inova.tws.repo.service.NetworkConnectivityService
-import si.inova.tws.repo.service.NetworkConnectivityServiceImpl
-import si.inova.tws.repo.singleton.coroutineResourceManager
+import si.inova.tws.manager.data.NetworkStatus
+import si.inova.tws.manager.data.WebSnippetDto
+import si.inova.tws.manager.factory.BaseServiceFactory
+import si.inova.tws.manager.factory.create
+import si.inova.tws.manager.network.WebSnippetFunction
+import si.inova.tws.manager.service.NetworkConnectivityService
+import si.inova.tws.manager.service.NetworkConnectivityServiceImpl
+import si.inova.tws.manager.singleton.coroutineResourceManager
 import si.inova.tws.web_socket.TwsSocket
 
 class WebSnippetManagerImpl(context: Context) : WebSnippetManager {
@@ -43,11 +44,7 @@ class WebSnippetManagerImpl(context: Context) : WebSnippetManager {
 
    private val twsSocket: TwsSocket = TwsSocket(resources.scope)
 
-   // needs storing to allow us to reconnect if connection fails because of the network issues
-   private var wssUrl: String? = null
-
-   private val stateFlow: MutableStateFlow<Outcome<List<WebSnippetDto>>> =
-      MutableStateFlow(Outcome.Progress())
+   private val stateFlow: MutableStateFlow<Outcome<List<WebSnippetDto>>> = MutableStateFlow(Outcome.Progress())
 
    override val snippetsFlow = combine(
       twsSocket.snippetsFlow,
@@ -55,6 +52,12 @@ class WebSnippetManagerImpl(context: Context) : WebSnippetManager {
    ) { snippets, state ->
       Outcome.Success(snippets).downgradeTo(state)
    }
+
+   private val _mainSnippetIdFlow: MutableStateFlow<String?> = MutableStateFlow(null)
+   override val mainSnippetIdFlow: Flow<String?> = _mainSnippetIdFlow
+
+   // needs storing to allow us to reconnect if connection fails because of the network issues
+   private var wssUrl: String? = null
 
    init {
       resources.scope.launch {
@@ -66,9 +69,23 @@ class WebSnippetManagerImpl(context: Context) : WebSnippetManager {
       }
    }
 
-   override suspend fun loadWebSnippets(organizationsId: String, projectId: String) {
+   override suspend fun loadSharedSnippetData(shareId: String) {
+      stateFlow.emit(Outcome.Progress(stateFlow.value.data))
+
       try {
-         loadProjectAndSetupWss(organizationsId, projectId)
+         val sharedSnippet = webSnippetFunction.getSharedSnippetData(shareId).snippet
+         _mainSnippetIdFlow.value = sharedSnippet.id
+         loadProjectAndSetupWss(sharedSnippet.organizationId, sharedSnippet.projectId)
+      } catch (e: CauseException) {
+         stateFlow.emit(Outcome.Error(e, stateFlow.value.data))
+      } catch (e: Exception) {
+         stateFlow.emit(Outcome.Error(UnknownCauseException("", e), stateFlow.value.data))
+      }
+   }
+
+   override suspend fun loadWebSnippets(organizationId: String, projectId: String) {
+      try {
+         loadProjectAndSetupWss(organizationId, projectId)
       } catch (e: CauseException) {
          stateFlow.emit(Outcome.Error(e, stateFlow.value.data))
       } catch (e: Exception) {
@@ -86,7 +103,7 @@ class WebSnippetManagerImpl(context: Context) : WebSnippetManager {
       setupWebSocketConnection()
 
       val webSnippets = twsProject.snippets.map {
-         WebSnippetData(it.id, it.target, it.headers ?: emptyMap(), it.loadIteration)
+         WebSnippetData(it.id, it.target, it.headers.orEmpty(), it.loadIteration)
       }
 
       twsSocket.manuallyUpdateSnippet(webSnippets)
