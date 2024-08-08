@@ -47,6 +47,6 @@ internal data class ActionBody(
    val target: String?,
    val html: String?,
    val headers: Map<String, String>?,
-   val organizationId: String,
-   val projectId: String,
+   val organizationId: String?,
+   val projectId: String?,
 )

@@ -106,7 +106,7 @@ class TwsSocket(scope: CoroutineScope) {
          ActionType.CREATED -> {
             _snippetsFlow.update { data ->
                data.toMutableList().apply {
-                  if (action.data.target != null) {
+                  if (action.data.target != null && action.data.organizationId != null && action.data.projectId != null) {
                      add(
                         WebSnippetDto(
                            id = action.data.id,
