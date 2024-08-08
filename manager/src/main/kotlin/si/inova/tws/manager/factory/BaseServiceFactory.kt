@@ -25,7 +25,7 @@ internal class BaseServiceFactory : ServiceFactory {
       klass: Class<S>,
       configuration: ServiceFactory.ServiceCreationScope.() -> Unit
    ): S {
-      val scope = ServiceFactory.ServiceCreationScope(DefaultErrorHandler())
+      val scope = ServiceFactory.ServiceCreationScope()
       configuration(scope)
 
       val updatedClient = lazy {
@@ -47,20 +47,14 @@ internal class BaseServiceFactory : ServiceFactory {
 
       return Retrofit.Builder()
          .callFactory { updatedClient.value.newCall(it) }
-         .baseUrl("https://api.thewebsnippet.dev/")
+         .baseUrl(TWS_API)
          .addConverterFactory(ScalarsConverterFactory.create())
          .addConverterFactory(LazyRetrofitConverterFactory(moshiConverter))
          .addCallAdapterFactory(
-            StaleWhileRevalidateCallAdapterFactory(
-               scope.errorHandler,
-               provideErrorReporter
-            )
+            StaleWhileRevalidateCallAdapterFactory(null, provideErrorReporter)
          )
          .addCallAdapterFactory(
-            ErrorHandlingAdapterFactory(
-               DefaultCoroutineScope(object : DispatcherProvider {}),
-               scope.errorHandler
-            )
+            ErrorHandlingAdapterFactory(DefaultCoroutineScope(object : DispatcherProvider {}))
          )
          .build()
          .create(klass)
@@ -70,3 +64,5 @@ internal class BaseServiceFactory : ServiceFactory {
       return null
    }
 }
+
+private const val TWS_API = "https://api.thewebsnippet.dev/"
