@@ -26,6 +26,7 @@ data class WebSnippetDto(
    val target: String,
    val organizationId: String,
    val projectId: String,
+   val html: String? = null,
    val headers: Map<String, String>? = emptyMap(),
    val loadIteration: Int = 0
 )
