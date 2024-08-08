@@ -128,7 +128,8 @@ class TwsSocket(scope: CoroutineScope) {
                      it.copy(
                         loadIteration = it.loadIteration + 1,
                         target = action.data.target ?: it.target,
-                        headers = action.data.headers ?: it.headers
+                        headers = action.data.headers ?: it.headers,
+                        html = action.data.html ?: it.html
                      )
                   } else {
                      it
