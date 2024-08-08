@@ -106,7 +106,7 @@ fun TabsWebSnippetComponent(
 ) {
    CompositionLocalProvider(LocalScreenResetNotifier provides ScreenResetNotifier()) {
       val screenResetNotifier = LocalScreenResetNotifier.current
-      val webViewStatesMap = targets.map { rememberSaveableWebViewState(key = it.id) }
+      val webViewStatesMap = targets.map { rememberSaveableWebViewState(key = "${it.id}-${it.url}") }
       val navigatorsMap = targets.map { rememberWebViewNavigator(it.id) }
 
       val lastSelectedTabIndex = remember { mutableIntStateOf(mainTabIndex) }

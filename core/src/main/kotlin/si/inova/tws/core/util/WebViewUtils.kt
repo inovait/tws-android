@@ -40,7 +40,6 @@ fun WebView.initializeSettings() {
         allowContentAccess = true
         setSupportZoom(true)
         cacheMode = WebSettings.LOAD_DEFAULT
-        userAgentString = userAgentString.replace("; wv)", ")")
     }
 }
 
