@@ -1,6 +1,6 @@
 [versions]
 agp = "8.4.0"
-kotlin = "1.9.24"
+kotlin = "2.0.0"
 coreKtx = "1.13.1"
 junit = "4.13.2"
 moshiKotlin = "1.15.1"
@@ -52,3 +52,4 @@ dispatch = { module = "com.rickbusarow.dispatch:dispatch-core", version.ref = "d
 [plugins]
 versions = { id = "com.github.ben-manes.versions", version.ref = "versionsChecker" }
 nexusPublish = { id = "io.codearte.nexus-staging", version.ref = "nexusPublish" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }

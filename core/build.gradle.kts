@@ -18,6 +18,7 @@ import util.publishLibrary
 
 plugins {
    androidLibraryModule
+   alias(libs.plugins.compose.compiler)
 }
 
 android {
@@ -25,11 +26,6 @@ android {
 
    buildFeatures {
       androidResources = true
-      compose = true
-   }
-
-   composeOptions {
-      kotlinCompilerExtensionVersion = "1.5.14"
    }
 }
 
