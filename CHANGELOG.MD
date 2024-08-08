@@ -1,3 +1,16 @@
+# 0.4.0
+
+### Features
+
+* **manager**: added cloud connection manager ([8302a652](https://github.com/inovait/tws-android-sdk/commit/8302a65217138c6a3ae566a301ffbf1d3d51e0e9))
+* **manager**: added support for shared snippet ([c03d6929](https://github.com/inovait/tws-android-sdk/commit/c03d6929ce1e980c6f8e242d711bf53b6535bcc9))
+
+### Bug Fixes
+
+* **core**: snippet component is not updated when snippets target url is changed but id stays the same ([bc1670b9](https://github.com/inovait/tws-android-sdk/commit/bc1670b940faf0cf48f002c67c24aed50e0aff0d))
+* **core**: userAgent should not overridden, to comply with googles policy ([c69d4654](https://github.com/inovait/tws-android-sdk/commit/c69d4654a294ac99b5f4f64befd03458676900ae))
+* **manager**: generate jsonAdapter ([69c58729](https://github.com/inovait/tws-android-sdk/commit/69c58729c41a7611573c423cc3e197104cbd8fdd))
+
 # 0.3.3
 
 ### Bug Fixes
