@@ -26,7 +26,6 @@ import si.inova.kotlinova.core.outcome.CauseException
 import si.inova.kotlinova.core.outcome.CoroutineResourceManager
 import si.inova.kotlinova.core.outcome.Outcome
 import si.inova.kotlinova.core.outcome.downgradeTo
-import si.inova.tws.core.data.WebSnippetData
 import si.inova.tws.manager.data.NetworkStatus
 import si.inova.tws.manager.data.WebSnippetDto
 import si.inova.tws.manager.factory.BaseServiceFactory
@@ -35,7 +34,7 @@ import si.inova.tws.manager.network.WebSnippetFunction
 import si.inova.tws.manager.service.NetworkConnectivityService
 import si.inova.tws.manager.service.NetworkConnectivityServiceImpl
 import si.inova.tws.manager.singleton.coroutineResourceManager
-import si.inova.tws.web_socket.TwsSocket
+import si.inova.tws.manager.web_socket.TwsSocket
 
 class WebSnippetManagerImpl(context: Context) : WebSnippetManager {
    private val resources: CoroutineResourceManager = coroutineResourceManager
@@ -102,11 +101,7 @@ class WebSnippetManagerImpl(context: Context) : WebSnippetManager {
       wssUrl = twsProject.listenOn
       setupWebSocketConnection()
 
-      val webSnippets = twsProject.snippets.map {
-         WebSnippetData(it.id, it.target, it.headers.orEmpty(), it.loadIteration)
-      }
-
-      twsSocket.manuallyUpdateSnippet(webSnippets)
+      twsSocket.manuallyUpdateSnippet(twsProject.snippets)
    }
 
    private fun setupWebSocketConnection() {
