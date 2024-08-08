@@ -1,3 +1,11 @@
+# 0.4.1
+
+### Bug Fixes
+
+* **manager**: added html field to WebSnippetDto ([217415dc](https://github.com/inovait/tws-android-sdk/commit/217415dce9f994a746f05c6da5266f410aa6594d))
+* **manager**: update html on websocket update ([c1ea13a7](https://github.com/inovait/tws-android-sdk/commit/c1ea13a74925947b079bd219e9af5889e4af510f))
+* **manager**: socket body when updated organizationId and projectId can be nullable ([877e9ebf](https://github.com/inovait/tws-android-sdk/commit/877e9ebf33c8f22e4aad92af949dfca6b6fe34b8))
+
 # 0.4.0
 
 ### Features
