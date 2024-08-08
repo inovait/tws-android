@@ -32,8 +32,6 @@ publishLibrary(
 )
 
 dependencies {
-   implementation(projects.webSocket)
-
    implementation(libs.kotlinova.core)
    implementation(libs.kotlinova.retrofit)
    implementation(libs.androidx.core.ktx)
@@ -43,6 +41,7 @@ dependencies {
    implementation(libs.certificateTransparency)
    implementation(libs.moshi.kotlin)
    implementation(libs.inject)
+   implementation(libs.timber)
 
    kapt(libs.moshi.codegen)
 }

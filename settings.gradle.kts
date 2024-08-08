@@ -39,6 +39,4 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 rootProject.name = "TheWebSnippetSdk"
 include(":core")
-include(":core:data")
-include(":web-socket")
 include(":manager")

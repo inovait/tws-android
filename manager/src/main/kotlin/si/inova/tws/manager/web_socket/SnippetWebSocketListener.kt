@@ -14,7 +14,7 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.web_socket
+package si.inova.tws.manager.web_socket
 
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -25,7 +25,7 @@ import kotlinx.coroutines.flow.update
 import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
-import si.inova.tws.web_socket.data.SnippetUpdateAction
+import si.inova.tws.manager.data.SnippetUpdateAction
 
 internal class SnippetWebSocketListener : WebSocketListener() {
    private val _updateActionFlow: MutableStateFlow<SnippetUpdateAction?> = MutableStateFlow(null)

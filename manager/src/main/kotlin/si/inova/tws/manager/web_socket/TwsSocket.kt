@@ -14,7 +14,7 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.web_socket
+package si.inova.tws.manager.web_socket
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -25,10 +25,10 @@ import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.WebSocket
-import si.inova.tws.core.data.WebSnippetData
-import si.inova.tws.web_socket.SnippetWebSocketListener.Companion.CLOSING_CODE_ERROR_CODE
-import si.inova.tws.web_socket.data.ActionType
-import si.inova.tws.web_socket.data.SnippetUpdateAction
+import si.inova.tws.manager.data.ActionType
+import si.inova.tws.manager.data.SnippetUpdateAction
+import si.inova.tws.manager.data.WebSnippetDto
+import si.inova.tws.manager.web_socket.SnippetWebSocketListener.Companion.CLOSING_CODE_ERROR_CODE
 import timber.log.Timber
 
 /**
@@ -42,8 +42,8 @@ class TwsSocket(scope: CoroutineScope) {
 
    private val listener = SnippetWebSocketListener()
 
-   private val _snippetsFlow: MutableStateFlow<List<WebSnippetData>> = MutableStateFlow(emptyList())
-   val snippetsFlow: Flow<List<WebSnippetData>> = _snippetsFlow.filterNotNull()
+   private val _snippetsFlow: MutableStateFlow<List<WebSnippetDto>> = MutableStateFlow(emptyList())
+   val snippetsFlow: Flow<List<WebSnippetDto>> = _snippetsFlow.filterNotNull()
 
    init {
       scope.launch {
@@ -59,14 +59,14 @@ class TwsSocket(scope: CoroutineScope) {
     *
     *  @param data to update [_snippetsFlow]
     */
-   fun manuallyUpdateSnippet(data: List<WebSnippetData>) {
+   fun manuallyUpdateSnippet(data: List<WebSnippetDto>) {
       _snippetsFlow.update { data }
    }
 
    /**
     * Sets the URL target of this request.
     *
-    * @throws IllegalArgumentException if [url] is not a valid HTTP or HTTPS URL. Avoid this
+    * @throws IllegalArgumentException if [wwsUrl] is not a valid HTTP or HTTPS URL. Avoid this
     *     exception by calling [HttpUrl.parse]; it returns null for invalid URLs.
     */
    fun setupWebSocketConnection(wwsUrl: String) {
@@ -108,10 +108,12 @@ class TwsSocket(scope: CoroutineScope) {
                data.toMutableList().apply {
                   if (action.data.target != null) {
                      add(
-                        WebSnippetData(
+                        WebSnippetDto(
                            id = action.data.id,
-                           url = action.data.target,
-                           headers = action.data.headers ?: emptyMap()
+                           target = action.data.target,
+                           headers = action.data.headers ?: emptyMap(),
+                           organizationId = action.data.organizationId,
+                           projectId = action.data.projectId
                         )
                      )
                   }
@@ -125,7 +127,7 @@ class TwsSocket(scope: CoroutineScope) {
                   if (it.id == action.data.id) {
                      it.copy(
                         loadIteration = it.loadIteration + 1,
-                        url = action.data.target ?: it.url,
+                        target = action.data.target ?: it.target,
                         headers = action.data.headers ?: it.headers
                      )
                   } else {

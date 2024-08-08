@@ -18,10 +18,10 @@ package si.inova.tws.manager
 
 import kotlinx.coroutines.flow.Flow
 import si.inova.kotlinova.core.outcome.Outcome
-import si.inova.tws.core.data.WebSnippetData
+import si.inova.tws.manager.data.WebSnippetDto
 
 interface WebSnippetManager {
-   val snippetsFlow: Flow<Outcome<List<WebSnippetData>>>
+   val snippetsFlow: Flow<Outcome<List<WebSnippetDto>>>
 
    val mainSnippetIdFlow: Flow<String?>
 
