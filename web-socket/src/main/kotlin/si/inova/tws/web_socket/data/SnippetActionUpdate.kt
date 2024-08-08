@@ -14,7 +14,7 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.web_socket.model
+package si.inova.tws.web_socket.data
 
 import androidx.annotation.Keep
 import com.squareup.moshi.Json
