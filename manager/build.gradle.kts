@@ -14,10 +14,35 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+import util.publishLibrary
+
 plugins {
    androidLibraryModule
+   kotlin("kapt")
 }
 
 android {
-   namespace = "si.inova.tws.core.data"
+   namespace = "si.inova.tws.manager"
+}
+
+publishLibrary(
+   userFriendlyName = "tws-manager",
+   description = "A collection of manager and network connection",
+   githubPath = "manager",
+)
+
+dependencies {
+   implementation(projects.webSocket)
+
+   implementation(libs.kotlinova.core)
+   implementation(libs.kotlinova.retrofit)
+   implementation(libs.androidx.core.ktx)
+   implementation(libs.dispatch)
+   implementation(libs.retrofit.moshi)
+   implementation(libs.retrofit.scalars)
+   implementation(libs.certificateTransparency)
+   implementation(libs.moshi.kotlin)
+   implementation(libs.inject)
+
+   kapt(libs.moshi.codegen)
 }

@@ -25,7 +25,7 @@ import kotlinx.coroutines.flow.update
 import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
-import si.inova.tws.web_socket.model.SnippetUpdateAction
+import si.inova.tws.web_socket.data.SnippetUpdateAction
 
 internal class SnippetWebSocketListener : WebSocketListener() {
    private val _updateActionFlow: MutableStateFlow<SnippetUpdateAction?> = MutableStateFlow(null)

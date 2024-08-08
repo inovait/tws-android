@@ -14,10 +14,37 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-plugins {
-   androidLibraryModule
+package si.inova.tws.web_socket.data
+
+import androidx.annotation.Keep
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
+
+@Keep
+@JsonClass(generateAdapter = true)
+internal data class SnippetUpdateAction(
+   val type: ActionType,
+   val data: ActionBody
+)
+
+@Keep
+@JsonClass(generateAdapter = false)
+internal enum class ActionType {
+   @Json(name = "SNIPPET_CREATED")
+   CREATED,
+
+   @Json(name = "SNIPPET_UPDATED")
+   UPDATED,
+
+   @Json(name = "SNIPPET_DELETED")
+   DELETED
 }
 
-android {
-   namespace = "si.inova.tws.core.data"
-}
+@Keep
+@JsonClass(generateAdapter = true)
+internal data class ActionBody(
+   val id: String,
+   val target: String?,
+   val html: String?,
+   val headers: Map<String, String>?
+)

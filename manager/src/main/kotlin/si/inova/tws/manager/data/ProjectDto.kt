@@ -14,10 +14,14 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-plugins {
-   androidLibraryModule
-}
+package si.inova.tws.manager.data
 
-android {
-   namespace = "si.inova.tws.core.data"
-}
+import androidx.annotation.Keep
+import com.squareup.moshi.JsonClass
+
+@JsonClass(generateAdapter = true)
+@Keep
+data class ProjectDto(
+    val snippets: List<WebSnippetDto>,
+    val listenOn: String
+)

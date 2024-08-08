@@ -30,8 +30,4 @@ dependencies {
    implementation(libs.androidx.browser)
    implementation(libs.moshi.kotlin)
    implementation(libs.okhttp)
-
-   testImplementation(libs.junit)
-   androidTestImplementation(libs.runner)
-   androidTestImplementation(libs.espresso.core)
 }

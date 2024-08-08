@@ -14,10 +14,19 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-plugins {
-   androidLibraryModule
+package si.inova.tws.manager.factory
+
+import okhttp3.OkHttpClient
+
+internal interface ServiceFactory {
+   fun <S> create(klass: Class<S>, configuration: ServiceCreationScope.() -> Unit = {}): S
+   class ServiceCreationScope {
+      var okHttpCustomizer: (OkHttpClient.Builder.() -> Unit)? = null
+
+      var cache: Boolean = true
+   }
 }
 
-android {
-   namespace = "si.inova.tws.core.data"
+internal inline fun <reified S> ServiceFactory.create(noinline configuration: ServiceFactory.ServiceCreationScope.() -> Unit = {}): S {
+   return create(S::class.java, configuration)
 }

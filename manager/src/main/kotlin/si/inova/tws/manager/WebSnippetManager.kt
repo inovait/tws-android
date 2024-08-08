@@ -14,10 +14,19 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-plugins {
-   androidLibraryModule
-}
+package si.inova.tws.manager
 
-android {
-   namespace = "si.inova.tws.core.data"
+import kotlinx.coroutines.flow.Flow
+import si.inova.kotlinova.core.outcome.Outcome
+import si.inova.tws.core.data.WebSnippetData
+
+interface WebSnippetManager {
+   val snippetsFlow: Flow<Outcome<List<WebSnippetData>>>
+
+   val mainSnippetIdFlow: Flow<String?>
+
+   fun closeWebsocketConnection()
+
+   suspend fun loadWebSnippets(organizationId: String, projectId: String)
+   suspend fun loadSharedSnippetData(shareId: String)
 }

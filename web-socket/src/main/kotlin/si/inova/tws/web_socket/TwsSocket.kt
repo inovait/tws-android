@@ -27,8 +27,8 @@ import okhttp3.Request
 import okhttp3.WebSocket
 import si.inova.tws.core.data.WebSnippetData
 import si.inova.tws.web_socket.SnippetWebSocketListener.Companion.CLOSING_CODE_ERROR_CODE
-import si.inova.tws.web_socket.model.ActionType
-import si.inova.tws.web_socket.model.SnippetUpdateAction
+import si.inova.tws.web_socket.data.ActionType
+import si.inova.tws.web_socket.data.SnippetUpdateAction
 import timber.log.Timber
 
 /**

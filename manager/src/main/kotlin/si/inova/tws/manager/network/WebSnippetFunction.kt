@@ -14,10 +14,29 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-plugins {
-   androidLibraryModule
-}
+package si.inova.tws.manager.network
 
-android {
-   namespace = "si.inova.tws.core.data"
+import jakarta.inject.Singleton
+import retrofit2.http.GET
+import retrofit2.http.Headers
+import retrofit2.http.Path
+import retrofit2.http.Query
+import si.inova.tws.manager.data.ProjectDto
+import si.inova.tws.manager.data.SharedSnippetDto
+
+@Singleton
+internal interface WebSnippetFunction {
+   @GET("organizations/{organizationId}/projects/{projectId}/register")
+   suspend fun getWebSnippets(
+      @Path("organizationId")
+      organizationId: String,
+      @Path("projectId")
+      projectId: String,
+      @Query("apiKey")
+      apiKey: String? = null
+   ): ProjectDto
+
+   @Headers("Accept: application/json")
+   @GET("shared/{shareId}")
+   suspend fun getSharedSnippetData(@Path("shareId") shareId: String): SharedSnippetDto
 }

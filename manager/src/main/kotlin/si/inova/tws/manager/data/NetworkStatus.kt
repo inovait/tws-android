@@ -14,37 +14,9 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.web_socket.model
+package si.inova.tws.manager.data
 
-import androidx.annotation.Keep
-import com.squareup.moshi.Json
-import com.squareup.moshi.JsonClass
-
-@Keep
-@JsonClass(generateAdapter = true)
-internal data class SnippetUpdateAction(
-   val type: ActionType,
-   val data: ActionBody
-)
-
-@Keep
-@JsonClass(generateAdapter = false)
-internal enum class ActionType {
-   @Json(name = "SNIPPET_CREATED")
-   CREATED,
-
-   @Json(name = "SNIPPET_UPDATED")
-   UPDATED,
-
-   @Json(name = "SNIPPET_DELETED")
-   DELETED
+sealed class NetworkStatus {
+   data object Connected : NetworkStatus()
+   data object Disconnected : NetworkStatus()
 }
-
-@Keep
-@JsonClass(generateAdapter = true)
-internal data class ActionBody(
-   val id: String,
-   val target: String?,
-   val html: String?,
-   val headers: Map<String, String>?
-)

@@ -14,10 +14,11 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-plugins {
-   androidLibraryModule
-}
+package si.inova.tws.manager.service
 
-android {
-   namespace = "si.inova.tws.core.data"
+import kotlinx.coroutines.flow.Flow
+import si.inova.tws.manager.data.NetworkStatus
+
+internal interface NetworkConnectivityService {
+    val networkStatus: Flow<NetworkStatus>
 }
