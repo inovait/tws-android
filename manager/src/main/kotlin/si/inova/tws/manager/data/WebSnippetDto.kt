@@ -28,5 +28,6 @@ data class WebSnippetDto(
    val projectId: String,
    val html: String? = null,
    val headers: Map<String, String>? = emptyMap(),
-   val loadIteration: Int = 0
+   val loadIteration: Int = 0,
+   val injectPage: List<ModifierPageData> = emptyList()
 )

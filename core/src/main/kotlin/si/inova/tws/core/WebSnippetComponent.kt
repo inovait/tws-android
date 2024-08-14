@@ -144,7 +144,8 @@ fun WebSnippetComponent(
       displayErrorContent = displayErrorContent,
       interceptOverrideUrl = interceptOverrideUrl,
       errorViewContent = errorViewContent,
-      popupStateCallback = popupStateCallback
+      popupStateCallback = popupStateCallback,
+      injectPage = target.injectScript
    )
 
    popupStates.value.forEach { state ->
@@ -157,7 +158,8 @@ fun WebSnippetComponent(
          onDismissRequest = { popupStates.value = popupStates.value.filter { it != state } },
          popupStateCallback = popupStateCallback,
          interceptOverrideUrl = interceptOverrideUrl,
-         googleLoginRedirectUrl = googleLoginRedirectUrl
+         googleLoginRedirectUrl = googleLoginRedirectUrl,
+         injectPage = target.injectScript
       )
    }
 }
@@ -174,7 +176,8 @@ private fun SnippetContentWithLoadingAndError(
    modifier: Modifier = Modifier,
    onCreated: (WebView) -> Unit = {},
    popupStateCallback: ((WebViewState, Boolean) -> Unit)? = null,
-   interceptOverrideUrl: (String) -> Boolean
+   interceptOverrideUrl: (String) -> Boolean,
+   injectPage: List<String>? = null
 ) {
    // https://github.com/google/accompanist/issues/1326 - WebView settings does not work in compose preview
    val isPreviewMode = LocalInspectionMode.current
@@ -191,7 +194,8 @@ private fun SnippetContentWithLoadingAndError(
                onCreated(it)
             },
             popupStateCallback = popupStateCallback,
-            interceptOverrideUrl = interceptOverrideUrl
+            interceptOverrideUrl = interceptOverrideUrl,
+            injectPage = injectPage
          )
       }
 
@@ -216,7 +220,8 @@ private fun PopUpWebView(
    interceptOverrideUrl: (String) -> Boolean = { false },
    popupNavigator: WebViewNavigator = rememberWebViewNavigator(),
    popupStateCallback: ((WebViewState, Boolean) -> Unit)? = null,
-   googleLoginRedirectUrl: String? = null
+   googleLoginRedirectUrl: String? = null,
+   injectPage: List<String>? = null
 ) {
    val displayErrorContent = displayErrorViewOnError && popupState.hasError
    val displayLoadingContent =
@@ -246,13 +251,12 @@ private fun PopUpWebView(
       ) {
          SnippetContentWithLoadingAndError(
             key = "popup",
-            webViewState = popupState,
             navigator = popupNavigator,
+            webViewState = popupState,
             displayLoadingContent = displayLoadingContent,
             loadingPlaceholderContent = loadingPlaceholderContent,
             displayErrorContent = displayErrorContent,
             errorViewContent = errorViewContent,
-            interceptOverrideUrl = interceptOverrideUrl,
             onCreated = { webView ->
                val popupMessage =
                   popupState.popupMessage ?: return@SnippetContentWithLoadingAndError
@@ -262,7 +266,9 @@ private fun PopUpWebView(
                   popupMessage.sendToTarget()
                }
             },
-            popupStateCallback = popupStateCallback
+            popupStateCallback = popupStateCallback,
+            interceptOverrideUrl = interceptOverrideUrl,
+            injectPage = injectPage
          )
       }
    }
