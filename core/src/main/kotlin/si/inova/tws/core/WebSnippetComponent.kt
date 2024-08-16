@@ -51,14 +51,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.core.util.Consumer
-import si.inova.tws.core.data.LoadingState
+import si.inova.tws.core.data.view.LoadingState
 import si.inova.tws.core.data.ModifierPageData
-import si.inova.tws.core.data.WebContent
+import si.inova.tws.core.data.view.WebContent
 import si.inova.tws.core.data.WebSnippetData
-import si.inova.tws.core.data.WebViewNavigator
-import si.inova.tws.core.data.WebViewState
-import si.inova.tws.core.data.rememberSaveableWebViewState
-import si.inova.tws.core.data.rememberWebViewNavigator
+import si.inova.tws.core.data.view.WebViewNavigator
+import si.inova.tws.core.data.view.WebViewState
+import si.inova.tws.core.data.view.rememberSaveableWebViewState
+import si.inova.tws.core.data.view.rememberWebViewNavigator
 import si.inova.tws.core.util.initializeSettings
 
 /**

@@ -53,9 +53,9 @@ import androidx.compose.ui.unit.dp
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import si.inova.tws.core.data.WebSnippetData
-import si.inova.tws.core.data.WebViewState
-import si.inova.tws.core.data.rememberSaveableWebViewState
-import si.inova.tws.core.data.rememberWebViewNavigator
+import si.inova.tws.core.data.view.WebViewState
+import si.inova.tws.core.data.view.rememberSaveableWebViewState
+import si.inova.tws.core.data.view.rememberWebViewNavigator
 import si.inova.tws.core.lifecycle.DoOnScreenReset
 import si.inova.tws.core.lifecycle.LocalScreenResetNotifier
 import si.inova.tws.core.lifecycle.ScreenResetNotifier

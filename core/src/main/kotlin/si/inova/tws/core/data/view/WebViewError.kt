@@ -14,26 +14,23 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.core.data
+package si.inova.tws.core.data.view
+
+import android.webkit.WebResourceError
+import android.webkit.WebResourceRequest
+import androidx.compose.runtime.Immutable
 
 /**
- * Sealed class for constraining possible loading states.
- * See [Loading] and [Finished].
+ * A wrapper class to hold errors from the WebView.
  */
-sealed class LoadingState {
+@Immutable
+data class WebViewError(
     /**
-     * Describes a WebView that has not yet loaded for the first time.
+     * The request the error came from.
      */
-    data object Initializing : LoadingState()
-
+    val request: WebResourceRequest?,
     /**
-     * Describes a webview between `onPageStarted` and `onPageFinished` events, contains a
-     * [progress] property which is updated by the webview.
+     * The error that was reported.
      */
-    data class Loading(val progress: Float) : LoadingState()
-
-    /**
-     * Describes a webview that has finished loading content.
-     */
-    data object Finished : LoadingState()
-}
+    val error: WebResourceError
+)

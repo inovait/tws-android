@@ -14,13 +14,16 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.core.data
+package si.inova.tws.core.data.view.client
 
 import android.graphics.Bitmap
 import android.os.Message
 import android.webkit.PermissionRequest
 import android.webkit.WebChromeClient
 import android.webkit.WebView
+import si.inova.tws.core.data.view.LoadingState
+import si.inova.tws.core.data.view.WebContent
+import si.inova.tws.core.data.view.WebViewState
 
 /**
  * TwsWebChromeClient, copied, modified and extended version of AccompanistWebChromeClient
