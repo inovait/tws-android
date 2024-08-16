@@ -14,13 +14,17 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.core.data
+package si.inova.tws.core.data.view.client
 
 import android.graphics.Bitmap
 import android.os.Message
+import android.webkit.GeolocationPermissions
 import android.webkit.PermissionRequest
 import android.webkit.WebChromeClient
 import android.webkit.WebView
+import si.inova.tws.core.data.view.LoadingState
+import si.inova.tws.core.data.view.WebContent
+import si.inova.tws.core.data.view.WebViewState
 
 /**
  * TwsWebChromeClient, copied, modified and extended version of AccompanistWebChromeClient
@@ -30,7 +34,9 @@ import android.webkit.WebView
  */
 
 open class TwsWebChromeClient(
-    private val popupStateCallback: ((WebViewState, Boolean) -> Unit)? = null
+    private val popupStateCallback: ((WebViewState, Boolean) -> Unit)? = null,
+    private val permissionRequest: (() -> Unit) -> Unit,
+    private val locationPermissionRequest: (() -> Unit) -> Unit
 ) : WebChromeClient() {
     open lateinit var state: WebViewState
         internal set
@@ -81,6 +87,15 @@ open class TwsWebChromeClient(
             }
         }
 
-        super.onPermissionRequest(request)
+        permissionRequest {
+           request?.grant(arrayOf(PermissionRequest.RESOURCE_VIDEO_CAPTURE))
+        }
+    }
+
+    override fun onGeolocationPermissionsShowPrompt(origin: String?, callback: GeolocationPermissions.Callback?) {
+        super.onGeolocationPermissionsShowPrompt(origin, callback)
+        locationPermissionRequest{
+            callback?.invoke(origin, true, false)
+        }
     }
 }

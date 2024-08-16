@@ -42,5 +42,6 @@ dependencies {
    implementation(libs.compose.foundation)
    implementation(libs.androidx.compose.material3)
    implementation(libs.timber)
+   implementation(libs.accompanist.permissions)
    implementation(libs.androidx.browser)
 }

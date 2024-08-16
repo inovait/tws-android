@@ -31,12 +31,12 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
 import si.inova.tws.core.data.ModifierPageData
-import si.inova.tws.core.data.TwsWebChromeClient
-import si.inova.tws.core.data.TwsWebViewClient
-import si.inova.tws.core.data.WebContent
-import si.inova.tws.core.data.WebViewNavigator
-import si.inova.tws.core.data.WebViewState
-import si.inova.tws.core.data.rememberWebViewNavigator
+import si.inova.tws.core.data.view.client.TwsWebChromeClient
+import si.inova.tws.core.data.view.client.TwsWebViewClient
+import si.inova.tws.core.data.view.WebContent
+import si.inova.tws.core.data.view.WebViewNavigator
+import si.inova.tws.core.data.view.WebViewState
+import si.inova.tws.core.data.view.rememberWebViewNavigator
 
 /**
  * NOTE: This is a copy from Accompanists WebView wrapper, since it is not supported anymore and allows
@@ -84,7 +84,9 @@ fun WebView(
    onDispose: (WebView) -> Unit = {},
    popupStateCallback: ((WebViewState, Boolean) -> Unit)? = null,
    client: TwsWebViewClient = remember { TwsWebViewClient(popupStateCallback) },
-   chromeClient: TwsWebChromeClient = remember { TwsWebChromeClient(popupStateCallback) },
+   permissionRequest: (() -> Unit) -> Unit,
+   locationPermissionRequest: (() -> Unit) -> Unit,
+   chromeClient: TwsWebChromeClient = remember { TwsWebChromeClient(popupStateCallback, permissionRequest, locationPermissionRequest) },
    interceptOverrideUrl: (String) -> Boolean = { false },
    factory: ((Context) -> WebView)? = null,
    injectPage: List<ModifierPageData>? = null
@@ -117,6 +119,8 @@ fun WebView(
          onDispose,
          popupStateCallback,
          client,
+         permissionRequest,
+         locationPermissionRequest,
          chromeClient,
          interceptOverrideUrl,
          factory,
@@ -168,7 +172,9 @@ fun WebView(
    onDispose: (WebView) -> Unit = {},
    popupStateCallback: ((WebViewState, Boolean) -> Unit)? = null,
    client: TwsWebViewClient = remember { TwsWebViewClient(popupStateCallback) },
-   chromeClient: TwsWebChromeClient = remember { TwsWebChromeClient(popupStateCallback) },
+   permissionRequest: (() -> Unit) -> Unit,
+   locationPermissionRequest: (() -> Unit) -> Unit,
+   chromeClient: TwsWebChromeClient = remember { TwsWebChromeClient(popupStateCallback, permissionRequest, locationPermissionRequest) },
    interceptOverrideUrl: (String) -> Boolean = { false },
    factory: ((Context) -> WebView)? = null,
    injectPages: List<ModifierPageData>? = null

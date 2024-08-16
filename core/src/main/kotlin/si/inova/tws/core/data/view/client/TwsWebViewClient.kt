@@ -14,7 +14,7 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.core.data
+package si.inova.tws.core.data.view.client
 
 import android.content.ComponentName
 import android.content.Context
@@ -32,6 +32,11 @@ import androidx.browser.customtabs.CustomTabsCallback
 import androidx.browser.customtabs.CustomTabsClient
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.browser.customtabs.CustomTabsServiceConnection
+import si.inova.tws.core.data.ModifierPageData
+import si.inova.tws.core.data.view.LoadingState
+import si.inova.tws.core.data.view.WebViewError
+import si.inova.tws.core.data.view.WebViewNavigator
+import si.inova.tws.core.data.view.WebViewState
 
 /**
  * TwsWebViewClient, copied from AccompanistWebViewClient to allow further modifications
@@ -153,6 +158,8 @@ open class TwsWebViewClient(private val popupStateCallback: ((WebViewState, Bool
 
       return packageName
    }
-}
 
-private const val DELAY_LOADING_MS = 300L
+   companion object {
+      private const val DELAY_LOADING_MS = 300L
+   }
+}
