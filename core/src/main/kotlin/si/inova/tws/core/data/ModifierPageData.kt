@@ -14,7 +14,7 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.manager.data
+package si.inova.tws.core.data
 
 interface ModifierPageData {
    val inject: String?
@@ -26,14 +26,43 @@ data class ContentInjectData(val content: String, val type: EModifierInject) : M
 
       EModifierInject.JAVASCRIPT -> content.trimIndent()
    }
+
+   private fun injectContentCss(value: String): String {
+      return """
+             (function() {
+                 var style = document.createElement('style');
+                 style.type = 'text/css';
+                 style.innerHTML = `$value`;
+                 document.head.appendChild(style);
+             })();
+         """.trimIndent()
+   }
 }
 
-abstract class UrlInjectData(url: String) : ModifierPageData {
+data class UrlInjectData(val url: String) : ModifierPageData {
    override val inject = when (checkFileType(url)) {
       EModifierInject.CSS -> injectUrlCss(url)
 
       EModifierInject.JAVASCRIPT -> injectUrlJs(url)
       null -> null
+   }
+
+   private fun injectUrlCss(url: String): String {
+      return """
+            var link = document.createElement('link');
+            link.href = '$url';
+            link.rel = 'stylesheet';
+            document.head.appendChild(link);
+         """.trimIndent()
+   }
+
+   private fun injectUrlJs(url: String): String {
+      return """
+            var script = document.createElement('script');
+            script.src = '$url';
+            script.type = 'text/javascript';
+            document.head.appendChild(script);
+         """.trimIndent()
    }
 }
 
@@ -52,33 +81,3 @@ fun checkFileType(urlString: String): EModifierInject? {
 
 private const val FILE_CSS = ".css"
 private const val FILE_JS = ".js"
-
-private fun injectUrlJs(url: String): String {
-   return """
-            var script = document.createElement('script');
-            script.src = '$url';
-            script.type = 'text/javascript';
-            document.head.appendChild(script);
-         """.trimIndent()
-}
-
-private fun injectUrlCss(url: String): String {
-   return """
-            var link = document.createElement('link');
-            link.href = '$url';
-            link.rel = 'stylesheet';
-            document.head.appendChild(link);
-         """.trimIndent()
-}
-
-private fun injectContentCss(value: String): String {
-   return """
-             (function() {
-                 var style = document.createElement('style');
-                 style.type = 'text/css';
-                 style.innerHTML = '$value';
-                 document.head.appendChild(style);
-             })();
-         """.trimIndent()
-}
-

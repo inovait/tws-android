@@ -30,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
+import si.inova.tws.core.data.ModifierPageData
 import si.inova.tws.core.data.TwsWebChromeClient
 import si.inova.tws.core.data.TwsWebViewClient
 import si.inova.tws.core.data.WebContent
@@ -70,6 +71,7 @@ import si.inova.tws.core.data.rememberWebViewNavigator
  * @param interceptOverrideUrl optional callback, how to handle intercepted urls,
  * return true if do not want to navigate to the new url and return false if navigation to the new url is intact
  * @param factory An optional WebView factory for using a custom subclass of WebView
+ * @param injectPage An optional parameter to set up a JS script.
  */
 @Composable
 fun WebView(
@@ -85,7 +87,7 @@ fun WebView(
    chromeClient: TwsWebChromeClient = remember { TwsWebChromeClient(popupStateCallback) },
    interceptOverrideUrl: (String) -> Boolean = { false },
    factory: ((Context) -> WebView)? = null,
-   injectPage: List<String>? = null
+   injectPage: List<ModifierPageData>? = null
 ) {
    BoxWithConstraints(modifier) {
       // WebView changes it's layout strategy based on
@@ -152,6 +154,7 @@ fun WebView(
  * @param interceptOverrideUrl optional callback, how to handle intercepted urls,
  * return true if do not want to navigate to the new url and return false if navigation to the new url is intact
  * @param factory An optional WebView factory for using a custom subclass of WebView
+ * @param injectPages An optional parameter to inject a JS.
  */
 @Composable
 fun WebView(
@@ -168,7 +171,7 @@ fun WebView(
    chromeClient: TwsWebChromeClient = remember { TwsWebChromeClient(popupStateCallback) },
    interceptOverrideUrl: (String) -> Boolean = { false },
    factory: ((Context) -> WebView)? = null,
-   injectPage: List<String>? = null
+   injectPages: List<ModifierPageData>? = null
 ) {
    val webView = state.webView
 
@@ -221,7 +224,7 @@ fun WebView(
    client.state = state
    client.navigator = navigator
    client.interceptOverrideUrl = interceptOverrideUrl
-   client.injectPage = injectPage ?: emptyList()
+   client.injectPages = injectPages ?: emptyList()
    chromeClient.state = state
 
    key(key) {

@@ -21,5 +21,5 @@ data class WebSnippetData(
    val url: String,
    val headers: Map<String, String> = emptyMap(),
    val loadIteration: Int = 0,
-   val injectScript: List<String> = emptyList()
+   val injectScript: List<ModifierPageData> = emptyList()
 )

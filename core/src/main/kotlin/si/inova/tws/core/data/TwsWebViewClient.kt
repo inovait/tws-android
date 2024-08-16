@@ -48,7 +48,7 @@ open class TwsWebViewClient(private val popupStateCallback: ((WebViewState, Bool
       internal set
    open lateinit var interceptOverrideUrl: (String) -> Boolean
       internal set
-   open lateinit var injectPage: List<String>
+   open lateinit var injectPages: List<ModifierPageData>
       internal set
 
    override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest?): Boolean {
@@ -81,8 +81,10 @@ open class TwsWebViewClient(private val popupStateCallback: ((WebViewState, Bool
          state.loadingState = LoadingState.Finished
       }, DELAY_LOADING_MS)
 
-      injectPage.forEach {
-         view.evaluateJavascript(it, null)
+      injectPages.forEach { injectPage ->
+         injectPage.inject?.let { inject ->
+            view.evaluateJavascript(inject, null)
+         }
       }
    }
 

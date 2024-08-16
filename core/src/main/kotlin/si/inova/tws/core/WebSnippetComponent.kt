@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.core.util.Consumer
 import si.inova.tws.core.data.LoadingState
+import si.inova.tws.core.data.ModifierPageData
 import si.inova.tws.core.data.WebContent
 import si.inova.tws.core.data.WebSnippetData
 import si.inova.tws.core.data.WebViewNavigator
@@ -177,7 +178,7 @@ private fun SnippetContentWithLoadingAndError(
    onCreated: (WebView) -> Unit = {},
    popupStateCallback: ((WebViewState, Boolean) -> Unit)? = null,
    interceptOverrideUrl: (String) -> Boolean,
-   injectPage: List<String>? = null
+   injectPage: List<ModifierPageData>? = null
 ) {
    // https://github.com/google/accompanist/issues/1326 - WebView settings does not work in compose preview
    val isPreviewMode = LocalInspectionMode.current
@@ -221,7 +222,7 @@ private fun PopUpWebView(
    popupNavigator: WebViewNavigator = rememberWebViewNavigator(),
    popupStateCallback: ((WebViewState, Boolean) -> Unit)? = null,
    googleLoginRedirectUrl: String? = null,
-   injectPage: List<String>? = null
+   injectPage: List<ModifierPageData>? = null
 ) {
    val displayErrorContent = displayErrorViewOnError && popupState.hasError
    val displayLoadingContent =
