@@ -20,11 +20,11 @@ interface ModifierPageData {
    val inject: String?
 }
 
-data class ContentInjectData(val content: String, val type: EModifierInject) : ModifierPageData {
+data class ContentInjectData(val content: String, val type: ModifierInjectionType) : ModifierPageData {
    override val inject = when (type) {
-      EModifierInject.CSS -> injectContentCss(content)
+      ModifierInjectionType.CSS -> injectContentCss(content)
 
-      EModifierInject.JAVASCRIPT -> content.trimIndent()
+      ModifierInjectionType.JAVASCRIPT -> content.trimIndent()
    }
 
    private fun injectContentCss(value: String): String {
@@ -41,9 +41,9 @@ data class ContentInjectData(val content: String, val type: EModifierInject) : M
 
 data class UrlInjectData(val url: String) : ModifierPageData {
    override val inject = when (checkFileType(url)) {
-      EModifierInject.CSS -> injectUrlCss(url)
+      ModifierInjectionType.CSS -> injectUrlCss(url)
 
-      EModifierInject.JAVASCRIPT -> injectUrlJs(url)
+      ModifierInjectionType.JAVASCRIPT -> injectUrlJs(url)
       null -> null
    }
 
@@ -66,15 +66,15 @@ data class UrlInjectData(val url: String) : ModifierPageData {
    }
 }
 
-enum class EModifierInject {
+enum class ModifierInjectionType {
    CSS,
    JAVASCRIPT
 }
 
-fun checkFileType(urlString: String): EModifierInject? {
+fun checkFileType(urlString: String): ModifierInjectionType? {
    return when {
-      urlString.endsWith(FILE_CSS, ignoreCase = true) -> EModifierInject.CSS
-      urlString.endsWith(FILE_JS, ignoreCase = true) -> EModifierInject.JAVASCRIPT
+      urlString.endsWith(FILE_CSS, ignoreCase = true) -> ModifierInjectionType.CSS
+      urlString.endsWith(FILE_JS, ignoreCase = true) -> ModifierInjectionType.JAVASCRIPT
       else -> null
    }
 }
