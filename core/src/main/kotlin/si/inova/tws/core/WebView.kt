@@ -175,13 +175,11 @@ fun WebView(
       webView?.goBack()
    }
 
-   val permissionCallback = remember { mutableStateOf<(() -> Unit)?>(null) }
+   val permissionCallback = remember { mutableStateOf<((Boolean) -> Unit)?>(null) }
    val permissionLauncher = rememberLauncherForActivityResult(
       ActivityResultContracts.RequestPermission()
    ) { isGranted ->
-      if (isGranted) {
-         permissionCallback.value?.invoke()
-      }
+      permissionCallback.value?.invoke(isGranted)
    }
 
    LaunchedEffect(chromeClient) {

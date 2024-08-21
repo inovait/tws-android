@@ -40,7 +40,7 @@ open class TwsWebChromeClient(
     open lateinit var state: WebViewState
         internal set
 
-    private lateinit var permissionRequest: (String, () -> Unit) -> Unit
+    private lateinit var permissionRequest: (String, (Boolean) -> Unit) -> Unit
 
     override fun onCreateWindow(view: WebView, isDialog: Boolean, isUserGesture: Boolean, resultMsg: Message): Boolean {
         popupStateCallback?.invoke(
@@ -84,9 +84,14 @@ open class TwsWebChromeClient(
         request?.let {
             when {
                 it.resources.contains(PermissionRequest.RESOURCE_PROTECTED_MEDIA_ID) -> it.grant(it.resources)
-                it.resources.contains(PermissionRequest.RESOURCE_VIDEO_CAPTURE) -> permissionRequest(Manifest.permission.CAMERA) {
-                    it.grant(arrayOf(PermissionRequest.RESOURCE_VIDEO_CAPTURE))
-                }
+                it.resources.contains(PermissionRequest.RESOURCE_VIDEO_CAPTURE) ->
+                    permissionRequest(Manifest.permission.CAMERA) { isGranted ->
+                        if(isGranted) {
+                            it.grant(arrayOf(PermissionRequest.RESOURCE_VIDEO_CAPTURE))
+                        } else {
+                            it.deny()
+                        }
+                    }
             }
         }
     }
@@ -94,12 +99,12 @@ open class TwsWebChromeClient(
     override fun onGeolocationPermissionsShowPrompt(origin: String?, callback: GeolocationPermissions.Callback?) {
         super.onGeolocationPermissionsShowPrompt(origin, callback)
 
-        permissionRequest(Manifest.permission.ACCESS_COARSE_LOCATION) {
-            callback?.invoke(origin, true, false)
+        permissionRequest(Manifest.permission.ACCESS_COARSE_LOCATION) { isGranted ->
+            callback?.invoke(origin, isGranted, false)
         }
     }
 
-    fun setupPermissionRequestCallback(callback: (String, () -> Unit) -> Unit) {
+    fun setupPermissionRequestCallback(callback: (String, (Boolean) -> Unit) -> Unit) {
         permissionRequest = callback
     }
 }
