@@ -16,12 +16,9 @@
 
 package si.inova.tws.core
 
-import android.Manifest
 import android.content.Intent
 import android.webkit.WebView
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -40,7 +37,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -61,6 +57,8 @@ import si.inova.tws.core.data.view.LoadingState
 import si.inova.tws.core.data.view.WebContent
 import si.inova.tws.core.data.view.WebViewNavigator
 import si.inova.tws.core.data.view.WebViewState
+import si.inova.tws.core.data.view.client.TwsWebChromeClient
+import si.inova.tws.core.data.view.client.TwsWebViewClient
 import si.inova.tws.core.data.view.rememberSaveableWebViewState
 import si.inova.tws.core.data.view.rememberWebViewNavigator
 import si.inova.tws.core.util.initializeSettings
@@ -113,24 +111,6 @@ fun WebSnippetComponent(
       }
    }
 
-   val cameraPermissionRequestAction: MutableState<(() -> Unit)?> = remember { mutableStateOf(null) }
-   val locationPermissionRequestAction: MutableState<(() -> Unit)?> = remember { mutableStateOf(null) }
-
-   val cameraRequestPermissionLauncher = rememberLauncherForActivityResult(
-      ActivityResultContracts.RequestPermission()
-   ) { isGranted ->
-      if (isGranted) {
-         cameraPermissionRequestAction.value?.invoke()
-      }
-   }
-   val locationRequestPermissionLauncher = rememberLauncherForActivityResult(
-      ActivityResultContracts.RequestPermission()
-   ) { isGranted ->
-      if (isGranted) {
-         locationPermissionRequestAction.value?.invoke()
-      }
-   }
-
    val displayErrorContent = displayErrorViewOnError && webViewState.hasError
    val displayLoadingContent =
       displayPlaceholderWhileLoading && webViewState.loadingState is LoadingState.Loading
@@ -168,15 +148,7 @@ fun WebSnippetComponent(
       interceptOverrideUrl = interceptOverrideUrl,
       errorViewContent = errorViewContent,
       popupStateCallback = popupStateCallback,
-      injectPage = target.injectScript,
-      permissionRequest = {
-         cameraRequestPermissionLauncher.launch(Manifest.permission.CAMERA)
-         cameraPermissionRequestAction.value = it
-      },
-      locationPermissionRequest = {
-         locationRequestPermissionLauncher.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
-         locationPermissionRequestAction.value = it
-      }
+      injectPage = target.injectScript
    )
 
    popupStates.value.forEach { state ->
@@ -190,15 +162,7 @@ fun WebSnippetComponent(
          popupStateCallback = popupStateCallback,
          interceptOverrideUrl = interceptOverrideUrl,
          googleLoginRedirectUrl = googleLoginRedirectUrl,
-         injectPage = target.injectScript,
-         permissionRequest = {
-            cameraRequestPermissionLauncher.launch(Manifest.permission.CAMERA)
-            cameraPermissionRequestAction.value = it
-         },
-         locationPermissionRequest = {
-            locationRequestPermissionLauncher.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
-            locationPermissionRequestAction.value = it
-         }
+         injectPage = target.injectScript
       )
    }
 }
@@ -216,12 +180,13 @@ private fun SnippetContentWithLoadingAndError(
    onCreated: (WebView) -> Unit = {},
    popupStateCallback: ((WebViewState, Boolean) -> Unit)? = null,
    interceptOverrideUrl: (String) -> Boolean,
-   injectPage: List<ModifierPageData>? = null,
-   permissionRequest: (() -> Unit) -> Unit,
-   locationPermissionRequest: (() -> Unit) -> Unit
+   injectPage: List<ModifierPageData>? = null
 ) {
    // https://github.com/google/accompanist/issues/1326 - WebView settings does not work in compose preview
    val isPreviewMode = LocalInspectionMode.current
+
+   val client = remember(key1 = key) { TwsWebViewClient(popupStateCallback) }
+   val chromeClient = remember(key1 = key) { TwsWebChromeClient(popupStateCallback) }
 
    Box(modifier = modifier) {
       if (!displayLoadingContent && !displayErrorContent) {
@@ -234,11 +199,10 @@ private fun SnippetContentWithLoadingAndError(
                if (!isPreviewMode) it.initializeSettings()
                onCreated(it)
             },
-            popupStateCallback = popupStateCallback,
             interceptOverrideUrl = interceptOverrideUrl,
             injectPage = injectPage,
-            permissionRequest = permissionRequest,
-            locationPermissionRequest = locationPermissionRequest
+            client = client,
+            chromeClient = chromeClient
          )
       }
 
@@ -264,9 +228,7 @@ private fun PopUpWebView(
    popupNavigator: WebViewNavigator = rememberWebViewNavigator(),
    popupStateCallback: ((WebViewState, Boolean) -> Unit)? = null,
    googleLoginRedirectUrl: String? = null,
-   injectPage: List<ModifierPageData>? = null,
-   permissionRequest: (() -> Unit) -> Unit,
-   locationPermissionRequest: (() -> Unit) -> Unit
+   injectPage: List<ModifierPageData>? = null
 ) {
    val displayErrorContent = displayErrorViewOnError && popupState.hasError
    val displayLoadingContent =
@@ -313,9 +275,7 @@ private fun PopUpWebView(
             },
             popupStateCallback = popupStateCallback,
             interceptOverrideUrl = interceptOverrideUrl,
-            injectPage = injectPage,
-            permissionRequest = permissionRequest,
-            locationPermissionRequest = locationPermissionRequest
+            injectPage = injectPage
          )
       }
    }

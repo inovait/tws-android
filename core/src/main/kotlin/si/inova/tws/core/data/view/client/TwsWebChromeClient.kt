@@ -16,6 +16,7 @@
 
 package si.inova.tws.core.data.view.client
 
+import android.Manifest
 import android.graphics.Bitmap
 import android.os.Message
 import android.webkit.GeolocationPermissions
@@ -35,11 +36,11 @@ import si.inova.tws.core.data.view.WebViewState
 
 open class TwsWebChromeClient(
     private val popupStateCallback: ((WebViewState, Boolean) -> Unit)? = null,
-    private val permissionRequest: (() -> Unit) -> Unit,
-    private val locationPermissionRequest: (() -> Unit) -> Unit
 ) : WebChromeClient() {
     open lateinit var state: WebViewState
         internal set
+
+    private lateinit var permissionRequest: (String, () -> Unit) -> Unit
 
     override fun onCreateWindow(view: WebView, isDialog: Boolean, isUserGesture: Boolean, resultMsg: Message): Boolean {
         popupStateCallback?.invoke(
@@ -49,7 +50,7 @@ open class TwsWebChromeClient(
             true
         )
 
-        return true
+        return popupStateCallback != null
     }
 
     override fun onCloseWindow(window: WebView?) {
@@ -81,21 +82,24 @@ open class TwsWebChromeClient(
      */
     override fun onPermissionRequest(request: PermissionRequest?) {
         request?.let {
-            if (it.resources.contains(PermissionRequest.RESOURCE_PROTECTED_MEDIA_ID)) {
-                it.grant(it.resources)
-                return
+            when {
+                it.resources.contains(PermissionRequest.RESOURCE_PROTECTED_MEDIA_ID) -> it.grant(it.resources)
+                it.resources.contains(PermissionRequest.RESOURCE_VIDEO_CAPTURE) -> permissionRequest(Manifest.permission.CAMERA) {
+                    it.grant(arrayOf(PermissionRequest.RESOURCE_VIDEO_CAPTURE))
+                }
             }
-        }
-
-        permissionRequest {
-           request?.grant(arrayOf(PermissionRequest.RESOURCE_VIDEO_CAPTURE))
         }
     }
 
     override fun onGeolocationPermissionsShowPrompt(origin: String?, callback: GeolocationPermissions.Callback?) {
         super.onGeolocationPermissionsShowPrompt(origin, callback)
-        locationPermissionRequest{
+
+        permissionRequest(Manifest.permission.ACCESS_COARSE_LOCATION) {
             callback?.invoke(origin, true, false)
         }
+    }
+
+    fun setupPermissionRequestCallback(callback: (String, () -> Unit) -> Unit) {
+        permissionRequest = callback
     }
 }
