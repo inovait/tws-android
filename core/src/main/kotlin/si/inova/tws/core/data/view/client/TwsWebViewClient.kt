@@ -22,8 +22,6 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
@@ -82,15 +80,15 @@ open class TwsWebViewClient(private val popupStateCallback: ((WebViewState, Bool
    override fun onPageFinished(view: WebView, url: String?) {
       super.onPageFinished(view, url)
 
-      Handler(Looper.getMainLooper()).postDelayed({
-         state.loadingState = LoadingState.Finished
-      }, DELAY_LOADING_MS)
-
-      dynamicModifiers.forEach { modifier ->
-         modifier.inject?.let { inject ->
-            view.evaluateJavascript(inject, null)
+      if (state.loadingState != LoadingState.Finished) {
+         dynamicModifiers.forEach { modifier ->
+            modifier.inject?.let { inject ->
+               view.evaluateJavascript(inject, null)
+            }
          }
       }
+
+      state.loadingState = LoadingState.Finished
    }
 
    override fun doUpdateVisitedHistory(view: WebView, url: String?, isReload: Boolean) {
@@ -157,9 +155,5 @@ open class TwsWebViewClient(private val popupStateCallback: ((WebViewState, Bool
       )
 
       return packageName
-   }
-
-   companion object {
-      private const val DELAY_LOADING_MS = 300L
    }
 }

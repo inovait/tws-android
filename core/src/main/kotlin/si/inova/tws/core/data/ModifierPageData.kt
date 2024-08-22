@@ -76,7 +76,7 @@ enum class ModifierInjectionType {
       fun fromContentType(contentType: String): ModifierInjectionType {
          return when (contentType.lowercase(Locale.getDefault())) {
             "text/css" -> CSS
-            "text/js", "application/javascript" -> JAVASCRIPT
+            "text/javascript" -> JAVASCRIPT
             else -> UNKNOWN
          }
       }
