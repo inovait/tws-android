@@ -17,6 +17,7 @@
 package si.inova.tws.core.data.view.client
 
 import android.Manifest
+import android.content.Context
 import android.graphics.Bitmap
 import android.os.Message
 import android.webkit.GeolocationPermissions
@@ -26,6 +27,7 @@ import android.webkit.WebView
 import si.inova.tws.core.data.view.LoadingState
 import si.inova.tws.core.data.view.WebContent
 import si.inova.tws.core.data.view.WebViewState
+import si.inova.tws.core.util.hasPermissionInManifest
 
 /**
  * TwsWebChromeClient, copied, modified and extended version of AccompanistWebChromeClient
@@ -85,26 +87,40 @@ open class TwsWebChromeClient(
             when {
                 it.resources.contains(PermissionRequest.RESOURCE_PROTECTED_MEDIA_ID) -> it.grant(it.resources)
                 it.resources.contains(PermissionRequest.RESOURCE_VIDEO_CAPTURE) ->
-                    permissionRequest(Manifest.permission.CAMERA) { isGranted ->
-                        if(isGranted) {
-                            it.grant(arrayOf(PermissionRequest.RESOURCE_VIDEO_CAPTURE))
-                        } else {
-                            it.deny()
-                        }
-                    }
+                    it.handleCameraPermission(state.webView?.context)
             }
         }
     }
 
     override fun onGeolocationPermissionsShowPrompt(origin: String?, callback: GeolocationPermissions.Callback?) {
         super.onGeolocationPermissionsShowPrompt(origin, callback)
+        val context = state.webView?.context
 
-        permissionRequest(Manifest.permission.ACCESS_COARSE_LOCATION) { isGranted ->
-            callback?.invoke(origin, isGranted, false)
+        if (context?.hasPermissionInManifest(Manifest.permission.ACCESS_COARSE_LOCATION) == true) {
+            permissionRequest(Manifest.permission.ACCESS_COARSE_LOCATION) { isGranted ->
+                callback?.invoke(origin, isGranted, false)
+            }
+        } else {
+            callback?.invoke(origin, false, false)
         }
     }
 
     fun setupPermissionRequestCallback(callback: (String, (Boolean) -> Unit) -> Unit) {
         permissionRequest = callback
     }
+
+    private fun PermissionRequest.handleCameraPermission(context: Context?) {
+        if (context?.hasPermissionInManifest(Manifest.permission.CAMERA) == true) {
+            permissionRequest(Manifest.permission.CAMERA) { isGranted ->
+                if (isGranted) {
+                    grant(arrayOf(PermissionRequest.RESOURCE_VIDEO_CAPTURE))
+                } else {
+                    deny()
+                }
+            }
+        } else {
+            deny()
+        }
+    }
 }
+
