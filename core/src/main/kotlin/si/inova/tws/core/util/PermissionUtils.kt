@@ -16,38 +16,12 @@
 
 package si.inova.tws.core.util
 
-import android.annotation.SuppressLint
-import android.view.View
-import android.webkit.CookieManager
-import android.webkit.WebSettings
-import android.webkit.WebView
+import android.content.Context
+import android.content.pm.PackageManager
 
-@SuppressLint("SetJavaScriptEnabled")
-fun WebView.initializeSettings() {
-    CookieManager.getInstance().setAcceptThirdPartyCookies(this, true)
-    CookieManager.getInstance().setAcceptCookie(true)
-    setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY)
+fun Context.hasPermissionInManifest(permission: String): Boolean {
+   val packageInfo = packageManager.getPackageInfo(packageName, PackageManager.GET_PERMISSIONS)
+   val permissions = packageInfo.requestedPermissions
 
-    settings.apply {
-        javaScriptEnabled = true
-        javaScriptCanOpenWindowsAutomatically = true
-        setSupportMultipleWindows(true)
-        domStorageEnabled = true
-        databaseEnabled = true
-        loadWithOverviewMode = true
-        useWideViewPort = true
-        allowFileAccess = true
-        allowContentAccess = true
-        setSupportZoom(true)
-        cacheMode = WebSettings.LOAD_DEFAULT
-        mediaPlaybackRequiresUserGesture = false
-        setGeolocationEnabled(true)
-    }
-}
-
-
-fun WebView.onScreenReset() {
-    post {
-        evaluateJavascript(JavaScriptCommands.ScrollToTop, null)
-    }
+   return permissions?.any { it == permission } ?: false
 }

@@ -22,10 +22,13 @@ import android.view.ViewGroup.LayoutParams
 import android.webkit.WebView
 import android.widget.FrameLayout
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
@@ -64,8 +67,6 @@ import si.inova.tws.core.data.view.rememberWebViewNavigator
  * subsequently overwritten after this lambda is called.
  * @param onDispose Called when the WebView is destroyed. Provides a bundle which can be saved
  * if you need to save and restore state in this WebView.
- * @param popupStateCallback optional callback, which is needed if webview supports multi window - returns webview state
- * with corresponding message, which needs to be handled and displayed
  * @param client Provides access to WebViewClient via subclassing
  * @param chromeClient Provides access to WebChromeClient via subclassing
  * @param interceptOverrideUrl optional callback, how to handle intercepted urls,
@@ -82,9 +83,8 @@ fun WebView(
    navigator: WebViewNavigator = rememberWebViewNavigator(),
    onCreated: (WebView) -> Unit = {},
    onDispose: (WebView) -> Unit = {},
-   popupStateCallback: ((WebViewState, Boolean) -> Unit)? = null,
-   client: TwsWebViewClient = remember { TwsWebViewClient(popupStateCallback) },
-   chromeClient: TwsWebChromeClient = remember { TwsWebChromeClient(popupStateCallback) },
+   client: TwsWebViewClient = remember { TwsWebViewClient() },
+   chromeClient: TwsWebChromeClient = remember { TwsWebChromeClient() },
    interceptOverrideUrl: (String) -> Boolean = { false },
    factory: ((Context) -> WebView)? = null,
    dynamicModifiers: List<ModifierPageData>? = null
@@ -115,7 +115,6 @@ fun WebView(
          navigator,
          onCreated,
          onDispose,
-         popupStateCallback,
          client,
          chromeClient,
          interceptOverrideUrl,
@@ -147,8 +146,6 @@ fun WebView(
  * subsequently overwritten after this lambda is called.
  * @param onDispose Called when the WebView is destroyed. Provides a bundle which can be saved
  * if you need to save and restore state in this WebView.
- * @param popupStateCallback optional callback, which is needed if webview supports multi window - returns webview state
- * with corresponding message, which needs to be handled and displayed
  * @param client Provides access to WebViewClient via subclassing
  * @param chromeClient Provides access to WebChromeClient via subclassing
  * @param interceptOverrideUrl optional callback, how to handle intercepted urls,
@@ -166,9 +163,8 @@ fun WebView(
    navigator: WebViewNavigator = rememberWebViewNavigator(),
    onCreated: (WebView) -> Unit = {},
    onDispose: (WebView) -> Unit = {},
-   popupStateCallback: ((WebViewState, Boolean) -> Unit)? = null,
-   client: TwsWebViewClient = remember { TwsWebViewClient(popupStateCallback) },
-   chromeClient: TwsWebChromeClient = remember { TwsWebChromeClient(popupStateCallback) },
+   client: TwsWebViewClient = remember { TwsWebViewClient() },
+   chromeClient: TwsWebChromeClient = remember { TwsWebChromeClient() },
    interceptOverrideUrl: (String) -> Boolean = { false },
    factory: ((Context) -> WebView)? = null,
    dynamicModifiers: List<ModifierPageData>? = null
@@ -177,6 +173,20 @@ fun WebView(
 
    BackHandler(captureBackPresses && navigator.canGoBack) {
       webView?.goBack()
+   }
+
+   val permissionCallback = remember { mutableStateOf<((Boolean) -> Unit)?>(null) }
+   val permissionLauncher = rememberLauncherForActivityResult(
+      ActivityResultContracts.RequestPermission()
+   ) { isGranted ->
+      permissionCallback.value?.invoke(isGranted)
+   }
+
+   LaunchedEffect(chromeClient) {
+      chromeClient.setupPermissionRequestCallback { permission, callback ->
+         permissionLauncher.launch(permission)
+         permissionCallback.value = callback
+      }
    }
 
    webView?.let { wv ->
@@ -221,10 +231,12 @@ fun WebView(
    // Set the state of the client and chrome client
    // This is done internally to ensure they always are the same instance as the
    // parent Web composable
-   client.state = state
-   client.navigator = navigator
-   client.interceptOverrideUrl = interceptOverrideUrl
-   client.dynamicModifiers = dynamicModifiers ?: emptyList()
+   client.let {
+      it.state = state
+      it.navigator = navigator
+      it.interceptOverrideUrl = interceptOverrideUrl
+      it.dynamicModifiers = dynamicModifiers ?: emptyList()
+   }
    chromeClient.state = state
 
    key(key) {

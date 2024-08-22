@@ -16,14 +16,18 @@
 
 package si.inova.tws.core.data.view.client
 
+import android.Manifest
+import android.content.Context
 import android.graphics.Bitmap
 import android.os.Message
+import android.webkit.GeolocationPermissions
 import android.webkit.PermissionRequest
 import android.webkit.WebChromeClient
 import android.webkit.WebView
 import si.inova.tws.core.data.view.LoadingState
 import si.inova.tws.core.data.view.WebContent
 import si.inova.tws.core.data.view.WebViewState
+import si.inova.tws.core.util.hasPermissionInManifest
 
 /**
  * TwsWebChromeClient, copied, modified and extended version of AccompanistWebChromeClient
@@ -33,10 +37,12 @@ import si.inova.tws.core.data.view.WebViewState
  */
 
 open class TwsWebChromeClient(
-    private val popupStateCallback: ((WebViewState, Boolean) -> Unit)? = null
+    private val popupStateCallback: ((WebViewState, Boolean) -> Unit)? = null,
 ) : WebChromeClient() {
     open lateinit var state: WebViewState
         internal set
+
+    private lateinit var permissionRequest: (String, (Boolean) -> Unit) -> Unit
 
     override fun onCreateWindow(view: WebView, isDialog: Boolean, isUserGesture: Boolean, resultMsg: Message): Boolean {
         popupStateCallback?.invoke(
@@ -46,7 +52,7 @@ open class TwsWebChromeClient(
             true
         )
 
-        return true
+        return popupStateCallback != null
     }
 
     override fun onCloseWindow(window: WebView?) {
@@ -78,12 +84,43 @@ open class TwsWebChromeClient(
      */
     override fun onPermissionRequest(request: PermissionRequest?) {
         request?.let {
-            if (it.resources.contains(PermissionRequest.RESOURCE_PROTECTED_MEDIA_ID)) {
-                it.grant(it.resources)
-                return
+            when {
+                it.resources.contains(PermissionRequest.RESOURCE_PROTECTED_MEDIA_ID) -> it.grant(it.resources)
+                it.resources.contains(PermissionRequest.RESOURCE_VIDEO_CAPTURE) ->
+                    it.handleCameraPermission(state.webView?.context)
             }
         }
+    }
 
-        super.onPermissionRequest(request)
+    override fun onGeolocationPermissionsShowPrompt(origin: String?, callback: GeolocationPermissions.Callback?) {
+        super.onGeolocationPermissionsShowPrompt(origin, callback)
+        val context = state.webView?.context
+
+        if (context?.hasPermissionInManifest(Manifest.permission.ACCESS_COARSE_LOCATION) == true) {
+            permissionRequest(Manifest.permission.ACCESS_COARSE_LOCATION) { isGranted ->
+                callback?.invoke(origin, isGranted, false)
+            }
+        } else {
+            callback?.invoke(origin, false, false)
+        }
+    }
+
+    fun setupPermissionRequestCallback(callback: (String, (Boolean) -> Unit) -> Unit) {
+        permissionRequest = callback
+    }
+
+    private fun PermissionRequest.handleCameraPermission(context: Context?) {
+        if (context?.hasPermissionInManifest(Manifest.permission.CAMERA) == true) {
+            permissionRequest(Manifest.permission.CAMERA) { isGranted ->
+                if (isGranted) {
+                    grant(arrayOf(PermissionRequest.RESOURCE_VIDEO_CAPTURE))
+                } else {
+                    deny()
+                }
+            }
+        } else {
+            deny()
+        }
     }
 }
+

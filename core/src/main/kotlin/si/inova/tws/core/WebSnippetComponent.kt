@@ -51,12 +51,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.core.util.Consumer
-import si.inova.tws.core.data.view.LoadingState
 import si.inova.tws.core.data.ModifierPageData
-import si.inova.tws.core.data.view.WebContent
 import si.inova.tws.core.data.WebSnippetData
+import si.inova.tws.core.data.view.LoadingState
+import si.inova.tws.core.data.view.WebContent
 import si.inova.tws.core.data.view.WebViewNavigator
 import si.inova.tws.core.data.view.WebViewState
+import si.inova.tws.core.data.view.client.TwsWebChromeClient
+import si.inova.tws.core.data.view.client.TwsWebViewClient
 import si.inova.tws.core.data.view.rememberSaveableWebViewState
 import si.inova.tws.core.data.view.rememberWebViewNavigator
 import si.inova.tws.core.util.initializeSettings
@@ -183,6 +185,9 @@ private fun SnippetContentWithLoadingAndError(
    // https://github.com/google/accompanist/issues/1326 - WebView settings does not work in compose preview
    val isPreviewMode = LocalInspectionMode.current
 
+   val client = remember(key1 = key) { TwsWebViewClient(popupStateCallback) }
+   val chromeClient = remember(key1 = key) { TwsWebChromeClient(popupStateCallback) }
+
    Box(modifier = modifier) {
       if (!displayLoadingContent && !displayErrorContent) {
          WebView(
@@ -194,9 +199,10 @@ private fun SnippetContentWithLoadingAndError(
                if (!isPreviewMode) it.initializeSettings()
                onCreated(it)
             },
-            popupStateCallback = popupStateCallback,
             interceptOverrideUrl = interceptOverrideUrl,
-            dynamicModifiers = dynamicModifiers
+             dynamicModifiers = dynamicModifiers,
+            client = client,
+            chromeClient = chromeClient
          )
       }
 
