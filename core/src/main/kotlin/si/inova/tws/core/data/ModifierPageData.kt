@@ -16,6 +16,8 @@
 
 package si.inova.tws.core.data
 
+import java.util.Locale
+
 interface ModifierPageData {
    val inject: String?
 }
@@ -23,8 +25,8 @@ interface ModifierPageData {
 data class ContentInjectData(val content: String, val type: ModifierInjectionType) : ModifierPageData {
    override val inject = when (type) {
       ModifierInjectionType.CSS -> injectContentCss(content)
-
       ModifierInjectionType.JAVASCRIPT -> content.trimIndent()
+      else -> null
    }
 
    private fun injectContentCss(value: String): String {
@@ -39,12 +41,11 @@ data class ContentInjectData(val content: String, val type: ModifierInjectionTyp
    }
 }
 
-data class UrlInjectData(val url: String) : ModifierPageData {
-   override val inject = when (checkFileType(url)) {
+data class UrlInjectData(val url: String, val type: ModifierInjectionType) : ModifierPageData {
+   override val inject = when (type) {
       ModifierInjectionType.CSS -> injectUrlCss(url)
-
       ModifierInjectionType.JAVASCRIPT -> injectUrlJs(url)
-      null -> null
+      else -> null
    }
 
    private fun injectUrlCss(url: String): String {
@@ -68,16 +69,16 @@ data class UrlInjectData(val url: String) : ModifierPageData {
 
 enum class ModifierInjectionType {
    CSS,
-   JAVASCRIPT
-}
+   JAVASCRIPT,
+   UNKNOWN;
 
-fun checkFileType(urlString: String): ModifierInjectionType? {
-   return when {
-      urlString.endsWith(FILE_CSS, ignoreCase = true) -> ModifierInjectionType.CSS
-      urlString.endsWith(FILE_JS, ignoreCase = true) -> ModifierInjectionType.JAVASCRIPT
-      else -> null
+   companion object {
+      fun fromContentType(contentType: String): ModifierInjectionType {
+         return when (contentType.lowercase(Locale.getDefault())) {
+            "text/css" -> CSS
+            "text/javascript" -> JAVASCRIPT
+            else -> UNKNOWN
+         }
+      }
    }
 }
-
-private const val FILE_CSS = ".css"
-private const val FILE_JS = ".js"

@@ -148,7 +148,7 @@ fun WebSnippetComponent(
       interceptOverrideUrl = interceptOverrideUrl,
       errorViewContent = errorViewContent,
       popupStateCallback = popupStateCallback,
-      injectPage = target.injectScript
+      dynamicModifiers = target.dynamicModifiers
    )
 
    popupStates.value.forEach { state ->
@@ -162,7 +162,7 @@ fun WebSnippetComponent(
          popupStateCallback = popupStateCallback,
          interceptOverrideUrl = interceptOverrideUrl,
          googleLoginRedirectUrl = googleLoginRedirectUrl,
-         injectPage = target.injectScript
+         dynamicModifiers = target.dynamicModifiers
       )
    }
 }
@@ -180,7 +180,7 @@ private fun SnippetContentWithLoadingAndError(
    onCreated: (WebView) -> Unit = {},
    popupStateCallback: ((WebViewState, Boolean) -> Unit)? = null,
    interceptOverrideUrl: (String) -> Boolean,
-   injectPage: List<ModifierPageData>? = null
+   dynamicModifiers: List<ModifierPageData>? = null
 ) {
    // https://github.com/google/accompanist/issues/1326 - WebView settings does not work in compose preview
    val isPreviewMode = LocalInspectionMode.current
@@ -200,7 +200,7 @@ private fun SnippetContentWithLoadingAndError(
                onCreated(it)
             },
             interceptOverrideUrl = interceptOverrideUrl,
-            injectPage = injectPage,
+             dynamicModifiers = dynamicModifiers,
             client = client,
             chromeClient = chromeClient
          )
@@ -228,7 +228,7 @@ private fun PopUpWebView(
    popupNavigator: WebViewNavigator = rememberWebViewNavigator(),
    popupStateCallback: ((WebViewState, Boolean) -> Unit)? = null,
    googleLoginRedirectUrl: String? = null,
-   injectPage: List<ModifierPageData>? = null
+   dynamicModifiers: List<ModifierPageData>? = null
 ) {
    val displayErrorContent = displayErrorViewOnError && popupState.hasError
    val displayLoadingContent =
@@ -275,7 +275,7 @@ private fun PopUpWebView(
             },
             popupStateCallback = popupStateCallback,
             interceptOverrideUrl = interceptOverrideUrl,
-            injectPage = injectPage
+            dynamicModifiers = dynamicModifiers
          )
       }
    }
