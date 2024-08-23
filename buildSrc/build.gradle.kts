@@ -17,46 +17,46 @@
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 
 plugins {
-   `kotlin-dsl`
-   alias(libs.plugins.versions)
+    `kotlin-dsl`
+    alias(libs.plugins.versions)
 }
 
 repositories {
-   google()
-   mavenCentral()
-   gradlePluginPortal()
+    google()
+    mavenCentral()
+    gradlePluginPortal()
 }
 
 dependencies {
-   implementation(libs.androidGradleCacheFix)
-   implementation(libs.android.agp)
-   implementation(libs.kotlin.plugin)
-   implementation(libs.v.checker.plugin)
+    implementation(libs.androidGradleCacheFix)
+    implementation(libs.android.agp)
+    implementation(libs.kotlin.plugin)
+    implementation(libs.v.checker.plugin)
 
-   // Workaround to have libs accessible (from https://github.com/gradle/gradle/issues/15383)
-   compileOnly(files(libs.javaClass.superclass.protectionDomain.codeSource.location))
+    // Workaround to have libs accessible (from https://github.com/gradle/gradle/issues/15383)
+    compileOnly(files(libs.javaClass.superclass.protectionDomain.codeSource.location))
 }
 
 tasks.withType<DependencyUpdatesTask> {
-   gradleReleaseChannel = "current"
+    gradleReleaseChannel = "current"
 
-   rejectVersionIf {
-      candidate.version.contains("alpha", ignoreCase = true) ||
-         candidate.version.contains("beta", ignoreCase = true) ||
-         candidate.version.contains("RC", ignoreCase = true) ||
-         candidate.version.contains("M", ignoreCase = true) ||
-         candidate.version.contains("eap", ignoreCase = true)
-   }
+    rejectVersionIf {
+        candidate.version.contains("alpha", ignoreCase = true) ||
+            candidate.version.contains("beta", ignoreCase = true) ||
+            candidate.version.contains("RC", ignoreCase = true) ||
+            candidate.version.contains("M", ignoreCase = true) ||
+            candidate.version.contains("eap", ignoreCase = true)
+    }
 
-   reportfileName = "versions"
-   outputFormatter = "json"
+    reportfileName = "versions"
+    outputFormatter = "json"
 }
 
 tasks.register("pre-commit-hook", Copy::class) {
-   from("$rootDir/../config/hooks/")
-   into("$rootDir/../.git/hooks")
+    from("$rootDir/../config/hooks/")
+    into("$rootDir/../.git/hooks")
 }
 
 afterEvaluate {
-   tasks.getByName("jar").dependsOn("pre-commit-hook")
+    tasks.getByName("jar").dependsOn("pre-commit-hook")
 }

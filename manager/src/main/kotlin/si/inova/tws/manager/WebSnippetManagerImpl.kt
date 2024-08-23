@@ -37,82 +37,82 @@ import si.inova.tws.manager.singleton.coroutineResourceManager
 import si.inova.tws.manager.web_socket.TwsSocket
 
 class WebSnippetManagerImpl(context: Context) : WebSnippetManager {
-   private val resources: CoroutineResourceManager = coroutineResourceManager
-   private val webSnippetFunction: WebSnippetFunction = BaseServiceFactory().create()
-   private val networkConnectivityService: NetworkConnectivityService = NetworkConnectivityServiceImpl(context)
+    private val resources: CoroutineResourceManager = coroutineResourceManager
+    private val webSnippetFunction: WebSnippetFunction = BaseServiceFactory().create()
+    private val networkConnectivityService: NetworkConnectivityService = NetworkConnectivityServiceImpl(context)
 
-   private val twsSocket: TwsSocket = TwsSocket(resources.scope)
+    private val twsSocket: TwsSocket = TwsSocket(resources.scope)
 
-   private val stateFlow: MutableStateFlow<Outcome<List<WebSnippetDto>>> = MutableStateFlow(Outcome.Progress())
+    private val stateFlow: MutableStateFlow<Outcome<List<WebSnippetDto>>> = MutableStateFlow(Outcome.Progress())
 
-   override val snippetsFlow = combine(
-      twsSocket.snippetsFlow,
-      stateFlow
-   ) { snippets, state ->
-      Outcome.Success(snippets).downgradeTo(state)
-   }
+    override val snippetsFlow = combine(
+        twsSocket.snippetsFlow,
+        stateFlow
+    ) { snippets, state ->
+        Outcome.Success(snippets).downgradeTo(state)
+    }
 
-   private val _mainSnippetIdFlow: MutableStateFlow<String?> = MutableStateFlow(null)
-   override val mainSnippetIdFlow: Flow<String?> = _mainSnippetIdFlow
+    private val _mainSnippetIdFlow: MutableStateFlow<String?> = MutableStateFlow(null)
+    override val mainSnippetIdFlow: Flow<String?> = _mainSnippetIdFlow
 
-   // needs storing to allow us to reconnect if connection fails because of the network issues
-   private var wssUrl: String? = null
+    // needs storing to allow us to reconnect if connection fails because of the network issues
+    private var wssUrl: String? = null
 
-   init {
-      resources.scope.launch {
-         networkConnectivityService.networkStatus.collect {
-            if (twsSocket.socketExists() && it is NetworkStatus.Connected) {
-               setupWebSocketConnection()
+    init {
+        resources.scope.launch {
+            networkConnectivityService.networkStatus.collect {
+                if (twsSocket.socketExists() && it is NetworkStatus.Connected) {
+                    setupWebSocketConnection()
+                }
             }
-         }
-      }
-   }
+        }
+    }
 
-   override suspend fun loadSharedSnippetData(shareId: String) {
-      stateFlow.emit(Outcome.Progress(stateFlow.value.data))
+    override suspend fun loadSharedSnippetData(shareId: String) {
+        stateFlow.emit(Outcome.Progress(stateFlow.value.data))
 
-      try {
-         val sharedSnippet = webSnippetFunction.getSharedSnippetData(shareId).snippet
-         _mainSnippetIdFlow.value = sharedSnippet.id
-         loadProjectAndSetupWss(sharedSnippet.organizationId, sharedSnippet.projectId)
-      } catch (e: CauseException) {
-         stateFlow.emit(Outcome.Error(e, stateFlow.value.data))
-      } catch (e: Exception) {
-         stateFlow.emit(Outcome.Error(UnknownCauseException("", e), stateFlow.value.data))
-      }
-   }
+        try {
+            val sharedSnippet = webSnippetFunction.getSharedSnippetData(shareId).snippet
+            _mainSnippetIdFlow.value = sharedSnippet.id
+            loadProjectAndSetupWss(sharedSnippet.organizationId, sharedSnippet.projectId)
+        } catch (e: CauseException) {
+            stateFlow.emit(Outcome.Error(e, stateFlow.value.data))
+        } catch (e: Exception) {
+            stateFlow.emit(Outcome.Error(UnknownCauseException("", e), stateFlow.value.data))
+        }
+    }
 
-   override suspend fun loadWebSnippets(organizationId: String, projectId: String) {
-      try {
-         loadProjectAndSetupWss(organizationId, projectId)
-      } catch (e: CauseException) {
-         stateFlow.emit(Outcome.Error(e, stateFlow.value.data))
-      } catch (e: Exception) {
-         stateFlow.emit(Outcome.Error(UnknownCauseException("", e), stateFlow.value.data))
-      }
-   }
+    override suspend fun loadWebSnippets(organizationId: String, projectId: String) {
+        try {
+            loadProjectAndSetupWss(organizationId, projectId)
+        } catch (e: CauseException) {
+            stateFlow.emit(Outcome.Error(e, stateFlow.value.data))
+        } catch (e: Exception) {
+            stateFlow.emit(Outcome.Error(UnknownCauseException("", e), stateFlow.value.data))
+        }
+    }
 
-   private suspend fun loadProjectAndSetupWss(
-      organizationId: String,
-      projectId: String
-   ) {
-      val twsProject = webSnippetFunction.getWebSnippets(organizationId, projectId, "someApiKey")
+    private suspend fun loadProjectAndSetupWss(
+        organizationId: String,
+        projectId: String
+    ) {
+        val twsProject = webSnippetFunction.getWebSnippets(organizationId, projectId, "someApiKey")
 
-      wssUrl = twsProject.listenOn
-      setupWebSocketConnection()
+        wssUrl = twsProject.listenOn
+        setupWebSocketConnection()
 
-      twsSocket.manuallyUpdateSnippet(twsProject.snippets)
-   }
+        twsSocket.manuallyUpdateSnippet(twsProject.snippets)
+    }
 
-   private fun setupWebSocketConnection() {
-      val wss = wssUrl?.takeIf { it.isNotEmpty() } ?: return
+    private fun setupWebSocketConnection() {
+        val wss = wssUrl?.takeIf { it.isNotEmpty() } ?: return
 
-      resources.scope.launch {
-         twsSocket.setupWebSocketConnection(wss)
-      }
-   }
+        resources.scope.launch {
+            twsSocket.setupWebSocketConnection(wss)
+        }
+    }
 
-   override fun closeWebsocketConnection() {
-      twsSocket.closeWebsocketConnection()
-   }
+    override fun closeWebsocketConnection() {
+        twsSocket.closeWebsocketConnection()
+    }
 }

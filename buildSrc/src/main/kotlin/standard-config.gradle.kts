@@ -15,9 +15,9 @@
  */
 
 plugins {
-   signing
+    signing
 
-   id("maven-publish")
+    id("maven-publish")
 }
 
 group = "si.inova.tws"

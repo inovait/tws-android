@@ -29,42 +29,42 @@ import kotlin.coroutines.cancellation.CancellationException
 
 @Singleton
 internal val provideErrorReporter = ErrorReporter {
-   object : ErrorReporter {
-      override fun report(throwable: Throwable) {
-         if (throwable is CancellationException) {
-            report(Exception("Got cancellation exception", throwable))
-            return
-         }
+    object : ErrorReporter {
+        override fun report(throwable: Throwable) {
+            if (throwable is CancellationException) {
+                report(Exception("Got cancellation exception", throwable))
+                return
+            }
 
-         throwable.printStackTrace()
-      }
-   }
+            throwable.printStackTrace()
+        }
+    }
 }
 
 @Singleton
 internal val coroutineResourceManager =
-   CoroutineResourceManager(MainImmediateCoroutineScope(object : DispatcherProvider {}), provideErrorReporter)
+    CoroutineResourceManager(MainImmediateCoroutineScope(object : DispatcherProvider {}), provideErrorReporter)
 
 @Singleton
 internal fun twsMoshi(): Moshi {
-   if (Thread.currentThread().name == "main") {
-      error("Moshi should not be initialized on the main thread")
-   }
+    if (Thread.currentThread().name == "main") {
+        error("Moshi should not be initialized on the main thread")
+    }
 
-   return Moshi.Builder().build()
+    return Moshi.Builder().build()
 }
 
 @Singleton
 internal fun twsOkHttpClient(): OkHttpClient {
-   if (Thread.currentThread().name == "main") {
-      error("OkHttp should not be initialized on the main thread")
-   }
+    if (Thread.currentThread().name == "main") {
+        error("OkHttp should not be initialized on the main thread")
+    }
 
-   return prepareDefaultOkHttpClient().build()
+    return prepareDefaultOkHttpClient().build()
 }
 
 internal fun prepareDefaultOkHttpClient(): OkHttpClient.Builder {
-   return OkHttpClient.Builder()
-      .addInterceptor(BypassCacheInterceptor())
-      .addNetworkInterceptor(certificateTransparencyInterceptor())
+    return OkHttpClient.Builder()
+        .addInterceptor(BypassCacheInterceptor())
+        .addNetworkInterceptor(certificateTransparencyInterceptor())
 }

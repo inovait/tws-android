@@ -24,89 +24,89 @@ import org.gradle.kotlin.dsl.withType
 import org.gradle.plugins.signing.Sign
 
 fun Project.publishLibrary(
-   userFriendlyName: String,
-   description: String,
-   githubPath: String,
-   artifactName: String = project.name
+    userFriendlyName: String,
+    description: String,
+    githubPath: String,
+    artifactName: String = project.name
 ) {
-   setProjectMetadata(userFriendlyName, description, githubPath)
-   configureForMavenCentral()
-   forceArtifactName(artifactName)
+    setProjectMetadata(userFriendlyName, description, githubPath)
+    configureForMavenCentral()
+    forceArtifactName(artifactName)
 }
 
 private fun Project.setProjectMetadata(
-   userFriendlyName: String,
-   description: String,
-   githubPath: String
+    userFriendlyName: String,
+    description: String,
+    githubPath: String
 ) {
-   extensions.configure<org.gradle.api.publish.PublishingExtension>("publishing") {
-      publications.withType<MavenPublication> {
-         pom {
-            name.set(userFriendlyName)
-            this.description.set(description)
-            val projectGitUrl = "https://github.com/inovait/tws-android-sdk"
-            url.set("$projectGitUrl/tree/main/$githubPath")
-            inceptionYear.set("2024")
-            licenses {
-               license {
-                  name.set("MIT")
-                  url.set("https://opensource.org/licenses/MIT")
-               }
+    extensions.configure<org.gradle.api.publish.PublishingExtension>("publishing") {
+        publications.withType<MavenPublication> {
+            pom {
+                name.set(userFriendlyName)
+                this.description.set(description)
+                val projectGitUrl = "https://github.com/inovait/tws-android-sdk"
+                url.set("$projectGitUrl/tree/main/$githubPath")
+                inceptionYear.set("2024")
+                licenses {
+                    license {
+                        name.set("MIT")
+                        url.set("https://opensource.org/licenses/MIT")
+                    }
+                }
+                issueManagement {
+                    system.set("GitHub")
+                    url.set("$projectGitUrl/issues")
+                }
+                scm {
+                    connection.set("scm:git:$projectGitUrl")
+                    developerConnection.set("scm:git:$projectGitUrl")
+                    url.set(projectGitUrl)
+                }
+                developers {
+                    developer {
+                        name.set("Inova IT")
+                        url.set("https://inova.si/")
+                    }
+                }
             }
-            issueManagement {
-               system.set("GitHub")
-               url.set("$projectGitUrl/issues")
-            }
-            scm {
-               connection.set("scm:git:$projectGitUrl")
-               developerConnection.set("scm:git:$projectGitUrl")
-               url.set(projectGitUrl)
-            }
-            developers {
-               developer {
-                  name.set("Inova IT")
-                  url.set("https://inova.si/")
-               }
-            }
-         }
-      }
-   }
+        }
+    }
 }
 
 private fun Project.configureForMavenCentral() {
-   if (properties.containsKey("ossrhUsername")) {
-      extensions.configure<org.gradle.plugins.signing.SigningExtension>("signing") {
-         sign(extensions.getByName<org.gradle.api.publish.PublishingExtension>("publishing").publications)
-      }
+    if (properties.containsKey("ossrhUsername")) {
+        extensions.configure<org.gradle.plugins.signing.SigningExtension>("signing") {
+            sign(extensions.getByName<org.gradle.api.publish.PublishingExtension>("publishing").publications)
+        }
 
-      // Workaround for the https://github.com/gradle/gradle/issues/26091
-      tasks.withType<AbstractPublishToMaven>().configureEach {
-         val signingTasks = tasks.withType<Sign>()
-         mustRunAfter(signingTasks)
-      }
+        // Workaround for the https://github.com/gradle/gradle/issues/26091
+        tasks.withType<AbstractPublishToMaven>().configureEach {
+            val signingTasks = tasks.withType<Sign>()
+            mustRunAfter(signingTasks)
+        }
 
-      extensions.configure<org.gradle.api.publish.PublishingExtension>("publishing") {
-         repositories {
-            maven {
-               val repositoryId =
-                  property("ossrhRepId") ?: error("Missing property: ossrhRepId")
-               setUrl("https://oss.sonatype.org/service/local/staging/deployByRepositoryId/$repositoryId/")
-               credentials {
-                  username = property("ossrhUsername") as String
-                  password = property("ossrhPassword") as String
-               }
+        extensions.configure<org.gradle.api.publish.PublishingExtension>("publishing") {
+            repositories {
+                maven {
+                    val repositoryId =
+                        property("ossrhRepId") ?: error("Missing property: ossrhRepId")
+                    setUrl("https://oss.sonatype.org/service/local/staging/deployByRepositoryId/$repositoryId/")
+                    credentials {
+                        username = property("ossrhUsername") as String
+                        password = property("ossrhPassword") as String
+                    }
+                }
             }
-         }
-      }
-   }
+        }
+    }
 }
 
 private fun Project.forceArtifactName(artifactName: String) {
-   afterEvaluate {
-      extensions.configure<org.gradle.api.publish.PublishingExtension>("publishing") {
-         publications.withType<MavenPublication> {
-            artifactId = artifactId.replace(project.name, artifactName)
-         }
-      }
-   }
+    afterEvaluate {
+        extensions.configure<org.gradle.api.publish.PublishingExtension>("publishing") {
+            publications.withType<MavenPublication> {
+                artifactId = artifactId.replace(project.name, artifactName)
+            }
+        }
+    }
 }

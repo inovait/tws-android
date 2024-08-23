@@ -16,18 +16,10 @@
 
 package si.inova.tws.manager.data
 
-import androidx.annotation.Keep
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
-@Keep
-data class WebSnippetDto(
-    val id: String,
-    val target: String,
-    val organizationId: String,
-    val projectId: String,
-    val html: String? = null,
-    val headers: Map<String, String>? = emptyMap(),
-    val dynamicResources: List<DynamicResourceDto>? = emptyList(),
-    val loadIteration: Int = 0
+data class DynamicResourceDto(
+    val url: String,
+    val contentType: String
 )

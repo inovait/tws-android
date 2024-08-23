@@ -53,9 +53,9 @@ import androidx.compose.ui.unit.dp
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import si.inova.tws.core.data.WebSnippetData
-import si.inova.tws.core.data.WebViewState
-import si.inova.tws.core.data.rememberSaveableWebViewState
-import si.inova.tws.core.data.rememberWebViewNavigator
+import si.inova.tws.core.data.view.WebViewState
+import si.inova.tws.core.data.view.rememberSaveableWebViewState
+import si.inova.tws.core.data.view.rememberWebViewNavigator
 import si.inova.tws.core.lifecycle.DoOnScreenReset
 import si.inova.tws.core.lifecycle.LocalScreenResetNotifier
 import si.inova.tws.core.lifecycle.ScreenResetNotifier
@@ -90,199 +90,199 @@ import timber.log.Timber
  */
 @Composable
 fun TabsWebSnippetComponent(
-   targets: ImmutableList<WebSnippetData>,
-   modifier: Modifier = Modifier,
-   mainTabIndex: Int = 0,
-   scrollableTabRow: Boolean = false,
-   displayErrorViewOnError: Boolean = false,
-   errorViewContent: @Composable () -> Unit = { FullScreenErrorView() },
-   displayPlaceholderWhileLoading: Boolean = true,
-   loadingPlaceholderContent: @Composable () -> Unit = { FullScreenLoadingView() },
-   interceptOverrideUrl: (String) -> Boolean = { false },
-   topBar: @Composable (String?) -> Unit = { },
-   resetScreenOnTabReselect: Boolean = true,
-   onScreenReset: (WebViewState) -> Unit = { it.webView?.onScreenReset() },
-   googleLoginRedirectUrl: String? = null
+    targets: ImmutableList<WebSnippetData>,
+    modifier: Modifier = Modifier,
+    mainTabIndex: Int = 0,
+    scrollableTabRow: Boolean = false,
+    displayErrorViewOnError: Boolean = false,
+    errorViewContent: @Composable () -> Unit = { FullScreenErrorView() },
+    displayPlaceholderWhileLoading: Boolean = true,
+    loadingPlaceholderContent: @Composable () -> Unit = { FullScreenLoadingView() },
+    interceptOverrideUrl: (String) -> Boolean = { false },
+    topBar: @Composable (String?) -> Unit = { },
+    resetScreenOnTabReselect: Boolean = true,
+    onScreenReset: (WebViewState) -> Unit = { it.webView?.onScreenReset() },
+    googleLoginRedirectUrl: String? = null
 ) {
-   CompositionLocalProvider(LocalScreenResetNotifier provides ScreenResetNotifier()) {
-      val screenResetNotifier = LocalScreenResetNotifier.current
-      val webViewStatesMap = targets.map { rememberSaveableWebViewState(key = "${it.id}-${it.url}") }
-      val navigatorsMap = targets.map { rememberWebViewNavigator(it.id) }
+    CompositionLocalProvider(LocalScreenResetNotifier provides ScreenResetNotifier()) {
+        val screenResetNotifier = LocalScreenResetNotifier.current
+        val webViewStatesMap = targets.map { rememberSaveableWebViewState(key = "${it.id}-${it.url}") }
+        val navigatorsMap = targets.map { rememberWebViewNavigator(it.id) }
 
-      val lastSelectedTabIndex = remember { mutableIntStateOf(mainTabIndex) }
+        val lastSelectedTabIndex = remember { mutableIntStateOf(mainTabIndex) }
 
-      var tabIndex by rememberSaveable(targets.size.toString()) {
-         mutableIntStateOf(
-            if (targets.size <= mainTabIndex) {
-               Timber.e(
-                  "targetUrl size should be > then mainTabIndex: " +
-                     "targetUrls.size = ${targets.size} mainTabIndex = $mainTabIndex"
-               )
-               0
-            } else {
-               lastSelectedTabIndex.intValue
+        var tabIndex by rememberSaveable(targets.size.toString()) {
+            mutableIntStateOf(
+                if (targets.size <= mainTabIndex) {
+                    Timber.e(
+                        "targetUrl size should be > then mainTabIndex: " +
+                            "targetUrls.size = ${targets.size} mainTabIndex = $mainTabIndex"
+                    )
+                    0
+                } else {
+                    lastSelectedTabIndex.intValue
+                }
+            )
+        }
+
+        // If number of pages decreases
+        LaunchedEffect(targets.size) {
+            if (tabIndex >= targets.size) {
+                tabIndex = 0
+                lastSelectedTabIndex.intValue = 0
             }
-         )
-      }
+        }
 
-      // If number of pages decreases
-      LaunchedEffect(targets.size) {
-         if (tabIndex >= targets.size) {
-            tabIndex = 0
-            lastSelectedTabIndex.intValue = 0
-         }
-      }
+        BackHandler(tabIndex != mainTabIndex) {
+            tabIndex = if (targets.size <= mainTabIndex) 0 else mainTabIndex
+        }
 
-      BackHandler(tabIndex != mainTabIndex) {
-         tabIndex = if (targets.size <= mainTabIndex) 0 else mainTabIndex
-      }
-
-      Scaffold(
-         modifier = modifier,
-         topBar = {
-            topBar(webViewStatesMap[tabIndex.coerceAtMost(targets.size - 1)].pageTitle)
-         },
-         bottomBar = {
-            BottomTabRow(
-               scrollableTabRow,
-               tabIndex,
-               targets
+        Scaffold(
+            modifier = modifier,
+            topBar = {
+                topBar(webViewStatesMap[tabIndex.coerceAtMost(targets.size - 1)].pageTitle)
+            },
+            bottomBar = {
+                BottomTabRow(
+                    scrollableTabRow,
+                    tabIndex,
+                    targets
+                ) {
+                    if (tabIndex == it && resetScreenOnTabReselect) {
+                        screenResetNotifier.requestScreenReset()
+                    } else {
+                        tabIndex = it
+                    }
+                    lastSelectedTabIndex.intValue = it
+                }
+            }
+        ) { padding ->
+            Column(
+                modifier = Modifier
+                    .padding(padding)
+                    .fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-               if (tabIndex == it && resetScreenOnTabReselect) {
-                  screenResetNotifier.requestScreenReset()
-               } else {
-                  tabIndex = it
-               }
-               lastSelectedTabIndex.intValue = it
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                ) {
+                    Crossfade(
+                        targetState = tabIndex.coerceAtMost(targets.size - 1),
+                        label = "Animation while changing tabs"
+                    ) { targetIndex ->
+                        // can crash because of the animation if tab is deleted
+                        val coercedIndex = targetIndex.coerceAtMost(targets.size - 1)
+
+
+                        DoOnScreenReset {
+                            onScreenReset(webViewStatesMap[coercedIndex])
+                        }
+
+                        WebSnippetComponent(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(Color.White),
+                            target = targets[coercedIndex],
+                            webViewState = webViewStatesMap[coercedIndex],
+                            navigator = navigatorsMap[coercedIndex],
+                            displayErrorViewOnError = displayErrorViewOnError,
+                            errorViewContent = errorViewContent,
+                            displayPlaceholderWhileLoading = displayPlaceholderWhileLoading,
+                            loadingPlaceholderContent = loadingPlaceholderContent,
+                            interceptOverrideUrl = interceptOverrideUrl,
+                            googleLoginRedirectUrl = googleLoginRedirectUrl
+                        )
+                    }
+                }
             }
-         }
-      ) { padding ->
-         Column(
-            modifier = Modifier
-               .padding(padding)
-               .fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally
-         ) {
-            Box(
-               modifier = Modifier
-                  .fillMaxWidth()
-                  .weight(1f)
-            ) {
-               Crossfade(
-                  targetState = tabIndex.coerceAtMost(targets.size - 1),
-                  label = "Animation while changing tabs"
-               ) { targetIndex ->
-                  // can crash because of the animation if tab is deleted
-                  val coercedIndex = targetIndex.coerceAtMost(targets.size - 1)
-
-
-                  DoOnScreenReset {
-                     onScreenReset(webViewStatesMap[coercedIndex])
-                  }
-
-                  WebSnippetComponent(
-                     modifier = Modifier
-                        .fillMaxSize()
-                        .background(Color.White),
-                     target = targets[coercedIndex],
-                     webViewState = webViewStatesMap[coercedIndex],
-                     navigator = navigatorsMap[coercedIndex],
-                     displayErrorViewOnError = displayErrorViewOnError,
-                     errorViewContent = errorViewContent,
-                     displayPlaceholderWhileLoading = displayPlaceholderWhileLoading,
-                     loadingPlaceholderContent = loadingPlaceholderContent,
-                     interceptOverrideUrl = interceptOverrideUrl,
-                     googleLoginRedirectUrl = googleLoginRedirectUrl
-                  )
-               }
-            }
-         }
-      }
-   }
+        }
+    }
 }
 
 @Composable
 private fun BottomTabRow(
-   scrollableTabRow: Boolean,
-   tabIndex: Int,
-   targets: ImmutableList<WebSnippetData>,
-   onClick: (Int) -> Unit
+    scrollableTabRow: Boolean,
+    tabIndex: Int,
+    targets: ImmutableList<WebSnippetData>,
+    onClick: (Int) -> Unit
 ) {
-   if (targets.size <= 1) return
-   if (scrollableTabRow) {
-      ScrollableTabRow(selectedTabIndex = tabIndex, edgePadding = 0.dp) {
-         Tab(targets, tabIndex, onClick)
-      }
-   } else {
-      TabRow(selectedTabIndex = tabIndex) {
-         Tab(targets, tabIndex, onClick)
-      }
-   }
+    if (targets.size <= 1) return
+    if (scrollableTabRow) {
+        ScrollableTabRow(selectedTabIndex = tabIndex, edgePadding = 0.dp) {
+            Tab(targets, tabIndex, onClick)
+        }
+    } else {
+        TabRow(selectedTabIndex = tabIndex) {
+            Tab(targets, tabIndex, onClick)
+        }
+    }
 }
 
 @Composable
 private fun Tab(targets: ImmutableList<WebSnippetData>, tabIndex: Int, onClick: (Int) -> Unit) {
-   targets.forEachIndexed { index, _ ->
-      Tab(text = { Text(text = index.toString()) }, selected = tabIndex == index, onClick = {
-         onClick(index)
-      })
-   }
+    targets.forEachIndexed { index, _ ->
+        Tab(text = { Text(text = index.toString()) }, selected = tabIndex == index, onClick = {
+            onClick(index)
+        })
+    }
 }
 
 @Composable
 private fun FullScreenErrorView() {
-   Column(
-      modifier = Modifier
-         .fillMaxSize()
-         .background(Color.White)
-   ) {
-      Spacer(modifier = Modifier.weight(1f))
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White)
+    ) {
+        Spacer(modifier = Modifier.weight(1f))
 
-      Image(
-         modifier = Modifier.align(Alignment.CenterHorizontally),
-         painter = painterResource(id = R.drawable.image_load_failed),
-         contentDescription = "Web view error image",
-      )
+        Image(
+            modifier = Modifier.align(Alignment.CenterHorizontally),
+            painter = painterResource(id = R.drawable.image_load_failed),
+            contentDescription = "Web view error image",
+        )
 
-      Text(
-         modifier = Modifier
-            .padding(all = 16.dp)
-            .align(Alignment.CenterHorizontally),
-         text = stringResource(id = R.string.oops_loading_failed),
-         style = TextStyle(color = Color.Black)
-      )
+        Text(
+            modifier = Modifier
+                .padding(all = 16.dp)
+                .align(Alignment.CenterHorizontally),
+            text = stringResource(id = R.string.oops_loading_failed),
+            style = TextStyle(color = Color.Black)
+        )
 
-      Spacer(modifier = Modifier.weight(1f))
-   }
+        Spacer(modifier = Modifier.weight(1f))
+    }
 }
 
 @Composable
 private fun FullScreenLoadingView() {
-   Box(
-      modifier = Modifier
-         .fillMaxSize()
-         .background(Color.White)
-   ) {
-      CircularProgressIndicator(
-         modifier = Modifier
-            .size(64.dp)
-            .align(Alignment.Center),
-         color = MaterialTheme.colorScheme.secondary,
-         trackColor = MaterialTheme.colorScheme.surfaceVariant
-      )
-   }
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White)
+    ) {
+        CircularProgressIndicator(
+            modifier = Modifier
+                .size(64.dp)
+                .align(Alignment.Center),
+            color = MaterialTheme.colorScheme.secondary,
+            trackColor = MaterialTheme.colorScheme.surfaceVariant
+        )
+    }
 }
 
 @Composable
 @Preview
 private fun TabsWebSnippetComponentPreview() {
-   TabsWebSnippetComponent(
-      persistentListOf(
-         WebSnippetData(id = "id1", url = "https://www.google.com/"),
-         WebSnippetData(id = "id2", url = "https://www.google.com/"),
-         WebSnippetData(id = "id3", url = "https://www.google.com/")
-      ),
-      displayErrorViewOnError = true,
-      displayPlaceholderWhileLoading = true
-   )
+    TabsWebSnippetComponent(
+        persistentListOf(
+            WebSnippetData(id = "id1", url = "https://www.google.com/"),
+            WebSnippetData(id = "id2", url = "https://www.google.com/"),
+            WebSnippetData(id = "id3", url = "https://www.google.com/")
+        ),
+        displayErrorViewOnError = true,
+        displayPlaceholderWhileLoading = true
+    )
 }

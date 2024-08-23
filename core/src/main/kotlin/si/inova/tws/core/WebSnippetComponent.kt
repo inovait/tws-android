@@ -51,13 +51,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.core.util.Consumer
-import si.inova.tws.core.data.LoadingState
-import si.inova.tws.core.data.WebContent
+import si.inova.tws.core.data.ModifierPageData
 import si.inova.tws.core.data.WebSnippetData
-import si.inova.tws.core.data.WebViewNavigator
-import si.inova.tws.core.data.WebViewState
-import si.inova.tws.core.data.rememberSaveableWebViewState
-import si.inova.tws.core.data.rememberWebViewNavigator
+import si.inova.tws.core.data.view.LoadingState
+import si.inova.tws.core.data.view.WebContent
+import si.inova.tws.core.data.view.WebViewNavigator
+import si.inova.tws.core.data.view.WebViewState
+import si.inova.tws.core.data.view.client.TwsWebChromeClient
+import si.inova.tws.core.data.view.client.TwsWebViewClient
+import si.inova.tws.core.data.view.rememberSaveableWebViewState
+import si.inova.tws.core.data.view.rememberWebViewNavigator
 import si.inova.tws.core.util.initializeSettings
 
 /**
@@ -84,246 +87,256 @@ import si.inova.tws.core.util.initializeSettings
  */
 @Composable
 fun WebSnippetComponent(
-   target: WebSnippetData,
-   modifier: Modifier = Modifier,
-   navigator: WebViewNavigator = rememberWebViewNavigator(target.id),
-   webViewState: WebViewState = rememberSaveableWebViewState(target.id),
-   displayErrorViewOnError: Boolean = false,
-   errorViewContent: @Composable () -> Unit = { ErrorViewIndicator() },
-   displayPlaceholderWhileLoading: Boolean = false,
-   loadingPlaceholderContent: @Composable () -> Unit = { WebViewLoadingIndicator() },
-   interceptOverrideUrl: (String) -> Boolean = { false },
-   googleLoginRedirectUrl: String? = null
+    target: WebSnippetData,
+    modifier: Modifier = Modifier,
+    navigator: WebViewNavigator = rememberWebViewNavigator(target.id),
+    webViewState: WebViewState = rememberSaveableWebViewState(target.id),
+    displayErrorViewOnError: Boolean = false,
+    errorViewContent: @Composable () -> Unit = { ErrorViewIndicator() },
+    displayPlaceholderWhileLoading: Boolean = false,
+    loadingPlaceholderContent: @Composable () -> Unit = { WebViewLoadingIndicator() },
+    interceptOverrideUrl: (String) -> Boolean = { false },
+    googleLoginRedirectUrl: String? = null
 ) {
-   LaunchedEffect(navigator, target.loadIteration) {
-      if (webViewState.lastLoadedUrl == null || webViewState.loadIteration != target.loadIteration) {
-         // This is the first time load, so load the home page.
-         navigator.loadUrl(
-            url = target.url,
-            loadOnlyInitial = webViewState.loadIteration == null,
-            additionalHttpHeaders = target.headers
-         )
+    LaunchedEffect(navigator, target.loadIteration) {
+        if (webViewState.lastLoadedUrl == null || webViewState.loadIteration != target.loadIteration) {
+            // This is the first time load, so load the home page.
+            navigator.loadUrl(
+                url = target.url,
+                loadOnlyInitial = webViewState.loadIteration == null,
+                additionalHttpHeaders = target.headers
+            )
 
-         webViewState.loadIteration = target.loadIteration
-      }
-   }
+            webViewState.loadIteration = target.loadIteration
+        }
+    }
 
-   val displayErrorContent = displayErrorViewOnError && webViewState.hasError
-   val displayLoadingContent =
-      displayPlaceholderWhileLoading && webViewState.loadingState is LoadingState.Loading
+    val displayErrorContent = displayErrorViewOnError && webViewState.hasError
+    val displayLoadingContent =
+        displayPlaceholderWhileLoading && webViewState.loadingState is LoadingState.Loading
 
-   val popupStates = remember { mutableStateOf<List<WebViewState>>(emptyList()) }
-   val popupStateCallback: (WebViewState, Boolean) -> Unit = { state, isAdd ->
-      popupStates.value = if (isAdd) {
-         val oldList = popupStates.value.toMutableList().apply {
-            add(state)
-         }
+    val popupStates = remember { mutableStateOf<List<WebViewState>>(emptyList()) }
+    val popupStateCallback: (WebViewState, Boolean) -> Unit = { state, isAdd ->
+        popupStates.value = if (isAdd) {
+            val oldList = popupStates.value.toMutableList().apply {
+                add(state)
+            }
 
-         oldList.toList()
-      } else {
-         popupStates.value.filter { it != state }
-      }
-   }
+            oldList.toList()
+        } else {
+            popupStates.value.filter { it != state }
+        }
+    }
 
-   googleLoginRedirectUrl?.let {
-      NewIntentListener { intent ->
-         val data = intent.data?.toString()
-         if (popupStates.value.isEmpty() && data?.startsWith(googleLoginRedirectUrl) == true) {
-            navigator.loadUrl(data, loadOnlyInitial = false)
-         }
-      }
-   }
+    googleLoginRedirectUrl?.let {
+        NewIntentListener { intent ->
+            val data = intent.data?.toString()
+            if (popupStates.value.isEmpty() && data?.startsWith(googleLoginRedirectUrl) == true) {
+                navigator.loadUrl(data, loadOnlyInitial = false)
+            }
+        }
+    }
 
-   SnippetContentWithLoadingAndError(
-      modifier = modifier,
-      key = target.id,
-      navigator = navigator,
-      webViewState = webViewState,
-      displayLoadingContent = displayLoadingContent,
-      loadingPlaceholderContent = loadingPlaceholderContent,
-      displayErrorContent = displayErrorContent,
-      interceptOverrideUrl = interceptOverrideUrl,
-      errorViewContent = errorViewContent,
-      popupStateCallback = popupStateCallback
-   )
+    SnippetContentWithLoadingAndError(
+        modifier = modifier,
+        key = target.id,
+        navigator = navigator,
+        webViewState = webViewState,
+        displayLoadingContent = displayLoadingContent,
+        loadingPlaceholderContent = loadingPlaceholderContent,
+        displayErrorContent = displayErrorContent,
+        interceptOverrideUrl = interceptOverrideUrl,
+        errorViewContent = errorViewContent,
+        popupStateCallback = popupStateCallback,
+        dynamicModifiers = target.dynamicModifiers
+    )
 
-   popupStates.value.forEach { state ->
-      PopUpWebView(
-         popupState = state,
-         displayPlaceholderWhileLoading = displayPlaceholderWhileLoading,
-         loadingPlaceholderContent = loadingPlaceholderContent,
-         displayErrorViewOnError = displayErrorViewOnError,
-         errorViewContent = errorViewContent,
-         onDismissRequest = { popupStates.value = popupStates.value.filter { it != state } },
-         popupStateCallback = popupStateCallback,
-         interceptOverrideUrl = interceptOverrideUrl,
-         googleLoginRedirectUrl = googleLoginRedirectUrl
-      )
-   }
+    popupStates.value.forEach { state ->
+        PopUpWebView(
+            popupState = state,
+            displayPlaceholderWhileLoading = displayPlaceholderWhileLoading,
+            loadingPlaceholderContent = loadingPlaceholderContent,
+            displayErrorViewOnError = displayErrorViewOnError,
+            errorViewContent = errorViewContent,
+            onDismissRequest = { popupStates.value = popupStates.value.filter { it != state } },
+            popupStateCallback = popupStateCallback,
+            interceptOverrideUrl = interceptOverrideUrl,
+            googleLoginRedirectUrl = googleLoginRedirectUrl,
+            dynamicModifiers = target.dynamicModifiers
+        )
+    }
 }
 
 @Composable
 private fun SnippetContentWithLoadingAndError(
-   key: String,
-   navigator: WebViewNavigator,
-   webViewState: WebViewState,
-   displayLoadingContent: Boolean,
-   loadingPlaceholderContent: @Composable () -> Unit,
-   displayErrorContent: Boolean,
-   errorViewContent: @Composable () -> Unit,
-   modifier: Modifier = Modifier,
-   onCreated: (WebView) -> Unit = {},
-   popupStateCallback: ((WebViewState, Boolean) -> Unit)? = null,
-   interceptOverrideUrl: (String) -> Boolean
+    key: String,
+    navigator: WebViewNavigator,
+    webViewState: WebViewState,
+    displayLoadingContent: Boolean,
+    loadingPlaceholderContent: @Composable () -> Unit,
+    displayErrorContent: Boolean,
+    errorViewContent: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    onCreated: (WebView) -> Unit = {},
+    popupStateCallback: ((WebViewState, Boolean) -> Unit)? = null,
+    interceptOverrideUrl: (String) -> Boolean,
+    dynamicModifiers: List<ModifierPageData>? = null
 ) {
-   // https://github.com/google/accompanist/issues/1326 - WebView settings does not work in compose preview
-   val isPreviewMode = LocalInspectionMode.current
+    // https://github.com/google/accompanist/issues/1326 - WebView settings does not work in compose preview
+    val isPreviewMode = LocalInspectionMode.current
 
-   Box(modifier = modifier) {
-      if (!displayLoadingContent && !displayErrorContent) {
-         WebView(
-            key = key,
-            modifier = Modifier.fillMaxSize(),
-            state = webViewState,
-            navigator = navigator,
-            onCreated = {
-               if (!isPreviewMode) it.initializeSettings()
-               onCreated(it)
-            },
-            popupStateCallback = popupStateCallback,
-            interceptOverrideUrl = interceptOverrideUrl
-         )
-      }
+    val client = remember(key1 = key) { TwsWebViewClient(popupStateCallback) }
+    val chromeClient = remember(key1 = key) { TwsWebChromeClient(popupStateCallback) }
 
-      if (displayLoadingContent) {
-         loadingPlaceholderContent()
-      }
+    Box(modifier = modifier) {
+        if (!displayLoadingContent && !displayErrorContent) {
+            WebView(
+                key = key,
+                modifier = Modifier.fillMaxSize(),
+                state = webViewState,
+                navigator = navigator,
+                onCreated = {
+                    if (!isPreviewMode) it.initializeSettings()
+                    onCreated(it)
+                },
+                interceptOverrideUrl = interceptOverrideUrl,
+                dynamicModifiers = dynamicModifiers,
+                client = client,
+                chromeClient = chromeClient
+            )
+        }
 
-      if (displayErrorContent) {
-         errorViewContent()
-      }
-   }
+        if (displayLoadingContent) {
+            loadingPlaceholderContent()
+        }
+
+        if (displayErrorContent) {
+            errorViewContent()
+        }
+    }
 }
 
 @Composable
 private fun PopUpWebView(
-   popupState: WebViewState,
-   displayPlaceholderWhileLoading: Boolean,
-   loadingPlaceholderContent: @Composable () -> Unit,
-   displayErrorViewOnError: Boolean,
-   errorViewContent: @Composable () -> Unit,
-   onDismissRequest: () -> Unit,
-   interceptOverrideUrl: (String) -> Boolean = { false },
-   popupNavigator: WebViewNavigator = rememberWebViewNavigator(),
-   popupStateCallback: ((WebViewState, Boolean) -> Unit)? = null,
-   googleLoginRedirectUrl: String? = null
+    popupState: WebViewState,
+    displayPlaceholderWhileLoading: Boolean,
+    loadingPlaceholderContent: @Composable () -> Unit,
+    displayErrorViewOnError: Boolean,
+    errorViewContent: @Composable () -> Unit,
+    onDismissRequest: () -> Unit,
+    interceptOverrideUrl: (String) -> Boolean = { false },
+    popupNavigator: WebViewNavigator = rememberWebViewNavigator(),
+    popupStateCallback: ((WebViewState, Boolean) -> Unit)? = null,
+    googleLoginRedirectUrl: String? = null,
+    dynamicModifiers: List<ModifierPageData>? = null
 ) {
-   val displayErrorContent = displayErrorViewOnError && popupState.hasError
-   val displayLoadingContent =
-      displayPlaceholderWhileLoading && popupState.loadingState is LoadingState.Loading
+    val displayErrorContent = displayErrorViewOnError && popupState.hasError
+    val displayLoadingContent =
+        displayPlaceholderWhileLoading && popupState.loadingState is LoadingState.Loading
 
-   googleLoginRedirectUrl?.let {
-      NewIntentListener { intent ->
-         val data = intent.data?.toString()
-         if (data?.startsWith(googleLoginRedirectUrl) == true) {
-            popupNavigator.loadUrl(data, loadOnlyInitial = false)
-         }
-      }
-   }
+    googleLoginRedirectUrl?.let {
+        NewIntentListener { intent ->
+            val data = intent.data?.toString()
+            if (data?.startsWith(googleLoginRedirectUrl) == true) {
+                popupNavigator.loadUrl(data, loadOnlyInitial = false)
+            }
+        }
+    }
 
-   Dialog(
-      onDismissRequest = {
-         popupState.webView?.destroy()
-         onDismissRequest()
-      }
-   ) {
-      Surface(
-         modifier = Modifier
-            .fillMaxHeight(WEB_VIEW_POPUP_HEIGHT_PERCENTAGE)
-            .fillMaxWidth(WEB_VIEW_POPUP_WIDTH_PERCENTAGE),
-         shape = RoundedCornerShape(16.dp),
-         color = Color.White
-      ) {
-         SnippetContentWithLoadingAndError(
-            key = "popup",
-            webViewState = popupState,
-            navigator = popupNavigator,
-            displayLoadingContent = displayLoadingContent,
-            loadingPlaceholderContent = loadingPlaceholderContent,
-            displayErrorContent = displayErrorContent,
-            errorViewContent = errorViewContent,
-            interceptOverrideUrl = interceptOverrideUrl,
-            onCreated = { webView ->
-               val popupMessage =
-                  popupState.popupMessage ?: return@SnippetContentWithLoadingAndError
-               val transport = popupMessage.obj as? WebView.WebViewTransport
-               if (transport != null) {
-                  transport.webView = webView
-                  popupMessage.sendToTarget()
-               }
-            },
-            popupStateCallback = popupStateCallback
-         )
-      }
-   }
+    Dialog(
+        onDismissRequest = {
+            popupState.webView?.destroy()
+            onDismissRequest()
+        }
+    ) {
+        Surface(
+            modifier = Modifier
+                .fillMaxHeight(WEB_VIEW_POPUP_HEIGHT_PERCENTAGE)
+                .fillMaxWidth(WEB_VIEW_POPUP_WIDTH_PERCENTAGE),
+            shape = RoundedCornerShape(16.dp),
+            color = Color.White
+        ) {
+            SnippetContentWithLoadingAndError(
+                key = "popup",
+                navigator = popupNavigator,
+                webViewState = popupState,
+                displayLoadingContent = displayLoadingContent,
+                loadingPlaceholderContent = loadingPlaceholderContent,
+                displayErrorContent = displayErrorContent,
+                errorViewContent = errorViewContent,
+                onCreated = { webView ->
+                    val popupMessage =
+                        popupState.popupMessage ?: return@SnippetContentWithLoadingAndError
+                    val transport = popupMessage.obj as? WebView.WebViewTransport
+                    if (transport != null) {
+                        transport.webView = webView
+                        popupMessage.sendToTarget()
+                    }
+                },
+                popupStateCallback = popupStateCallback,
+                interceptOverrideUrl = interceptOverrideUrl,
+                dynamicModifiers = dynamicModifiers
+            )
+        }
+    }
 }
 
 @Composable
 private fun NewIntentListener(callback: (Intent) -> Unit) {
-   val activity = LocalContext.current as? ComponentActivity
-   DisposableEffect(Unit) {
-      val newIntentListener = Consumer<Intent> { intent ->
-         callback(intent)
-      }
+    val activity = LocalContext.current as? ComponentActivity
+    DisposableEffect(Unit) {
+        val newIntentListener = Consumer<Intent> { intent ->
+            callback(intent)
+        }
 
-      activity?.addOnNewIntentListener(newIntentListener)
+        activity?.addOnNewIntentListener(newIntentListener)
 
-      onDispose {
-         activity?.removeOnNewIntentListener(newIntentListener)
-      }
-   }
+        onDispose {
+            activity?.removeOnNewIntentListener(newIntentListener)
+        }
+    }
 }
 
 @Composable
 private fun WebViewLoadingIndicator() {
-   Box(
-      modifier = Modifier
-         .fillMaxWidth()
-         .height(200.dp)
-         .background(Color.LightGray)
-   ) {
-      CircularProgressIndicator(
-         modifier = Modifier
-            .size(64.dp)
-            .align(Alignment.Center),
-         color = MaterialTheme.colorScheme.secondary,
-         trackColor = MaterialTheme.colorScheme.surfaceVariant,
-      )
-   }
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(200.dp)
+            .background(Color.LightGray)
+    ) {
+        CircularProgressIndicator(
+            modifier = Modifier
+                .size(64.dp)
+                .align(Alignment.Center),
+            color = MaterialTheme.colorScheme.secondary,
+            trackColor = MaterialTheme.colorScheme.surfaceVariant,
+        )
+    }
 }
 
 @Composable
 private fun ErrorViewIndicator() {
-   Box(
-      modifier = Modifier
-         .fillMaxWidth()
-         .height(200.dp)
-         .background(Color.LightGray)
-   ) {
-      Column(modifier = Modifier.align(Alignment.Center)) {
-         Image(
-            modifier = Modifier.align(Alignment.CenterHorizontally),
-            painter = painterResource(id = R.drawable.image_load_failed),
-            contentDescription = "Web view error image"
-         )
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(200.dp)
+            .background(Color.LightGray)
+    ) {
+        Column(modifier = Modifier.align(Alignment.Center)) {
+            Image(
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+                painter = painterResource(id = R.drawable.image_load_failed),
+                contentDescription = "Web view error image"
+            )
 
-         Text(
-            modifier = Modifier.padding(all = 16.dp),
-            text = stringResource(id = R.string.oops_loading_failed),
-            style = TextStyle(color = Color.Black)
-         )
-      }
-   }
+            Text(
+                modifier = Modifier.padding(all = 16.dp),
+                text = stringResource(id = R.string.oops_loading_failed),
+                style = TextStyle(color = Color.Black)
+            )
+        }
+    }
 }
 
 private const val WEB_VIEW_POPUP_WIDTH_PERCENTAGE = 0.95f
@@ -332,48 +345,48 @@ private const val WEB_VIEW_POPUP_HEIGHT_PERCENTAGE = 0.8f
 @Composable
 @Preview
 private fun WebSnippetComponentPreview() {
-   WebSnippetComponent(WebSnippetData(id = "id", url = "https://www.google.com/"))
+    WebSnippetComponent(WebSnippetData(id = "id", url = "https://www.google.com/"))
 }
 
 @Composable
 @Preview
 private fun WebSnippetLoadingPlaceholderComponentPreview() {
-   WebSnippetComponent(
-      WebSnippetData(id = "id", url = "https://www.google.com/"),
-      webViewState = webStateLoading,
-      displayErrorViewOnError = true,
-      displayPlaceholderWhileLoading = true
-   )
+    WebSnippetComponent(
+        WebSnippetData(id = "id", url = "https://www.google.com/"),
+        webViewState = webStateLoading,
+        displayErrorViewOnError = true,
+        displayPlaceholderWhileLoading = true
+    )
 }
 
 @Composable
 @Preview
 private fun WebSnippetLoadingPlaceholderInitComponentPreview() {
-   WebSnippetComponent(
-      WebSnippetData(id = "id", url = "https://www.google.com/"),
-      webViewState = webStateInitializing,
-      displayErrorViewOnError = true,
-      displayPlaceholderWhileLoading = true
-   )
+    WebSnippetComponent(
+        WebSnippetData(id = "id", url = "https://www.google.com/"),
+        webViewState = webStateInitializing,
+        displayErrorViewOnError = true,
+        displayPlaceholderWhileLoading = true
+    )
 }
 
 @Composable
 @Preview
 private fun WebSnippetLoadingPlaceholderFinishedComponentPreview() {
-   WebSnippetComponent(
-      WebSnippetData(id = "id", url = "https://www.google.com/"),
-      webViewState = webStateLoadingFinished,
-      displayErrorViewOnError = true,
-      displayPlaceholderWhileLoading = true
-   )
+    WebSnippetComponent(
+        WebSnippetData(id = "id", url = "https://www.google.com/"),
+        webViewState = webStateLoadingFinished,
+        displayErrorViewOnError = true,
+        displayPlaceholderWhileLoading = true
+    )
 }
 
 private val webStateInitializing =
-   WebViewState(WebContent.NavigatorOnly)
-      .apply { loadingState = LoadingState.Initializing }
+    WebViewState(WebContent.NavigatorOnly)
+        .apply { loadingState = LoadingState.Initializing }
 private val webStateLoading =
-   WebViewState(WebContent.NavigatorOnly)
-      .apply { loadingState = LoadingState.Loading(0.5f) }
+    WebViewState(WebContent.NavigatorOnly)
+        .apply { loadingState = LoadingState.Loading(0.5f) }
 private val webStateLoadingFinished =
-   WebViewState(WebContent.NavigatorOnly)
-      .apply { loadingState = LoadingState.Finished }
+    WebViewState(WebContent.NavigatorOnly)
+        .apply { loadingState = LoadingState.Finished }

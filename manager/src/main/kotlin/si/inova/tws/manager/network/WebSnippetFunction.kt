@@ -26,17 +26,20 @@ import si.inova.tws.manager.data.SharedSnippetDto
 
 @Singleton
 internal interface WebSnippetFunction {
-   @GET("organizations/{organizationId}/projects/{projectId}/register")
-   suspend fun getWebSnippets(
-      @Path("organizationId")
-      organizationId: String,
-      @Path("projectId")
-      projectId: String,
-      @Query("apiKey")
-      apiKey: String? = null
-   ): ProjectDto
+    @GET("organizations/{organizationId}/projects/{projectId}/register")
+    suspend fun getWebSnippets(
+        @Path("organizationId")
+        organizationId: String,
+        @Path("projectId")
+        projectId: String,
+        @Query("apiKey")
+        apiKey: String? = null
+    ): ProjectDto
 
-   @Headers("Accept: application/json")
-   @GET("shared/{shareId}")
-   suspend fun getSharedSnippetData(@Path("shareId") shareId: String): SharedSnippetDto
+    @Headers("Accept: application/json")
+    @GET("shared/{shareId}")
+    suspend fun getSharedSnippetData(
+        @Path("shareId")
+        shareId: String
+    ): SharedSnippetDto
 }

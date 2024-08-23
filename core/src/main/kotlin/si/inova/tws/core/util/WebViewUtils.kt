@@ -40,9 +40,10 @@ fun WebView.initializeSettings() {
         allowContentAccess = true
         setSupportZoom(true)
         cacheMode = WebSettings.LOAD_DEFAULT
+        mediaPlaybackRequiresUserGesture = false
+        setGeolocationEnabled(true)
     }
 }
-
 
 fun WebView.onScreenReset() {
     post {

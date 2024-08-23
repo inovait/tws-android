@@ -18,4 +18,4 @@ import org.gradle.plugin.use.PluginDependenciesSpec
 import org.gradle.plugin.use.PluginDependencySpec
 
 inline val PluginDependenciesSpec.androidLibraryModule: PluginDependencySpec
-   get() = id("android-library-config")
+    get() = id("android-library-config")

@@ -14,20 +14,14 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.manager.data
+package si.inova.tws.core.util
 
-import androidx.annotation.Keep
-import com.squareup.moshi.JsonClass
+import android.content.Context
+import android.content.pm.PackageManager
 
-@JsonClass(generateAdapter = true)
-@Keep
-data class WebSnippetDto(
-    val id: String,
-    val target: String,
-    val organizationId: String,
-    val projectId: String,
-    val html: String? = null,
-    val headers: Map<String, String>? = emptyMap(),
-    val dynamicResources: List<DynamicResourceDto>? = emptyList(),
-    val loadIteration: Int = 0
-)
+fun Context.hasPermissionInManifest(permission: String): Boolean {
+    val packageInfo = packageManager.getPackageInfo(packageName, PackageManager.GET_PERMISSIONS)
+    val permissions = packageInfo.requestedPermissions
+
+    return permissions?.any { it == permission } ?: false
+}

@@ -31,18 +31,18 @@ import org.gradle.api.Project
  * android {} block that can be used without applying specific android plugin
  */
 fun Project.commonAndroid(
-   block: Action<InternalTestedExtension<
-      BuildFeatures,
-      BuildType,
-      DefaultConfig,
-      ProductFlavor,
-      AndroidResources,
-      Installation
-      >>
+    block: Action<InternalTestedExtension<
+        BuildFeatures,
+        BuildType,
+        DefaultConfig,
+        ProductFlavor,
+        AndroidResources,
+        Installation
+        >>
 ) {
-   (this as org.gradle.api.plugins.ExtensionAware).extensions.configure("android", block)
+    (this as org.gradle.api.plugins.ExtensionAware).extensions.configure("android", block)
 }
 
 fun Project.isAndroidProject(): Boolean {
-   return pluginManager.hasPlugin(KOTLIN_ANDROID_PLUGIN_ID)
+    return pluginManager.hasPlugin(KOTLIN_ANDROID_PLUGIN_ID)
 }

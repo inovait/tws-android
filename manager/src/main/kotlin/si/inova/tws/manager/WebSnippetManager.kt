@@ -21,12 +21,12 @@ import si.inova.kotlinova.core.outcome.Outcome
 import si.inova.tws.manager.data.WebSnippetDto
 
 interface WebSnippetManager {
-   val snippetsFlow: Flow<Outcome<List<WebSnippetDto>>>
+    val snippetsFlow: Flow<Outcome<List<WebSnippetDto>>>
 
-   val mainSnippetIdFlow: Flow<String?>
+    val mainSnippetIdFlow: Flow<String?>
 
-   fun closeWebsocketConnection()
+    fun closeWebsocketConnection()
 
-   suspend fun loadWebSnippets(organizationId: String, projectId: String)
-   suspend fun loadSharedSnippetData(shareId: String)
+    suspend fun loadWebSnippets(organizationId: String, projectId: String)
+    suspend fun loadSharedSnippetData(shareId: String)
 }
