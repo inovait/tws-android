@@ -17,6 +17,6 @@
 package si.inova.tws.manager.data
 
 sealed class NetworkStatus {
-   data object Connected : NetworkStatus()
-   data object Disconnected : NetworkStatus()
+    data object Connected : NetworkStatus()
+    data object Disconnected : NetworkStatus()
 }

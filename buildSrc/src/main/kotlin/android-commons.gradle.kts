@@ -20,38 +20,38 @@ import util.commonAndroid
 val libs = the<LibrariesForLibs>()
 
 plugins {
-   id("standard-config")
+    id("standard-config")
 }
 
 commonAndroid {
-   compileSdk = 34
+    compileSdk = 34
 
-   compileOptions {
-      sourceCompatibility = JavaVersion.VERSION_17
-      targetCompatibility = JavaVersion.VERSION_17
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
 
-      isCoreLibraryDesugaringEnabled = true
-   }
+        isCoreLibraryDesugaringEnabled = true
+    }
 
-   defaultConfig {
-      minSdk = 23
+    defaultConfig {
+        minSdk = 23
 
-      testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-   }
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
 
-   testOptions {
-      unitTests.all {
-         it.useJUnitPlatform()
-      }
-   }
+    testOptions {
+        unitTests.all {
+            it.useJUnitPlatform()
+        }
+    }
 
-   packaging {
-      resources {
-         excludes += "/META-INF/{AL2.0,LGPL2.1}"
-      }
-   }
+    packaging {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        }
+    }
 }
 
 dependencies {
-   add("coreLibraryDesugaring", libs.desugarJdkLibs)
+    add("coreLibraryDesugaring", libs.desugarJdkLibs)
 }

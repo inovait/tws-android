@@ -45,115 +45,115 @@ import si.inova.tws.core.data.view.WebViewState
  * class that can be overridden if further custom behaviour is required.
  */
 open class TwsWebViewClient(private val popupStateCallback: ((WebViewState, Boolean) -> Unit)? = null) : WebViewClient() {
-   open lateinit var state: WebViewState
-      internal set
-   open lateinit var navigator: WebViewNavigator
-      internal set
-   open lateinit var interceptOverrideUrl: (String) -> Boolean
-      internal set
-   open lateinit var dynamicModifiers: List<ModifierPageData>
-      internal set
+    open lateinit var state: WebViewState
+        internal set
+    open lateinit var navigator: WebViewNavigator
+        internal set
+    open lateinit var interceptOverrideUrl: (String) -> Boolean
+        internal set
+    open lateinit var dynamicModifiers: List<ModifierPageData>
+        internal set
 
-   override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest?): Boolean {
-      val url = request?.url
+    override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest?): Boolean {
+        val url = request?.url
 
-      url?.toString()?.let {
-         if (it.startsWith("https://accounts.google.com")) {
-            openCustomChromeTab(view.context, it)
-            return true // Indicate that we've handled the URL
-         }
-      }
-
-      return request?.url?.let {
-         interceptOverrideUrl(it.toString())
-      } == true
-   }
-
-   override fun onPageStarted(view: WebView, url: String?, favicon: Bitmap?) {
-      super.onPageStarted(view, url, favicon)
-      state.loadingState = LoadingState.Loading(0.0f)
-      state.errorsForCurrentRequest.clear()
-
-      state.lastLoadedUrl = url
-   }
-
-   override fun onPageFinished(view: WebView, url: String?) {
-      super.onPageFinished(view, url)
-
-      if (state.loadingState != LoadingState.Finished) {
-         dynamicModifiers.forEach { modifier ->
-            modifier.inject?.let { inject ->
-               view.evaluateJavascript(inject, null)
+        url?.toString()?.let {
+            if (it.startsWith("https://accounts.google.com")) {
+                openCustomChromeTab(view.context, it)
+                return true // Indicate that we've handled the URL
             }
-         }
-      }
+        }
 
-      state.loadingState = LoadingState.Finished
-   }
+        return request?.url?.let {
+            interceptOverrideUrl(it.toString())
+        } == true
+    }
 
-   override fun doUpdateVisitedHistory(view: WebView, url: String?, isReload: Boolean) {
-      super.doUpdateVisitedHistory(view, url, isReload)
+    override fun onPageStarted(view: WebView, url: String?, favicon: Bitmap?) {
+        super.onPageStarted(view, url, favicon)
+        state.loadingState = LoadingState.Loading(0.0f)
+        state.errorsForCurrentRequest.clear()
 
-      navigator.canGoBack = view.canGoBack()
-      navigator.canGoForward = view.canGoForward()
-   }
+        state.lastLoadedUrl = url
+    }
 
-   override fun onReceivedError(
-      view: WebView,
-      request: WebResourceRequest?,
-      error: WebResourceError?
-   ) {
-      super.onReceivedError(view, request, error)
+    override fun onPageFinished(view: WebView, url: String?) {
+        super.onPageFinished(view, url)
 
-      if (error != null) {
-         state.errorsForCurrentRequest.add(WebViewError(request, error))
-      }
-   }
-
-   private fun openCustomChromeTab(context: Context, url: String) {
-      val mCustomTabsCallback: CustomTabsCallback = object : CustomTabsCallback() {
-         override fun onNavigationEvent(navigationEvent: Int, extras: Bundle?) {
-            if (navigationEvent == TAB_HIDDEN) {
-               popupStateCallback?.invoke(state, false)
+        if (state.loadingState != LoadingState.Finished) {
+            dynamicModifiers.forEach { modifier ->
+                modifier.inject?.let { inject ->
+                    view.evaluateJavascript(inject, null)
+                }
             }
-         }
-      }
+        }
 
-      val mConnection = object : CustomTabsServiceConnection() {
-         override fun onServiceDisconnected(name: ComponentName?) {}
+        state.loadingState = LoadingState.Finished
+    }
 
-         override fun onCustomTabsServiceConnected(name: ComponentName, client: CustomTabsClient) {
-            CustomTabsIntent.Builder(client.newSession(mCustomTabsCallback))
-               .build()
-               .launchUrl(context, Uri.parse(url))
-         }
-      }
+    override fun doUpdateVisitedHistory(view: WebView, url: String?, isReload: Boolean) {
+        super.doUpdateVisitedHistory(view, url, isReload)
 
-      val packageName = context.getAvailablePackageName() ?: return
-      CustomTabsClient.bindCustomTabsService(context, packageName, mConnection)
-   }
+        navigator.canGoBack = view.canGoBack()
+        navigator.canGoForward = view.canGoForward()
+    }
 
-   private fun Context.getAvailablePackageName(): String? {
-      val packageName = CustomTabsClient.getPackageName(
-         this,
-         emptyList<String>()
-      )
+    override fun onReceivedError(
+        view: WebView,
+        request: WebResourceRequest?,
+        error: WebResourceError?
+    ) {
+        super.onReceivedError(view, request, error)
 
-      return packageName ?: getAlternativePackageName()
-   }
+        if (error != null) {
+            state.errorsForCurrentRequest.add(WebViewError(request, error))
+        }
+    }
 
-   private fun Context.getAlternativePackageName(): String? {
-      // Get all apps that can handle VIEW intents and Custom Tab service connections.
-      val activityIntent = Intent(Intent.ACTION_VIEW, Uri.parse("http"))
-      val viewIntentHandlers = packageManager.queryIntentActivities(activityIntent, 0).map { it.resolvePackageName }
+    private fun openCustomChromeTab(context: Context, url: String) {
+        val mCustomTabsCallback: CustomTabsCallback = object : CustomTabsCallback() {
+            override fun onNavigationEvent(navigationEvent: Int, extras: Bundle?) {
+                if (navigationEvent == TAB_HIDDEN) {
+                    popupStateCallback?.invoke(state, false)
+                }
+            }
+        }
 
-      // Get a package that supports Custom Tabs
-      val packageName = CustomTabsClient.getPackageName(
-         this,
-         viewIntentHandlers,
-         true /* ignore default */
-      )
+        val mConnection = object : CustomTabsServiceConnection() {
+            override fun onServiceDisconnected(name: ComponentName?) {}
 
-      return packageName
-   }
+            override fun onCustomTabsServiceConnected(name: ComponentName, client: CustomTabsClient) {
+                CustomTabsIntent.Builder(client.newSession(mCustomTabsCallback))
+                    .build()
+                    .launchUrl(context, Uri.parse(url))
+            }
+        }
+
+        val packageName = context.getAvailablePackageName() ?: return
+        CustomTabsClient.bindCustomTabsService(context, packageName, mConnection)
+    }
+
+    private fun Context.getAvailablePackageName(): String? {
+        val packageName = CustomTabsClient.getPackageName(
+            this,
+            emptyList<String>()
+        )
+
+        return packageName ?: getAlternativePackageName()
+    }
+
+    private fun Context.getAlternativePackageName(): String? {
+        // Get all apps that can handle VIEW intents and Custom Tab service connections.
+        val activityIntent = Intent(Intent.ACTION_VIEW, Uri.parse("http"))
+        val viewIntentHandlers = packageManager.queryIntentActivities(activityIntent, 0).map { it.resolvePackageName }
+
+        // Get a package that supports Custom Tabs
+        val packageName = CustomTabsClient.getPackageName(
+            this,
+            viewIntentHandlers,
+            true /* ignore default */
+        )
+
+        return packageName
+    }
 }

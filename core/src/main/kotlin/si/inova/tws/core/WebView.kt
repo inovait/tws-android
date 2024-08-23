@@ -76,52 +76,52 @@ import si.inova.tws.core.data.view.rememberWebViewNavigator
  */
 @Composable
 fun WebView(
-   key: Any?,
-   state: WebViewState,
-   modifier: Modifier = Modifier,
-   captureBackPresses: Boolean = true,
-   navigator: WebViewNavigator = rememberWebViewNavigator(),
-   onCreated: (WebView) -> Unit = {},
-   onDispose: (WebView) -> Unit = {},
-   client: TwsWebViewClient = remember { TwsWebViewClient() },
-   chromeClient: TwsWebChromeClient = remember { TwsWebChromeClient() },
-   interceptOverrideUrl: (String) -> Boolean = { false },
-   factory: ((Context) -> WebView)? = null,
-   dynamicModifiers: List<ModifierPageData>? = null
+    key: Any?,
+    state: WebViewState,
+    modifier: Modifier = Modifier,
+    captureBackPresses: Boolean = true,
+    navigator: WebViewNavigator = rememberWebViewNavigator(),
+    onCreated: (WebView) -> Unit = {},
+    onDispose: (WebView) -> Unit = {},
+    client: TwsWebViewClient = remember { TwsWebViewClient() },
+    chromeClient: TwsWebChromeClient = remember { TwsWebChromeClient() },
+    interceptOverrideUrl: (String) -> Boolean = { false },
+    factory: ((Context) -> WebView)? = null,
+    dynamicModifiers: List<ModifierPageData>? = null
 ) {
-   BoxWithConstraints(modifier) {
-      // WebView changes it's layout strategy based on
-      // it's layoutParams. We convert from Compose Modifier to
-      // layout params here.
-      val width = if (constraints.hasFixedWidth) {
-         LayoutParams.MATCH_PARENT
-      } else {
-         LayoutParams.WRAP_CONTENT
-      }
-      val height = if (constraints.hasFixedHeight) {
-         LayoutParams.MATCH_PARENT
-      } else {
-         LayoutParams.WRAP_CONTENT
-      }
+    BoxWithConstraints(modifier) {
+        // WebView changes it's layout strategy based on
+        // it's layoutParams. We convert from Compose Modifier to
+        // layout params here.
+        val width = if (constraints.hasFixedWidth) {
+            LayoutParams.MATCH_PARENT
+        } else {
+            LayoutParams.WRAP_CONTENT
+        }
+        val height = if (constraints.hasFixedHeight) {
+            LayoutParams.MATCH_PARENT
+        } else {
+            LayoutParams.WRAP_CONTENT
+        }
 
-      val layoutParams = FrameLayout.LayoutParams(width, height)
+        val layoutParams = FrameLayout.LayoutParams(width, height)
 
-      WebView(
-         key,
-         state,
-         layoutParams,
-         Modifier,
-         captureBackPresses,
-         navigator,
-         onCreated,
-         onDispose,
-         client,
-         chromeClient,
-         interceptOverrideUrl,
-         factory,
-         dynamicModifiers
-      )
-   }
+        WebView(
+            key,
+            state,
+            layoutParams,
+            Modifier,
+            captureBackPresses,
+            navigator,
+            onCreated,
+            onDispose,
+            client,
+            chromeClient,
+            interceptOverrideUrl,
+            factory,
+            dynamicModifiers
+        )
+    }
 }
 
 /**
@@ -155,115 +155,115 @@ fun WebView(
  */
 @Composable
 fun WebView(
-   key: Any?,
-   state: WebViewState,
-   layoutParams: FrameLayout.LayoutParams,
-   modifier: Modifier = Modifier,
-   captureBackPresses: Boolean = true,
-   navigator: WebViewNavigator = rememberWebViewNavigator(),
-   onCreated: (WebView) -> Unit = {},
-   onDispose: (WebView) -> Unit = {},
-   client: TwsWebViewClient = remember { TwsWebViewClient() },
-   chromeClient: TwsWebChromeClient = remember { TwsWebChromeClient() },
-   interceptOverrideUrl: (String) -> Boolean = { false },
-   factory: ((Context) -> WebView)? = null,
-   dynamicModifiers: List<ModifierPageData>? = null
+    key: Any?,
+    state: WebViewState,
+    layoutParams: FrameLayout.LayoutParams,
+    modifier: Modifier = Modifier,
+    captureBackPresses: Boolean = true,
+    navigator: WebViewNavigator = rememberWebViewNavigator(),
+    onCreated: (WebView) -> Unit = {},
+    onDispose: (WebView) -> Unit = {},
+    client: TwsWebViewClient = remember { TwsWebViewClient() },
+    chromeClient: TwsWebChromeClient = remember { TwsWebChromeClient() },
+    interceptOverrideUrl: (String) -> Boolean = { false },
+    factory: ((Context) -> WebView)? = null,
+    dynamicModifiers: List<ModifierPageData>? = null
 ) {
-   val webView = state.webView
+    val webView = state.webView
 
-   BackHandler(captureBackPresses && navigator.canGoBack) {
-      webView?.goBack()
-   }
+    BackHandler(captureBackPresses && navigator.canGoBack) {
+        webView?.goBack()
+    }
 
-   val permissionCallback = remember { mutableStateOf<((Boolean) -> Unit)?>(null) }
-   val permissionLauncher = rememberLauncherForActivityResult(
-      ActivityResultContracts.RequestPermission()
-   ) { isGranted ->
-      permissionCallback.value?.invoke(isGranted)
-   }
+    val permissionCallback = remember { mutableStateOf<((Boolean) -> Unit)?>(null) }
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        permissionCallback.value?.invoke(isGranted)
+    }
 
-   LaunchedEffect(chromeClient) {
-      chromeClient.setupPermissionRequestCallback { permission, callback ->
-         permissionLauncher.launch(permission)
-         permissionCallback.value = callback
-      }
-   }
+    LaunchedEffect(chromeClient) {
+        chromeClient.setupPermissionRequestCallback { permission, callback ->
+            permissionLauncher.launch(permission)
+            permissionCallback.value = callback
+        }
+    }
 
-   webView?.let { wv ->
-      LaunchedEffect(wv, navigator) {
-         with(navigator) {
-            wv.handleNavigationEvents()
-         }
-      }
-
-      LaunchedEffect(wv, state) {
-         snapshotFlow { state.content }.collect { content ->
-            when (content) {
-               is WebContent.Url -> {
-                  wv.loadUrl(content.url, content.additionalHttpHeaders)
-               }
-
-               is WebContent.Data -> {
-                  wv.loadDataWithBaseURL(
-                     content.baseUrl,
-                     content.data,
-                     content.mimeType,
-                     content.encoding,
-                     content.historyUrl
-                  )
-               }
-
-               is WebContent.Post -> {
-                  wv.postUrl(
-                     content.url,
-                     content.postData
-                  )
-               }
-
-               is WebContent.NavigatorOnly, is WebContent.MessageOnly -> {
-                  // NO-OP
-               }
+    webView?.let { wv ->
+        LaunchedEffect(wv, navigator) {
+            with(navigator) {
+                wv.handleNavigationEvents()
             }
-         }
-      }
-   }
+        }
 
-   // Set the state of the client and chrome client
-   // This is done internally to ensure they always are the same instance as the
-   // parent Web composable
-   client.let {
-      it.state = state
-      it.navigator = navigator
-      it.interceptOverrideUrl = interceptOverrideUrl
-      it.dynamicModifiers = dynamicModifiers ?: emptyList()
-   }
-   chromeClient.state = state
+        LaunchedEffect(wv, state) {
+            snapshotFlow { state.content }.collect { content ->
+                when (content) {
+                    is WebContent.Url -> {
+                        wv.loadUrl(content.url, content.additionalHttpHeaders)
+                    }
 
-   key(key) {
-      AndroidView(
-         factory = { context ->
-            val wv = state.webView ?: (factory?.invoke(context) ?: WebView(context)).apply {
-               onCreated(this)
+                    is WebContent.Data -> {
+                        wv.loadDataWithBaseURL(
+                            content.baseUrl,
+                            content.data,
+                            content.mimeType,
+                            content.encoding,
+                            content.historyUrl
+                        )
+                    }
 
-               this.layoutParams = layoutParams
+                    is WebContent.Post -> {
+                        wv.postUrl(
+                            content.url,
+                            content.postData
+                        )
+                    }
 
-               state.viewState?.let {
-                  this.restoreState(it)
-               }
-
-               webChromeClient = chromeClient
-               webViewClient = client
-            }.also {
-               state.webView = it
+                    is WebContent.NavigatorOnly, is WebContent.MessageOnly -> {
+                        // NO-OP
+                    }
+                }
             }
+        }
+    }
 
-            (wv.parent as? ViewGroup)?.removeView(wv)
-            wv
-         },
-         modifier = modifier,
-         onRelease = {
-            onDispose(it)
-         }
-      )
-   }
+    // Set the state of the client and chrome client
+    // This is done internally to ensure they always are the same instance as the
+    // parent Web composable
+    client.let {
+        it.state = state
+        it.navigator = navigator
+        it.interceptOverrideUrl = interceptOverrideUrl
+        it.dynamicModifiers = dynamicModifiers ?: emptyList()
+    }
+    chromeClient.state = state
+
+    key(key) {
+        AndroidView(
+            factory = { context ->
+                val wv = state.webView ?: (factory?.invoke(context) ?: WebView(context)).apply {
+                    onCreated(this)
+
+                    this.layoutParams = layoutParams
+
+                    state.viewState?.let {
+                        this.restoreState(it)
+                    }
+
+                    webChromeClient = chromeClient
+                    webViewClient = client
+                }.also {
+                    state.webView = it
+                }
+
+                (wv.parent as? ViewGroup)?.removeView(wv)
+                wv
+            },
+            modifier = modifier,
+            onRelease = {
+                onDispose(it)
+            }
+        )
+    }
 }

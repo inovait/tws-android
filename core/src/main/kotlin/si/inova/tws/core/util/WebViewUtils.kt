@@ -45,7 +45,6 @@ fun WebView.initializeSettings() {
     }
 }
 
-
 fun WebView.onScreenReset() {
     post {
         evaluateJavascript(JavaScriptCommands.ScrollToTop, null)

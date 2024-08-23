@@ -34,51 +34,51 @@ import si.inova.tws.manager.singleton.twsOkHttpClient
 
 @Singleton
 internal class BaseServiceFactory : ServiceFactory {
-   private val moshi: Moshi by lazy { twsMoshi() }
-   private val okHttpClient: OkHttpClient by lazy { twsOkHttpClient() }
+    private val moshi: Moshi by lazy { twsMoshi() }
+    private val okHttpClient: OkHttpClient by lazy { twsOkHttpClient() }
 
-   override fun <S> create(
-      klass: Class<S>,
-      configuration: ServiceFactory.ServiceCreationScope.() -> Unit
-   ): S {
-      val scope = ServiceFactory.ServiceCreationScope()
-      configuration(scope)
+    override fun <S> create(
+        klass: Class<S>,
+        configuration: ServiceFactory.ServiceCreationScope.() -> Unit
+    ): S {
+        val scope = ServiceFactory.ServiceCreationScope()
+        configuration(scope)
 
-      val updatedClient = lazy {
-         okHttpClient.newBuilder()
-            .apply {
-               if (scope.cache) {
-                  createCache()?.let { cache(it) }
-               }
-            }
-            .apply {
-               scope.okHttpCustomizer?.let { it() }
-            }
+        val updatedClient = lazy {
+            okHttpClient.newBuilder()
+                .apply {
+                    if (scope.cache) {
+                        createCache()?.let { cache(it) }
+                    }
+                }
+                .apply {
+                    scope.okHttpCustomizer?.let { it() }
+                }
+                .build()
+        }
+
+        val moshiConverter = lazy {
+            MoshiConverterFactory.create(moshi)
+        }
+
+        return Retrofit.Builder()
+            .callFactory { updatedClient.value.newCall(it) }
+            .baseUrl(TWS_API)
+            .addConverterFactory(ScalarsConverterFactory.create())
+            .addConverterFactory(LazyRetrofitConverterFactory(moshiConverter))
+            .addCallAdapterFactory(
+                StaleWhileRevalidateCallAdapterFactory(null, provideErrorReporter)
+            )
+            .addCallAdapterFactory(
+                ErrorHandlingAdapterFactory(DefaultCoroutineScope(object : DispatcherProvider {}))
+            )
             .build()
-      }
+            .create(klass)
+    }
 
-      val moshiConverter = lazy {
-         MoshiConverterFactory.create(moshi)
-      }
-
-      return Retrofit.Builder()
-         .callFactory { updatedClient.value.newCall(it) }
-         .baseUrl(TWS_API)
-         .addConverterFactory(ScalarsConverterFactory.create())
-         .addConverterFactory(LazyRetrofitConverterFactory(moshiConverter))
-         .addCallAdapterFactory(
-            StaleWhileRevalidateCallAdapterFactory(null, provideErrorReporter)
-         )
-         .addCallAdapterFactory(
-            ErrorHandlingAdapterFactory(DefaultCoroutineScope(object : DispatcherProvider {}))
-         )
-         .build()
-         .create(klass)
-   }
-
-   private fun createCache(): Cache? {
-      return null
-   }
+    private fun createCache(): Cache? {
+        return null
+    }
 }
 
 private const val TWS_API = "https://api.thewebsnippet.dev/"

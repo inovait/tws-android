@@ -19,18 +19,18 @@ package si.inova.tws.core.data
 import java.util.Locale
 
 interface ModifierPageData {
-   val inject: String?
+    val inject: String?
 }
 
 data class ContentInjectData(val content: String, val type: ModifierInjectionType) : ModifierPageData {
-   override val inject = when (type) {
-      ModifierInjectionType.CSS -> injectContentCss(content)
-      ModifierInjectionType.JAVASCRIPT -> content.trimIndent()
-      else -> null
-   }
+    override val inject = when (type) {
+        ModifierInjectionType.CSS -> injectContentCss(content)
+        ModifierInjectionType.JAVASCRIPT -> content.trimIndent()
+        else -> null
+    }
 
-   private fun injectContentCss(value: String): String {
-      return """
+    private fun injectContentCss(value: String): String {
+        return """
              (function() {
                  var style = document.createElement('style');
                  style.type = 'text/css';
@@ -38,47 +38,47 @@ data class ContentInjectData(val content: String, val type: ModifierInjectionTyp
                  document.head.appendChild(style);
              })();
          """.trimIndent()
-   }
+    }
 }
 
 data class UrlInjectData(val url: String, val type: ModifierInjectionType) : ModifierPageData {
-   override val inject = when (type) {
-      ModifierInjectionType.CSS -> injectUrlCss(url)
-      ModifierInjectionType.JAVASCRIPT -> injectUrlJs(url)
-      else -> null
-   }
+    override val inject = when (type) {
+        ModifierInjectionType.CSS -> injectUrlCss(url)
+        ModifierInjectionType.JAVASCRIPT -> injectUrlJs(url)
+        else -> null
+    }
 
-   private fun injectUrlCss(url: String): String {
-      return """
+    private fun injectUrlCss(url: String): String {
+        return """
             var link = document.createElement('link');
             link.href = '$url';
             link.rel = 'stylesheet';
             document.head.appendChild(link);
          """.trimIndent()
-   }
+    }
 
-   private fun injectUrlJs(url: String): String {
-      return """
+    private fun injectUrlJs(url: String): String {
+        return """
             var script = document.createElement('script');
             script.src = '$url';
             script.type = 'text/javascript';
             document.head.appendChild(script);
          """.trimIndent()
-   }
+    }
 }
 
 enum class ModifierInjectionType {
-   CSS,
-   JAVASCRIPT,
-   UNKNOWN;
+    CSS,
+    JAVASCRIPT,
+    UNKNOWN;
 
-   companion object {
-      fun fromContentType(contentType: String): ModifierInjectionType {
-         return when (contentType.lowercase(Locale.getDefault())) {
-            "text/css" -> CSS
-            "text/javascript" -> JAVASCRIPT
-            else -> UNKNOWN
-         }
-      }
-   }
+    companion object {
+        fun fromContentType(contentType: String): ModifierInjectionType {
+            return when (contentType.lowercase(Locale.getDefault())) {
+                "text/css" -> CSS
+                "text/javascript" -> JAVASCRIPT
+                else -> UNKNOWN
+            }
+        }
+    }
 }

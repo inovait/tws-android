@@ -17,31 +17,31 @@
 import util.publishLibrary
 
 plugins {
-   androidLibraryModule
-   kotlin("kapt")
+    androidLibraryModule
+    kotlin("kapt")
 }
 
 android {
-   namespace = "si.inova.tws.manager"
+    namespace = "si.inova.tws.manager"
 }
 
 publishLibrary(
-   userFriendlyName = "tws-manager",
-   description = "A collection of manager and network connection",
-   githubPath = "manager",
+    userFriendlyName = "tws-manager",
+    description = "A collection of manager and network connection",
+    githubPath = "manager",
 )
 
 dependencies {
-   implementation(libs.kotlinova.core)
-   implementation(libs.kotlinova.retrofit)
-   implementation(libs.androidx.core.ktx)
-   implementation(libs.dispatch)
-   implementation(libs.retrofit.moshi)
-   implementation(libs.retrofit.scalars)
-   implementation(libs.certificateTransparency)
-   implementation(libs.moshi.kotlin)
-   implementation(libs.inject)
-   implementation(libs.timber)
+    implementation(libs.kotlinova.core)
+    implementation(libs.kotlinova.retrofit)
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.dispatch)
+    implementation(libs.retrofit.moshi)
+    implementation(libs.retrofit.scalars)
+    implementation(libs.certificateTransparency)
+    implementation(libs.moshi.kotlin)
+    implementation(libs.inject)
+    implementation(libs.timber)
 
-   kapt(libs.moshi.codegen)
+    kapt(libs.moshi.codegen)
 }

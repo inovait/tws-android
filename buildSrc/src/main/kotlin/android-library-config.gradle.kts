@@ -20,34 +20,34 @@ import org.gradle.accessors.dm.LibrariesForLibs
 val libs = the<LibrariesForLibs>()
 
 plugins {
-   id("com.android.library")
-   id("android-commons")
-   kotlin("android")
-   id("kotlin-parcelize")
+    id("com.android.library")
+    id("android-commons")
+    kotlin("android")
+    id("kotlin-parcelize")
 }
 
 android {
-   testOptions {
-      unitTests.all {
-         it.useJUnitPlatform()
-      }
-   }
+    testOptions {
+        unitTests.all {
+            it.useJUnitPlatform()
+        }
+    }
 }
 
 kotlin {
-   jvmToolchain(17)
+    jvmToolchain(17)
 }
 
 publishing {
-   publications {
-      register<MavenPublication>("release") {
-         groupId = project.group.toString()
-         artifactId = project.name
-         version = project.version.toString()
+    publications {
+        register<MavenPublication>("release") {
+            groupId = project.group.toString()
+            artifactId = project.name
+            version = project.version.toString()
 
-         afterEvaluate {
-            from(components["release"])
-         }
-      }
-   }
+            afterEvaluate {
+                from(components["release"])
+            }
+        }
+    }
 }

@@ -20,6 +20,6 @@ import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 data class DynamicResourceDto(
-   val url: String,
-   val contentType: String
+    val url: String,
+    val contentType: String
 )

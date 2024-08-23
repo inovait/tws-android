@@ -22,12 +22,12 @@ import com.squareup.moshi.JsonClass
 @JsonClass(generateAdapter = true)
 @Keep
 data class WebSnippetDto(
-   val id: String,
-   val target: String,
-   val organizationId: String,
-   val projectId: String,
-   val html: String? = null,
-   val headers: Map<String, String>? = emptyMap(),
-   val dynamicResources: List<DynamicResourceDto>? = emptyList(),
-   val loadIteration: Int = 0
+    val id: String,
+    val target: String,
+    val organizationId: String,
+    val projectId: String,
+    val html: String? = null,
+    val headers: Map<String, String>? = emptyMap(),
+    val dynamicResources: List<DynamicResourceDto>? = emptyList(),
+    val loadIteration: Int = 0
 )

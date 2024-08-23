@@ -20,8 +20,8 @@ import android.content.Context
 import android.content.pm.PackageManager
 
 fun Context.hasPermissionInManifest(permission: String): Boolean {
-   val packageInfo = packageManager.getPackageInfo(packageName, PackageManager.GET_PERMISSIONS)
-   val permissions = packageInfo.requestedPermissions
+    val packageInfo = packageManager.getPackageInfo(packageName, PackageManager.GET_PERMISSIONS)
+    val permissions = packageInfo.requestedPermissions
 
-   return permissions?.any { it == permission } ?: false
+    return permissions?.any { it == permission } ?: false
 }

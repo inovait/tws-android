@@ -28,30 +28,30 @@ import okhttp3.WebSocketListener
 import si.inova.tws.manager.data.SnippetUpdateAction
 
 internal class SnippetWebSocketListener : WebSocketListener() {
-   private val _updateActionFlow: MutableStateFlow<SnippetUpdateAction?> = MutableStateFlow(null)
-   val updateActionFlow: Flow<SnippetUpdateAction>
-      get() = _updateActionFlow.filterNotNull()
+    private val _updateActionFlow: MutableStateFlow<SnippetUpdateAction?> = MutableStateFlow(null)
+    val updateActionFlow: Flow<SnippetUpdateAction>
+        get() = _updateActionFlow.filterNotNull()
 
-   private val moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
+    private val moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
 
-   override fun onMessage(webSocket: WebSocket, text: String) {
-      val adapter = moshi.adapter(SnippetUpdateAction::class.java)
-      val snippetAction = adapter.fromJson(text)
+    override fun onMessage(webSocket: WebSocket, text: String) {
+        val adapter = moshi.adapter(SnippetUpdateAction::class.java)
+        val snippetAction = adapter.fromJson(text)
 
-      _updateActionFlow.update { snippetAction }
-   }
+        _updateActionFlow.update { snippetAction }
+    }
 
-   override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
-      super.onClosing(webSocket, code, reason)
-      webSocket.close(CLOSING_CODE_ERROR_CODE, null)
-   }
+    override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
+        super.onClosing(webSocket, code, reason)
+        webSocket.close(CLOSING_CODE_ERROR_CODE, null)
+    }
 
-   override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
-      super.onFailure(webSocket, t, response)
-      webSocket.close(CLOSING_CODE_ERROR_CODE, null)
-   }
+    override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
+        super.onFailure(webSocket, t, response)
+        webSocket.close(CLOSING_CODE_ERROR_CODE, null)
+    }
 
-   companion object {
-      const val CLOSING_CODE_ERROR_CODE = 1000
-   }
+    companion object {
+        const val CLOSING_CODE_ERROR_CODE = 1000
+    }
 }

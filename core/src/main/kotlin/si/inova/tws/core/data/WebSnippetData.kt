@@ -17,9 +17,9 @@
 package si.inova.tws.core.data
 
 data class WebSnippetData(
-   val id: String,
-   val url: String,
-   val headers: Map<String, String> = emptyMap(),
-   val loadIteration: Int = 0,
-   val dynamicModifiers: List<ModifierPageData> = emptyList()
+    val id: String,
+    val url: String,
+    val headers: Map<String, String> = emptyMap(),
+    val loadIteration: Int = 0,
+    val dynamicModifiers: List<ModifierPageData> = emptyList()
 )
