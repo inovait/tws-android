@@ -1,3 +1,19 @@
+# 0.5.0
+
+### Features
+
+* **core, manager**: added support to inject css or javascript into webpage ([0089f596](https://github.com/inovait/tws-android-sdk/commit/0089f596c76d8d7da51f14e19650b9b3ca0698fd))
+* **core**: ask permission for video capture and location ([47aa3950](https://github.com/inovait/tws-android-sdk/commit/47aa3950182d2a8db04e067802b031afffaea653))
+* **core**: deny webviews permission if user denies native apps permission ([5304c5e3](https://github.com/inovait/tws-android-sdk/commit/5304c5e33bb16cb8ccf7973822a5f3a942fecb5c))
+* **manager**: parse dynamic resources ([797fe280](https://github.com/inovait/tws-android-sdk/commit/797fe280b5a80de96225b35b390a9015c1c14194))
+* **core**: parse dynamicResource type from contentType ([a45dacc4](https://github.com/inovait/tws-android-sdk/commit/a45dacc417135a4588af3ab0ce1f68fc744f9429))
+* **core**: request permissions only if present in manifest ([0aea7a58](https://github.com/inovait/tws-android-sdk/commit/0aea7a58c0b6d5a6bd57fe3785b093fa55f8d376))
+
+### Bug Fixes
+
+* **core**: use proper type for javascript ([ad2bf73d](https://github.com/inovait/tws-android-sdk/commit/ad2bf73d2072e8c6f6fe2a6b0479dcd7aca98019))
+* **core**: permissions should not be included in sdk manifest, developers should include it only if needed ([d1ad0d9f](https://github.com/inovait/tws-android-sdk/commit/d1ad0d9f0751d0e2c0f8b65111b9caf449924e4f))
+
 # 0.4.1
 
 ### Bug Fixes
