@@ -1,9 +1,9 @@
-# Core
+# Manager
 
 Direct gradle usage:
 
 ```kotlin
-implementation("si.inova.tws:core:X.Y.Z")
+implementation("si.inova.tws:manager:X.Y.Z")
 ```
 
 Version catalogs usage:
@@ -15,11 +15,11 @@ tws = "X.Y.Z"
 
 ```toml
 [libraries]
-tws-core = { module = "si.inova.tws:core", version.ref = "tws" }
+tws-manager = { module = "si.inova.tws:manager", version.ref = "tws" }
 ```
 
 ```kotlin
-implementation(libs.tws.core)
+implementation(libs.tws.manager)
 ```
 
 Replace `X.Y.Z` with latest version. Check out [changelog](../CHANGELOG.MD) to see what is the latest version.
@@ -28,6 +28,6 @@ Replace `X.Y.Z` with latest version. Check out [changelog](../CHANGELOG.MD) to s
 
 Library is a collection of core web view extension. Notable features include:
 
-- Single Web View Snippet
+- Cloud Manager
 
-- Multiple Web View Snippets - Snippets with tabs
+- Web Socket
