@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="oops_loading_failed">Ooops, loading failed.</string>
+    <string name="human_readable_size">%.1f %s</string>
+    <string name="download_completed">Download complete ∙ %s</string>
+    <string name="downloading_file">Downloading File</string>
 </resources>
