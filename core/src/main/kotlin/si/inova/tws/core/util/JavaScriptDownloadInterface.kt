@@ -35,17 +35,17 @@ import java.io.IOException
 import kotlin.math.log10
 import kotlin.math.pow
 
-class JavaScriptInterface(private val context: Context) {
+class JavaScriptDownloadInterface(private val context: Context) {
 
     @Suppress("Unused") // it is used in javascript
     @JavascriptInterface
     @Throws(IOException::class)
     fun getBase64FromBlobData(uuid: String, base64Data: String, mimeType: String) {
-        convertBase64StringToPdfAndStoreIt(uuid, base64Data, mimeType)
+        convertBase64StringToFileAndStoreIt(uuid, base64Data, mimeType)
     }
 
     @Throws(IOException::class)
-    private fun convertBase64StringToPdfAndStoreIt(uuid: String, base64PDf: String, mimeType: String) {
+    private fun convertBase64StringToFileAndStoreIt(uuid: String, base64File: String, mimeType: String) {
         val fileType = mimeType.substringAfterLast("/")
 
         val notificationId = 1
@@ -55,9 +55,9 @@ class JavaScriptInterface(private val context: Context) {
                 Environment.DIRECTORY_DOWNLOADS
             ).toString() + "/" + downloadFileName
         )
-        val pdfAsBytes = Base64.decode(base64PDf.replaceFirst("data:$mimeType;base64,", ""), 0)
+        val fileAsBytes = Base64.decode(base64File.replaceFirst("data:$mimeType;base64,", ""), 0)
         val os = FileOutputStream(downloadPath, false)
-        os.write(pdfAsBytes)
+        os.write(fileAsBytes)
         os.flush()
 
         if (downloadPath.exists()) {
@@ -71,11 +71,11 @@ class JavaScriptInterface(private val context: Context) {
                 val notificationChannel = NotificationChannel(
                     NOTIFICATION_DOWNLOAD_CHANNEL_ID,
                     NOTIFICATION_DOWNLOAD_NAME,
-                    NotificationManager.IMPORTANCE_LOW
+                    NotificationManager.IMPORTANCE_DEFAULT
                 )
                 val notification = Notification.Builder(context, NOTIFICATION_DOWNLOAD_CHANNEL_ID)
                     .setContentTitle(downloadFileName)
-                    .setContentText(context.getString(R.string.download_completed, pdfAsBytes.toHumanReadableSize(context)))
+                    .setContentText(context.getString(R.string.download_completed, fileAsBytes.toHumanReadableSize(context)))
                     .setContentIntent(pendingIntent)
                     .setChannelId(NOTIFICATION_DOWNLOAD_CHANNEL_ID)
                     .setSmallIcon(android.R.drawable.stat_sys_download_done)
@@ -90,7 +90,7 @@ class JavaScriptInterface(private val context: Context) {
                     .setWhen(System.currentTimeMillis())
                     .setSmallIcon(android.R.drawable.stat_sys_download_done)
                     .setContentTitle(downloadFileName)
-                    .setContentText(context.getString(R.string.download_completed, pdfAsBytes.toHumanReadableSize(context)))
+                    .setContentText(context.getString(R.string.download_completed, fileAsBytes.toHumanReadableSize(context)))
 
                 notificationManager?.notify(notificationId, b.build())
             }
@@ -113,7 +113,7 @@ class JavaScriptInterface(private val context: Context) {
                 "        reader.readAsDataURL(blobResponse);" +
                 "        reader.onloadend = function() {" +
                 "            base64data = reader.result;" +
-                "            Android.getBase64FromBlobData('$uuid', base64data, '$mimeType');" +
+                "            $JAVASCRIPT_INTERFACE_NAME.getBase64FromBlobData('$uuid', base64data, '$mimeType');" +
                 "        }" +
                 "    }" +
                 "};" +
@@ -122,6 +122,8 @@ class JavaScriptInterface(private val context: Context) {
 
         private const val NOTIFICATION_DOWNLOAD_CHANNEL_ID = "DOWNLOAD_CHANNEL"
         private const val NOTIFICATION_DOWNLOAD_NAME = "DOWNLOAD NOTIFICATION"
+
+        const val JAVASCRIPT_INTERFACE_NAME = "Android"
     }
 }
 

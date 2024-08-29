@@ -41,7 +41,8 @@ import si.inova.tws.core.data.view.WebViewState
 import si.inova.tws.core.data.view.client.TwsWebChromeClient
 import si.inova.tws.core.data.view.client.TwsWebViewClient
 import si.inova.tws.core.data.view.rememberWebViewNavigator
-import si.inova.tws.core.util.JavaScriptInterface
+import si.inova.tws.core.util.JavaScriptDownloadInterface
+import si.inova.tws.core.util.JavaScriptDownloadInterface.Companion.JAVASCRIPT_INTERFACE_NAME
 
 /**
  * NOTE: This is a copy from Accompanists WebView wrapper, since it is not supported anymore and allows
@@ -247,7 +248,7 @@ fun WebView(
                 val wv = state.webView ?: (factory?.invoke(context) ?: WebView(context)).apply {
                     onCreated(this)
 
-                    addJavascriptInterface(JavaScriptInterface(context), "Android")
+                    addJavascriptInterface(JavaScriptDownloadInterface(context), JAVASCRIPT_INTERFACE_NAME)
 
                     setDownloadListener(TwsDownloadListener(context, this))
 
