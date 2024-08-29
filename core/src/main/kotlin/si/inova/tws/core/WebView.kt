@@ -16,16 +16,11 @@
 
 package si.inova.tws.core
 
-import android.app.DownloadManager
 import android.content.Context
-import android.net.Uri
-import android.os.Environment
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams
-import android.webkit.URLUtil
 import android.webkit.WebView
 import android.widget.FrameLayout
-import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -39,6 +34,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
 import si.inova.tws.core.data.ModifierPageData
+import si.inova.tws.core.data.view.TwsDownloadListener
 import si.inova.tws.core.data.view.WebContent
 import si.inova.tws.core.data.view.WebViewNavigator
 import si.inova.tws.core.data.view.WebViewState
@@ -253,27 +249,7 @@ fun WebView(
 
                     addJavascriptInterface(JavaScriptInterface(context), "Android")
 
-                    setDownloadListener { url, userAgent, contentDisposition, mimetype, _ ->
-                        if (url.startsWith("blob")) {
-                            evaluateJavascript(JavaScriptInterface.getBase64StringFromBlobUrl(url, mimetype), null)
-                        } else {
-                            val request = DownloadManager.Request(Uri.parse(url))
-
-                            request.setMimeType(mimetype)
-                            request.addRequestHeader("User-Agent", userAgent)
-                            request.setTitle(URLUtil.guessFileName(url, contentDisposition, mimetype))
-                            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-                            request.setDestinationInExternalPublicDir(
-                                Environment.DIRECTORY_DOWNLOADS,
-                                URLUtil.guessFileName(url, contentDisposition, mimetype)
-                            )
-
-                            val downloadManager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
-                            downloadManager.enqueue(request)
-
-                            Toast.makeText(context, context.getString(R.string.downloading_file), Toast.LENGTH_SHORT).show()
-                        }
-                    }
+                    setDownloadListener(TwsDownloadListener(context, this))
 
                     this.layoutParams = layoutParams
 
