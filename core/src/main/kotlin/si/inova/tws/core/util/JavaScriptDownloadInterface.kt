@@ -61,8 +61,14 @@ class JavaScriptDownloadInterface(private val context: Context) {
         os.flush()
 
         if (downloadPath.exists()) {
-            val intent = Intent()
-            intent.setAction(Intent.ACTION_VIEW)
+            val intent = Intent().apply {
+                setAction(Intent.ACTION_VIEW)
+                val apkURI = FileProvider.getUriForFile(
+                    context, context.applicationContext.packageName + ".provider", downloadPath
+                )
+                setDataAndType(apkURI, MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileType))
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
             val pendingIntent =
                 PendingIntent.getActivity(context, 1, intent, PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE)
             val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
