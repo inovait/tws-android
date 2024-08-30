@@ -101,7 +101,7 @@ class JavaScriptDownloadInterface(private val context: Context) {
                 "               '$uuid', " +
                 "               base64data, " +
                 "               '$mimeType', " +
-                "               '$notificationPermissionGranted'" +
+                "               $notificationPermissionGranted" +
                 "           );" +
                 "        }" +
                 "    }" +
