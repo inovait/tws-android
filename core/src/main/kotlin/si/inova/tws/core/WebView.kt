@@ -249,7 +249,12 @@ fun WebView(
 
                     addJavascriptInterface(JavaScriptDownloadInterface(context), JAVASCRIPT_INTERFACE_NAME)
 
-                    setDownloadListener(TwsDownloadListener(context, this))
+                    setDownloadListener(
+                        TwsDownloadListener(context, this) { permission, callback ->
+                            permissionLauncher.launch(permission)
+                            permissionCallback.value = callback
+                        }
+                    )
 
                     this.layoutParams = layoutParams
 

@@ -2,6 +2,13 @@
 <resources>
     <string name="oops_loading_failed">Ooops, loading failed.</string>
     <string name="human_readable_size">%.1f %s</string>
-    <string name="download_completed">Download complete ∙ %s</string>
+    <string name="download_completed_size">Download complete ∙ %s</string>
+    <string name="download_completed">Download complete</string>
     <string name="downloading_file">Downloading File</string>
+    <string name="file_size_default_byte">0 B</string>
+    <string name="file_size_byte">B</string>
+    <string name="file_size_kilo_byte">KB</string>
+    <string name="file_size_mega_byte">MB</string>
+    <string name="file_size_giga_byte">GB</string>
+    <string name="file_size_tera_byte">TB</string>
 </resources>
