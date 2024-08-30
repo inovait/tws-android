@@ -17,8 +17,10 @@
 package si.inova.tws.core
 
 import android.content.Context
+import android.net.Uri
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams
+import android.webkit.ValueCallback
 import android.webkit.WebView
 import android.widget.FrameLayout
 import androidx.activity.compose.BackHandler
@@ -184,6 +186,21 @@ fun WebView(
     ) { isGranted ->
         permissionCallback.value?.invoke(isGranted)
     }
+
+    val fileChooserCallback = remember { mutableStateOf<ValueCallback<Array<Uri>>?>(null) }
+    val fileChooserLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        val results = result.data?.data?.let { arrayOf(it) } ?: result.data?.clipData?.let {
+            (0 until it.itemCount).map { index -> it.getItemAt(index).uri }.toTypedArray()
+        }
+
+        fileChooserCallback.value?.onReceiveValue(results)
+
+        // clear callback
+        fileChooserCallback.value = null
+    }
+
     LaunchedEffect(chromeClient) {
         chromeClient.setupPermissionRequestCallback { permission, callback ->
             permissionLauncher.launch(permission)
@@ -191,43 +208,15 @@ fun WebView(
         }
     }
 
+    LaunchedEffect(chromeClient) {
+        chromeClient.setupFileChooserRequestCallback { valueCallback, fileChooserParams ->
+            fileChooserCallback.value = valueCallback
+            fileChooserLauncher.launch(fileChooserParams.createIntent())
+        }
+    }
+
     webView?.let { wv ->
-        LaunchedEffect(wv, navigator) {
-            with(navigator) {
-                wv.handleNavigationEvents()
-            }
-        }
-
-        LaunchedEffect(wv, state) {
-            snapshotFlow { state.content }.collect { content ->
-                when (content) {
-                    is WebContent.Url -> {
-                        wv.loadUrl(content.url, content.additionalHttpHeaders)
-                    }
-
-                    is WebContent.Data -> {
-                        wv.loadDataWithBaseURL(
-                            content.baseUrl,
-                            content.data,
-                            content.mimeType,
-                            content.encoding,
-                            content.historyUrl
-                        )
-                    }
-
-                    is WebContent.Post -> {
-                        wv.postUrl(
-                            content.url,
-                            content.postData
-                        )
-                    }
-
-                    is WebContent.NavigatorOnly, is WebContent.MessageOnly -> {
-                        // NO-OP
-                    }
-                }
-            }
-        }
+        HandleNavigationEvents(wv, navigator, state)
     }
 
     // Set the state of the client and chrome client
@@ -276,5 +265,45 @@ fun WebView(
                 onDispose(it)
             }
         )
+    }
+}
+
+@Composable
+private fun HandleNavigationEvents(wv: WebView, navigator: WebViewNavigator, state: WebViewState) {
+    LaunchedEffect(wv, navigator) {
+        with(navigator) {
+            wv.handleNavigationEvents()
+        }
+    }
+
+    LaunchedEffect(wv, state) {
+        snapshotFlow { state.content }.collect { content ->
+            when (content) {
+                is WebContent.Url -> {
+                    wv.loadUrl(content.url, content.additionalHttpHeaders)
+                }
+
+                is WebContent.Data -> {
+                    wv.loadDataWithBaseURL(
+                        content.baseUrl,
+                        content.data,
+                        content.mimeType,
+                        content.encoding,
+                        content.historyUrl
+                    )
+                }
+
+                is WebContent.Post -> {
+                    wv.postUrl(
+                        content.url,
+                        content.postData
+                    )
+                }
+
+                is WebContent.NavigatorOnly, is WebContent.MessageOnly -> {
+                    // NO-OP
+                }
+            }
+        }
     }
 }

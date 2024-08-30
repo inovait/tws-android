@@ -19,9 +19,11 @@ package si.inova.tws.core.data.view.client
 import android.Manifest
 import android.content.Context
 import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Message
 import android.webkit.GeolocationPermissions
 import android.webkit.PermissionRequest
+import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
 import android.webkit.WebView
 import si.inova.tws.core.data.view.LoadingState
@@ -42,7 +44,8 @@ open class TwsWebChromeClient(
     open lateinit var state: WebViewState
         internal set
 
-    private lateinit var permissionRequest: (String, (Boolean) -> Unit) -> Unit
+    private lateinit var showPermissionRequest: (String, (Boolean) -> Unit) -> Unit
+    private lateinit var showFileChooser: (ValueCallback<Array<Uri>>, FileChooserParams) -> Unit
 
     override fun onCreateWindow(view: WebView, isDialog: Boolean, isUserGesture: Boolean, resultMsg: Message): Boolean {
         popupStateCallback?.invoke(
@@ -77,6 +80,15 @@ open class TwsWebChromeClient(
         state.loadingState = LoadingState.Loading(newProgress / 100.0f)
     }
 
+    override fun onShowFileChooser(
+        webView: WebView,
+        filePathCallback: ValueCallback<Array<Uri>>,
+        fileChooserParams: FileChooserParams
+    ): Boolean {
+        showFileChooser(filePathCallback, fileChooserParams)
+        return true
+    }
+
     /**
      * Fix for:
      * Spotify have some protected content
@@ -97,7 +109,7 @@ open class TwsWebChromeClient(
         val context = state.webView?.context
 
         if (context?.hasPermissionInManifest(Manifest.permission.ACCESS_COARSE_LOCATION) == true) {
-            permissionRequest(Manifest.permission.ACCESS_COARSE_LOCATION) { isGranted ->
+            showPermissionRequest(Manifest.permission.ACCESS_COARSE_LOCATION) { isGranted ->
                 callback?.invoke(origin, isGranted, false)
             }
         } else {
@@ -106,12 +118,16 @@ open class TwsWebChromeClient(
     }
 
     fun setupPermissionRequestCallback(callback: (String, (Boolean) -> Unit) -> Unit) {
-        permissionRequest = callback
+        showPermissionRequest = callback
+    }
+
+    fun setupFileChooserRequestCallback(callback: (ValueCallback<Array<Uri>>, FileChooserParams) -> Unit) {
+        showFileChooser = callback
     }
 
     private fun PermissionRequest.handleCameraPermission(context: Context?) {
         if (context?.hasPermissionInManifest(Manifest.permission.CAMERA) == true) {
-            permissionRequest(Manifest.permission.CAMERA) { isGranted ->
+            showPermissionRequest(Manifest.permission.CAMERA) { isGranted ->
                 if (isGranted) {
                     grant(arrayOf(PermissionRequest.RESOURCE_VIDEO_CAPTURE))
                 } else {
