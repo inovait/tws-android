@@ -184,10 +184,11 @@ fun WebView(
     ) { isGranted ->
         permissionCallback.value?.invoke(isGranted)
     }
-
-    chromeClient.setupPermissionRequestCallback { permission, callback ->
-        permissionLauncher.launch(permission)
-        permissionCallback.value = callback
+    LaunchedEffect(chromeClient) {
+        chromeClient.setupPermissionRequestCallback { permission, callback ->
+            permissionLauncher.launch(permission)
+            permissionCallback.value = callback
+        }
     }
 
     webView?.let { wv ->

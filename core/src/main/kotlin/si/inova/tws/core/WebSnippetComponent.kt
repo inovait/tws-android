@@ -189,22 +189,20 @@ private fun SnippetContentWithLoadingAndError(
     val chromeClient = remember(key1 = key) { TwsWebChromeClient(popupStateCallback) }
 
     Box(modifier = modifier) {
-        if (!displayLoadingContent && !displayErrorContent) {
-            WebView(
-                key = key,
-                modifier = Modifier.fillMaxSize(),
-                state = webViewState,
-                navigator = navigator,
-                onCreated = {
-                    if (!isPreviewMode) it.initializeSettings()
-                    onCreated(it)
-                },
-                interceptOverrideUrl = interceptOverrideUrl,
-                dynamicModifiers = dynamicModifiers,
-                client = client,
-                chromeClient = chromeClient
-            )
-        }
+        WebView(
+            key = key,
+            modifier = Modifier.fillMaxSize(),
+            state = webViewState,
+            navigator = navigator,
+            onCreated = {
+                if (!isPreviewMode) it.initializeSettings()
+                onCreated(it)
+            },
+            interceptOverrideUrl = interceptOverrideUrl,
+            dynamicModifiers = dynamicModifiers,
+            client = client,
+            chromeClient = chromeClient
+        )
 
         if (displayLoadingContent) {
             loadingPlaceholderContent()
