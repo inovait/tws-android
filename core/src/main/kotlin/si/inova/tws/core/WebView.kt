@@ -185,8 +185,13 @@ fun WebView(
     val (permissionLauncher, permissionCallback) = createPermissionLauncher()
     val (fileChooserLauncher, fileChooserCallback) = createFileChooserLauncher()
 
-    SetupPermissionHandling(chromeClient, permissionLauncher, permissionCallback)
-    SetupFileChooserHandling(chromeClient, fileChooserLauncher, fileChooserCallback)
+    SetupPermissionHandling(chromeClient, permissionLauncher) { callback ->
+        permissionCallback.value = callback
+    }
+
+    SetupFileChooserHandling(chromeClient, fileChooserLauncher) { valueCallback ->
+        fileChooserCallback.value = valueCallback
+    }
 
     webView?.let { wv -> HandleNavigationEvents(wv, navigator, state) }
 
@@ -202,15 +207,19 @@ fun WebView(
         AndroidView(
             factory = { context ->
                 createWebView(
-                    context,
-                    state,
-                    layoutParams,
-                    factory,
-                    onCreated,
-                    permissionLauncher,
-                    permissionCallback,
-                    client,
-                    chromeClient
+                    context = context,
+                    state = state,
+                    layoutParams = layoutParams,
+                    factory = factory,
+                    onCreated = { wv ->
+                        onCreated(wv)
+                        wv.setDownloadListener(TwsDownloadListener(context, wv) { permission, callback ->
+                            permissionLauncher.launch(permission)
+                            permissionCallback.value = callback
+                        })
+                    },
+                    client = client,
+                    chromeClient = chromeClient
                 )
             },
             modifier = modifier,
@@ -270,12 +279,12 @@ private fun HandleNavigationEvents(wv: WebView, navigator: WebViewNavigator, sta
 private fun SetupPermissionHandling(
     chromeClient: TwsWebChromeClient,
     permissionLauncher: ActivityResultLauncher<String>,
-    permissionCallback: MutableState<((Boolean) -> Unit)?>
+    setupCallback: ((Boolean) -> Unit) -> Unit
 ) {
     LaunchedEffect(chromeClient) {
         chromeClient.setupPermissionRequestCallback { permission, callback ->
             permissionLauncher.launch(permission)
-            permissionCallback.value = callback
+            setupCallback(callback)
         }
     }
 }
@@ -284,16 +293,15 @@ private fun SetupPermissionHandling(
 private fun SetupFileChooserHandling(
     chromeClient: TwsWebChromeClient,
     fileChooserLauncher: ActivityResultLauncher<Intent>,
-    fileChooserCallback: MutableState<ValueCallback<Array<Uri>>?>
+    setupCallback: (ValueCallback<Array<Uri>>) -> Unit
 ) {
     LaunchedEffect(chromeClient) {
         chromeClient.setupFileChooserRequestCallback { valueCallback, fileChooserParams ->
-            fileChooserCallback.value = valueCallback
+            setupCallback(valueCallback)
             fileChooserLauncher.launch(fileChooserParams.createIntent())
         }
     }
 }
-
 
 @Composable
 private fun createPermissionLauncher(): Pair<ActivityResultLauncher<String>, MutableState<((Boolean) -> Unit)?>> {
@@ -323,18 +331,12 @@ private fun createWebView(
     layoutParams: FrameLayout.LayoutParams,
     factory: ((Context) -> WebView)?,
     onCreated: (WebView) -> Unit,
-    permissionLauncher: ActivityResultLauncher<String>,
-    permissionCallback: MutableState<((Boolean) -> Unit)?>,
     client: WebViewClient,
     chromeClient: WebChromeClient
 ): WebView {
     val wv = state.webView ?: (factory?.invoke(context) ?: WebView(context)).apply {
         onCreated(this)
         addJavascriptInterface(JavaScriptDownloadInterface(context), JAVASCRIPT_INTERFACE_NAME)
-        setDownloadListener(TwsDownloadListener(context, this) { permission, callback ->
-            permissionLauncher.launch(permission)
-            permissionCallback.value = callback
-        })
         this.layoutParams = layoutParams
         state.viewState?.let { this.restoreState(it) }
         webChromeClient = chromeClient
