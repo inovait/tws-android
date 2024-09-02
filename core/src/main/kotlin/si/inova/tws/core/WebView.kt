@@ -342,7 +342,7 @@ private fun createWebView(
     client: WebViewClient,
     chromeClient: WebChromeClient
 ): WebView {
-    val wv = state.webView ?: (factory?.invoke(context) ?: WebView(context)).apply {
+    val wv = (factory?.invoke(context) ?: WebView(context)).apply {
         onCreated(this)
         addJavascriptInterface(JavaScriptDownloadInterface(context), JAVASCRIPT_INTERFACE_NAME)
         this.layoutParams = layoutParams
