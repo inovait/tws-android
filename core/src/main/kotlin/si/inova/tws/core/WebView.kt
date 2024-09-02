@@ -20,7 +20,6 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams
 import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
@@ -342,7 +341,7 @@ private fun createWebView(
     client: WebViewClient,
     chromeClient: WebChromeClient
 ): WebView {
-    val wv = (factory?.invoke(context) ?: WebView(context)).apply {
+    return (factory?.invoke(context) ?: WebView(context)).apply {
         onCreated(this)
         addJavascriptInterface(JavaScriptDownloadInterface(context), JAVASCRIPT_INTERFACE_NAME)
         this.layoutParams = layoutParams
@@ -350,7 +349,4 @@ private fun createWebView(
         webChromeClient = chromeClient
         webViewClient = client
     }.also { state.webView = it }
-
-    (wv.parent as? ViewGroup)?.removeView(wv)
-    return wv
 }
