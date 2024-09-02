@@ -99,8 +99,8 @@ fun WebSnippetComponent(
     googleLoginRedirectUrl: String? = null
 ) {
     LaunchedEffect(navigator, target.loadIteration) {
-        if (webViewState.lastLoadedUrl == null || webViewState.loadIteration != target.loadIteration) {
-            // This is the first time load, so load the home page.
+        if (webViewState.viewState == null) {
+            // This is the first time load, so load the home page, else it will be restored from bundle
             navigator.loadUrl(
                 url = target.url,
                 loadOnlyInitial = webViewState.loadIteration == null,

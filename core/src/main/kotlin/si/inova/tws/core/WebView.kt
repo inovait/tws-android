@@ -19,6 +19,7 @@ package si.inova.tws.core
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Bundle
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams
 import android.webkit.ValueCallback
@@ -223,7 +224,14 @@ fun WebView(
                 )
             },
             modifier = modifier,
-            onRelease = { onDispose(it) }
+            onRelease = {
+                state.viewState = Bundle().apply {
+                    it.saveState(this)
+                }.takeIf { !it.isEmpty } ?: state.viewState
+                state.webView = null
+
+                onDispose(it)
+            }
         )
     }
 }
@@ -334,7 +342,7 @@ private fun createWebView(
     client: WebViewClient,
     chromeClient: WebChromeClient
 ): WebView {
-    val wv = state.webView ?: (factory?.invoke(context) ?: WebView(context)).apply {
+    val wv = (factory?.invoke(context) ?: WebView(context)).apply {
         onCreated(this)
         addJavascriptInterface(JavaScriptDownloadInterface(context), JAVASCRIPT_INTERFACE_NAME)
         this.layoutParams = layoutParams
