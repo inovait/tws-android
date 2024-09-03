@@ -26,7 +26,10 @@ import si.inova.kotlinova.core.outcome.CauseException
 import si.inova.kotlinova.core.outcome.CoroutineResourceManager
 import si.inova.kotlinova.core.outcome.Outcome
 import si.inova.kotlinova.core.outcome.downgradeTo
+import si.inova.kotlinova.core.outcome.mapData
 import si.inova.tws.manager.data.NetworkStatus
+import si.inova.tws.manager.data.SnippetStatus
+import si.inova.tws.manager.data.SnippetType
 import si.inova.tws.manager.data.WebSnippetDto
 import si.inova.tws.manager.factory.BaseServiceFactory
 import si.inova.tws.manager.factory.create
@@ -45,11 +48,22 @@ class WebSnippetManagerImpl(context: Context) : WebSnippetManager {
 
     private val stateFlow: MutableStateFlow<Outcome<List<WebSnippetDto>>> = MutableStateFlow(Outcome.Progress())
 
-    override val snippetsFlow = combine(
+    override val contentSnippetsFlow = combine(
         twsSocket.snippetsFlow,
         stateFlow
     ) { snippets, state ->
-        Outcome.Success(snippets).downgradeTo(state)
+        Outcome.Success(snippets).downgradeTo(state).mapData { data ->
+            data.filter { it.type == SnippetType.TAB && it.status == SnippetStatus.ENABLED }
+        }
+    }
+
+    override val popupSnippetsFlow = combine(
+        twsSocket.snippetsFlow,
+        stateFlow
+    ) { snippets, state ->
+        Outcome.Success(snippets).downgradeTo(state).mapData { data ->
+            data.filter { it.type == SnippetType.POPUP && it.status == SnippetStatus.ENABLED }
+        }
     }
 
     private val _mainSnippetIdFlow: MutableStateFlow<String?> = MutableStateFlow(null)

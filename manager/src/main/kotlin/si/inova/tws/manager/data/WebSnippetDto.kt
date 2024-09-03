@@ -29,5 +29,7 @@ data class WebSnippetDto(
     val html: String? = null,
     val headers: Map<String, String>? = emptyMap(),
     val dynamicResources: List<DynamicResourceDto>? = emptyList(),
-    val loadIteration: Int = 0
+    val loadIteration: Int = 0,
+    val type: SnippetType = SnippetType.TAB,
+    val status: SnippetStatus = SnippetStatus.ENABLED
 )

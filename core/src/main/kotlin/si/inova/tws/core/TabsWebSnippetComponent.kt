@@ -17,7 +17,10 @@
 package si.inova.tws.core
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -31,25 +34,33 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScrollableTabRow
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.window.DialogWindowProvider
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import si.inova.tws.core.data.WebSnippetData
@@ -102,12 +113,19 @@ fun TabsWebSnippetComponent(
     topBar: @Composable (String?) -> Unit = { },
     resetScreenOnTabReselect: Boolean = true,
     onScreenReset: (WebViewState) -> Unit = { it.webView?.onScreenReset() },
-    googleLoginRedirectUrl: String? = null
+    googleLoginRedirectUrl: String? = null,
+    targetsPopup: ImmutableList<WebSnippetData>? = null
 ) {
     CompositionLocalProvider(LocalScreenResetNotifier provides ScreenResetNotifier()) {
         val screenResetNotifier = LocalScreenResetNotifier.current
         val webViewStatesMap = targets.map { rememberSaveableWebViewState(key = "${it.id}-${it.url}") }
         val navigatorsMap = targets.map { rememberWebViewNavigator(it.id) }
+
+        val showInterstitial = remember {
+            mutableStateListOf<Pair<WebSnippetData, Boolean>>().apply {
+                targetsPopup?.forEach { add(Pair(it, true)) }
+            }
+        }
 
         val lastSelectedTabIndex = remember { mutableIntStateOf(mainTabIndex) }
 
@@ -175,7 +193,6 @@ fun TabsWebSnippetComponent(
                         // can crash because of the animation if tab is deleted
                         val coercedIndex = targetIndex.coerceAtMost(targets.size - 1)
 
-
                         DoOnScreenReset {
                             onScreenReset(webViewStatesMap[coercedIndex])
                         }
@@ -194,6 +211,57 @@ fun TabsWebSnippetComponent(
                             interceptOverrideUrl = interceptOverrideUrl,
                             googleLoginRedirectUrl = googleLoginRedirectUrl
                         )
+                    }
+                }
+            }
+        }
+
+        showInterstitial.forEachIndexed { i, data ->
+            if (data.second) {
+                val showAnimatedContent = remember { mutableStateOf(false) }
+
+                Dialog(
+                    properties = DialogProperties(usePlatformDefaultWidth = false),
+                    onDismissRequest = {
+                        showAnimatedContent.value = false
+                    }
+                ) {
+                    val dialogWindowProvider = LocalView.current.parent as? DialogWindowProvider
+                    dialogWindowProvider?.window?.setDimAmount(0f)
+
+                    LaunchedEffect(Unit) {
+                        showAnimatedContent.value = true
+                    }
+
+                    AnimatedVisibility(
+                        visible = showAnimatedContent.value,
+                        enter = slideInVertically(
+                            initialOffsetY = { fullHeight -> fullHeight },
+                        ),
+                        exit = slideOutVertically(
+                            targetOffsetY = { fullHeight -> fullHeight },
+                        )
+                    ) {
+
+                        DisposableEffect(Unit) {
+                            onDispose {
+                                showInterstitial[i] = showInterstitial[i].copy(second = false)
+                            }
+                        }
+                        Surface(modifier = Modifier.fillMaxSize()) {
+                            WebSnippetComponent(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .background(Color.White),
+                                target = data.first,
+                                displayErrorViewOnError = displayErrorViewOnError,
+                                errorViewContent = errorViewContent,
+                                displayPlaceholderWhileLoading = displayPlaceholderWhileLoading,
+                                loadingPlaceholderContent = loadingPlaceholderContent,
+                                interceptOverrideUrl = interceptOverrideUrl,
+                                googleLoginRedirectUrl = googleLoginRedirectUrl
+                            )
+                        }
                     }
                 }
             }
