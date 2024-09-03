@@ -14,20 +14,12 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.manager
+package si.inova.tws.manager.data
 
-import kotlinx.coroutines.flow.Flow
-import si.inova.kotlinova.core.outcome.Outcome
-import si.inova.tws.manager.data.WebSnippetDto
+import androidx.annotation.Keep
 
-interface WebSnippetManager {
-    val contentSnippetsFlow: Flow<Outcome<List<WebSnippetDto>>>
-    val popupSnippetsFlow: Flow<Outcome<List<WebSnippetDto>>>
-
-    val mainSnippetIdFlow: Flow<String?>
-
-    fun closeWebsocketConnection()
-
-    suspend fun loadWebSnippets(organizationId: String, projectId: String)
-    suspend fun loadSharedSnippetData(shareId: String)
+@Keep
+enum class SnippetStatus {
+    ENABLED,
+    DISABLED
 }
