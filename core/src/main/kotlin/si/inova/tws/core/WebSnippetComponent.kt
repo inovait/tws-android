@@ -61,6 +61,8 @@ import si.inova.tws.core.data.view.client.TwsWebChromeClient
 import si.inova.tws.core.data.view.client.TwsWebViewClient
 import si.inova.tws.core.data.view.rememberSaveableWebViewState
 import si.inova.tws.core.data.view.rememberWebViewNavigator
+import si.inova.tws.core.util.compose.SnippetErrorView
+import si.inova.tws.core.util.compose.SnippetLoadingView
 import si.inova.tws.core.util.initializeSettings
 
 /**
@@ -92,9 +94,9 @@ fun WebSnippetComponent(
     navigator: WebViewNavigator = rememberWebViewNavigator(target.id),
     webViewState: WebViewState = rememberSaveableWebViewState(target.id),
     displayErrorViewOnError: Boolean = false,
-    errorViewContent: @Composable () -> Unit = { ErrorViewIndicator() },
+    errorViewContent: @Composable () -> Unit = { SnippetErrorView(false) },
     displayPlaceholderWhileLoading: Boolean = false,
-    loadingPlaceholderContent: @Composable () -> Unit = { WebViewLoadingIndicator() },
+    loadingPlaceholderContent: @Composable () -> Unit = { SnippetLoadingView(false) },
     interceptOverrideUrl: (String) -> Boolean = { false },
     googleLoginRedirectUrl: String? = null
 ) {
@@ -291,48 +293,6 @@ private fun NewIntentListener(callback: (Intent) -> Unit) {
 
         onDispose {
             activity?.removeOnNewIntentListener(newIntentListener)
-        }
-    }
-}
-
-@Composable
-private fun WebViewLoadingIndicator() {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(200.dp)
-            .background(Color.LightGray)
-    ) {
-        CircularProgressIndicator(
-            modifier = Modifier
-                .size(64.dp)
-                .align(Alignment.Center),
-            color = MaterialTheme.colorScheme.secondary,
-            trackColor = MaterialTheme.colorScheme.surfaceVariant,
-        )
-    }
-}
-
-@Composable
-private fun ErrorViewIndicator() {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(200.dp)
-            .background(Color.LightGray)
-    ) {
-        Column(modifier = Modifier.align(Alignment.Center)) {
-            Image(
-                modifier = Modifier.align(Alignment.CenterHorizontally),
-                painter = painterResource(id = R.drawable.image_load_failed),
-                contentDescription = "Web view error image"
-            )
-
-            Text(
-                modifier = Modifier.padding(all = 16.dp),
-                text = stringResource(id = R.string.oops_loading_failed),
-                style = TextStyle(color = Color.Black)
-            )
         }
     }
 }
