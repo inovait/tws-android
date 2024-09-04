@@ -17,16 +17,23 @@
 package si.inova.tws.core
 
 import android.content.Context
-import android.view.ViewGroup
+import android.content.Intent
+import android.net.Uri
+import android.os.Bundle
 import android.view.ViewGroup.LayoutParams
+import android.webkit.ValueCallback
+import android.webkit.WebChromeClient
 import android.webkit.WebView
+import android.webkit.WebViewClient
 import android.widget.FrameLayout
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,12 +41,15 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
 import si.inova.tws.core.data.ModifierPageData
-import si.inova.tws.core.data.view.client.TwsWebChromeClient
-import si.inova.tws.core.data.view.client.TwsWebViewClient
+import si.inova.tws.core.data.view.TwsDownloadListener
 import si.inova.tws.core.data.view.WebContent
 import si.inova.tws.core.data.view.WebViewNavigator
 import si.inova.tws.core.data.view.WebViewState
+import si.inova.tws.core.data.view.client.TwsWebChromeClient
+import si.inova.tws.core.data.view.client.TwsWebViewClient
 import si.inova.tws.core.data.view.rememberWebViewNavigator
+import si.inova.tws.core.util.JavaScriptDownloadInterface
+import si.inova.tws.core.util.JavaScriptDownloadInterface.Companion.JAVASCRIPT_INTERFACE_NAME
 
 /**
  * NOTE: This is a copy from Accompanists WebView wrapper, since it is not supported anymore and allows
@@ -170,100 +180,173 @@ fun WebView(
     dynamicModifiers: List<ModifierPageData>? = null
 ) {
     val webView = state.webView
+    HandleBackPresses(captureBackPresses, navigator, webView)
 
-    BackHandler(captureBackPresses && navigator.canGoBack) {
-        webView?.goBack()
+    val (permissionLauncher, permissionCallback) = createPermissionLauncher()
+    val (fileChooserLauncher, fileChooserCallback) = createFileChooserLauncher()
+
+    SetupPermissionHandling(chromeClient, permissionLauncher) { callback ->
+        permissionCallback.value = callback
     }
 
-    val permissionCallback = remember { mutableStateOf<((Boolean) -> Unit)?>(null) }
-    val permissionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { isGranted ->
-        permissionCallback.value?.invoke(isGranted)
+    SetupFileChooserHandling(chromeClient, fileChooserLauncher) { valueCallback ->
+        fileChooserCallback.value = valueCallback
     }
 
-    LaunchedEffect(chromeClient) {
-        chromeClient.setupPermissionRequestCallback { permission, callback ->
-            permissionLauncher.launch(permission)
-            permissionCallback.value = callback
-        }
-    }
+    webView?.let { wv -> HandleNavigationEvents(wv, navigator, state) }
 
-    webView?.let { wv ->
-        LaunchedEffect(wv, navigator) {
-            with(navigator) {
-                wv.handleNavigationEvents()
-            }
-        }
-
-        LaunchedEffect(wv, state) {
-            snapshotFlow { state.content }.collect { content ->
-                when (content) {
-                    is WebContent.Url -> {
-                        wv.loadUrl(content.url, content.additionalHttpHeaders)
-                    }
-
-                    is WebContent.Data -> {
-                        wv.loadDataWithBaseURL(
-                            content.baseUrl,
-                            content.data,
-                            content.mimeType,
-                            content.encoding,
-                            content.historyUrl
-                        )
-                    }
-
-                    is WebContent.Post -> {
-                        wv.postUrl(
-                            content.url,
-                            content.postData
-                        )
-                    }
-
-                    is WebContent.NavigatorOnly, is WebContent.MessageOnly -> {
-                        // NO-OP
-                    }
-                }
-            }
-        }
-    }
-
-    // Set the state of the client and chrome client
-    // This is done internally to ensure they always are the same instance as the
-    // parent Web composable
-    client.let {
-        it.state = state
-        it.navigator = navigator
-        it.interceptOverrideUrl = interceptOverrideUrl
-        it.dynamicModifiers = dynamicModifiers ?: emptyList()
+    client.apply {
+        this.state = state
+        this.navigator = navigator
+        this.interceptOverrideUrl = interceptOverrideUrl
+        this.dynamicModifiers = dynamicModifiers ?: emptyList()
     }
     chromeClient.state = state
 
     key(key) {
         AndroidView(
             factory = { context ->
-                val wv = state.webView ?: (factory?.invoke(context) ?: WebView(context)).apply {
-                    onCreated(this)
-
-                    this.layoutParams = layoutParams
-
-                    state.viewState?.let {
-                        this.restoreState(it)
-                    }
-
-                    webChromeClient = chromeClient
-                    webViewClient = client
-                }.also {
-                    state.webView = it
-                }
-
-                (wv.parent as? ViewGroup)?.removeView(wv)
-                wv
+                createWebView(
+                    context = context,
+                    state = state,
+                    layoutParams = layoutParams,
+                    factory = factory,
+                    onCreated = { wv ->
+                        onCreated(wv)
+                        wv.setDownloadListener(TwsDownloadListener(context, wv) { permission, callback ->
+                            permissionLauncher.launch(permission)
+                            permissionCallback.value = callback
+                        })
+                    },
+                    client = client,
+                    chromeClient = chromeClient
+                )
             },
             modifier = modifier,
             onRelease = {
+                state.viewState = Bundle().apply {
+                    it.saveState(this)
+                }.takeIf { !it.isEmpty } ?: state.viewState
+                state.webView = null
+
                 onDispose(it)
             }
         )
     }
+}
+
+@Composable
+private fun HandleBackPresses(captureBackPresses: Boolean, navigator: WebViewNavigator, webView: WebView?) {
+    BackHandler(captureBackPresses && navigator.canGoBack) {
+        webView?.goBack()
+    }
+}
+
+@Composable
+private fun HandleNavigationEvents(wv: WebView, navigator: WebViewNavigator, state: WebViewState) {
+    LaunchedEffect(wv, navigator) {
+        with(navigator) {
+            wv.handleNavigationEvents()
+        }
+    }
+
+    LaunchedEffect(wv, state) {
+        snapshotFlow { state.content }.collect { content ->
+            when (content) {
+                is WebContent.Url -> {
+                    wv.loadUrl(content.url, content.additionalHttpHeaders)
+                }
+
+                is WebContent.Data -> {
+                    wv.loadDataWithBaseURL(
+                        content.baseUrl,
+                        content.data,
+                        content.mimeType,
+                        content.encoding,
+                        content.historyUrl
+                    )
+                }
+
+                is WebContent.Post -> {
+                    wv.postUrl(
+                        content.url,
+                        content.postData
+                    )
+                }
+
+                is WebContent.NavigatorOnly, is WebContent.MessageOnly -> {
+                    // NO-OP
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun SetupPermissionHandling(
+    chromeClient: TwsWebChromeClient,
+    permissionLauncher: ActivityResultLauncher<String>,
+    setupCallback: ((Boolean) -> Unit) -> Unit
+) {
+    LaunchedEffect(chromeClient) {
+        chromeClient.setupPermissionRequestCallback { permission, callback ->
+            permissionLauncher.launch(permission)
+            setupCallback(callback)
+        }
+    }
+}
+
+@Composable
+private fun SetupFileChooserHandling(
+    chromeClient: TwsWebChromeClient,
+    fileChooserLauncher: ActivityResultLauncher<Intent>,
+    setupCallback: (ValueCallback<Array<Uri>>) -> Unit
+) {
+    LaunchedEffect(chromeClient) {
+        chromeClient.setupFileChooserRequestCallback { valueCallback, fileChooserParams ->
+            setupCallback(valueCallback)
+            fileChooserLauncher.launch(fileChooserParams.createIntent())
+        }
+    }
+}
+
+@Composable
+private fun createPermissionLauncher(): Pair<ActivityResultLauncher<String>, MutableState<((Boolean) -> Unit)?>> {
+    val permissionCallback = remember { mutableStateOf<((Boolean) -> Unit)?>(null) }
+    val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+        permissionCallback.value?.invoke(isGranted)
+    }
+    return permissionLauncher to permissionCallback
+}
+
+@Composable
+private fun createFileChooserLauncher(): Pair<ActivityResultLauncher<Intent>, MutableState<ValueCallback<Array<Uri>>?>> {
+    val fileChooserCallback = remember { mutableStateOf<ValueCallback<Array<Uri>>?>(null) }
+    val fileChooserLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        val results = result.data?.data?.let { arrayOf(it) } ?: result.data?.clipData?.let {
+            (0 until it.itemCount).map { index -> it.getItemAt(index).uri }.toTypedArray()
+        }
+        fileChooserCallback.value?.onReceiveValue(results)
+        fileChooserCallback.value = null
+    }
+    return fileChooserLauncher to fileChooserCallback
+}
+
+private fun createWebView(
+    context: Context,
+    state: WebViewState,
+    layoutParams: FrameLayout.LayoutParams,
+    factory: ((Context) -> WebView)?,
+    onCreated: (WebView) -> Unit,
+    client: WebViewClient,
+    chromeClient: WebChromeClient
+): WebView {
+    return (factory?.invoke(context) ?: WebView(context)).apply {
+        onCreated(this)
+        addJavascriptInterface(JavaScriptDownloadInterface(context), JAVASCRIPT_INTERFACE_NAME)
+        this.layoutParams = layoutParams
+        state.viewState?.let { this.restoreState(it) }
+        webChromeClient = chromeClient
+        webViewClient = client
+    }.also { state.webView = it }
 }

@@ -99,8 +99,8 @@ fun WebSnippetComponent(
     googleLoginRedirectUrl: String? = null
 ) {
     LaunchedEffect(navigator, target.loadIteration) {
-        if (webViewState.lastLoadedUrl == null || webViewState.loadIteration != target.loadIteration) {
-            // This is the first time load, so load the home page.
+        if (webViewState.viewState == null) {
+            // This is the first time load, so load the home page, else it will be restored from bundle
             navigator.loadUrl(
                 url = target.url,
                 loadOnlyInitial = webViewState.loadIteration == null,
@@ -189,22 +189,20 @@ private fun SnippetContentWithLoadingAndError(
     val chromeClient = remember(key1 = key) { TwsWebChromeClient(popupStateCallback) }
 
     Box(modifier = modifier) {
-        if (!displayLoadingContent && !displayErrorContent) {
-            WebView(
-                key = key,
-                modifier = Modifier.fillMaxSize(),
-                state = webViewState,
-                navigator = navigator,
-                onCreated = {
-                    if (!isPreviewMode) it.initializeSettings()
-                    onCreated(it)
-                },
-                interceptOverrideUrl = interceptOverrideUrl,
-                dynamicModifiers = dynamicModifiers,
-                client = client,
-                chromeClient = chromeClient
-            )
-        }
+        WebView(
+            key = key,
+            modifier = Modifier.fillMaxSize(),
+            state = webViewState,
+            navigator = navigator,
+            onCreated = {
+                if (!isPreviewMode) it.initializeSettings()
+                onCreated(it)
+            },
+            interceptOverrideUrl = interceptOverrideUrl,
+            dynamicModifiers = dynamicModifiers,
+            client = client,
+            chromeClient = chromeClient
+        )
 
         if (displayLoadingContent) {
             loadingPlaceholderContent()
