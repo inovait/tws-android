@@ -22,6 +22,7 @@ inject = "2.0.1"
 retrofit = "2.11.0"
 certificateTransparency = "2.5.19"
 dispatch = "1.0.0-beta10"
+admob = "23.3.0"
 
 [libraries]
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
@@ -50,6 +51,7 @@ retrofit-scalars = { module = "com.squareup.retrofit2:converter-scalars", versio
 certificateTransparency = { module = "com.appmattus.certificatetransparency:certificatetransparency", version.ref = "certificateTransparency" }
 inject = { module = "jakarta.inject:jakarta.inject-api", version.ref = "inject" }
 dispatch = { module = "com.rickbusarow.dispatch:dispatch-core", version.ref = "dispatch" }
+admob = { group = "com.google.android.gms", name = "play-services-ads", version.ref = "admob" }
 
 [plugins]
 versions = { id = "com.github.ben-manes.versions", version.ref = "versionsChecker" }
