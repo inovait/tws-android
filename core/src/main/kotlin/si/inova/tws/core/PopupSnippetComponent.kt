@@ -49,7 +49,12 @@ fun PopupSnippetComponent(
 ) {
     val showInterstitial = remember {
         mutableStateListOf<Pair<WebSnippetData, Boolean>>().apply {
-            targetsPopup?.forEach { add(Pair(it, true)) }
+            targetsPopup?.forEach { add(Pair(it, false)) }
+        }
+    }
+    LaunchedEffect(Unit) {
+        showInterstitial.forEachIndexed { i, _ ->
+            showInterstitial[i] = showInterstitial[i].copy(second = true)
         }
     }
 
