@@ -1,3 +1,25 @@
+# 0.6.0
+
+### Features
+
+* allow user to download file from web snippet ([1eba2203](https://github.com/inovait/tws-android-sdk/commit/1eba220318f1d12d49ccd298334a29b2e44de4df))
+* **core**: added notification request permission for latest mobile devices when download blob url ([fbfcd800](https://github.com/inovait/tws-android-sdk/commit/fbfcd800dc27f3debf773bf5d92fd2cdb8089f58))
+* add support for opening file picker ([2623b0db](https://github.com/inovait/tws-android-sdk/commit/2623b0db7f4656b5fa7cb6a2deb00da62bc6a043))
+
+### Bug Fixes
+
+* [TWS-119](/browse/TWS-119) - **core**: occasional crash when opening location permission request ([a37be5f2](https://github.com/inovait/tws-android-sdk/commit/a37be5f2553db715251013043c1c5ef38c4c7a5c))
+* enable to open downloaded image over notification ([0795a4c6](https://github.com/inovait/tws-android-sdk/commit/0795a4c60d3a5f18ac6af85bfcb4ce6bc21fcd61))
+* **core**: do not recreate webview on loading/error state change ([2bccb9e2](https://github.com/inovait/tws-android-sdk/commit/2bccb9e2d620bb4be3ec7acdbd48a6319759d376))
+* notification isGranted permission parameter is not send as boolean to javascript ([51f4d4ae](https://github.com/inovait/tws-android-sdk/commit/51f4d4aeed8bbde84aafff63ecbdd16a02bfcc83))
+* released webview should not be reused, save its state and reuse it instead ([e2643282](https://github.com/inovait/tws-android-sdk/commit/e264328236ba0ff08e6d38243ebd05c4254dc8ce))
+* remove redundant check, which should always be null ([8586f206](https://github.com/inovait/tws-android-sdk/commit/8586f206cd25084a145963c6050bcfa27838ff61))
+* proper handling of webview recreation ([96ece4df](https://github.com/inovait/tws-android-sdk/commit/96ece4df69063ec7035cb86f3899ea6d27d9edd9))
+
+* Update README.MD - core ([9b98d6f6](https://github.com/inovait/tws-android-sdk/commit/9b98d6f6117bccd6cbb4597a95f9da89fd427049))
+* Update README.MD - app ([9cc97741](https://github.com/inovait/tws-android-sdk/commit/9cc977411f3b8f8c3698784ab70dd6628746ff31))
+* Create README.MD ([8eb7e761](https://github.com/inovait/tws-android-sdk/commit/8eb7e7616c007a2ee391f22059e354ce58319991))
+
 # 0.5.0
 
 ### Features
