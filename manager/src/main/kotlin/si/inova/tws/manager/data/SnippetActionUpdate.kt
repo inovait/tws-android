@@ -22,14 +22,14 @@ import com.squareup.moshi.JsonClass
 
 @Keep
 @JsonClass(generateAdapter = true)
-internal data class SnippetUpdateAction(
+data class SnippetUpdateAction(
     val type: ActionType,
     val data: ActionBody
 )
 
 @Keep
 @JsonClass(generateAdapter = false)
-internal enum class ActionType {
+enum class ActionType {
     @Json(name = "SNIPPET_CREATED")
     CREATED,
 
@@ -42,7 +42,7 @@ internal enum class ActionType {
 
 @Keep
 @JsonClass(generateAdapter = true)
-internal data class ActionBody(
+data class ActionBody(
     val id: String,
     val target: String?,
     val html: String?,

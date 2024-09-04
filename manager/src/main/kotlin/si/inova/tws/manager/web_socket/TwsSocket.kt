@@ -16,18 +16,15 @@
 
 package si.inova.tws.manager.web_socket
 
+import android.content.Context
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.WebSocket
-import si.inova.tws.manager.data.ActionType
-import si.inova.tws.manager.data.SnippetUpdateAction
-import si.inova.tws.manager.data.WebSnippetDto
+import si.inova.tws.manager.data.NetworkStatus
+import si.inova.tws.manager.service.NetworkConnectivityService
+import si.inova.tws.manager.service.NetworkConnectivityServiceImpl
 import si.inova.tws.manager.web_socket.SnippetWebSocketListener.Companion.CLOSING_CODE_ERROR_CODE
 import timber.log.Timber
 
@@ -36,43 +33,38 @@ import timber.log.Timber
  * Creation of The Web Snippet websocket
  *
  */
-class TwsSocket(scope: CoroutineScope) {
+class TwsSocket(context: Context, scope: CoroutineScope) {
+    private val listener = SnippetWebSocketListener()
+    private val networkConnectivityService: NetworkConnectivityService = NetworkConnectivityServiceImpl(context)
 
     private var webSocket: WebSocket? = null
+    private var wssUrl: String? = null
 
-    private val listener = SnippetWebSocketListener()
-
-    private val _snippetsFlow: MutableStateFlow<List<WebSnippetDto>> = MutableStateFlow(emptyList())
-    val snippetsFlow: Flow<List<WebSnippetDto>> = _snippetsFlow.filterNotNull()
+    val updateActionFlow = listener.updateActionFlow
 
     init {
         scope.launch {
-            listener.updateActionFlow.collect {
-                updateWithUpdateAction(it)
+            networkConnectivityService.networkStatus.collect {
+                val wssUrl = wssUrl
+                if (webSocket != null && it is NetworkStatus.Connected && wssUrl != null) {
+                    setupWebSocketConnection(wssUrl)
+                }
             }
         }
     }
 
     /**
-     *
-     * set at the start what your [_snippetsFlow] should look like before of socket triggering
-     *
-     *  @param data to update [_snippetsFlow]
-     */
-    fun manuallyUpdateSnippet(data: List<WebSnippetDto>) {
-        _snippetsFlow.update { data }
-    }
-
-    /**
      * Sets the URL target of this request.
      *
-     * @throws IllegalArgumentException if [wwsUrl] is not a valid HTTP or HTTPS URL. Avoid this
+     * @throws IllegalArgumentException if [setupWssUrl] is not a valid HTTP or HTTPS URL. Avoid this
      *     exception by calling [HttpUrl.parse]; it returns null for invalid URLs.
      */
-    fun setupWebSocketConnection(wwsUrl: String) {
+    fun setupWebSocketConnection(setupWssUrl: String) {
+        wssUrl = setupWssUrl
+
         try {
             val client = OkHttpClient()
-            val request = Request.Builder().url(wwsUrl).build()
+            val request = Request.Builder().url(setupWssUrl).build()
 
             webSocket = client.newWebSocket(request, listener)
             client.dispatcher.executorService.shutdown()
@@ -91,58 +83,6 @@ class TwsSocket(scope: CoroutineScope) {
     fun closeWebsocketConnection(): Boolean? {
         return webSocket?.close(CLOSING_CODE_ERROR_CODE, null).apply {
             webSocket = null
-        }
-    }
-
-    /**
-     * Returns `true` if websocket exists
-     */
-    fun socketExists(): Boolean {
-        return webSocket != null
-    }
-
-    private fun updateWithUpdateAction(action: SnippetUpdateAction) {
-        when (action.type) {
-            ActionType.CREATED -> {
-                _snippetsFlow.update { data ->
-                    data.toMutableList().apply {
-                        if (action.data.target != null && action.data.organizationId != null && action.data.projectId != null) {
-                            add(
-                                WebSnippetDto(
-                                    id = action.data.id,
-                                    target = action.data.target,
-                                    headers = action.data.headers ?: emptyMap(),
-                                    organizationId = action.data.organizationId,
-                                    projectId = action.data.projectId
-                                )
-                            )
-                        }
-                    }
-                }
-            }
-
-            ActionType.UPDATED -> {
-                _snippetsFlow.update { data ->
-                    data.map {
-                        if (it.id == action.data.id) {
-                            it.copy(
-                                loadIteration = it.loadIteration + 1,
-                                target = action.data.target ?: it.target,
-                                headers = action.data.headers ?: it.headers,
-                                html = action.data.html ?: it.html
-                            )
-                        } else {
-                            it
-                        }
-                    }
-                }
-            }
-
-            ActionType.DELETED -> {
-                _snippetsFlow.update { data ->
-                    data.filter { it.id != action.data.id }
-                }
-            }
         }
     }
 }
