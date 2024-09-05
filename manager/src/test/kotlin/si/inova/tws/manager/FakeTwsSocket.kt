@@ -14,47 +14,20 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-import util.publishLibrary
+package si.inova.tws.manager
 
-plugins {
-    androidLibraryModule
-    kotlin("kapt")
-}
+import kotlinx.coroutines.flow.MutableSharedFlow
+import si.inova.tws.manager.data.SnippetUpdateAction
+import si.inova.tws.manager.web_socket.TwsSocket
 
-android {
-    namespace = "si.inova.tws.manager"
+class FakeTwsSocket : TwsSocket {
+    override var updateActionFlow: MutableSharedFlow<SnippetUpdateAction> = MutableSharedFlow()
 
-    testOptions {
-        unitTests.all {
-            it.useJUnit()
-        }
+    override fun setupWebSocketConnection(setupWssUrl: String) { }
+
+    override fun closeWebsocketConnection(): Boolean { return true }
+
+    suspend fun mockUpdateAction(action: SnippetUpdateAction) {
+        updateActionFlow.emit(action)
     }
-}
-
-publishLibrary(
-    userFriendlyName = "tws-manager",
-    description = "A collection of manager and network connection",
-    githubPath = "manager",
-)
-
-dependencies {
-    implementation(libs.kotlinova.core)
-    implementation(libs.kotlinova.retrofit)
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.dispatch)
-    implementation(libs.retrofit.moshi)
-    implementation(libs.retrofit.scalars)
-    implementation(libs.certificateTransparency)
-    implementation(libs.moshi.kotlin)
-    implementation(libs.inject)
-    implementation(libs.timber)
-
-    kapt(libs.moshi.codegen)
-
-    testImplementation(libs.kotlinova.core.test)
-    testImplementation(libs.kotlin.coroutines.test)
-    testImplementation(libs.mockito)
-    testImplementation(libs.junit)
-    testImplementation(libs.kotlinova.retrofit.test)
-    testImplementation(libs.turbine)
 }

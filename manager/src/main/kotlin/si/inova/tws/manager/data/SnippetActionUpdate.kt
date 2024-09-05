@@ -44,9 +44,9 @@ enum class ActionType {
 @JsonClass(generateAdapter = true)
 data class ActionBody(
     val id: String,
-    val target: String?,
-    val html: String?,
-    val headers: Map<String, String>?,
-    val organizationId: String?,
-    val projectId: String?,
+    val target: String? = null,
+    val html: String? = null,
+    val headers: Map<String, String>? = null,
+    val organizationId: String? = null,
+    val projectId: String? = null,
 )
