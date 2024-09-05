@@ -14,47 +14,29 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-import util.publishLibrary
+package si.inova.tws.manager
 
-plugins {
-    androidLibraryModule
-    kotlin("kapt")
-}
+import si.inova.kotlinova.retrofit.FakeService
+import si.inova.kotlinova.retrofit.ServiceTestingHelper
+import si.inova.tws.manager.data.ProjectDto
+import si.inova.tws.manager.data.SharedSnippetDto
+import si.inova.tws.manager.network.WebSnippetFunction
 
-android {
-    namespace = "si.inova.tws.manager"
+class FakeWebSnippetFunction(
+    private val helper: ServiceTestingHelper = ServiceTestingHelper()
+): WebSnippetFunction, FakeService by helper {
+    var returnedProject: ProjectDto? = null
+    var returnedSharedSnippet: SharedSnippetDto? = null
 
-    testOptions {
-        unitTests.all {
-            it.useJUnit()
-        }
+    override suspend fun getWebSnippets(organizationId: String, projectId: String, apiKey: String?): ProjectDto {
+        helper.intercept()
+
+        return returnedProject ?: error("Returned project not faked!")
     }
-}
 
-publishLibrary(
-    userFriendlyName = "tws-manager",
-    description = "A collection of manager and network connection",
-    githubPath = "manager",
-)
+    override suspend fun getSharedSnippetData(shareId: String): SharedSnippetDto {
+        helper.intercept()
 
-dependencies {
-    implementation(libs.kotlinova.core)
-    implementation(libs.kotlinova.retrofit)
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.dispatch)
-    implementation(libs.retrofit.moshi)
-    implementation(libs.retrofit.scalars)
-    implementation(libs.certificateTransparency)
-    implementation(libs.moshi.kotlin)
-    implementation(libs.inject)
-    implementation(libs.timber)
-
-    kapt(libs.moshi.codegen)
-
-    testImplementation(libs.kotlinova.core.test)
-    testImplementation(libs.kotlin.coroutines.test)
-    testImplementation(libs.mockito)
-    testImplementation(libs.junit)
-    testImplementation(libs.kotlinova.retrofit.test)
-    testImplementation(libs.turbine)
+        return returnedSharedSnippet ?: error("Returned shared snippet not faked!")
+    }
 }
