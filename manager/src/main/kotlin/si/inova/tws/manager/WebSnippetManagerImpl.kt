@@ -19,8 +19,6 @@ package si.inova.tws.manager
 import android.content.Context
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
@@ -28,11 +26,12 @@ import si.inova.kotlinova.core.exceptions.UnknownCauseException
 import si.inova.kotlinova.core.outcome.CauseException
 import si.inova.kotlinova.core.outcome.CoroutineResourceManager
 import si.inova.kotlinova.core.outcome.Outcome
-import si.inova.kotlinova.core.outcome.downgradeTo
 import si.inova.kotlinova.core.outcome.mapData
-import si.inova.tws.manager.data.NetworkStatus
+import si.inova.tws.manager.data.ActionBody
+import si.inova.tws.manager.data.ActionType
 import si.inova.tws.manager.data.SnippetStatus
 import si.inova.tws.manager.data.SnippetType
+import si.inova.tws.manager.data.SnippetUpdateAction
 import si.inova.tws.manager.data.WebSnippetDto
 import si.inova.tws.manager.factory.BaseServiceFactory
 import si.inova.tws.manager.factory.create
@@ -57,13 +56,17 @@ class WebSnippetManagerImpl(
 
     override val popupSnippetsFlow = snippetsFlow.map { outcome ->
         outcome.mapData { data ->
-            data.filter { it.type == SnippetType.POPUP && it.status == SnippetStatus.ENABLED }
+            data.filter {
+                it.type == SnippetType.POPUP && it.status == SnippetStatus.ENABLED
+            }
         }
     }
 
     override val contentSnippetsFlow = snippetsFlow.map { outcome ->
         outcome.mapData { data ->
-            data.filter { it.type == SnippetType.TAB && it.status == SnippetStatus.ENABLED }
+            data.filter {
+                it.type == SnippetType.TAB && it.status == SnippetStatus.ENABLED
+            }
         }
     }
 
@@ -77,7 +80,7 @@ class WebSnippetManagerImpl(
         } catch (e: CauseException) {
             snippetsFlow.emit(Outcome.Error(e, snippetsFlow.value.data))
         } catch (e: Exception) {
-            snippetsFlow.emit(Outcome.Error(UnknownCauseException("", e), _snippetsFlow.value.data))
+            snippetsFlow.emit(Outcome.Error(UnknownCauseException("", e), snippetsFlow.value.data))
         }
     }
 
@@ -87,7 +90,7 @@ class WebSnippetManagerImpl(
         } catch (e: CauseException) {
             snippetsFlow.emit(Outcome.Error(e, snippetsFlow.value.data))
         } catch (e: Exception) {
-            snippetsFlow.emit(Outcome.Error(UnknownCauseException("", e), _snippetsFlow.value.data))
+            snippetsFlow.emit(Outcome.Error(UnknownCauseException("", e), snippetsFlow.value.data))
         }
     }
 
@@ -119,8 +122,8 @@ class WebSnippetManagerImpl(
     private suspend fun LocalSnippetHandler.launchAndCollect(snippets: List<WebSnippetDto>) {
         updateAndScheduleCheck(snippets)
         updateActionFlow.onEach {
-            val oldList = _snippetsFlow.value.data ?: emptyList()
-            _snippetsFlow.emit(Outcome.Success(oldList.updateWith(it)))
+            val oldList = snippetsFlow.value.data ?: emptyList()
+            snippetsFlow.emit(Outcome.Success(oldList.updateWith(it)))
         }.launchIn(resources.scope)
     }
 

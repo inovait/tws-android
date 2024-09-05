@@ -66,7 +66,7 @@ class WebSnippetManagerImplTest {
 
         webSnippetManager.loadWebSnippets("organization", "project")
 
-        webSnippetManager.snippetsFlow.test {
+        webSnippetManager.contentSnippetsFlow.test {
             runCurrent()
             expectMostRecentItem().shouldBeSuccessWithData(listOf(FAKE_SNIPPET_ONE, FAKE_SNIPPET_TWO))
         }
@@ -79,7 +79,7 @@ class WebSnippetManagerImplTest {
 
         webSnippetManager.loadSharedSnippetData("shared")
 
-        webSnippetManager.snippetsFlow.test {
+        webSnippetManager.contentSnippetsFlow.test {
             runCurrent()
             expectMostRecentItem().shouldBeSuccessWithData(listOf(FAKE_SNIPPET_ONE, FAKE_SNIPPET_TWO))
         }
@@ -96,7 +96,7 @@ class WebSnippetManagerImplTest {
 
         webSnippetManager.loadWebSnippets("organization", "project")
 
-        webSnippetManager.snippetsFlow.test {
+        webSnippetManager.contentSnippetsFlow.test {
             runCurrent()
 
             expectMostRecentItem().shouldBeSuccessWithData(listOf(FAKE_SNIPPET_ONE, FAKE_SNIPPET_TWO))
@@ -113,7 +113,7 @@ class WebSnippetManagerImplTest {
 
         webSnippetManager.loadWebSnippets("organization", "project")
 
-        webSnippetManager.snippetsFlow.test {
+        webSnippetManager.contentSnippetsFlow.test {
             runCurrent()
 
             expectMostRecentItem().shouldBeSuccessWithData(listOf(FAKE_SNIPPET_ONE, FAKE_SNIPPET_TWO))
@@ -140,7 +140,7 @@ class WebSnippetManagerImplTest {
 
         webSnippetManager.loadWebSnippets("organization", "project")
 
-        webSnippetManager.snippetsFlow.test {
+        webSnippetManager.contentSnippetsFlow.test {
             runCurrent()
 
             expectMostRecentItem().shouldBeSuccessWithData(listOf(FAKE_SNIPPET_ONE, FAKE_SNIPPET_TWO))
@@ -167,7 +167,7 @@ class WebSnippetManagerImplTest {
 
         webSnippetManager.loadWebSnippets("organization", "project")
 
-        webSnippetManager.snippetsFlow.test {
+        webSnippetManager.contentSnippetsFlow.test {
             runCurrent()
 
             expectMostRecentItem().shouldBeSuccessWithData(listOf(FAKE_SNIPPET_ONE, FAKE_SNIPPET_TWO))
@@ -187,7 +187,7 @@ class WebSnippetManagerImplTest {
 
         webSnippetManager.loadWebSnippets("organization", "project")
 
-        webSnippetManager.snippetsFlow.test {
+        webSnippetManager.contentSnippetsFlow.test {
             runCurrent()
 
             expectMostRecentItem().shouldBeSuccessWithData(listOf(FAKE_SNIPPET_ONE, FAKE_SNIPPET_TWO))
@@ -231,7 +231,7 @@ class WebSnippetManagerImplTest {
 
         webSnippetManager.loadWebSnippets("organization", "project")
 
-        webSnippetManager.snippetsFlow.test {
+        webSnippetManager.contentSnippetsFlow.test {
             runCurrent()
 
             expectMostRecentItem().shouldBeSuccessWithData(listOf(FAKE_SNIPPET_ONE, FAKE_SNIPPET_TWO))
@@ -250,7 +250,7 @@ class WebSnippetManagerImplTest {
 
         webSnippetManager.loadWebSnippets("organization", "project")
 
-        webSnippetManager.snippetsFlow.test {
+        webSnippetManager.contentSnippetsFlow.test {
             runCurrent()
 
             expectMostRecentItem().shouldBeSuccessWithData(listOf(FAKE_SNIPPET_ONE, FAKE_SNIPPET_TWO, FAKE_SNIPPET_THREE))
@@ -271,7 +271,7 @@ class WebSnippetManagerImplTest {
 
         webSnippetManager.loadWebSnippets("organization", "project")
 
-        webSnippetManager.snippetsFlow.test {
+        webSnippetManager.contentSnippetsFlow.test {
             runCurrent()
 
             expectMostRecentItem().shouldBeSuccessWithData(listOf(FAKE_SNIPPET_ONE, FAKE_SNIPPET_TWO))
