@@ -31,6 +31,8 @@ import si.inova.tws.manager.data.SnippetUpdateAction
 import si.inova.tws.manager.data.WebSnippetDto
 import si.inova.tws.manager.factory.BaseServiceFactory
 import si.inova.tws.manager.factory.create
+import si.inova.tws.manager.local_handler.LocalSnippetHandler
+import si.inova.tws.manager.local_handler.LocalSnippetHandlerImpl
 import si.inova.tws.manager.network.WebSnippetFunction
 import si.inova.tws.manager.singleton.coroutineResourceManager
 import si.inova.tws.manager.web_socket.TwsSocket
@@ -40,7 +42,8 @@ class WebSnippetManagerImpl(
     context: Context,
     private val resources: CoroutineResourceManager = coroutineResourceManager,
     private val webSnippetFunction: WebSnippetFunction = BaseServiceFactory().create(),
-    private val twsSocket: TwsSocket = TwsSocketImpl(context, resources.scope)
+    private val twsSocket: TwsSocket? = TwsSocketImpl(context, resources.scope),
+    private val localSnippetHandler: LocalSnippetHandler? = LocalSnippetHandlerImpl(resources.scope)
 ) : WebSnippetManager {
     private val _snippetsFlow: MutableStateFlow<Outcome<List<WebSnippetDto>>> = MutableStateFlow(Outcome.Progress())
     override val snippetsFlow: Flow<Outcome<List<WebSnippetDto>>> = _snippetsFlow
@@ -73,7 +76,7 @@ class WebSnippetManagerImpl(
     }
 
     override fun closeWebsocketConnection() {
-        twsSocket.closeWebsocketConnection()
+        twsSocket?.closeWebsocketConnection()
     }
 
     private suspend fun loadProjectAndSetupWss(
@@ -85,8 +88,21 @@ class WebSnippetManagerImpl(
 
         _snippetsFlow.emit(Outcome.Success(twsProject.snippets))
 
-        twsSocket.setupWebSocketConnection(wssUrl)
-        twsSocket.updateActionFlow.onEach {
+        twsSocket?.launchAndCollect(wssUrl)
+        localSnippetHandler?.launchAndCollect(twsProject.snippets)
+    }
+
+    private fun TwsSocket.launchAndCollect(wssUrl: String) {
+        setupWebSocketConnection(wssUrl)
+        updateActionFlow.onEach {
+            val oldList = _snippetsFlow.value.data ?: emptyList()
+            _snippetsFlow.emit(Outcome.Success(oldList.updateWith(it)))
+        }.launchIn(resources.scope)
+    }
+
+    private suspend fun LocalSnippetHandler.launchAndCollect(snippets: List<WebSnippetDto>) {
+        updateAndScheduleCheck(snippets)
+        updateActionFlow.onEach {
             val oldList = _snippetsFlow.value.data ?: emptyList()
             _snippetsFlow.emit(Outcome.Success(oldList.updateWith(it)))
         }.launchIn(resources.scope)
