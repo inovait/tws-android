@@ -49,4 +49,5 @@ data class ActionBody(
     val headers: Map<String, String>? = null,
     val organizationId: String? = null,
     val projectId: String? = null,
+    val type: SnippetType? = null
 )

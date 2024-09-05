@@ -28,10 +28,14 @@ import si.inova.kotlinova.core.test.outcomes.shouldBeSuccessWithData
 import si.inova.kotlinova.core.test.outcomes.testCoroutineResourceManager
 import si.inova.tws.manager.data.ActionBody
 import si.inova.tws.manager.data.ActionType
+import si.inova.tws.manager.data.SnippetType
 import si.inova.tws.manager.data.SnippetUpdateAction
 import si.inova.tws.manager.utils.FAKE_PROJECT_DTO
 import si.inova.tws.manager.utils.FAKE_SHARED_PROJECT
+import si.inova.tws.manager.utils.FAKE_SNIPPET_FIVE
+import si.inova.tws.manager.utils.FAKE_SNIPPET_FOUR
 import si.inova.tws.manager.utils.FAKE_SNIPPET_ONE
+import si.inova.tws.manager.utils.FAKE_SNIPPET_SIX
 import si.inova.tws.manager.utils.FAKE_SNIPPET_THREE
 import si.inova.tws.manager.utils.FAKE_SNIPPET_TWO
 import si.inova.tws.manager.utils.FakeLocalSnippetHandler
@@ -70,6 +74,11 @@ class WebSnippetManagerImplTest {
             runCurrent()
             expectMostRecentItem().shouldBeSuccessWithData(listOf(FAKE_SNIPPET_ONE, FAKE_SNIPPET_TWO))
         }
+
+        webSnippetManager.popupSnippetsFlow.test {
+            runCurrent()
+            expectMostRecentItem().shouldBeSuccessWithData(listOf(FAKE_SNIPPET_FOUR, FAKE_SNIPPET_FIVE))
+        }
     }
 
     @Test
@@ -84,6 +93,11 @@ class WebSnippetManagerImplTest {
             expectMostRecentItem().shouldBeSuccessWithData(listOf(FAKE_SNIPPET_ONE, FAKE_SNIPPET_TWO))
         }
 
+        webSnippetManager.popupSnippetsFlow.test {
+            runCurrent()
+            expectMostRecentItem().shouldBeSuccessWithData(listOf(FAKE_SNIPPET_FOUR, FAKE_SNIPPET_FIVE))
+        }
+
         webSnippetManager.mainSnippetIdFlow.test {
             runCurrent()
             assert(expectMostRecentItem() == FAKE_SNIPPET_ONE.id)
@@ -91,7 +105,7 @@ class WebSnippetManagerImplTest {
     }
 
     @Test
-    fun `Load snippets and delete from web socket`() = scope.runTest {
+    fun `Load snippets and delete tab from web socket`() = scope.runTest {
         functions.returnedProject = FAKE_PROJECT_DTO
 
         webSnippetManager.loadWebSnippets("organization", "project")
@@ -108,7 +122,30 @@ class WebSnippetManagerImplTest {
     }
 
     @Test
-    fun `Load snippets and update target from web socket`() = scope.runTest {
+    fun `Load snippets and delete popup from web socket`() = scope.runTest {
+        functions.returnedProject = FAKE_PROJECT_DTO
+
+        webSnippetManager.loadWebSnippets("organization", "project")
+
+        webSnippetManager.contentSnippetsFlow.test {
+            runCurrent()
+
+            expectMostRecentItem().shouldBeSuccessWithData(listOf(FAKE_SNIPPET_ONE, FAKE_SNIPPET_TWO))
+        }
+
+        webSnippetManager.popupSnippetsFlow.test {
+            runCurrent()
+
+            expectMostRecentItem().shouldBeSuccessWithData(listOf(FAKE_SNIPPET_FOUR, FAKE_SNIPPET_FIVE))
+
+            socket.mockUpdateAction(SnippetUpdateAction(ActionType.DELETED, ActionBody(id = FAKE_SNIPPET_FOUR.id)))
+
+            expectMostRecentItem().shouldBeSuccessWithData(listOf(FAKE_SNIPPET_FIVE))
+        }
+    }
+
+    @Test
+    fun `Load snippets and update tab target from web socket`() = scope.runTest {
         functions.returnedProject = FAKE_PROJECT_DTO
 
         webSnippetManager.loadWebSnippets("organization", "project")
@@ -135,7 +172,34 @@ class WebSnippetManagerImplTest {
     }
 
     @Test
-    fun `Load snippets and update html from web socket`() = scope.runTest {
+    fun `Load snippets and update popup target from web socket`() = scope.runTest {
+        functions.returnedProject = FAKE_PROJECT_DTO
+
+        webSnippetManager.loadWebSnippets("organization", "project")
+
+        webSnippetManager.popupSnippetsFlow.test {
+            runCurrent()
+
+            expectMostRecentItem().shouldBeSuccessWithData(listOf(FAKE_SNIPPET_FOUR, FAKE_SNIPPET_FIVE))
+
+            socket.mockUpdateAction(
+                SnippetUpdateAction(
+                    ActionType.UPDATED,
+                    ActionBody(id = FAKE_SNIPPET_FOUR.id, target = "www.example.com")
+                )
+            )
+
+            expectMostRecentItem().shouldBeSuccessWithData(
+                listOf(
+                    FAKE_SNIPPET_FOUR.copy(target = "www.example.com", loadIteration = 1),
+                    FAKE_SNIPPET_FIVE
+                )
+            )
+        }
+    }
+
+    @Test
+    fun `Load snippets and update html tab from web socket`() = scope.runTest {
         functions.returnedProject = FAKE_PROJECT_DTO
 
         webSnippetManager.loadWebSnippets("organization", "project")
@@ -162,7 +226,34 @@ class WebSnippetManagerImplTest {
     }
 
     @Test
-    fun `Load snippets and create from web socket`() = scope.runTest {
+    fun `Load snippets and update html popup from web socket`() = scope.runTest {
+        functions.returnedProject = FAKE_PROJECT_DTO
+
+        webSnippetManager.loadWebSnippets("organization", "project")
+
+        webSnippetManager.popupSnippetsFlow.test {
+            runCurrent()
+
+            expectMostRecentItem().shouldBeSuccessWithData(listOf(FAKE_SNIPPET_FOUR, FAKE_SNIPPET_FIVE))
+
+            socket.mockUpdateAction(
+                SnippetUpdateAction(
+                    ActionType.UPDATED,
+                    ActionBody(id = FAKE_SNIPPET_FOUR.id, html = "<script></script>>", type = SnippetType.POPUP)
+                )
+            )
+
+            expectMostRecentItem().shouldBeSuccessWithData(
+                listOf(
+                    FAKE_SNIPPET_FOUR.copy(html = "<script></script>>", loadIteration = 1),
+                    FAKE_SNIPPET_FIVE
+                )
+            )
+        }
+    }
+
+    @Test
+    fun `Load snippets and create tab from web socket`() = scope.runTest {
         functions.returnedProject = FAKE_PROJECT_DTO
 
         webSnippetManager.loadWebSnippets("organization", "project")
@@ -178,6 +269,26 @@ class WebSnippetManagerImplTest {
             )
 
             expectMostRecentItem().shouldBeSuccessWithData(listOf(FAKE_SNIPPET_ONE, FAKE_SNIPPET_TWO, FAKE_SNIPPET_THREE))
+        }
+    }
+
+    @Test
+    fun `Load snippets and create popup from web socket`() = scope.runTest {
+        functions.returnedProject = FAKE_PROJECT_DTO
+
+        webSnippetManager.loadWebSnippets("organization", "project")
+
+        webSnippetManager.popupSnippetsFlow.test {
+            runCurrent()
+
+            expectMostRecentItem().shouldBeSuccessWithData(listOf(FAKE_SNIPPET_FOUR, FAKE_SNIPPET_FIVE))
+
+            socket.mockUpdateAction(SnippetUpdateAction(
+                ActionType.CREATED,
+                FAKE_SNIPPET_SIX.toActionBody())
+            )
+
+            expectMostRecentItem().shouldBeSuccessWithData(listOf(FAKE_SNIPPET_FOUR, FAKE_SNIPPET_FIVE, FAKE_SNIPPET_SIX))
         }
     }
 
@@ -226,7 +337,7 @@ class WebSnippetManagerImplTest {
     }
 
     @Test
-    fun `Load snippets and delete from local handler`() = scope.runTest {
+    fun `Load snippets and delete tab from local handler`() = scope.runTest {
         functions.returnedProject = FAKE_PROJECT_DTO
 
         webSnippetManager.loadWebSnippets("organization", "project")
@@ -241,6 +352,24 @@ class WebSnippetManagerImplTest {
             expectMostRecentItem().shouldBeSuccessWithData(listOf(FAKE_SNIPPET_TWO))
         }
     }
+
+    @Test
+    fun `Load snippets and delete popup from local handler`() = scope.runTest {
+        functions.returnedProject = FAKE_PROJECT_DTO
+
+        webSnippetManager.loadWebSnippets("organization", "project")
+
+        webSnippetManager.popupSnippetsFlow.test {
+            runCurrent()
+
+            expectMostRecentItem().shouldBeSuccessWithData(listOf(FAKE_SNIPPET_FOUR, FAKE_SNIPPET_FIVE))
+
+            handler.mockUpdateAction(SnippetUpdateAction(ActionType.DELETED, ActionBody(id = FAKE_SNIPPET_FOUR.id)))
+
+            expectMostRecentItem().shouldBeSuccessWithData(listOf(FAKE_SNIPPET_FIVE))
+        }
+    }
+
 
     @Test
     fun `Load snippets and delete from local handler and web socket`() = scope.runTest {

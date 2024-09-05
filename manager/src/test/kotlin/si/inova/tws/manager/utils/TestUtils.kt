@@ -19,6 +19,7 @@ package si.inova.tws.manager.utils
 import si.inova.tws.manager.data.ActionBody
 import si.inova.tws.manager.data.ProjectDto
 import si.inova.tws.manager.data.SharedSnippetDto
+import si.inova.tws.manager.data.SnippetType
 import si.inova.tws.manager.data.VisibilityDto
 import si.inova.tws.manager.data.WebSnippetDto
 import java.time.Instant
@@ -45,8 +46,33 @@ val FAKE_SNIPPET_THREE = WebSnippetDto(
     projectId = "project"
 )
 
+val FAKE_SNIPPET_FOUR = WebSnippetDto(
+    id = "4",
+    target = "www.popup1.com",
+    organizationId = "organization",
+    projectId = "project",
+    type = SnippetType.POPUP
+)
+
+val FAKE_SNIPPET_FIVE = WebSnippetDto(
+    id = "5",
+    target = "www.popup2.com",
+    organizationId = "organization",
+    projectId = "project",
+    type = SnippetType.POPUP
+)
+
+val FAKE_SNIPPET_SIX = WebSnippetDto(
+    id = "6",
+    target = "www.popup3.com",
+    organizationId = "organization",
+    projectId = "project",
+    type = SnippetType.POPUP
+)
+
+
 val FAKE_PROJECT_DTO = ProjectDto(
-    snippets = listOf(FAKE_SNIPPET_ONE, FAKE_SNIPPET_TWO),
+    snippets = listOf(FAKE_SNIPPET_ONE, FAKE_SNIPPET_TWO, FAKE_SNIPPET_FOUR, FAKE_SNIPPET_FIVE),
     listenOn = "wss:someUrl.com"
 )
 
@@ -58,7 +84,8 @@ fun WebSnippetDto.toActionBody() = ActionBody(
     html = html,
     projectId = projectId,
     organizationId = organizationId,
-    headers = headers
+    headers = headers,
+    type = type
 )
 
 fun WebSnippetDto.setVisibility(ts: Long) = copy(
