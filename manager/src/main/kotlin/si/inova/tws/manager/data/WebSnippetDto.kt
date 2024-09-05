@@ -34,3 +34,47 @@ data class WebSnippetDto(
     val status: SnippetStatus = SnippetStatus.ENABLED,
     val loadIteration: Int = 0
 )
+
+internal fun List<WebSnippetDto>.updateWith(action: SnippetUpdateAction): List<WebSnippetDto> {
+    return when (action.type) {
+        ActionType.CREATED -> insert(action.data)
+        ActionType.UPDATED -> update(action.data)
+        ActionType.DELETED -> remove(action.data)
+    }
+}
+
+internal fun List<WebSnippetDto>.insert(data: ActionBody): List<WebSnippetDto> {
+    return toMutableList().apply {
+        if (data.target != null && data.organizationId != null && data.projectId != null) {
+            add(
+                WebSnippetDto(
+                    id = data.id,
+                    target = data.target,
+                    headers = data.headers ?: emptyMap(),
+                    organizationId = data.organizationId,
+                    projectId = data.projectId,
+                    type = data.type ?: SnippetType.TAB
+                )
+            )
+        }
+    }
+}
+
+internal fun List<WebSnippetDto>.update(data: ActionBody): List<WebSnippetDto> {
+    return map {
+        if (it.id == data.id) {
+            it.copy(
+                loadIteration = it.loadIteration + 1,
+                target = data.target ?: it.target,
+                headers = data.headers ?: it.headers,
+                html = data.html ?: it.html
+            )
+        } else {
+            it
+        }
+    }
+}
+
+internal fun List<WebSnippetDto>.remove(data: ActionBody): List<WebSnippetDto> {
+    return filter { it.id != data.id }
+}
