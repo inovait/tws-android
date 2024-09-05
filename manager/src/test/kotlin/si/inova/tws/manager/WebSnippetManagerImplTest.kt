@@ -29,6 +29,14 @@ import si.inova.kotlinova.core.test.outcomes.testCoroutineResourceManager
 import si.inova.tws.manager.data.ActionBody
 import si.inova.tws.manager.data.ActionType
 import si.inova.tws.manager.data.SnippetUpdateAction
+import si.inova.tws.manager.utils.FAKE_PROJECT_DTO
+import si.inova.tws.manager.utils.FAKE_SHARED_PROJECT
+import si.inova.tws.manager.utils.FAKE_SNIPPET_ONE
+import si.inova.tws.manager.utils.FAKE_SNIPPET_THREE
+import si.inova.tws.manager.utils.FAKE_SNIPPET_TWO
+import si.inova.tws.manager.utils.FakeTwsSocket
+import si.inova.tws.manager.utils.FakeWebSnippetFunction
+import si.inova.tws.manager.utils.toActionBody
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class WebSnippetManagerImplTest {
