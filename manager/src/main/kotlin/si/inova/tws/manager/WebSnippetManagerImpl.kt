@@ -20,13 +20,17 @@ import android.content.Context
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import si.inova.kotlinova.core.exceptions.UnknownCauseException
 import si.inova.kotlinova.core.outcome.CauseException
 import si.inova.kotlinova.core.outcome.CoroutineResourceManager
 import si.inova.kotlinova.core.outcome.Outcome
+import si.inova.kotlinova.core.outcome.mapData
 import si.inova.tws.manager.data.ActionBody
 import si.inova.tws.manager.data.ActionType
+import si.inova.tws.manager.data.SnippetStatus
+import si.inova.tws.manager.data.SnippetType
 import si.inova.tws.manager.data.SnippetUpdateAction
 import si.inova.tws.manager.data.WebSnippetDto
 import si.inova.tws.manager.factory.BaseServiceFactory
@@ -45,23 +49,38 @@ class WebSnippetManagerImpl(
     private val twsSocket: TwsSocket? = TwsSocketImpl(context, resources.scope),
     private val localSnippetHandler: LocalSnippetHandler? = LocalSnippetHandlerImpl(resources.scope)
 ) : WebSnippetManager {
-    private val _snippetsFlow: MutableStateFlow<Outcome<List<WebSnippetDto>>> = MutableStateFlow(Outcome.Progress())
-    override val snippetsFlow: Flow<Outcome<List<WebSnippetDto>>> = _snippetsFlow
+    private val snippetsFlow: MutableStateFlow<Outcome<List<WebSnippetDto>>> = MutableStateFlow(Outcome.Progress())
 
     private val _mainSnippetIdFlow: MutableStateFlow<String?> = MutableStateFlow(null)
     override val mainSnippetIdFlow: Flow<String?> = _mainSnippetIdFlow
 
+    override val popupSnippetsFlow = snippetsFlow.map { outcome ->
+        outcome.mapData { data ->
+            data.filter {
+                it.type == SnippetType.POPUP && it.status == SnippetStatus.ENABLED
+            }
+        }
+    }
+
+    override val contentSnippetsFlow = snippetsFlow.map { outcome ->
+        outcome.mapData { data ->
+            data.filter {
+                it.type == SnippetType.TAB && it.status == SnippetStatus.ENABLED
+            }
+        }
+    }
+
     override suspend fun loadSharedSnippetData(shareId: String) {
-        _snippetsFlow.emit(Outcome.Progress(_snippetsFlow.value.data))
+        snippetsFlow.emit(Outcome.Progress(snippetsFlow.value.data))
 
         try {
             val sharedSnippet = webSnippetFunction.getSharedSnippetData(shareId).snippet
             _mainSnippetIdFlow.emit(sharedSnippet.id)
             loadProjectAndSetupWss(sharedSnippet.organizationId, sharedSnippet.projectId)
         } catch (e: CauseException) {
-            _snippetsFlow.emit(Outcome.Error(e, _snippetsFlow.value.data))
+            snippetsFlow.emit(Outcome.Error(e, snippetsFlow.value.data))
         } catch (e: Exception) {
-            _snippetsFlow.emit(Outcome.Error(UnknownCauseException("", e), _snippetsFlow.value.data))
+            snippetsFlow.emit(Outcome.Error(UnknownCauseException("", e), snippetsFlow.value.data))
         }
     }
 
@@ -69,9 +88,9 @@ class WebSnippetManagerImpl(
         try {
             loadProjectAndSetupWss(organizationId, projectId)
         } catch (e: CauseException) {
-            _snippetsFlow.emit(Outcome.Error(e, _snippetsFlow.value.data))
+            snippetsFlow.emit(Outcome.Error(e, snippetsFlow.value.data))
         } catch (e: Exception) {
-            _snippetsFlow.emit(Outcome.Error(UnknownCauseException("", e), _snippetsFlow.value.data))
+            snippetsFlow.emit(Outcome.Error(UnknownCauseException("", e), snippetsFlow.value.data))
         }
     }
 
@@ -86,7 +105,7 @@ class WebSnippetManagerImpl(
         val twsProject = webSnippetFunction.getWebSnippets(organizationId, projectId, "someApiKey")
         val wssUrl = twsProject.listenOn
 
-        _snippetsFlow.emit(Outcome.Success(twsProject.snippets))
+        snippetsFlow.emit(Outcome.Success(twsProject.snippets))
 
         twsSocket?.launchAndCollect(wssUrl)
         localSnippetHandler?.launchAndCollect(twsProject.snippets)
@@ -95,16 +114,16 @@ class WebSnippetManagerImpl(
     private fun TwsSocket.launchAndCollect(wssUrl: String) {
         setupWebSocketConnection(wssUrl)
         updateActionFlow.onEach {
-            val oldList = _snippetsFlow.value.data ?: emptyList()
-            _snippetsFlow.emit(Outcome.Success(oldList.updateWith(it)))
+            val oldList = snippetsFlow.value.data ?: emptyList()
+            snippetsFlow.emit(Outcome.Success(oldList.updateWith(it)))
         }.launchIn(resources.scope)
     }
 
     private suspend fun LocalSnippetHandler.launchAndCollect(snippets: List<WebSnippetDto>) {
         updateAndScheduleCheck(snippets)
         updateActionFlow.onEach {
-            val oldList = _snippetsFlow.value.data ?: emptyList()
-            _snippetsFlow.emit(Outcome.Success(oldList.updateWith(it)))
+            val oldList = snippetsFlow.value.data ?: emptyList()
+            snippetsFlow.emit(Outcome.Success(oldList.updateWith(it)))
         }.launchIn(resources.scope)
     }
 
