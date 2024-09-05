@@ -28,10 +28,7 @@ import si.inova.kotlinova.core.test.outcomes.shouldBeSuccessWithData
 import si.inova.kotlinova.core.test.outcomes.testCoroutineResourceManager
 import si.inova.tws.manager.data.ActionBody
 import si.inova.tws.manager.data.ActionType
-import si.inova.tws.manager.data.ProjectDto
-import si.inova.tws.manager.data.SharedSnippetDto
 import si.inova.tws.manager.data.SnippetUpdateAction
-import si.inova.tws.manager.data.WebSnippetDto
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class WebSnippetManagerImplTest {
@@ -173,41 +170,3 @@ class WebSnippetManagerImplTest {
         }
     }
 }
-
-private val FAKE_SNIPPET_ONE = WebSnippetDto(
-    id = "0",
-    target = "www.google.com",
-    organizationId = "organization",
-    projectId = "project",
-    html = "<html></html>"
-)
-
-private val FAKE_SNIPPET_TWO = WebSnippetDto(
-    id = "1",
-    target = "www.blink.com",
-    organizationId = "organization",
-    projectId = "project"
-)
-
-private val FAKE_SNIPPET_THREE = WebSnippetDto(
-    id = "3",
-    target = "www.example.com",
-    organizationId = "organization",
-    projectId = "project"
-)
-
-private val FAKE_PROJECT_DTO = ProjectDto(
-    snippets = listOf(FAKE_SNIPPET_ONE, FAKE_SNIPPET_TWO),
-    listenOn = "wss:someUrl.com"
-)
-
-private val FAKE_SHARED_PROJECT = SharedSnippetDto(snippet = FAKE_SNIPPET_ONE)
-
-fun WebSnippetDto.toActionBody() = ActionBody(
-    id = id,
-    target = target,
-    html = html,
-    projectId = projectId,
-    organizationId = organizationId,
-    headers = headers
-)
