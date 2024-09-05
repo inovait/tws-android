@@ -16,21 +16,10 @@
 
 package si.inova.tws.manager.data
 
-import androidx.annotation.Keep
 import com.squareup.moshi.JsonClass
+import java.time.Instant
 
 @JsonClass(generateAdapter = true)
-@Keep
-data class WebSnippetDto(
-    val id: String,
-    val target: String,
-    val organizationId: String,
-    val projectId: String,
-    val html: String? = null,
-    val headers: Map<String, String>? = emptyMap(),
-    val dynamicResources: List<DynamicResourceDto>? = emptyList(),
-    val loadIteration: Int = 0,
-    val type: SnippetType = SnippetType.TAB,
-    val status: SnippetStatus = SnippetStatus.ENABLED
-    val visibility: VisibilityDto? = null
+class VisibilityDto(
+    val untilUtc: Instant? = null
 )
