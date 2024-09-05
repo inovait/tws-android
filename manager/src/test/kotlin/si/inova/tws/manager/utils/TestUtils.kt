@@ -14,32 +14,53 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.manager.network
+package si.inova.tws.manager.utils
 
-import jakarta.inject.Singleton
-import retrofit2.http.GET
-import retrofit2.http.Headers
-import retrofit2.http.Path
-import retrofit2.http.Query
+import si.inova.tws.manager.data.ActionBody
 import si.inova.tws.manager.data.ProjectDto
 import si.inova.tws.manager.data.SharedSnippetDto
+import si.inova.tws.manager.data.VisibilityDto
+import si.inova.tws.manager.data.WebSnippetDto
+import java.time.Instant
 
-@Singleton
-interface WebSnippetFunction {
-    @GET("organizations/{organizationId}/projects/{projectId}/register")
-    suspend fun getWebSnippets(
-        @Path("organizationId")
-        organizationId: String,
-        @Path("projectId")
-        projectId: String,
-        @Query("apiKey")
-        apiKey: String? = null
-    ): ProjectDto
+val FAKE_SNIPPET_ONE = WebSnippetDto(
+    id = "0",
+    target = "www.google.com",
+    organizationId = "organization",
+    projectId = "project",
+    html = "<html></html>"
+)
 
-    @Headers("Accept: application/json")
-    @GET("shared/{shareId}")
-    suspend fun getSharedSnippetData(
-        @Path("shareId")
-        shareId: String
-    ): SharedSnippetDto
-}
+val FAKE_SNIPPET_TWO = WebSnippetDto(
+    id = "1",
+    target = "www.blink.com",
+    organizationId = "organization",
+    projectId = "project"
+)
+
+val FAKE_SNIPPET_THREE = WebSnippetDto(
+    id = "3",
+    target = "www.example.com",
+    organizationId = "organization",
+    projectId = "project"
+)
+
+val FAKE_PROJECT_DTO = ProjectDto(
+    snippets = listOf(FAKE_SNIPPET_ONE, FAKE_SNIPPET_TWO),
+    listenOn = "wss:someUrl.com"
+)
+
+val FAKE_SHARED_PROJECT = SharedSnippetDto(snippet = FAKE_SNIPPET_ONE)
+
+fun WebSnippetDto.toActionBody() = ActionBody(
+    id = id,
+    target = target,
+    html = html,
+    projectId = projectId,
+    organizationId = organizationId,
+    headers = headers
+)
+
+fun WebSnippetDto.setVisibility(ts: Long) = copy(
+    visibility = VisibilityDto(untilUtc = Instant.ofEpochMilli(ts))
+)

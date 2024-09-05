@@ -23,6 +23,12 @@ plugins {
 
 android {
     namespace = "si.inova.tws.manager"
+
+    testOptions {
+        unitTests.all {
+            it.useJUnit()
+        }
+    }
 }
 
 publishLibrary(
@@ -42,6 +48,14 @@ dependencies {
     implementation(libs.moshi.kotlin)
     implementation(libs.inject)
     implementation(libs.timber)
+    implementation(libs.moshi.adapters)
 
     kapt(libs.moshi.codegen)
+
+    testImplementation(libs.kotlinova.core.test)
+    testImplementation(libs.kotlin.coroutines.test)
+    testImplementation(libs.mockito)
+    testImplementation(libs.junit)
+    testImplementation(libs.kotlinova.retrofit.test)
+    testImplementation(libs.turbine)
 }

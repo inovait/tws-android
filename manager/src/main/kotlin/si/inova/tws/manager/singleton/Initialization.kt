@@ -18,6 +18,7 @@ package si.inova.tws.manager.singleton
 
 import com.appmattus.certificatetransparency.certificateTransparencyInterceptor
 import com.squareup.moshi.Moshi
+import com.squareup.moshi.adapters.Rfc3339DateJsonAdapter
 import dispatch.core.DispatcherProvider
 import dispatch.core.MainImmediateCoroutineScope
 import jakarta.inject.Singleton
@@ -25,6 +26,7 @@ import okhttp3.OkHttpClient
 import si.inova.kotlinova.core.outcome.CoroutineResourceManager
 import si.inova.kotlinova.core.reporting.ErrorReporter
 import si.inova.kotlinova.retrofit.interceptors.BypassCacheInterceptor
+import java.time.Instant
 import kotlin.coroutines.cancellation.CancellationException
 
 @Singleton
@@ -51,7 +53,9 @@ internal fun twsMoshi(): Moshi {
         error("Moshi should not be initialized on the main thread")
     }
 
-    return Moshi.Builder().build()
+    return Moshi.Builder()
+        .add(Instant::class.java, Rfc3339DateJsonAdapter().nullSafe())
+        .build()
 }
 
 @Singleton
