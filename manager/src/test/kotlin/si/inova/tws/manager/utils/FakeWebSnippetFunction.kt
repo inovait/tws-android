@@ -14,47 +14,29 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.manager
+package si.inova.tws.manager.utils
 
-import si.inova.tws.manager.data.ActionBody
+import si.inova.kotlinova.retrofit.FakeService
+import si.inova.kotlinova.retrofit.ServiceTestingHelper
 import si.inova.tws.manager.data.ProjectDto
 import si.inova.tws.manager.data.SharedSnippetDto
-import si.inova.tws.manager.data.WebSnippetDto
+import si.inova.tws.manager.network.WebSnippetFunction
 
-val FAKE_SNIPPET_ONE = WebSnippetDto(
-    id = "0",
-    target = "www.google.com",
-    organizationId = "organization",
-    projectId = "project",
-    html = "<html></html>"
-)
+class FakeWebSnippetFunction(
+    private val helper: ServiceTestingHelper = ServiceTestingHelper()
+): WebSnippetFunction, FakeService by helper {
+    var returnedProject: ProjectDto? = null
+    var returnedSharedSnippet: SharedSnippetDto? = null
 
-val FAKE_SNIPPET_TWO = WebSnippetDto(
-    id = "1",
-    target = "www.blink.com",
-    organizationId = "organization",
-    projectId = "project"
-)
+    override suspend fun getWebSnippets(organizationId: String, projectId: String, apiKey: String?): ProjectDto {
+        helper.intercept()
 
-val FAKE_SNIPPET_THREE = WebSnippetDto(
-    id = "3",
-    target = "www.example.com",
-    organizationId = "organization",
-    projectId = "project"
-)
+        return returnedProject ?: error("Returned project not faked!")
+    }
 
-val FAKE_PROJECT_DTO = ProjectDto(
-    snippets = listOf(FAKE_SNIPPET_ONE, FAKE_SNIPPET_TWO),
-    listenOn = "wss:someUrl.com"
-)
+    override suspend fun getSharedSnippetData(shareId: String): SharedSnippetDto {
+        helper.intercept()
 
-val FAKE_SHARED_PROJECT = SharedSnippetDto(snippet = FAKE_SNIPPET_ONE)
-
-fun WebSnippetDto.toActionBody() = ActionBody(
-    id = id,
-    target = target,
-    html = html,
-    projectId = projectId,
-    organizationId = organizationId,
-    headers = headers
-)
+        return returnedSharedSnippet ?: error("Returned shared snippet not faked!")
+    }
+}
