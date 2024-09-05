@@ -14,21 +14,14 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.manager.data
+package si.inova.tws.manager.local_handler
 
-import androidx.annotation.Keep
-import com.squareup.moshi.JsonClass
+import kotlinx.coroutines.flow.Flow
+import si.inova.tws.manager.data.SnippetUpdateAction
+import si.inova.tws.manager.data.WebSnippetDto
 
-@JsonClass(generateAdapter = true)
-@Keep
-data class WebSnippetDto(
-    val id: String,
-    val target: String,
-    val organizationId: String,
-    val projectId: String,
-    val html: String? = null,
-    val headers: Map<String, String>? = emptyMap(),
-    val dynamicResources: List<DynamicResourceDto>? = emptyList(),
-    val visibility: VisibilityDto? = null,
-    val loadIteration: Int = 0
-)
+interface LocalSnippetHandler {
+    val updateActionFlow: Flow<SnippetUpdateAction>
+
+    suspend fun updateAndScheduleCheck(snippets: List<WebSnippetDto>)
+}

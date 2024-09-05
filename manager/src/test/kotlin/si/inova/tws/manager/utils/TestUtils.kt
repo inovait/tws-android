@@ -19,7 +19,9 @@ package si.inova.tws.manager.utils
 import si.inova.tws.manager.data.ActionBody
 import si.inova.tws.manager.data.ProjectDto
 import si.inova.tws.manager.data.SharedSnippetDto
+import si.inova.tws.manager.data.VisibilityDto
 import si.inova.tws.manager.data.WebSnippetDto
+import java.time.Instant
 
 val FAKE_SNIPPET_ONE = WebSnippetDto(
     id = "0",
@@ -57,4 +59,8 @@ fun WebSnippetDto.toActionBody() = ActionBody(
     projectId = projectId,
     organizationId = organizationId,
     headers = headers
+)
+
+fun WebSnippetDto.setVisibility(ts: Long) = copy(
+    visibility = VisibilityDto(untilUtc = Instant.ofEpochMilli(ts))
 )
