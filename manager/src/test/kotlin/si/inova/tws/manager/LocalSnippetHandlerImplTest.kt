@@ -86,8 +86,6 @@ class LocalSnippetHandlerImplTest {
             timePassedBy += delay
             advanceTimeBy(TimeUnit.MINUTES.toMillis(1) + 1)
 
-            runCurrent()
-
             val action = awaitItem()
             assert(action == SnippetUpdateAction(ActionType.DELETED, ActionBody(id = willExpireSnippet.id)))
         }
@@ -107,14 +105,10 @@ class LocalSnippetHandlerImplTest {
             timePassedBy += delayMs
             advanceTimeBy(delayMs)
 
-            runCurrent()
-
             expectNoEvents()
 
             timePassedBy += delayMs + 1
             advanceTimeBy(delayMs + 1)
-
-            runCurrent()
 
             val action = awaitItem()
             assert(action == SnippetUpdateAction(ActionType.DELETED, ActionBody(id = willExpireSnippet.id)))
