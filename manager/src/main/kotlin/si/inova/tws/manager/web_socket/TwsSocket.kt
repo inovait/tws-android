@@ -16,42 +16,17 @@
 
 package si.inova.tws.manager.web_socket
 
-import android.content.Context
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.WebSocket
-import si.inova.tws.manager.data.NetworkStatus
-import si.inova.tws.manager.service.NetworkConnectivityService
-import si.inova.tws.manager.service.NetworkConnectivityServiceImpl
-import si.inova.tws.manager.web_socket.SnippetWebSocketListener.Companion.CLOSING_CODE_ERROR_CODE
-import timber.log.Timber
+import kotlinx.coroutines.flow.Flow
+import si.inova.tws.manager.data.SnippetUpdateAction
 
 /**
  *
  * Creation of The Web Snippet websocket
  *
  */
-class TwsSocket(context: Context, scope: CoroutineScope) {
-    private val listener = SnippetWebSocketListener()
-    private val networkConnectivityService: NetworkConnectivityService = NetworkConnectivityServiceImpl(context)
+interface TwsSocket {
 
-    private var webSocket: WebSocket? = null
-    private var wssUrl: String? = null
-
-    val updateActionFlow = listener.updateActionFlow
-
-    init {
-        scope.launch {
-            networkConnectivityService.networkStatus.collect {
-                val wssUrl = wssUrl
-                if (webSocket != null && it is NetworkStatus.Connected && wssUrl != null) {
-                    setupWebSocketConnection(wssUrl)
-                }
-            }
-        }
-    }
+    val updateActionFlow: Flow<SnippetUpdateAction>
 
     /**
      * Sets the URL target of this request.
@@ -59,19 +34,7 @@ class TwsSocket(context: Context, scope: CoroutineScope) {
      * @throws IllegalArgumentException if [setupWssUrl] is not a valid HTTP or HTTPS URL. Avoid this
      *     exception by calling [HttpUrl.parse]; it returns null for invalid URLs.
      */
-    fun setupWebSocketConnection(setupWssUrl: String) {
-        wssUrl = setupWssUrl
-
-        try {
-            val client = OkHttpClient()
-            val request = Request.Builder().url(setupWssUrl).build()
-
-            webSocket = client.newWebSocket(request, listener)
-            client.dispatcher.executorService.shutdown()
-        } catch (e: Exception) {
-            Timber.e("Websocket error", e)
-        }
-    }
+    fun setupWebSocketConnection(setupWssUrl: String)
 
     /**
      * Attempts to initiate a graceful shutdown of this web socket.
@@ -80,9 +43,5 @@ class TwsSocket(context: Context, scope: CoroutineScope) {
      * a graceful shutdown was already underway or if the web socket is already closed or canceled.
      *
      */
-    fun closeWebsocketConnection(): Boolean? {
-        return webSocket?.close(CLOSING_CODE_ERROR_CODE, null).apply {
-            webSocket = null
-        }
-    }
+    fun closeWebsocketConnection(): Boolean?
 }

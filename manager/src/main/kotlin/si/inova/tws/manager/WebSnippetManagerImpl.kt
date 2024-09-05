@@ -34,12 +34,14 @@ import si.inova.tws.manager.factory.create
 import si.inova.tws.manager.network.WebSnippetFunction
 import si.inova.tws.manager.singleton.coroutineResourceManager
 import si.inova.tws.manager.web_socket.TwsSocket
+import si.inova.tws.manager.web_socket.TwsSocketImpl
 
-class WebSnippetManagerImpl(context: Context) : WebSnippetManager {
-    private val resources: CoroutineResourceManager = coroutineResourceManager
-    private val webSnippetFunction: WebSnippetFunction = BaseServiceFactory().create()
-    private val twsSocket: TwsSocket = TwsSocket(context, resources.scope)
-
+class WebSnippetManagerImpl(
+    context: Context,
+    private val resources: CoroutineResourceManager = coroutineResourceManager,
+    private val webSnippetFunction: WebSnippetFunction = BaseServiceFactory().create(),
+    private val twsSocket: TwsSocket = TwsSocketImpl(context, resources.scope)
+) : WebSnippetManager {
     private val _snippetsFlow: MutableStateFlow<Outcome<List<WebSnippetDto>>> = MutableStateFlow(Outcome.Progress())
     override val snippetsFlow: Flow<Outcome<List<WebSnippetDto>>> = _snippetsFlow
 
