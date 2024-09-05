@@ -144,7 +144,8 @@ class WebSnippetManagerImpl(
                         target = data.target,
                         headers = data.headers ?: emptyMap(),
                         organizationId = data.organizationId,
-                        projectId = data.projectId
+                        projectId = data.projectId,
+                        type = data.type ?: SnippetType.TAB
                     )
                 )
             }
