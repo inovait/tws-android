@@ -48,6 +48,7 @@ dependencies {
     implementation(libs.moshi.kotlin)
     implementation(libs.inject)
     implementation(libs.timber)
+    implementation(libs.moshi.adapters)
 
     kapt(libs.moshi.codegen)
 
