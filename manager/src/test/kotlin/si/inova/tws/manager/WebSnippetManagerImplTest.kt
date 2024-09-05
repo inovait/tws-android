@@ -34,6 +34,7 @@ import si.inova.tws.manager.utils.FAKE_SHARED_PROJECT
 import si.inova.tws.manager.utils.FAKE_SNIPPET_ONE
 import si.inova.tws.manager.utils.FAKE_SNIPPET_THREE
 import si.inova.tws.manager.utils.FAKE_SNIPPET_TWO
+import si.inova.tws.manager.utils.FakeLocalSnippetHandler
 import si.inova.tws.manager.utils.FakeTwsSocket
 import si.inova.tws.manager.utils.FakeWebSnippetFunction
 import si.inova.tws.manager.utils.toActionBody
@@ -44,6 +45,7 @@ class WebSnippetManagerImplTest {
 
     private val functions = FakeWebSnippetFunction()
     private val socket = FakeTwsSocket()
+    private val handler = FakeLocalSnippetHandler()
 
     private lateinit var webSnippetManager: WebSnippetManagerImpl
 
@@ -53,7 +55,8 @@ class WebSnippetManagerImplTest {
             context = mock(),
             webSnippetFunction = functions,
             resources = scope.testCoroutineResourceManager(),
-            twsSocket = socket
+            twsSocket = socket,
+            localSnippetHandler = handler
         )
     }
 
@@ -175,6 +178,112 @@ class WebSnippetManagerImplTest {
             )
 
             expectMostRecentItem().shouldBeSuccessWithData(listOf(FAKE_SNIPPET_ONE, FAKE_SNIPPET_TWO, FAKE_SNIPPET_THREE))
+        }
+    }
+
+    @Test
+    fun `Load snippets and create, update and delete from web socket`() = scope.runTest {
+        functions.returnedProject = FAKE_PROJECT_DTO
+
+        webSnippetManager.loadWebSnippets("organization", "project")
+
+        webSnippetManager.snippetsFlow.test {
+            runCurrent()
+
+            expectMostRecentItem().shouldBeSuccessWithData(listOf(FAKE_SNIPPET_ONE, FAKE_SNIPPET_TWO))
+
+            socket.mockUpdateAction(SnippetUpdateAction(
+                ActionType.CREATED,
+                FAKE_SNIPPET_THREE.toActionBody())
+            )
+
+            expectMostRecentItem().shouldBeSuccessWithData(listOf(FAKE_SNIPPET_ONE, FAKE_SNIPPET_TWO, FAKE_SNIPPET_THREE))
+
+            socket.mockUpdateAction(
+                SnippetUpdateAction(
+                    ActionType.UPDATED,
+                    ActionBody(id = FAKE_SNIPPET_ONE.id, target = "www.updated.com")
+                )
+            )
+
+            expectMostRecentItem().shouldBeSuccessWithData(
+                listOf(
+                    FAKE_SNIPPET_ONE.copy(target = "www.updated.com", loadIteration = 1),
+                    FAKE_SNIPPET_TWO,
+                    FAKE_SNIPPET_THREE
+                )
+            )
+
+            socket.mockUpdateAction(
+                SnippetUpdateAction(
+                    ActionType.DELETED,
+                    ActionBody(id = FAKE_SNIPPET_ONE.id)
+                )
+            )
+
+            expectMostRecentItem().shouldBeSuccessWithData(listOf(FAKE_SNIPPET_TWO, FAKE_SNIPPET_THREE))
+        }
+    }
+
+    @Test
+    fun `Load snippets and delete from local handler`() = scope.runTest {
+        functions.returnedProject = FAKE_PROJECT_DTO
+
+        webSnippetManager.loadWebSnippets("organization", "project")
+
+        webSnippetManager.snippetsFlow.test {
+            runCurrent()
+
+            expectMostRecentItem().shouldBeSuccessWithData(listOf(FAKE_SNIPPET_ONE, FAKE_SNIPPET_TWO))
+
+            handler.mockUpdateAction(SnippetUpdateAction(ActionType.DELETED, ActionBody(id = FAKE_SNIPPET_ONE.id)))
+
+            expectMostRecentItem().shouldBeSuccessWithData(listOf(FAKE_SNIPPET_TWO))
+        }
+    }
+
+    @Test
+    fun `Load snippets and delete from local handler and web socket`() = scope.runTest {
+        functions.returnedProject = FAKE_PROJECT_DTO.copy(
+            snippets = listOf(FAKE_SNIPPET_ONE, FAKE_SNIPPET_TWO, FAKE_SNIPPET_THREE)
+        )
+
+        webSnippetManager.loadWebSnippets("organization", "project")
+
+        webSnippetManager.snippetsFlow.test {
+            runCurrent()
+
+            expectMostRecentItem().shouldBeSuccessWithData(listOf(FAKE_SNIPPET_ONE, FAKE_SNIPPET_TWO, FAKE_SNIPPET_THREE))
+
+            handler.mockUpdateAction(SnippetUpdateAction(ActionType.DELETED, ActionBody(id = FAKE_SNIPPET_ONE.id)))
+
+            expectMostRecentItem().shouldBeSuccessWithData(listOf(FAKE_SNIPPET_TWO, FAKE_SNIPPET_THREE))
+
+            socket.mockUpdateAction(SnippetUpdateAction(ActionType.DELETED, ActionBody(id = FAKE_SNIPPET_TWO.id)))
+
+            expectMostRecentItem().shouldBeSuccessWithData(listOf(FAKE_SNIPPET_THREE))
+        }
+    }
+
+    @Test
+    fun `Load snippets and delete same snippet from local handler and web socket`() = scope.runTest {
+        functions.returnedProject = FAKE_PROJECT_DTO
+
+        webSnippetManager.loadWebSnippets("organization", "project")
+
+        webSnippetManager.snippetsFlow.test {
+            runCurrent()
+
+            expectMostRecentItem().shouldBeSuccessWithData(listOf(FAKE_SNIPPET_ONE, FAKE_SNIPPET_TWO))
+
+            handler.mockUpdateAction(SnippetUpdateAction(ActionType.DELETED, ActionBody(id = FAKE_SNIPPET_ONE.id)))
+            socket.mockUpdateAction(SnippetUpdateAction(ActionType.DELETED, ActionBody(id = FAKE_SNIPPET_ONE.id)))
+
+            expectMostRecentItem().shouldBeSuccessWithData(listOf(FAKE_SNIPPET_TWO))
+
+            socket.mockUpdateAction(SnippetUpdateAction(ActionType.DELETED, ActionBody(id = FAKE_SNIPPET_ONE.id)))
+
+            expectNoEvents() // There should be no changes, since deleted snippet was already deleted
         }
     }
 }
