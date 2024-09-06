@@ -53,6 +53,7 @@ internal fun List<WebSnippetDto>.insert(data: ActionBody): List<WebSnippetDto> {
                     headers = data.headers ?: emptyMap(),
                     organizationId = data.organizationId,
                     projectId = data.projectId,
+                    visibility = data.visibility,
                     type = data.type ?: SnippetType.TAB
                 )
             )
@@ -67,7 +68,8 @@ internal fun List<WebSnippetDto>.update(data: ActionBody): List<WebSnippetDto> {
                 loadIteration = it.loadIteration + 1,
                 target = data.target ?: it.target,
                 headers = data.headers ?: it.headers,
-                html = data.html ?: it.html
+                html = data.html ?: it.html,
+                visibility = data.visibility ?: it.visibility
             )
         } else {
             it
