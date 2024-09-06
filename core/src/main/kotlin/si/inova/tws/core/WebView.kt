@@ -40,6 +40,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import si.inova.tws.core.data.ModifierPageData
 import si.inova.tws.core.data.view.TwsDownloadListener
 import si.inova.tws.core.data.view.WebContent
@@ -180,7 +181,9 @@ fun WebView(
     dynamicModifiers: List<ModifierPageData>? = null
 ) {
     val webView = state.webView
+
     HandleBackPresses(captureBackPresses, navigator, webView)
+    WebViewResumeOrPauseEffect(webView)
 
     val (permissionLauncher, permissionCallback) = createPermissionLauncher()
     val (fileChooserLauncher, fileChooserCallback) = createFileChooserLauncher()
@@ -278,6 +281,19 @@ private fun HandleNavigationEvents(wv: WebView, navigator: WebViewNavigator, sta
                     // NO-OP
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun WebViewResumeOrPauseEffect(webView: WebView?) {
+    if (webView == null) return
+
+    LifecycleResumeEffect(Unit) {
+        webView.onResume()
+
+        onPauseOrDispose {
+            webView.onPause()
         }
     }
 }
