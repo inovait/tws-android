@@ -55,7 +55,9 @@ class WebSnippetInterstitialActivity : ComponentActivity() {
         val webSnippetId = intent.getStringExtra(WEB_SNIPPET_ID)
         val managerTag = intent.getStringExtra(MANAGER_TAG)
 
-        val manager = WebSnippetManagerImpl.getSharedInstance(this, managerTag)
+        val manager = webSnippetId?.let {
+            WebSnippetManagerImpl.getSharedInstance(this, managerTag)
+        }
 
         val webSnippetData = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             intent.getParcelableExtra(WEB_SNIPPET_DATA, WebSnippetData::class.java)
@@ -65,15 +67,15 @@ class WebSnippetInterstitialActivity : ComponentActivity() {
         }
 
         setContent {
-            val shouldCloseFlow = manager.popupSnippetsFlow.map { outcome ->
+            val shouldCloseFlow = manager?.popupSnippetsFlow?.map { outcome ->
                 outcome is Outcome.Success && !outcome.data.any {
                     it.id == webSnippetId
                 }
-            }.collectAsState(false).value
+            }?.collectAsState(false)?.value ?: false
 
-            val snippet = manager.popupSnippetsFlow.map { outcome ->
+            val snippet = manager?.popupSnippetsFlow?.map { outcome ->
                 outcome.data?.find { it.id == webSnippetId }?.toWebSnippetData()
-            }.filterNotNull().collectAsState(webSnippetData).value
+            }?.filterNotNull()?.collectAsState(null)?.value ?: webSnippetData
 
 
             LaunchedEffect(shouldCloseFlow) {
@@ -91,9 +93,11 @@ class WebSnippetInterstitialActivity : ComponentActivity() {
                         target = it,
                         displayPlaceholderWhileLoading = true
                     )
+
                     FilledIconButton(
                         modifier = Modifier.padding(8.dp).align(Alignment.TopEnd).alpha(0.7f),
-                        onClick = { finish() }) {
+                        onClick = { finish() }
+                    ) {
                         Icon(Icons.Default.Close, "close")
                     }
                 }
