@@ -16,6 +16,7 @@
 
 package si.inova.tws.core
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -348,6 +349,7 @@ private fun createFileChooserLauncher(): Pair<ActivityResultLauncher<Intent>, Mu
     return fileChooserLauncher to fileChooserCallback
 }
 
+@SuppressLint("JavascriptInterface") // Suppressing, we only need 'tws_injected' interface to be present, no methods required
 private fun createWebView(
     context: Context,
     state: WebViewState,
@@ -359,10 +361,15 @@ private fun createWebView(
 ): WebView {
     return (factory?.invoke(context) ?: WebView(context)).apply {
         onCreated(this)
+
         addJavascriptInterface(JavaScriptDownloadInterface(context), JAVASCRIPT_INTERFACE_NAME)
+        addJavascriptInterface(object {}, TWS_INJECTED_INTERFACE_NAME)
+
         this.layoutParams = layoutParams
         state.viewState?.let { this.restoreState(it) }
         webChromeClient = chromeClient
         webViewClient = client
     }.also { state.webView = it }
 }
+
+private const val TWS_INJECTED_INTERFACE_NAME = "tws_injected"
