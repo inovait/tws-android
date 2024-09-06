@@ -20,6 +20,6 @@ import com.squareup.moshi.JsonClass
 import java.time.Instant
 
 @JsonClass(generateAdapter = true)
-class VisibilityDto(
+data class VisibilityDto(
     val untilUtc: Instant? = null
 )
