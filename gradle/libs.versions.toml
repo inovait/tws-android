@@ -25,6 +25,7 @@ dispatch = "1.0.0-beta10"
 kotlin-coroutines = "1.7.3"
 mockito = "5.13.0"
 turbine = "1.0.0"
+lifecycle = "2.8.5"
 
 [libraries]
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
@@ -59,6 +60,7 @@ inject = { module = "jakarta.inject:jakarta.inject-api", version.ref = "inject" 
 dispatch = { module = "com.rickbusarow.dispatch:dispatch-core", version.ref = "dispatch" }
 mockito = { module = "org.mockito:mockito-core", version.ref = "mockito" }
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
+androidx-lifecycle-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose-android", version.ref = "lifecycle" }
 
 [plugins]
 versions = { id = "com.github.ben-manes.versions", version.ref = "versionsChecker" }
