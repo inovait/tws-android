@@ -42,6 +42,7 @@ fun WebView.initializeSettings() {
         cacheMode = WebSettings.LOAD_DEFAULT
         mediaPlaybackRequiresUserGesture = false
         setGeolocationEnabled(true)
+        userAgentString = "$userAgentString TheWebSnippet"
     }
 }
 
