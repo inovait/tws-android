@@ -63,8 +63,6 @@ class WebSnippetInterstitialActivity : ComponentActivity() {
             intent.getParcelableExtra(WEB_SNIPPET_DATA)
         }
 
-
-
         setContent {
             val shouldCloseFlow = manager.popupSnippetsFlow.map { outcome ->
                 outcome is Outcome.Success && !outcome.data.any {
