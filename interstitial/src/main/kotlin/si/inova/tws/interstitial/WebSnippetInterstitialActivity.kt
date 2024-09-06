@@ -60,6 +60,7 @@ class WebSnippetInterstitialActivity : ComponentActivity() {
         val webSnippetData = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             intent.getParcelableExtra(WEB_SNIPPET_DATA, WebSnippetData::class.java)
         } else {
+            @Suppress("DEPRECATION")
             intent.getParcelableExtra(WEB_SNIPPET_DATA)
         }
 
