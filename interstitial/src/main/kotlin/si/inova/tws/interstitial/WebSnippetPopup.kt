@@ -14,7 +14,7 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.core.interstitial
+package si.inova.tws.interstitial
 
 import android.content.Context
 import android.content.Intent
@@ -23,10 +23,19 @@ import si.inova.tws.core.data.WebSnippetData
 interface WebSnippetPopup {
     companion object {
         const val WEB_SNIPPET_DATA = "webSnippetData"
+        const val WEB_SNIPPET_ID = "webSnippetId"
+        const val MANAGER_TAG = "managerTag"
 
         fun open(context: Context, popup: WebSnippetData) {
             context.startActivity(Intent(context, WebSnippetInterstitialActivity::class.java).apply {
                 putExtra(WEB_SNIPPET_DATA, popup)
+            })
+        }
+
+        fun open(context: Context, id: String, tag: String? = null) {
+            context.startActivity(Intent(context, WebSnippetInterstitialActivity::class.java).apply {
+                putExtra(WEB_SNIPPET_ID, id)
+                putExtra(MANAGER_TAG, tag)
             })
         }
     }
