@@ -18,44 +18,29 @@ import util.publishLibrary
 
 plugins {
     androidLibraryModule
-    kotlin("kapt")
+    alias(libs.plugins.compose.compiler)
 }
 
 android {
-    namespace = "si.inova.tws.manager"
+    namespace = "si.inova.tws.interstitial"
 
-    testOptions {
-        unitTests.all {
-            it.useJUnit()
-        }
+    buildFeatures {
+        androidResources = true
     }
 }
 
 publishLibrary(
-    userFriendlyName = "tws-manager",
-    description = "A collection of manager and network connection",
-    githubPath = "manager",
+    userFriendlyName = "tws-interstitial",
+    description = "A collection of interstitial utilities",
+    githubPath = "interstitial"
 )
 
 dependencies {
-    api(libs.kotlinova.core)
-    implementation(libs.kotlinova.retrofit)
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.dispatch)
-    implementation(libs.retrofit.moshi)
-    implementation(libs.retrofit.scalars)
-    implementation(libs.certificateTransparency)
-    implementation(libs.moshi.kotlin)
-    implementation(libs.inject)
-    implementation(libs.timber)
-    implementation(libs.moshi.adapters)
+    implementation(projects.core)
+    implementation(projects.manager)
 
-    kapt(libs.moshi.codegen)
 
-    testImplementation(libs.kotlinova.core.test)
-    testImplementation(libs.kotlin.coroutines.test)
-    testImplementation(libs.mockito)
-    testImplementation(libs.junit)
-    testImplementation(libs.kotlinova.retrofit.test)
-    testImplementation(libs.turbine)
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.compose.ui.tooling.preview)
+    implementation(libs.androidx.compose.material3)
 }

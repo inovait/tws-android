@@ -40,7 +40,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlinx.collections.immutable.ImmutableList
@@ -49,7 +48,6 @@ import si.inova.tws.core.data.WebSnippetData
 import si.inova.tws.core.data.view.WebViewState
 import si.inova.tws.core.data.view.rememberSaveableWebViewState
 import si.inova.tws.core.data.view.rememberWebViewNavigator
-import si.inova.tws.core.interstitial.WebSnippetPopup
 import si.inova.tws.core.lifecycle.DoOnScreenReset
 import si.inova.tws.core.lifecycle.LocalScreenResetNotifier
 import si.inova.tws.core.lifecycle.ScreenResetNotifier
@@ -98,21 +96,12 @@ fun TabsWebSnippetComponent(
     topBar: @Composable (String?) -> Unit = { },
     resetScreenOnTabReselect: Boolean = true,
     onScreenReset: (WebViewState) -> Unit = { it.webView?.onScreenReset() },
-    googleLoginRedirectUrl: String? = null,
-    targetsPopup: ImmutableList<WebSnippetData>? = null
+    googleLoginRedirectUrl: String? = null
 ) {
     CompositionLocalProvider(LocalScreenResetNotifier provides ScreenResetNotifier()) {
         val screenResetNotifier = LocalScreenResetNotifier.current
         val webViewStatesMap = targets.map { rememberSaveableWebViewState(key = "${it.id}-${it.url}") }
         val navigatorsMap = targets.map { rememberWebViewNavigator(it.id) }
-
-        val context = LocalContext.current
-
-        LaunchedEffect(Unit) {
-            targetsPopup?.forEach { popup ->
-                WebSnippetPopup.open(context, popup)
-            }
-        }
 
         val lastSelectedTabIndex = remember { mutableIntStateOf(mainTabIndex) }
 
