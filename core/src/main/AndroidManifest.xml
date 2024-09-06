@@ -26,13 +26,8 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
         </provider>
-
-        <activity
-            android:name=".interstitial.WebSnippetInterstitialActivity"
-            android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
-            android:exported="false"
-            android:theme="@style/Theme.TheWebSnippet" />
     </application>
+
     <queries>
         <intent>
             <action android:name="android.support.customtabs.action.CustomTabsService" />
