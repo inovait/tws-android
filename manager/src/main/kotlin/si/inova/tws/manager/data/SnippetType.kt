@@ -17,9 +17,15 @@
 package si.inova.tws.manager.data
 
 import androidx.annotation.Keep
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
 @Keep
+@JsonClass(generateAdapter = false)
 enum class SnippetType {
+    @Json(name = "Popuo")
     POPUP,
+
+    @Json(name = "Tab")
     TAB
 }

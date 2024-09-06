@@ -17,9 +17,15 @@
 package si.inova.tws.manager.data
 
 import androidx.annotation.Keep
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
 @Keep
+@JsonClass(generateAdapter = false)
 enum class SnippetStatus {
+    @Json(name = "Enabled")
     ENABLED,
+
+    @Json(name = "Disabled")
     DISABLED
 }

@@ -17,8 +17,9 @@
 package si.inova.tws.manager.singleton
 
 import com.appmattus.certificatetransparency.certificateTransparencyInterceptor
+import com.squareup.moshi.FromJson
 import com.squareup.moshi.Moshi
-import com.squareup.moshi.adapters.Rfc3339DateJsonAdapter
+import com.squareup.moshi.ToJson
 import dispatch.core.DispatcherProvider
 import dispatch.core.MainImmediateCoroutineScope
 import jakarta.inject.Singleton
@@ -27,6 +28,9 @@ import si.inova.kotlinova.core.outcome.CoroutineResourceManager
 import si.inova.kotlinova.core.reporting.ErrorReporter
 import si.inova.kotlinova.retrofit.interceptors.BypassCacheInterceptor
 import java.time.Instant
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeFormatter.ISO_INSTANT
 import kotlin.coroutines.cancellation.CancellationException
 
 @Singleton
@@ -54,7 +58,7 @@ internal fun twsMoshi(): Moshi {
     }
 
     return Moshi.Builder()
-        .add(Instant::class.java, Rfc3339DateJsonAdapter().nullSafe())
+        .add(InstantJsonAdapter())
         .build()
 }
 
@@ -71,4 +75,18 @@ internal fun prepareDefaultOkHttpClient(): OkHttpClient.Builder {
     return OkHttpClient.Builder()
         .addInterceptor(BypassCacheInterceptor())
         .addNetworkInterceptor(certificateTransparencyInterceptor())
+}
+
+internal class InstantJsonAdapter {
+    private val formatter: DateTimeFormatter = ISO_INSTANT.withZone(ZoneOffset.UTC)
+
+    @ToJson
+    fun toJson(instant: Instant): String {
+        return formatter.format(instant)
+    }
+
+    @FromJson
+    fun fromJson(timestamp: String): Instant {
+        return Instant.from(formatter.parse(timestamp))
+    }
 }
