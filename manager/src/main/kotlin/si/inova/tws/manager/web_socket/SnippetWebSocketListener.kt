@@ -17,7 +17,6 @@
 package si.inova.tws.manager.web_socket
 
 import com.squareup.moshi.Moshi
-import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.filterNotNull
@@ -26,13 +25,14 @@ import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
 import si.inova.tws.manager.data.SnippetUpdateAction
+import si.inova.tws.manager.singleton.twsMoshi
 
 internal class SnippetWebSocketListener : WebSocketListener() {
     private val _updateActionFlow: MutableStateFlow<SnippetUpdateAction?> = MutableStateFlow(null)
     val updateActionFlow: Flow<SnippetUpdateAction>
         get() = _updateActionFlow.filterNotNull()
 
-    private val moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
+    private val moshi: Moshi by lazy { twsMoshi() }
 
     override fun onMessage(webSocket: WebSocket, text: String) {
         val adapter = moshi.adapter(SnippetUpdateAction::class.java)

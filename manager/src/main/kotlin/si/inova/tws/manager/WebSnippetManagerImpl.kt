@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import si.inova.kotlinova.core.exceptions.UnknownCauseException
 import si.inova.kotlinova.core.outcome.CauseException
 import si.inova.kotlinova.core.outcome.CoroutineResourceManager
@@ -65,6 +66,16 @@ class WebSnippetManagerImpl(
         outcome.mapData { data ->
             data.filter {
                 it.type == SnippetType.TAB && it.status == SnippetStatus.ENABLED
+            }
+        }
+    }
+
+    init {
+        resources.scope.launch {
+            snippetsFlow.collect { outcome ->
+                outcome.data?.let {
+                    localSnippetHandler?.launchAndCollect(it)
+                }
             }
         }
     }
