@@ -127,13 +127,14 @@ class WebSnippetManagerImpl(
     }
 
     companion object {
+        private const val DEFAULT_MANAGER_TAG = "ManagerSharedInstance"
         private val instances = ConcurrentHashMap<String, WebSnippetManager>()
 
         fun getSharedInstance(
             context: Context,
-            key: String,
+            tag: String? = null,
         ): WebSnippetManager {
-            return instances.computeIfAbsent(key) {
+            return instances.computeIfAbsent(tag ?: DEFAULT_MANAGER_TAG) {
                 WebSnippetManagerImpl(context)
             }
         }
