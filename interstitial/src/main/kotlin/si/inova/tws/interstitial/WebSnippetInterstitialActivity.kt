@@ -19,19 +19,32 @@ package si.inova.tws.interstitial
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
@@ -48,6 +61,14 @@ import si.inova.tws.manager.data.WebSnippetDto
 
 class WebSnippetInterstitialActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        // For dark (black) colors
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.light(
+                android.graphics.Color.TRANSPARENT,
+                android.graphics.Color.TRANSPARENT
+            )
+        )
+
         super.onCreate(savedInstanceState)
 
         val webSnippetId = intent.getStringExtra(WEB_SNIPPET_ID)
@@ -75,25 +96,66 @@ class WebSnippetInterstitialActivity : ComponentActivity() {
                 outcome.data?.find { it.id == webSnippetId }?.toWebSnippetData()
             }?.filterNotNull()?.collectAsState(null)?.value ?: webSnippetData
 
-            LaunchedEffect(shouldCloseFlow) {
-                if (shouldCloseFlow) {
-                    finish()
+            // State to manage animation visibility, allows us to display web
+            // snippet component only when animation is finished, to avoid flashing
+            val transitionState = remember {
+                MutableTransitionState(false).apply {
+                    targetState = true
                 }
             }
 
-            Box(modifier = Modifier.fillMaxSize()) {
-                snippet?.let {
-                    WebSnippetComponent(
-                        modifier = Modifier.fillMaxSize(),
-                        target = it,
-                        displayPlaceholderWhileLoading = true
-                    )
+            // Start finish animation if snippet was removed from manager
+            LaunchedEffect(shouldCloseFlow) {
+                if (shouldCloseFlow) {
+                    transitionState.targetState = false
+                }
+            }
 
-                    FilledIconButton(
-                        modifier = Modifier.padding(8.dp).align(Alignment.TopEnd).alpha(0.7f),
-                        onClick = { finish() }
-                    ) {
-                        Icon(Icons.Default.Close, "close")
+            // Detect when the exit animation completes and finish the activity
+            LaunchedEffect(transitionState) {
+                snapshotFlow { transitionState.isIdle && !transitionState.currentState }.collect { shouldFinish ->
+                    if (shouldFinish) {
+                        finish()
+                    }
+                }
+            }
+
+            AnimatedVisibility(
+                visibleState = transitionState,
+                enter = slideInVertically(
+                    initialOffsetY = { fullHeight -> fullHeight },
+                    animationSpec = tween(durationMillis = 300)
+                ),
+                exit = slideOutVertically(
+                    targetOffsetY = { fullHeight -> fullHeight },
+                    animationSpec = tween(durationMillis = 300)
+                )
+            ) {
+                Box(
+                    modifier = Modifier
+                        .navigationBarsPadding()
+                        .fillMaxSize()
+                        .background(Color.White)
+                        .statusBarsPadding()
+                ) {
+                    snippet?.let {
+                        if (transitionState.currentState) {
+                            WebSnippetComponent(
+                                modifier = Modifier.fillMaxSize(),
+                                target = it,
+                                displayPlaceholderWhileLoading = true
+                            )
+                        }
+
+                        FilledIconButton(
+                            modifier = Modifier
+                                .padding(8.dp)
+                                .align(Alignment.TopEnd)
+                                .alpha(0.7f),
+                            onClick = { transitionState.targetState = false }
+                        ) {
+                            Icon(Icons.Default.Close, "close")
+                        }
                     }
                 }
             }
