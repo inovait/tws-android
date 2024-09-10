@@ -21,6 +21,6 @@
             android:name=".WebSnippetInterstitialActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
             android:exported="false"
-            android:theme="@style/Theme.TheWebSnippet" />
+            android:theme="@style/Popup" />
     </application>
 </manifest>
