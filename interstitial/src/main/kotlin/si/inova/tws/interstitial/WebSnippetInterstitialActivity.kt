@@ -20,7 +20,6 @@ import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -33,7 +32,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
@@ -77,19 +75,16 @@ class WebSnippetInterstitialActivity : ComponentActivity() {
                 outcome.data?.find { it.id == webSnippetId }?.toWebSnippetData()
             }?.filterNotNull()?.collectAsState(null)?.value ?: webSnippetData
 
-
             LaunchedEffect(shouldCloseFlow) {
                 if (shouldCloseFlow) {
                     finish()
                 }
             }
 
-            Box(modifier = Modifier.fillMaxSize().background(Color.White)) {
+            Box(modifier = Modifier.fillMaxSize()) {
                 snippet?.let {
                     WebSnippetComponent(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(Color.White),
+                        modifier = Modifier.fillMaxSize(),
                         target = it,
                         displayPlaceholderWhileLoading = true
                     )
