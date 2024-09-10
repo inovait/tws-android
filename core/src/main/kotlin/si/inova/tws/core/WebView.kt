@@ -16,6 +16,7 @@
 
 package si.inova.tws.core
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -40,6 +41,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import si.inova.tws.core.data.ModifierPageData
 import si.inova.tws.core.data.view.TwsDownloadListener
 import si.inova.tws.core.data.view.WebContent
@@ -180,7 +182,9 @@ fun WebView(
     dynamicModifiers: List<ModifierPageData>? = null
 ) {
     val webView = state.webView
+
     HandleBackPresses(captureBackPresses, navigator, webView)
+    WebViewResumeOrPauseEffect(webView)
 
     val (permissionLauncher, permissionCallback) = createPermissionLauncher()
     val (fileChooserLauncher, fileChooserCallback) = createFileChooserLauncher()
@@ -283,6 +287,19 @@ private fun HandleNavigationEvents(wv: WebView, navigator: WebViewNavigator, sta
 }
 
 @Composable
+private fun WebViewResumeOrPauseEffect(webView: WebView?) {
+    if (webView == null) return
+
+    LifecycleResumeEffect(Unit) {
+        webView.onResume()
+
+        onPauseOrDispose {
+            webView.onPause()
+        }
+    }
+}
+
+@Composable
 private fun SetupPermissionHandling(
     chromeClient: TwsWebChromeClient,
     permissionLauncher: ActivityResultLauncher<String>,
@@ -332,6 +349,7 @@ private fun createFileChooserLauncher(): Pair<ActivityResultLauncher<Intent>, Mu
     return fileChooserLauncher to fileChooserCallback
 }
 
+@SuppressLint("JavascriptInterface") // Suppressing, we only need 'tws_injected' interface to be present, no methods required
 private fun createWebView(
     context: Context,
     state: WebViewState,
@@ -343,10 +361,15 @@ private fun createWebView(
 ): WebView {
     return (factory?.invoke(context) ?: WebView(context)).apply {
         onCreated(this)
+
         addJavascriptInterface(JavaScriptDownloadInterface(context), JAVASCRIPT_INTERFACE_NAME)
+        addJavascriptInterface(object {}, TWS_INJECTED_INTERFACE_NAME)
+
         this.layoutParams = layoutParams
         state.viewState?.let { this.restoreState(it) }
         webChromeClient = chromeClient
         webViewClient = client
     }.also { state.webView = it }
 }
+
+private const val TWS_INJECTED_INTERFACE_NAME = "tws_injected"

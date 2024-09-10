@@ -44,4 +44,5 @@ dependencies {
     implementation(libs.timber)
     implementation(libs.accompanist.permissions)
     implementation(libs.androidx.browser)
+    implementation(libs.androidx.lifecycle.compose)
 }

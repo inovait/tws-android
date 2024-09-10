@@ -14,34 +14,18 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.manager.web_socket
+package si.inova.tws.manager.data
 
-import kotlinx.coroutines.flow.Flow
-import si.inova.tws.manager.data.SnippetUpdateAction
+import androidx.annotation.Keep
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
-/**
- *
- * Creation of The Web Snippet websocket
- *
- */
-interface TwsSocket {
+@Keep
+@JsonClass(generateAdapter = false)
+enum class SnippetType {
+    @Json(name = "Popup")
+    POPUP,
 
-    val updateActionFlow: Flow<SnippetUpdateAction>
-
-    /**
-     * Sets the URL target of this request.
-     *
-     * @throws IllegalArgumentException if [setupWssUrl] is not a valid HTTP or HTTPS URL. Avoid this
-     *     exception by calling [HttpUrl.parse]; it returns null for invalid URLs.
-     */
-    fun setupWebSocketConnection(setupWssUrl: String)
-
-    /**
-     * Attempts to initiate a graceful shutdown of this web socket.
-     *
-     * This returns true if a graceful shutdown was initiated by this call. It returns false if
-     * a graceful shutdown was already underway or if the web socket is already closed or canceled.
-     *
-     */
-    fun closeWebsocketConnection(): Boolean?
+    @Json(name = "Tab")
+    TAB
 }

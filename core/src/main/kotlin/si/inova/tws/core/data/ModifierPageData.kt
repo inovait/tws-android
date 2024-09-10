@@ -16,13 +16,18 @@
 
 package si.inova.tws.core.data
 
+import android.os.Parcelable
+import kotlinx.parcelize.IgnoredOnParcel
+import kotlinx.parcelize.Parcelize
 import java.util.Locale
 
-interface ModifierPageData {
+interface ModifierPageData: Parcelable {
     val inject: String?
 }
 
+@Parcelize
 data class ContentInjectData(val content: String, val type: ModifierInjectionType) : ModifierPageData {
+    @IgnoredOnParcel
     override val inject = when (type) {
         ModifierInjectionType.CSS -> injectContentCss(content)
         ModifierInjectionType.JAVASCRIPT -> content.trimIndent()
@@ -41,7 +46,9 @@ data class ContentInjectData(val content: String, val type: ModifierInjectionTyp
     }
 }
 
+@Parcelize
 data class UrlInjectData(val url: String, val type: ModifierInjectionType) : ModifierPageData {
+    @IgnoredOnParcel
     override val inject = when (type) {
         ModifierInjectionType.CSS -> injectUrlCss(url)
         ModifierInjectionType.JAVASCRIPT -> injectUrlJs(url)

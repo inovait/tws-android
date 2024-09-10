@@ -18,17 +18,12 @@ package si.inova.tws.core
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Crossfade
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
@@ -45,9 +40,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlinx.collections.immutable.ImmutableList
@@ -59,6 +51,8 @@ import si.inova.tws.core.data.view.rememberWebViewNavigator
 import si.inova.tws.core.lifecycle.DoOnScreenReset
 import si.inova.tws.core.lifecycle.LocalScreenResetNotifier
 import si.inova.tws.core.lifecycle.ScreenResetNotifier
+import si.inova.tws.core.util.compose.SnippetErrorView
+import si.inova.tws.core.util.compose.SnippetLoadingView
 import si.inova.tws.core.util.onScreenReset
 import timber.log.Timber
 
@@ -95,9 +89,9 @@ fun TabsWebSnippetComponent(
     mainTabIndex: Int = 0,
     scrollableTabRow: Boolean = false,
     displayErrorViewOnError: Boolean = false,
-    errorViewContent: @Composable () -> Unit = { FullScreenErrorView() },
+    errorViewContent: @Composable () -> Unit = { SnippetErrorView(true) },
     displayPlaceholderWhileLoading: Boolean = true,
-    loadingPlaceholderContent: @Composable () -> Unit = { FullScreenLoadingView() },
+    loadingPlaceholderContent: @Composable () -> Unit = { SnippetLoadingView(true) },
     interceptOverrideUrl: (String) -> Boolean = { false },
     topBar: @Composable (String?) -> Unit = { },
     resetScreenOnTabReselect: Boolean = true,
@@ -175,7 +169,6 @@ fun TabsWebSnippetComponent(
                         // can crash because of the animation if tab is deleted
                         val coercedIndex = targetIndex.coerceAtMost(targets.size - 1)
 
-
                         DoOnScreenReset {
                             onScreenReset(webViewStatesMap[coercedIndex])
                         }
@@ -226,50 +219,6 @@ private fun Tab(targets: ImmutableList<WebSnippetData>, tabIndex: Int, onClick: 
         Tab(text = { Text(text = index.toString()) }, selected = tabIndex == index, onClick = {
             onClick(index)
         })
-    }
-}
-
-@Composable
-private fun FullScreenErrorView() {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
-    ) {
-        Spacer(modifier = Modifier.weight(1f))
-
-        Image(
-            modifier = Modifier.align(Alignment.CenterHorizontally),
-            painter = painterResource(id = R.drawable.image_load_failed),
-            contentDescription = "Web view error image",
-        )
-
-        Text(
-            modifier = Modifier
-                .padding(all = 16.dp)
-                .align(Alignment.CenterHorizontally),
-            text = stringResource(id = R.string.oops_loading_failed),
-            style = TextStyle(color = Color.Black)
-        )
-
-        Spacer(modifier = Modifier.weight(1f))
-    }
-}
-
-@Composable
-private fun FullScreenLoadingView() {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
-    ) {
-        CircularProgressIndicator(
-            modifier = Modifier
-                .size(64.dp)
-                .align(Alignment.Center),
-            color = MaterialTheme.colorScheme.secondary,
-            trackColor = MaterialTheme.colorScheme.surfaceVariant
-        )
     }
 }
 

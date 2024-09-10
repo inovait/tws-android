@@ -14,34 +14,33 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.manager.web_socket
+import util.publishLibrary
 
-import kotlinx.coroutines.flow.Flow
-import si.inova.tws.manager.data.SnippetUpdateAction
+plugins {
+    androidLibraryModule
+    alias(libs.plugins.compose.compiler)
+}
 
-/**
- *
- * Creation of The Web Snippet websocket
- *
- */
-interface TwsSocket {
+android {
+    namespace = "si.inova.tws.interstitial"
 
-    val updateActionFlow: Flow<SnippetUpdateAction>
+    buildFeatures {
+        androidResources = true
+    }
+}
 
-    /**
-     * Sets the URL target of this request.
-     *
-     * @throws IllegalArgumentException if [setupWssUrl] is not a valid HTTP or HTTPS URL. Avoid this
-     *     exception by calling [HttpUrl.parse]; it returns null for invalid URLs.
-     */
-    fun setupWebSocketConnection(setupWssUrl: String)
+publishLibrary(
+    userFriendlyName = "tws-interstitial",
+    description = "A collection of interstitial utilities",
+    githubPath = "interstitial"
+)
 
-    /**
-     * Attempts to initiate a graceful shutdown of this web socket.
-     *
-     * This returns true if a graceful shutdown was initiated by this call. It returns false if
-     * a graceful shutdown was already underway or if the web socket is already closed or canceled.
-     *
-     */
-    fun closeWebsocketConnection(): Boolean?
+dependencies {
+    implementation(projects.core)
+    implementation(projects.manager)
+
+
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.compose.ui.tooling.preview)
+    implementation(libs.androidx.compose.material3)
 }

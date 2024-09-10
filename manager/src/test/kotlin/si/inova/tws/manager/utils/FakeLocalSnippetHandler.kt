@@ -14,34 +14,19 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.manager.web_socket
+package si.inova.tws.manager.utils
 
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import si.inova.tws.manager.data.SnippetUpdateAction
+import si.inova.tws.manager.data.WebSnippetDto
+import si.inova.tws.manager.local_handler.LocalSnippetHandler
 
-/**
- *
- * Creation of The Web Snippet websocket
- *
- */
-interface TwsSocket {
+class FakeLocalSnippetHandler : LocalSnippetHandler {
+    override val updateActionFlow: MutableSharedFlow<SnippetUpdateAction> = MutableSharedFlow()
 
-    val updateActionFlow: Flow<SnippetUpdateAction>
+    override suspend fun updateAndScheduleCheck(snippets: List<WebSnippetDto>) { }
 
-    /**
-     * Sets the URL target of this request.
-     *
-     * @throws IllegalArgumentException if [setupWssUrl] is not a valid HTTP or HTTPS URL. Avoid this
-     *     exception by calling [HttpUrl.parse]; it returns null for invalid URLs.
-     */
-    fun setupWebSocketConnection(setupWssUrl: String)
-
-    /**
-     * Attempts to initiate a graceful shutdown of this web socket.
-     *
-     * This returns true if a graceful shutdown was initiated by this call. It returns false if
-     * a graceful shutdown was already underway or if the web socket is already closed or canceled.
-     *
-     */
-    fun closeWebsocketConnection(): Boolean?
+    suspend fun mockUpdateAction(action: SnippetUpdateAction) {
+        updateActionFlow.emit(action)
+    }
 }

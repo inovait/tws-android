@@ -14,34 +14,29 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.manager.web_socket
+package si.inova.tws.interstitial
 
-import kotlinx.coroutines.flow.Flow
-import si.inova.tws.manager.data.SnippetUpdateAction
+import android.content.Context
+import android.content.Intent
+import si.inova.tws.core.data.WebSnippetData
 
-/**
- *
- * Creation of The Web Snippet websocket
- *
- */
-interface TwsSocket {
+interface WebSnippetPopup {
+    companion object {
+        const val WEB_SNIPPET_DATA = "webSnippetData"
+        const val WEB_SNIPPET_ID = "webSnippetId"
+        const val MANAGER_TAG = "managerTag"
 
-    val updateActionFlow: Flow<SnippetUpdateAction>
+        fun open(context: Context, popup: WebSnippetData) {
+            context.startActivity(Intent(context, WebSnippetInterstitialActivity::class.java).apply {
+                putExtra(WEB_SNIPPET_DATA, popup)
+            })
+        }
 
-    /**
-     * Sets the URL target of this request.
-     *
-     * @throws IllegalArgumentException if [setupWssUrl] is not a valid HTTP or HTTPS URL. Avoid this
-     *     exception by calling [HttpUrl.parse]; it returns null for invalid URLs.
-     */
-    fun setupWebSocketConnection(setupWssUrl: String)
-
-    /**
-     * Attempts to initiate a graceful shutdown of this web socket.
-     *
-     * This returns true if a graceful shutdown was initiated by this call. It returns false if
-     * a graceful shutdown was already underway or if the web socket is already closed or canceled.
-     *
-     */
-    fun closeWebsocketConnection(): Boolean?
+        fun open(context: Context, id: String, tag: String? = null) {
+            context.startActivity(Intent(context, WebSnippetInterstitialActivity::class.java).apply {
+                putExtra(WEB_SNIPPET_ID, id)
+                putExtra(MANAGER_TAG, tag)
+            })
+        }
+    }
 }

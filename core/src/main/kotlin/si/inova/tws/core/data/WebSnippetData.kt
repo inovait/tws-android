@@ -16,10 +16,14 @@
 
 package si.inova.tws.core.data
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
 data class WebSnippetData(
     val id: String,
     val url: String,
     val headers: Map<String, String> = emptyMap(),
     val loadIteration: Int = 0,
     val dynamicModifiers: List<ModifierPageData> = emptyList()
-)
+) : Parcelable
