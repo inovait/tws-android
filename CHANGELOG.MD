@@ -1,3 +1,32 @@
+# 0.7.0
+
+### Features
+
+* **core**: use interstitial ad popup with activity ([bc0e7d37](https://github.com/inovait/tws-android-sdk/commit/bc0e7d3772a9954f0812fc69c80dda3989d5b875))
+* **core, manager**: add support for triggering popup snippet ([4b015079](https://github.com/inovait/tws-android-sdk/commit/4b015079bcbecb5212636838ca388cea49ebc65e))
+* prepare LocalSnippetHandler, which will remove snippets locally according to its visiblity ([3ef663e8](https://github.com/inovait/tws-android-sdk/commit/3ef663e88b23e9058befc817a460da10d4ce4d77))
+* integrate LocalSnippetHandler with WebSnippetManager, to remove hidden snippets locally ([be80b8c0](https://github.com/inovait/tws-android-sdk/commit/be80b8c0326cdb42885b9fea12095e741ad921a1))
+* prepare tws_injected interface for all webviews ([b20e73f4](https://github.com/inovait/tws-android-sdk/commit/b20e73f40c28010a1b99c118d90c356fcc445182))
+* append TheWebSnippet to user agent ([14c1f776](https://github.com/inovait/tws-android-sdk/commit/14c1f77671ad9122b3a26645293fed418f5f87bf))
+* add support for type in web snippet action ([6638630a](https://github.com/inovait/tws-android-sdk/commit/6638630a8c504ebca91ce91673d5427f598d80f7))
+* **interstitial**: open interstitial with manager ([0266f8c4](https://github.com/inovait/tws-android-sdk/commit/0266f8c4ca7f9473a28d8ed8c8e0203ef9206c21))
+* use default tag for getting manager instance ([b8796157](https://github.com/inovait/tws-android-sdk/commit/b87961575f4b208f5211ed63b1f23c327c2a4b83))
+* allow developer to get shared instance of WebSnippetManagerImpl ([4bf4affd](https://github.com/inovait/tws-android-sdk/commit/4bf4affda2f0ebddf3daa3e1c8e980a033236483))
+* add support for type to web socket action ([af58ef17](https://github.com/inovait/tws-android-sdk/commit/af58ef17355248ac0d52ef572955f350e20b5018))
+
+### Bug Fixes
+
+* **core**: on app startup fixed show animation ([623c7f80](https://github.com/inovait/tws-android-sdk/commit/623c7f808be14b29d7182e01c8502f60a0e74e98))
+* handle opening Interstitial with data only ([d0c68b9e](https://github.com/inovait/tws-android-sdk/commit/d0c68b9e304b836262e05555afe1da4e2e2b9a06))
+* remove activity from core module manifest ([0df5f28f](https://github.com/inovait/tws-android-sdk/commit/0df5f28f437130799df54955fd5d957eb7abc3c9))
+* typo for popup ([ee77c9a3](https://github.com/inovait/tws-android-sdk/commit/ee77c9a37736fae723ae9d2cf2c390a38b02210d))
+* temporary remove type parsing from web socket ([034a8233](https://github.com/inovait/tws-android-sdk/commit/034a82337a97aba777d3ceebd49f1f0ac6c597cd))
+* **core**: stop video play when new activity is opened ([53c98773](https://github.com/inovait/tws-android-sdk/commit/53c9877361823fb5387f2b659daddd51fe7523ea))
+* snippets visibility should be updated from websockets and local hider should be relaunched ([9a0f8dda](https://github.com/inovait/tws-android-sdk/commit/9a0f8ddab3d647bafeb9f1e770920a8297eb6204))
+* parsing failure for snippet status, visibility and snippet type ([aa931df1](https://github.com/inovait/tws-android-sdk/commit/aa931df1d75159d86a741de2de48ce062bcb04bd))
+* **github**: uncomment ([76da4af5](https://github.com/inovait/tws-android-sdk/commit/76da4af5fe6a09884219af3fee66262509adb853))
+* **github**: syntax error in commits ([7a4129aa](https://github.com/inovait/tws-android-sdk/commit/7a4129aa6aa9d50577f4ee46a7b79f48aa3cb7dc))
+
 # 0.6.0
 
 ### Features
