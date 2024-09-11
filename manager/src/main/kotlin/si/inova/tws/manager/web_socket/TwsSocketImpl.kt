@@ -63,6 +63,13 @@ class TwsSocketImpl(
      *     exception by calling [HttpUrl.parse]; it returns null for invalid URLs.
      */
     override fun setupWebSocketConnection(setupWssUrl: String) {
+        if (wssUrl == setupWssUrl) return
+
+        if (wssUrl != null) {
+            // wss url changed, close previous and open new
+            closeWebsocketConnection()
+        }
+
         wssUrl = setupWssUrl
 
         try {
