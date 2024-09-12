@@ -158,6 +158,7 @@ class WebSnippetManagerImpl(
 
     companion object {
         private const val DEFAULT_MANAGER_TAG = "ManagerSharedInstance"
+        internal const val CACHED_SNIPPETS = "CachedSnippets"
 
         private val instances = ConcurrentHashMap<String, WebSnippetManager>()
 
@@ -175,5 +176,3 @@ class WebSnippetManagerImpl(
         }
     }
 }
-
-private const val CACHED_SNIPPETS = "CachedSnippets"

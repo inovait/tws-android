@@ -24,6 +24,7 @@ import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito.mock
 import si.inova.kotlinova.core.test.TestScopeWithDispatcherProvider
+import si.inova.kotlinova.core.test.outcomes.shouldBeProgressWith
 import si.inova.kotlinova.core.test.outcomes.shouldBeSuccessWithData
 import si.inova.kotlinova.core.test.outcomes.testCoroutineResourceManager
 import si.inova.tws.manager.data.ActionBody
@@ -38,6 +39,7 @@ import si.inova.tws.manager.utils.FAKE_SNIPPET_ONE
 import si.inova.tws.manager.utils.FAKE_SNIPPET_SIX
 import si.inova.tws.manager.utils.FAKE_SNIPPET_THREE
 import si.inova.tws.manager.utils.FAKE_SNIPPET_TWO
+import si.inova.tws.manager.utils.FakeCacheManager
 import si.inova.tws.manager.utils.FakeLocalSnippetHandler
 import si.inova.tws.manager.utils.FakeTwsSocket
 import si.inova.tws.manager.utils.FakeWebSnippetFunction
@@ -50,6 +52,7 @@ class WebSnippetManagerImplTest {
     private val functions = FakeWebSnippetFunction()
     private val socket = FakeTwsSocket()
     private val handler = FakeLocalSnippetHandler()
+    private val cache = FakeCacheManager()
 
     private lateinit var webSnippetManager: WebSnippetManagerImpl
 
@@ -60,8 +63,10 @@ class WebSnippetManagerImplTest {
             webSnippetFunction = functions,
             resources = scope.testCoroutineResourceManager(),
             twsSocket = socket,
-            localSnippetHandler = handler
+            localSnippetHandler = handler,
+            cacheManager = cache
         )
+        cache.clear()
     }
 
     @Test
@@ -263,9 +268,11 @@ class WebSnippetManagerImplTest {
 
             expectMostRecentItem().shouldBeSuccessWithData(listOf(FAKE_SNIPPET_ONE, FAKE_SNIPPET_TWO))
 
-            socket.mockUpdateAction(SnippetUpdateAction(
-                ActionType.CREATED,
-                FAKE_SNIPPET_THREE.toActionBody())
+            socket.mockUpdateAction(
+                SnippetUpdateAction(
+                    ActionType.CREATED,
+                    FAKE_SNIPPET_THREE.toActionBody()
+                )
             )
 
             expectMostRecentItem().shouldBeSuccessWithData(listOf(FAKE_SNIPPET_ONE, FAKE_SNIPPET_TWO, FAKE_SNIPPET_THREE))
@@ -283,9 +290,11 @@ class WebSnippetManagerImplTest {
 
             expectMostRecentItem().shouldBeSuccessWithData(listOf(FAKE_SNIPPET_FOUR, FAKE_SNIPPET_FIVE))
 
-            socket.mockUpdateAction(SnippetUpdateAction(
-                ActionType.CREATED,
-                FAKE_SNIPPET_SIX.toActionBody())
+            socket.mockUpdateAction(
+                SnippetUpdateAction(
+                    ActionType.CREATED,
+                    FAKE_SNIPPET_SIX.toActionBody()
+                )
             )
 
             expectMostRecentItem().shouldBeSuccessWithData(listOf(FAKE_SNIPPET_FOUR, FAKE_SNIPPET_FIVE, FAKE_SNIPPET_SIX))
@@ -303,9 +312,11 @@ class WebSnippetManagerImplTest {
 
             expectMostRecentItem().shouldBeSuccessWithData(listOf(FAKE_SNIPPET_ONE, FAKE_SNIPPET_TWO))
 
-            socket.mockUpdateAction(SnippetUpdateAction(
-                ActionType.CREATED,
-                FAKE_SNIPPET_THREE.toActionBody())
+            socket.mockUpdateAction(
+                SnippetUpdateAction(
+                    ActionType.CREATED,
+                    FAKE_SNIPPET_THREE.toActionBody()
+                )
             )
 
             expectMostRecentItem().shouldBeSuccessWithData(listOf(FAKE_SNIPPET_ONE, FAKE_SNIPPET_TWO, FAKE_SNIPPET_THREE))
@@ -370,7 +381,6 @@ class WebSnippetManagerImplTest {
         }
     }
 
-
     @Test
     fun `Load snippets and delete from local handler and web socket`() = scope.runTest {
         functions.returnedProject = FAKE_PROJECT_DTO.copy(
@@ -413,6 +423,42 @@ class WebSnippetManagerImplTest {
             socket.mockUpdateAction(SnippetUpdateAction(ActionType.DELETED, ActionBody(id = FAKE_SNIPPET_ONE.id)))
 
             expectNoEvents() // There should be no changes, since deleted snippet was already deleted
+        }
+    }
+
+    @Test
+    fun `Load content snippets from cache if available and fetch from api`() = scope.runTest {
+        cache.save(WebSnippetManagerImpl.CACHED_SNIPPETS, listOf(FAKE_SNIPPET_ONE))
+        functions.returnedProject = FAKE_PROJECT_DTO
+
+        webSnippetManager.contentSnippetsFlow.test {
+            awaitItem() // initial empty progress
+
+            webSnippetManager.loadWebSnippets("organization", "project")
+
+            val progress = awaitItem() // progress with cached items
+            progress.shouldBeProgressWith(listOf(FAKE_SNIPPET_ONE))
+
+            val success = awaitItem() // success with network items
+            success.shouldBeSuccessWithData(listOf(FAKE_SNIPPET_ONE, FAKE_SNIPPET_TWO)) // emitted are only tab snippets
+        }
+    }
+
+    @Test
+    fun `Load popup snippets from cache if available and fetch from api`() = scope.runTest {
+        cache.save(WebSnippetManagerImpl.CACHED_SNIPPETS, listOf(FAKE_SNIPPET_FOUR))
+        functions.returnedProject = FAKE_PROJECT_DTO
+
+        webSnippetManager.popupSnippetsFlow.test {
+            awaitItem() // initial empty progress
+
+            webSnippetManager.loadWebSnippets("organization", "project")
+
+            val progress = awaitItem() // progress with cached items
+            progress.shouldBeProgressWith(listOf(FAKE_SNIPPET_FOUR))
+
+            val success = awaitItem() // success with network items
+            success.shouldBeSuccessWithData(listOf(FAKE_SNIPPET_FOUR, FAKE_SNIPPET_FIVE)) // emitted are only popup snippets
         }
     }
 }
