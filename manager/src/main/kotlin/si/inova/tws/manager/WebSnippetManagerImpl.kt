@@ -51,6 +51,9 @@ class WebSnippetManagerImpl(
 ) : WebSnippetManager {
     private val snippetsFlow: MutableStateFlow<Outcome<List<WebSnippetDto>>> = MutableStateFlow(Outcome.Progress())
 
+    private var collectingSocket: Boolean = false
+    private var collectingLocalHandler: Boolean = false
+
     private val _mainSnippetIdFlow: MutableStateFlow<String?> = MutableStateFlow(null)
     override val mainSnippetIdFlow: Flow<String?> = _mainSnippetIdFlow
 
@@ -122,19 +125,29 @@ class WebSnippetManagerImpl(
     }
 
     private fun TwsSocket.launchAndCollect(wssUrl: String) {
+        if (collectingSocket) return
+        collectingSocket = true
+
         setupWebSocketConnection(wssUrl)
         updateActionFlow.onEach {
             val oldList = snippetsFlow.value.data ?: emptyList()
             snippetsFlow.emit(Outcome.Success(oldList.updateWith(it)))
-        }.launchIn(resources.scope)
+        }.launchIn(resources.scope).invokeOnCompletion {
+            collectingSocket = false
+        }
     }
 
     private suspend fun LocalSnippetHandler.launchAndCollect(snippets: List<WebSnippetDto>) {
+        if (collectingLocalHandler) return
+        collectingLocalHandler = true
+
         updateAndScheduleCheck(snippets)
         updateActionFlow.onEach {
             val oldList = snippetsFlow.value.data ?: emptyList()
             snippetsFlow.emit(Outcome.Success(oldList.updateWith(it)))
-        }.launchIn(resources.scope)
+        }.launchIn(resources.scope).invokeOnCompletion {
+            collectingLocalHandler = false
+        }
     }
 
     companion object {

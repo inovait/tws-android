@@ -27,16 +27,39 @@ interface WebSnippetPopup {
         const val MANAGER_TAG = "managerTag"
 
         fun open(context: Context, popup: WebSnippetData) {
-            context.startActivity(Intent(context, WebSnippetInterstitialActivity::class.java).apply {
-                putExtra(WEB_SNIPPET_DATA, popup)
-            })
+            context.startActivity(
+                Intent(context, WebSnippetInterstitialActivity::class.java).apply {
+                    putExtra(WEB_SNIPPET_DATA, popup)
+                }
+            )
+        }
+
+        fun open(context: Context, popups: List<WebSnippetData>) {
+            val intents = popups.map {
+                Intent(context, WebSnippetInterstitialActivity::class.java).apply {
+                    putExtra(WEB_SNIPPET_DATA, it)
+                }
+            }.toTypedArray()
+            context.startActivities(intents)
         }
 
         fun open(context: Context, id: String, tag: String? = null) {
-            context.startActivity(Intent(context, WebSnippetInterstitialActivity::class.java).apply {
-                putExtra(WEB_SNIPPET_ID, id)
-                putExtra(MANAGER_TAG, tag)
-            })
+            context.startActivity(
+                Intent(context, WebSnippetInterstitialActivity::class.java).apply {
+                    putExtra(WEB_SNIPPET_ID, id)
+                    putExtra(MANAGER_TAG, tag)
+                }
+            )
+        }
+
+        fun open(context: Context, ids: List<String>, tag: String? = null) {
+            val intents = ids.map {
+                Intent(context, WebSnippetInterstitialActivity::class.java).apply {
+                    putExtra(WEB_SNIPPET_ID, it)
+                    putExtra(MANAGER_TAG, tag)
+                }
+            }.toTypedArray()
+            context.startActivities(intents)
         }
     }
 }
