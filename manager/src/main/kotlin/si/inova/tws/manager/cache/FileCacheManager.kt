@@ -56,6 +56,8 @@ internal class FileCacheManager(context: Context): CacheManager {
     override fun clear() {
         cacheDir.deleteRecursively()
     }
-}
 
-private const val CACHE_DIR = "tws_cache"
+    companion object {
+        internal const val CACHE_DIR = "tws_cache"
+    }
+}
