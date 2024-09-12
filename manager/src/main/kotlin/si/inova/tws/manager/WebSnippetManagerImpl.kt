@@ -28,6 +28,8 @@ import si.inova.kotlinova.core.outcome.CauseException
 import si.inova.kotlinova.core.outcome.CoroutineResourceManager
 import si.inova.kotlinova.core.outcome.Outcome
 import si.inova.kotlinova.core.outcome.mapData
+import si.inova.tws.manager.cache.CacheManager
+import si.inova.tws.manager.cache.FileCacheManager
 import si.inova.tws.manager.data.SnippetStatus
 import si.inova.tws.manager.data.SnippetType
 import si.inova.tws.manager.data.WebSnippetDto
@@ -47,7 +49,8 @@ class WebSnippetManagerImpl(
     private val resources: CoroutineResourceManager = coroutineResourceManager,
     private val webSnippetFunction: WebSnippetFunction = BaseServiceFactory().create(),
     private val twsSocket: TwsSocket? = TwsSocketImpl(context, resources.scope),
-    private val localSnippetHandler: LocalSnippetHandler? = LocalSnippetHandlerImpl(resources.scope)
+    private val localSnippetHandler: LocalSnippetHandler? = LocalSnippetHandlerImpl(resources.scope),
+    private val cacheManager: CacheManager? = FileCacheManager(context)
 ) : WebSnippetManager {
     private val snippetsFlow: MutableStateFlow<Outcome<List<WebSnippetDto>>> = MutableStateFlow(Outcome.Progress())
 
@@ -115,9 +118,12 @@ class WebSnippetManagerImpl(
         organizationId: String,
         projectId: String
     ) {
+        snippetsFlow.emit(Outcome.Progress(cacheManager?.load(CACHED_SNIPPETS)))
+
         val twsProject = webSnippetFunction.getWebSnippets(organizationId, projectId, "someApiKey")
         val wssUrl = twsProject.listenOn
 
+        cacheManager?.save(CACHED_SNIPPETS, twsProject.snippets)
         snippetsFlow.emit(Outcome.Success(twsProject.snippets))
 
         twsSocket?.launchAndCollect(wssUrl)
@@ -152,6 +158,7 @@ class WebSnippetManagerImpl(
 
     companion object {
         private const val DEFAULT_MANAGER_TAG = "ManagerSharedInstance"
+
         private val instances = ConcurrentHashMap<String, WebSnippetManager>()
 
         fun getSharedInstance(
@@ -168,3 +175,5 @@ class WebSnippetManagerImpl(
         }
     }
 }
+
+private const val CACHED_SNIPPETS = "CachedSnippets"
