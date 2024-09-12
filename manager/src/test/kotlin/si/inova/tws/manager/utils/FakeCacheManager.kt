@@ -23,7 +23,6 @@ class FakeCacheManager: CacheManager {
     private var cachedList: List<WebSnippetDto>? = null
 
     override fun save(key: String, data: List<WebSnippetDto>) {
-        println("Saving retard: $data")
         cachedList = data
     }
 
