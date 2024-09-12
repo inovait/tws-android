@@ -1,3 +1,11 @@
+# 0.7.1
+
+### Bug Fixes
+
+* [TWS-141](/browse/TWS-141) - **manager**: it can happen, that same snippet is added twice from web socket ([57349d03](https://github.com/inovait/tws-android-sdk/commit/57349d03c3173c8f6dad55855d0306284a2acd5e))
+* **interstitial**: developer can not open multiple popups ([4ec1df64](https://github.com/inovait/tws-android-sdk/commit/4ec1df649bb29857147bd1337e50efc353f51157))
+* **interstitial**: disable window preview for interstitial ad ([d8d5d641](https://github.com/inovait/tws-android-sdk/commit/d8d5d641480900411e448e06b709a2ff4409e05f))
+
 # 0.7.0
 
 ### Features
