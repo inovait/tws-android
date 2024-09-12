@@ -14,36 +14,35 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-import util.publishLibrary
+package si.inova.tws.core.util.compose
 
-plugins {
-    androidLibraryModule
-    alias(libs.plugins.compose.compiler)
-}
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Icon
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import si.inova.tws.core.data.TabIconProperty
 
-android {
-    namespace = "si.inova.tws.core"
+@Composable
+fun TabIconProperty.TabIconHandler() {
+    when (this) {
+        is TabIconProperty.Url -> {
+            AsyncImage(
+                modifier = Modifier.size(24.dp),
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(value)
+                    .crossfade(true)
+                    .build(),
+                contentDescription = contentDescription
+            )
+        }
 
-    buildFeatures {
-        androidResources = true
+        is TabIconProperty.Drawable -> {
+            Icon(painterResource(res), contentDescription)
+        }
     }
-}
-
-publishLibrary(
-    userFriendlyName = "tws-core",
-    description = "A collection of core utilities",
-    githubPath = "core"
-)
-
-dependencies {
-    implementation(libs.androidx.activity.compose)
-    implementation(libs.kotlin.immutableCollections)
-    implementation(libs.androidx.compose.ui.tooling.preview)
-    implementation(libs.compose.foundation)
-    implementation(libs.androidx.compose.material3)
-    implementation(libs.timber)
-    implementation(libs.accompanist.permissions)
-    implementation(libs.androidx.browser)
-    implementation(libs.androidx.lifecycle.compose)
-    implementation(libs.coil.compose)
 }

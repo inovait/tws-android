@@ -28,6 +28,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
+import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -44,6 +45,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
+import si.inova.tws.core.data.TabIconProperty
 import si.inova.tws.core.data.WebSnippetData
 import si.inova.tws.core.data.view.WebViewState
 import si.inova.tws.core.data.view.rememberSaveableWebViewState
@@ -53,6 +55,7 @@ import si.inova.tws.core.lifecycle.LocalScreenResetNotifier
 import si.inova.tws.core.lifecycle.ScreenResetNotifier
 import si.inova.tws.core.util.compose.SnippetErrorView
 import si.inova.tws.core.util.compose.SnippetLoadingView
+import si.inova.tws.core.util.compose.TabIconHandler
 import si.inova.tws.core.util.onScreenReset
 import timber.log.Timber
 
@@ -81,6 +84,9 @@ import timber.log.Timber
  * [DoOnScreenReset] is triggered when tab is reselected
  * @param onScreenReset Optional callback, set what to do on screen reset
  * @param googleLoginRedirectUrl open new intent for google login url
+ * @param tabsContainerColor the color used for the background of this tab row.
+ * @param tabsContentColor the preferred color for content inside this tab row. Defaults to either the matching content color for containerColor, or to the current LocalContentColor if containerColor is not a color from the theme.
+ * @param tabIconHandler set how to handle tab icon (resources or url)
  */
 @Composable
 fun TabsWebSnippetComponent(
@@ -96,7 +102,10 @@ fun TabsWebSnippetComponent(
     topBar: @Composable (String?) -> Unit = { },
     resetScreenOnTabReselect: Boolean = true,
     onScreenReset: (WebViewState) -> Unit = { it.webView?.onScreenReset() },
-    googleLoginRedirectUrl: String? = null
+    googleLoginRedirectUrl: String? = null,
+    tabsContainerColor: Color = TabRowDefaults.primaryContainerColor,
+    tabsContentColor: Color = TabRowDefaults.primaryContentColor,
+    tabIconHandler: @Composable (TabIconProperty) -> Unit = { it.TabIconHandler() }
 ) {
     CompositionLocalProvider(LocalScreenResetNotifier provides ScreenResetNotifier()) {
         val screenResetNotifier = LocalScreenResetNotifier.current
@@ -138,17 +147,21 @@ fun TabsWebSnippetComponent(
             },
             bottomBar = {
                 BottomTabRow(
-                    scrollableTabRow,
-                    tabIndex,
-                    targets
-                ) {
-                    if (tabIndex == it && resetScreenOnTabReselect) {
-                        screenResetNotifier.requestScreenReset()
-                    } else {
-                        tabIndex = it
-                    }
-                    lastSelectedTabIndex.intValue = it
-                }
+                    tabsContainerColor = tabsContainerColor,
+                    tabsContentColor = tabsContentColor,
+                    scrollableTabRow = scrollableTabRow,
+                    tabIndex = tabIndex,
+                    targets = targets,
+                    onClick = {
+                        if (tabIndex == it && resetScreenOnTabReselect) {
+                            screenResetNotifier.requestScreenReset()
+                        } else {
+                            tabIndex = it
+                        }
+                        lastSelectedTabIndex.intValue = it
+                    },
+                    tabIconHandler = tabIconHandler
+                )
             }
         ) { padding ->
             Column(
@@ -196,29 +209,57 @@ fun TabsWebSnippetComponent(
 
 @Composable
 private fun BottomTabRow(
+    tabsContainerColor: Color,
+    tabsContentColor: Color,
     scrollableTabRow: Boolean,
     tabIndex: Int,
     targets: ImmutableList<WebSnippetData>,
-    onClick: (Int) -> Unit
+    onClick: (Int) -> Unit,
+    tabIconHandler: @Composable (TabIconProperty) -> Unit = { it.TabIconHandler() }
 ) {
     if (targets.size <= 1) return
     if (scrollableTabRow) {
-        ScrollableTabRow(selectedTabIndex = tabIndex, edgePadding = 0.dp) {
-            Tab(targets, tabIndex, onClick)
+        ScrollableTabRow(
+            containerColor = tabsContainerColor,
+            contentColor = tabsContentColor,
+            selectedTabIndex = tabIndex, edgePadding = 0.dp
+        ) {
+            Tab(targets, tabIndex, onClick, tabIconHandler)
         }
     } else {
-        TabRow(selectedTabIndex = tabIndex) {
-            Tab(targets, tabIndex, onClick)
+        TabRow(
+            containerColor = tabsContainerColor,
+            contentColor = tabsContentColor,
+            selectedTabIndex = tabIndex
+        ) {
+            Tab(targets, tabIndex, onClick, tabIconHandler)
         }
     }
 }
 
 @Composable
-private fun Tab(targets: ImmutableList<WebSnippetData>, tabIndex: Int, onClick: (Int) -> Unit) {
-    targets.forEachIndexed { index, _ ->
-        Tab(text = { Text(text = index.toString()) }, selected = tabIndex == index, onClick = {
-            onClick(index)
-        })
+private fun Tab(
+    targets: ImmutableList<WebSnippetData>,
+    tabIndex: Int,
+    onClick: (Int) -> Unit,
+    tabIconHandler: @Composable (TabIconProperty) -> Unit = { it.TabIconHandler() }
+) {
+    targets.forEachIndexed { index, data ->
+        Tab(
+            icon = data.tabContentResources?.iconProperty?.let {
+                { tabIconHandler(it) }
+            },
+            text = if (data.tabContentResources?.tabText != null) {
+                { Text(text = data.tabContentResources.tabText) }
+            } else if (data.tabContentResources?.iconProperty == null) {
+                { Text(text = index.toString()) }
+            } else {
+                null
+            },
+            selected = tabIndex == index, onClick = {
+                onClick(index)
+            }
+        )
     }
 }
 
