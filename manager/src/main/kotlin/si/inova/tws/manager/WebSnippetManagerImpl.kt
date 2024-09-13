@@ -154,10 +154,11 @@ class WebSnippetManagerImpl(
     }
 
     private suspend fun LocalSnippetHandler.launchAndCollect(snippets: List<WebSnippetDto>) {
+        updateAndScheduleCheck(snippets)
+
         if (collectingLocalHandler) return
         collectingLocalHandler = true
 
-        updateAndScheduleCheck(snippets)
         updateActionFlow.onEach {
             val oldList = snippetsFlow.value.data ?: emptyList()
             snippetsFlow.emit(Outcome.Success(oldList.updateWith(it)))
