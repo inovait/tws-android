@@ -14,36 +14,12 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-import util.publishLibrary
+package si.inova.tws.manager.cache
 
-plugins {
-    androidLibraryModule
-    alias(libs.plugins.compose.compiler)
-}
+import si.inova.tws.manager.data.WebSnippetDto
 
-android {
-    namespace = "si.inova.tws.core"
-
-    buildFeatures {
-        androidResources = true
-    }
-}
-
-publishLibrary(
-    userFriendlyName = "tws-core",
-    description = "A collection of core utilities",
-    githubPath = "core"
-)
-
-dependencies {
-    implementation(libs.androidx.activity.compose)
-    implementation(libs.kotlin.immutableCollections)
-    implementation(libs.androidx.compose.ui.tooling.preview)
-    implementation(libs.compose.foundation)
-    implementation(libs.androidx.compose.material3)
-    implementation(libs.timber)
-    implementation(libs.accompanist.permissions)
-    implementation(libs.androidx.browser)
-    implementation(libs.androidx.lifecycle.compose)
-    implementation(libs.coil.compose)
+interface CacheManager {
+    fun save(key: String, data: List<WebSnippetDto>)
+    fun load(key: String): List<WebSnippetDto>?
+    fun clear()
 }

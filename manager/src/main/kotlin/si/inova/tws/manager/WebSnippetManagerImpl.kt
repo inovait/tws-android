@@ -17,6 +17,7 @@
 package si.inova.tws.manager
 
 import android.content.Context
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
@@ -28,6 +29,8 @@ import si.inova.kotlinova.core.outcome.CauseException
 import si.inova.kotlinova.core.outcome.CoroutineResourceManager
 import si.inova.kotlinova.core.outcome.Outcome
 import si.inova.kotlinova.core.outcome.mapData
+import si.inova.tws.manager.cache.CacheManager
+import si.inova.tws.manager.cache.FileCacheManager
 import si.inova.tws.manager.data.SnippetStatus
 import si.inova.tws.manager.data.SnippetType
 import si.inova.tws.manager.data.WebSnippetDto
@@ -40,6 +43,7 @@ import si.inova.tws.manager.network.WebSnippetFunction
 import si.inova.tws.manager.singleton.coroutineResourceManager
 import si.inova.tws.manager.web_socket.TwsSocket
 import si.inova.tws.manager.web_socket.TwsSocketImpl
+import timber.log.Timber
 import java.util.concurrent.ConcurrentHashMap
 
 class WebSnippetManagerImpl(
@@ -47,7 +51,8 @@ class WebSnippetManagerImpl(
     private val resources: CoroutineResourceManager = coroutineResourceManager,
     private val webSnippetFunction: WebSnippetFunction = BaseServiceFactory().create(),
     private val twsSocket: TwsSocket? = TwsSocketImpl(context, resources.scope),
-    private val localSnippetHandler: LocalSnippetHandler? = LocalSnippetHandlerImpl(resources.scope)
+    private val localSnippetHandler: LocalSnippetHandler? = LocalSnippetHandlerImpl(resources.scope),
+    private val cacheManager: CacheManager? = FileCacheManager(context)
 ) : WebSnippetManager {
     private val snippetsFlow: MutableStateFlow<Outcome<List<WebSnippetDto>>> = MutableStateFlow(Outcome.Progress())
 
@@ -115,13 +120,24 @@ class WebSnippetManagerImpl(
         organizationId: String,
         projectId: String
     ) {
+        snippetsFlow.emit(Outcome.Progress(cacheManager?.load(CACHED_SNIPPETS)))
+
         val twsProject = webSnippetFunction.getWebSnippets(organizationId, projectId, "someApiKey")
         val wssUrl = twsProject.listenOn
 
         snippetsFlow.emit(Outcome.Success(twsProject.snippets))
+        saveToCache(twsProject.snippets)
 
         twsSocket?.launchAndCollect(wssUrl)
         localSnippetHandler?.launchAndCollect(twsProject.snippets)
+    }
+
+    private fun saveToCache(snippets: List<WebSnippetDto>) = resources.scope.launch(Dispatchers.IO) {
+        try {
+            cacheManager?.save(CACHED_SNIPPETS, snippets)
+        } catch (e: Exception) {
+            Timber.e(e)
+        }
     }
 
     private fun TwsSocket.launchAndCollect(wssUrl: String) {
@@ -138,10 +154,11 @@ class WebSnippetManagerImpl(
     }
 
     private suspend fun LocalSnippetHandler.launchAndCollect(snippets: List<WebSnippetDto>) {
+        updateAndScheduleCheck(snippets)
+
         if (collectingLocalHandler) return
         collectingLocalHandler = true
 
-        updateAndScheduleCheck(snippets)
         updateActionFlow.onEach {
             val oldList = snippetsFlow.value.data ?: emptyList()
             snippetsFlow.emit(Outcome.Success(oldList.updateWith(it)))
@@ -152,6 +169,8 @@ class WebSnippetManagerImpl(
 
     companion object {
         private const val DEFAULT_MANAGER_TAG = "ManagerSharedInstance"
+        internal const val CACHED_SNIPPETS = "CachedSnippets"
+
         private val instances = ConcurrentHashMap<String, WebSnippetManager>()
 
         fun getSharedInstance(

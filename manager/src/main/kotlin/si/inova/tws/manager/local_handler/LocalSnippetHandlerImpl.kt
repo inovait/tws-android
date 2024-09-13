@@ -78,9 +78,7 @@ class LocalSnippetHandlerImpl(
         // emit all delete events for snippets that should already be hidden
         snippets.forEach { snippet ->
             snippet.visibility?.untilUtc?.let { hideAfter ->
-                println("Checking $hideAfter with $now")
                 if (now.isAfter(hideAfter)) {
-                    println("Deleting!")
                     updateActionFlow.emit(SnippetUpdateAction(ActionType.DELETED, ActionBody(id = snippet.id)))
                 }
             }
