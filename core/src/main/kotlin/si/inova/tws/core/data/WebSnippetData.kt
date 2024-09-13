@@ -25,5 +25,6 @@ data class WebSnippetData(
     val url: String,
     val headers: Map<String, String> = emptyMap(),
     val loadIteration: Int = 0,
-    val dynamicModifiers: List<ModifierPageData> = emptyList()
+    val dynamicModifiers: List<ModifierPageData> = emptyList(),
+    val tabContentResources: TabContentResources? = null
 ) : Parcelable
