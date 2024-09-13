@@ -1,3 +1,15 @@
+# 0.8.0
+
+### Features
+
+* **manager**: tws manager should emit cached snippets before loading from web to reduce loading time ([884813bb](https://github.com/inovait/tws-android-sdk/commit/884813bbd9ab329c7e141380b9d4661080be13fb))
+* **core**: customizable bottom tab content ([fce2c4cf](https://github.com/inovait/tws-android-sdk/commit/fce2c4cf9dbe4ad1cb5d238a4d6bcce29cad716a))
+
+### Bug Fixes
+
+* **manager**: launch saving to cache in coroutine, to avoid blocking other actions ([6a013c5e](https://github.com/inovait/tws-android-sdk/commit/6a013c5e040b2ded1412205adafc3807501a6fb5))
+* **manager**: local handler should be relaunched every time snippets are changed ([b7ab3bed](https://github.com/inovait/tws-android-sdk/commit/b7ab3bed9035967cb86a4eb3461672e16b9d4843))
+
 # 0.7.1
 
 ### Bug Fixes
