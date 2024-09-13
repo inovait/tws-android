@@ -56,7 +56,7 @@ class FileCacheManagerTest {
     }
 
     @Test
-    fun `save should write data to cache file`() {
+    fun `Save should write data to cache file`() {
         val savedFile = File(cacheDir, CACHE_DIR)
         fileCacheManager.save(CACHED_SNIPPETS_KEY, FAKE_PROJECT_DTO.snippets)
 
@@ -70,13 +70,13 @@ class FileCacheManagerTest {
     }
 
     @Test
-    fun `load should return null when cache file does not exist`() {
+    fun `Load should return null when cache file does not exist`() {
         val loadedData = fileCacheManager.load(CACHED_SNIPPETS_KEY)
         assert(loadedData == null)
     }
 
     @Test
-    fun `clear should delete all cached files`() {
+    fun `Clear should delete all cached files`() {
         val savedFile = File(cacheDir, CACHE_DIR)
         fileCacheManager.save(CACHED_SNIPPETS_KEY, FAKE_PROJECT_DTO.snippets)
 
@@ -84,7 +84,16 @@ class FileCacheManagerTest {
 
         fileCacheManager.clear()
 
-        assert(cacheDir.listFiles().isNullOrEmpty(), )
+        assert(cacheDir.listFiles().isNullOrEmpty())
+    }
+
+    @Test
+    fun `Saving to cache and retrieving to cache should occur with same items`() {
+        assert(fileCacheManager.load(CACHED_SNIPPETS_KEY) == null)
+        fileCacheManager.save(CACHED_SNIPPETS_KEY, FAKE_PROJECT_DTO.snippets)
+        assert(fileCacheManager.load(CACHED_SNIPPETS_KEY) == FAKE_PROJECT_DTO.snippets)
+        fileCacheManager.clear()
+        assert(fileCacheManager.load(CACHED_SNIPPETS_KEY) == null)
     }
 }
 
