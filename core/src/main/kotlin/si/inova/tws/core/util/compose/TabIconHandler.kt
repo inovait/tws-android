@@ -25,24 +25,32 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import si.inova.tws.core.data.TabIconProperty
+import coil.size.Scale
+import si.inova.tws.core.data.TabIcon
 
 @Composable
-fun TabIconProperty.TabIconHandler() {
+fun TabIcon.TabIconHandler() {
     when (this) {
-        is TabIconProperty.Url -> {
+        is TabIcon.Url -> {
             AsyncImage(
-                modifier = Modifier.size(24.dp),
+                modifier = Modifier.size(20.dp),
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(value)
                     .crossfade(true)
+                    .scale(Scale.FIT)
                     .build(),
                 contentDescription = contentDescription
             )
         }
 
-        is TabIconProperty.Drawable -> {
-            Icon(painterResource(res), contentDescription)
+        is TabIcon.Drawable -> {
+            Icon(
+                modifier = Modifier.size(20.dp),
+                painter = painterResource(res),
+                contentDescription = contentDescription
+            )
         }
+
+        is TabIcon.Universal -> {}
     }
 }

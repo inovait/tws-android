@@ -45,7 +45,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
-import si.inova.tws.core.data.TabIconProperty
+import si.inova.tws.core.data.TabIcon
 import si.inova.tws.core.data.WebSnippetData
 import si.inova.tws.core.data.view.WebViewState
 import si.inova.tws.core.data.view.rememberSaveableWebViewState
@@ -105,7 +105,7 @@ fun TabsWebSnippetComponent(
     googleLoginRedirectUrl: String? = null,
     tabsContainerColor: Color = TabRowDefaults.primaryContainerColor,
     tabsContentColor: Color = TabRowDefaults.primaryContentColor,
-    tabIconHandler: @Composable (TabIconProperty) -> Unit = { it.TabIconHandler() }
+    tabIconHandler: @Composable (TabIcon) -> Unit = { it.TabIconHandler() }
 ) {
     CompositionLocalProvider(LocalScreenResetNotifier provides ScreenResetNotifier()) {
         val screenResetNotifier = LocalScreenResetNotifier.current
@@ -215,7 +215,7 @@ private fun BottomTabRow(
     tabIndex: Int,
     targets: ImmutableList<WebSnippetData>,
     onClick: (Int) -> Unit,
-    tabIconHandler: @Composable (TabIconProperty) -> Unit = { it.TabIconHandler() }
+    tabIconHandler: @Composable (TabIcon) -> Unit = { it.TabIconHandler() }
 ) {
     if (targets.size <= 1) return
     if (scrollableTabRow) {
@@ -242,16 +242,16 @@ private fun Tab(
     targets: ImmutableList<WebSnippetData>,
     tabIndex: Int,
     onClick: (Int) -> Unit,
-    tabIconHandler: @Composable (TabIconProperty) -> Unit = { it.TabIconHandler() }
+    tabIconHandler: @Composable (TabIcon) -> Unit = { it.TabIconHandler() }
 ) {
     targets.forEachIndexed { index, data ->
         Tab(
-            icon = data.tabContentResources?.iconProperty?.let {
+            icon = data.tabContentResources?.icon?.let {
                 { tabIconHandler(it) }
             },
-            text = if (data.tabContentResources?.tabText != null) {
-                { Text(text = data.tabContentResources.tabText) }
-            } else if (data.tabContentResources?.iconProperty == null) {
+            text = if (data.tabContentResources?.name != null) {
+                { Text(text = data.tabContentResources.name) }
+            } else if (data.tabContentResources?.icon == null) {
                 { Text(text = index.toString()) }
             } else {
                 null

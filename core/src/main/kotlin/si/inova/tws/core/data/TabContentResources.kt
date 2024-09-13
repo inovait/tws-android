@@ -22,23 +22,25 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class TabContentResources(
-    val tabIconDescription: String? = null,
-    val tabText: String? = null,
-    val iconProperty: TabIconProperty? = null
+    val name: String? = null,
+    val icon: TabIcon? = null
 ) : Parcelable
 
-interface TabIconProperty : Parcelable {
+interface TabIcon : Parcelable {
 
     @Parcelize
     data class Url(
         val value: String,
         val contentDescription: String? = null
-    ) : TabIconProperty
+    ) : TabIcon
 
     @Parcelize
     data class Drawable(
         @DrawableRes
         val res: Int,
         val contentDescription: String? = null
-    ) : TabIconProperty
+    ) : TabIcon
+
+    @Parcelize
+    data class Universal(val index: Int) : TabIcon
 }
