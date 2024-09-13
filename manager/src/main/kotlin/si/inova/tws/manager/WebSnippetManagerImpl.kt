@@ -17,6 +17,7 @@
 package si.inova.tws.manager
 
 import android.content.Context
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
@@ -42,6 +43,7 @@ import si.inova.tws.manager.network.WebSnippetFunction
 import si.inova.tws.manager.singleton.coroutineResourceManager
 import si.inova.tws.manager.web_socket.TwsSocket
 import si.inova.tws.manager.web_socket.TwsSocketImpl
+import timber.log.Timber
 import java.util.concurrent.ConcurrentHashMap
 
 class WebSnippetManagerImpl(
@@ -123,11 +125,19 @@ class WebSnippetManagerImpl(
         val twsProject = webSnippetFunction.getWebSnippets(organizationId, projectId, "someApiKey")
         val wssUrl = twsProject.listenOn
 
-        cacheManager?.save(CACHED_SNIPPETS, twsProject.snippets)
         snippetsFlow.emit(Outcome.Success(twsProject.snippets))
+        saveToCache(twsProject.snippets)
 
         twsSocket?.launchAndCollect(wssUrl)
         localSnippetHandler?.launchAndCollect(twsProject.snippets)
+    }
+
+    private fun saveToCache(snippets: List<WebSnippetDto>) = resources.scope.launch(Dispatchers.IO) {
+        try {
+            cacheManager?.save(CACHED_SNIPPETS, snippets)
+        } catch (e: Exception) {
+            Timber.e(e)
+        }
     }
 
     private fun TwsSocket.launchAndCollect(wssUrl: String) {
