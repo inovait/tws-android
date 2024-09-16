@@ -20,6 +20,7 @@ import android.content.Context
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
@@ -55,6 +56,7 @@ class WebSnippetManagerImpl(
     private val cacheManager: CacheManager? = FileCacheManager(context)
 ) : WebSnippetManager {
     private val snippetsFlow: MutableStateFlow<Outcome<List<WebSnippetDto>>> = MutableStateFlow(Outcome.Progress())
+    private val seenPopupSnippetsFlow: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
 
     private var collectingSocket: Boolean = false
     private var collectingLocalHandler: Boolean = false
@@ -75,6 +77,17 @@ class WebSnippetManagerImpl(
             data.filter {
                 it.type == SnippetType.TAB && it.status == SnippetStatus.ENABLED
             }
+        }
+    }
+
+    override val unseenPopupSnippetsFlow: Flow<List<WebSnippetDto>> = combine(
+        popupSnippetsFlow,
+        seenPopupSnippetsFlow
+    ) { allPopups, seenPopups ->
+        if (allPopups !is Outcome.Success) {
+            emptyList()
+        } else {
+            allPopups.data.filter { !seenPopups.contains(it.id) }
         }
     }
 
@@ -114,6 +127,10 @@ class WebSnippetManagerImpl(
 
     override fun closeWebsocketConnection() {
         twsSocket?.closeWebsocketConnection()
+    }
+
+    override fun markPopupsAsSeen(ids: List<String>) {
+        seenPopupSnippetsFlow.value += ids
     }
 
     private suspend fun loadProjectAndSetupWss(
