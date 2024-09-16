@@ -64,6 +64,11 @@ class WebSnippetInterstitialActivity : ComponentActivity() {
             intent.getParcelableExtra(WEB_SNIPPET_DATA)
         }
 
+        // observe for new popups if opened via manager
+        webSnippetId?.let {
+            launchPopupCollecting(this, managerTag)
+        }
+
         setContent {
             val shouldCloseFlow = manager?.popupSnippetsFlow?.map { outcome ->
                 outcome is Outcome.Success && !outcome.data.any {
