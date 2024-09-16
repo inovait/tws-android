@@ -16,6 +16,7 @@
 
 package si.inova.tws.interstitial
 
+import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -41,6 +42,8 @@ import si.inova.tws.core.data.ModifierInjectionType
 import si.inova.tws.core.data.UrlInjectData
 import si.inova.tws.core.data.WebSnippetData
 import si.inova.tws.interstitial.WebSnippetPopup.Companion.MANAGER_TAG
+import si.inova.tws.interstitial.WebSnippetPopup.Companion.NAVIGATION_BAR_COLOR
+import si.inova.tws.interstitial.WebSnippetPopup.Companion.STATUS_BAR_COLOR
 import si.inova.tws.interstitial.WebSnippetPopup.Companion.WEB_SNIPPET_DATA
 import si.inova.tws.interstitial.WebSnippetPopup.Companion.WEB_SNIPPET_ID
 import si.inova.tws.manager.WebSnippetManagerImpl
@@ -49,6 +52,16 @@ import si.inova.tws.manager.data.WebSnippetDto
 class WebSnippetInterstitialActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val statusColor = intent.getStringExtra(STATUS_BAR_COLOR)
+        val navigationColor = intent.getStringExtra(NAVIGATION_BAR_COLOR)
+
+        if (statusColor != null) {
+            window.apply {
+                statusBarColor = Color.parseColor(statusColor)
+                navigationBarColor = Color.parseColor(navigationColor)
+            }
+        }
 
         val webSnippetId = intent.getStringExtra(WEB_SNIPPET_ID)
         val managerTag = intent.getStringExtra(MANAGER_TAG)
