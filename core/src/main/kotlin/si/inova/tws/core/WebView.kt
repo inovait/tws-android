@@ -188,14 +188,11 @@ fun WebView(
     WebViewResumeOrPauseEffect(webView)
 
     val (permissionLauncher, permissionCallback) = createPermissionLauncher()
-    val (fileChooserLauncher, fileChooserCallback) = createFileChooserLauncher()
+
+    SetupFileChooserLauncher(chromeClient)
 
     SetupPermissionHandling(chromeClient, permissionLauncher) { callback ->
         permissionCallback.value = callback
-    }
-
-    SetupFileChooserHandling(chromeClient, fileChooserLauncher) { valueCallback ->
-        fileChooserCallback.value = valueCallback
     }
 
     webView?.let { wv -> HandleNavigationEvents(wv, navigator, state) }
@@ -315,26 +312,6 @@ private fun SetupPermissionHandling(
 }
 
 @Composable
-private fun SetupFileChooserHandling(
-    chromeClient: TwsWebChromeClient,
-    fileChooserLauncher: ActivityResultLauncher<Intent>,
-    setupCallback: (ValueCallback<Array<Uri>>) -> Unit
-) {
-    val context = LocalContext.current
-    LaunchedEffect(chromeClient) {
-        chromeClient.setupFileChooserRequestCallback { valueCallback, fileChooserParams ->
-            setupCallback(valueCallback)
-            fileChooserLauncher.launch(
-                Intent.createChooser(
-                    fileChooserParams.createIntent(),
-                    context.getString(R.string.file_chooser_title)
-                )
-            )
-        }
-    }
-}
-
-@Composable
 private fun createPermissionLauncher(): Pair<ActivityResultLauncher<String>, MutableState<((Boolean) -> Unit)?>> {
     val permissionCallback = remember { mutableStateOf<((Boolean) -> Unit)?>(null) }
     val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
@@ -344,7 +321,9 @@ private fun createPermissionLauncher(): Pair<ActivityResultLauncher<String>, Mut
 }
 
 @Composable
-private fun createFileChooserLauncher(): Pair<ActivityResultLauncher<Intent>, MutableState<ValueCallback<Array<Uri>>?>> {
+private fun SetupFileChooserLauncher(chromeClient: TwsWebChromeClient) {
+    val context = LocalContext.current
+
     val fileChooserCallback = remember { mutableStateOf<ValueCallback<Array<Uri>>?>(null) }
     val fileChooserLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         val results = result.data?.data?.let { arrayOf(it) } ?: result.data?.clipData?.let {
@@ -353,7 +332,19 @@ private fun createFileChooserLauncher(): Pair<ActivityResultLauncher<Intent>, Mu
         fileChooserCallback.value?.onReceiveValue(results)
         fileChooserCallback.value = null
     }
-    return fileChooserLauncher to fileChooserCallback
+
+
+    LaunchedEffect(chromeClient) {
+        chromeClient.setupFileChooserRequestCallback { valueCallback, fileChooserParams ->
+            fileChooserCallback.value = valueCallback
+            fileChooserLauncher.launch(
+                Intent.createChooser(
+                    fileChooserParams.createIntent(),
+                    context.getString(R.string.file_chooser_title)
+                )
+            )
+        }
+    }
 }
 
 @SuppressLint("JavascriptInterface") // Suppressing, we only need 'tws_injected' interface to be present, no methods required
