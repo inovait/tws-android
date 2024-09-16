@@ -40,6 +40,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import si.inova.tws.core.data.ModifierPageData
@@ -319,10 +320,16 @@ private fun SetupFileChooserHandling(
     fileChooserLauncher: ActivityResultLauncher<Intent>,
     setupCallback: (ValueCallback<Array<Uri>>) -> Unit
 ) {
+    val context = LocalContext.current
     LaunchedEffect(chromeClient) {
         chromeClient.setupFileChooserRequestCallback { valueCallback, fileChooserParams ->
             setupCallback(valueCallback)
-            fileChooserLauncher.launch(fileChooserParams.createIntent())
+            fileChooserLauncher.launch(
+                Intent.createChooser(
+                    fileChooserParams.createIntent(),
+                    context.getString(R.string.file_chooser_title)
+                )
+            )
         }
     }
 }
