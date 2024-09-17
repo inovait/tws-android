@@ -34,6 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
+import androidx.core.view.WindowCompat
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import si.inova.kotlinova.core.outcome.Outcome
@@ -57,10 +58,11 @@ class WebSnippetInterstitialActivity : ComponentActivity() {
         val navigationColor = intent.getStringExtra(NAVIGATION_BAR_COLOR)
 
         if (statusColor != null) {
-            window.apply {
-                statusBarColor = Color.parseColor(statusColor)
-                navigationBarColor = Color.parseColor(navigationColor)
-            }
+            window.statusBarColor = Color.parseColor(statusColor)
+        }
+
+        if (navigationColor != null) {
+            window.navigationBarColor = Color.parseColor(navigationColor)
         }
 
         val webSnippetId = intent.getStringExtra(WEB_SNIPPET_ID)
