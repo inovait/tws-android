@@ -33,6 +33,7 @@ import si.inova.tws.manager.utils.FAKE_SNIPPET_ONE
 import si.inova.tws.manager.utils.FAKE_SNIPPET_THREE
 import si.inova.tws.manager.utils.FAKE_SNIPPET_TWO
 import si.inova.tws.manager.utils.setVisibility
+import java.time.Instant
 import java.util.concurrent.TimeUnit
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -95,8 +96,8 @@ class LocalSnippetHandlerImplTest {
     fun `Check for deletion with server time in past`() = scope.runTest {
         val willExpireSnippet = FAKE_SNIPPET_ONE.setVisibility(952077660000) // 3.3.2000 10:01
 
-        val serverSideDate = "2000-03-03T09:59:00Z" // 1 minute in past of current time on mobile
-        handler.calculateDateDifference(serverSideDate, "yyyy-MM-dd'T'HH:mm:ssX")
+        val serverDate = Instant.ofEpochMilli(952077540000) // 3.3.2000 09:59 - 1 minute in past of current time on mobile
+        handler.calculateDateDifference(serverDate)
 
         handler.updateActionFlow.test {
             handler.updateAndScheduleCheck(listOf(willExpireSnippet, FAKE_SNIPPET_TWO, FAKE_SNIPPET_THREE))
@@ -117,8 +118,8 @@ class LocalSnippetHandlerImplTest {
     fun `Check for deletion with server time in future`() = scope.runTest {
         val willExpireSnippet = FAKE_SNIPPET_ONE.setVisibility(952078260000) // 3.3.2000 10:11
 
-        val serverSideDate = "2000-03-03T10:05:00Z" // 5 minute in future of current time on mobile
-        handler.calculateDateDifference(serverSideDate, "yyyy-MM-dd'T'HH:mm:ssX")
+        val serverDate = Instant.ofEpochMilli(952077900000) // 3.3.2000 10:05 - 5 minute in future of current time on mobile
+        handler.calculateDateDifference(serverDate)
 
         handler.updateActionFlow.test {
             handler.updateAndScheduleCheck(listOf(willExpireSnippet, FAKE_SNIPPET_TWO, FAKE_SNIPPET_THREE))

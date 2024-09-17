@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import si.inova.tws.manager.data.SnippetUpdateAction
 import si.inova.tws.manager.data.WebSnippetDto
 import si.inova.tws.manager.local_handler.LocalSnippetHandler
+import java.time.Instant
 
 class FakeLocalSnippetHandler : LocalSnippetHandler {
     override val updateActionFlow: MutableSharedFlow<SnippetUpdateAction> = MutableSharedFlow()
@@ -30,5 +31,5 @@ class FakeLocalSnippetHandler : LocalSnippetHandler {
         updateActionFlow.emit(action)
     }
 
-    override fun calculateDateDifference(headerDate: String?, headerDatePattern: String) {}
+    override fun calculateDateDifference(headerDate: Instant?) {}
 }
