@@ -23,9 +23,9 @@ import si.inova.tws.manager.data.WebSnippetDto
 import si.inova.tws.manager.singleton.twsMoshi
 import java.io.File
 
-internal class FileCacheManager(context: Context): CacheManager {
+internal class FileCacheManager(context: Context, tag: String): CacheManager {
     private val moshi: Moshi by lazy { twsMoshi() }
-    private val cacheDir = File(context.cacheDir, CACHE_DIR)
+    private val cacheDir = File(context.cacheDir, "$CACHE_DIR/$tag")
 
     init {
         if (!cacheDir.exists()) {

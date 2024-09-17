@@ -50,11 +50,12 @@ import java.util.concurrent.ConcurrentHashMap
 
 class WebSnippetManagerImpl(
     context: Context,
+    tag: String,
     private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default),
     private val webSnippetFunction: WebSnippetFunction = BaseServiceFactory().create(),
     private val twsSocket: TwsSocket? = TwsSocketImpl(context, scope),
     private val localSnippetHandler: LocalSnippetHandler? = LocalSnippetHandlerImpl(scope),
-    private val cacheManager: CacheManager? = FileCacheManager(context)
+    private val cacheManager: CacheManager? = FileCacheManager(context, tag)
 ) : WebSnippetManager {
     private val snippetsFlow: MutableStateFlow<Outcome<List<WebSnippetDto>>> = MutableStateFlow(Outcome.Progress())
     private val seenPopupSnippetsFlow: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
@@ -201,13 +202,14 @@ class WebSnippetManagerImpl(
             context: Context,
             tag: String? = null,
         ): WebSnippetManager {
-            return instances.computeIfAbsent(tag ?: DEFAULT_MANAGER_TAG) {
-                WebSnippetManagerImpl(context)
+            val managerTag = tag ?: DEFAULT_MANAGER_TAG
+            return instances.computeIfAbsent(managerTag) {
+                WebSnippetManagerImpl(context, tag = managerTag)
             }
         }
 
-        fun removeSharedInstance(key: String) {
-            instances.remove(key)?.release()
+        fun removeSharedInstance(tag: String?) {
+            instances.remove(tag ?: DEFAULT_MANAGER_TAG)?.release()
         }
     }
 }
