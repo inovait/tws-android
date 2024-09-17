@@ -19,46 +19,33 @@ package si.inova.tws.core
 import android.content.Intent
 import android.webkit.WebView
 import androidx.activity.ComponentActivity
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.core.util.Consumer
+import si.inova.tws.core.client.OkHttpTwsWebViewClient
 import si.inova.tws.core.data.ModifierPageData
 import si.inova.tws.core.data.WebSnippetData
 import si.inova.tws.core.data.view.LoadingState
 import si.inova.tws.core.data.view.WebContent
 import si.inova.tws.core.data.view.WebViewNavigator
 import si.inova.tws.core.data.view.WebViewState
-import si.inova.tws.core.data.view.client.TwsWebChromeClient
-import si.inova.tws.core.data.view.client.TwsWebViewClient
+import si.inova.tws.core.client.TwsWebChromeClient
 import si.inova.tws.core.data.view.rememberSaveableWebViewState
 import si.inova.tws.core.data.view.rememberWebViewNavigator
 import si.inova.tws.core.util.compose.SnippetErrorView
@@ -187,7 +174,7 @@ private fun SnippetContentWithLoadingAndError(
     // https://github.com/google/accompanist/issues/1326 - WebView settings does not work in compose preview
     val isPreviewMode = LocalInspectionMode.current
 
-    val client = remember(key1 = key) { TwsWebViewClient(popupStateCallback) }
+    val client = remember(key1 = key) { OkHttpTwsWebViewClient(popupStateCallback) }
     val chromeClient = remember(key1 = key) { TwsWebChromeClient(popupStateCallback) }
 
     Box(modifier = modifier) {

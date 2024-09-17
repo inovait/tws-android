@@ -48,10 +48,10 @@ import si.inova.tws.core.data.view.TwsDownloadListener
 import si.inova.tws.core.data.view.WebContent
 import si.inova.tws.core.data.view.WebViewNavigator
 import si.inova.tws.core.data.view.WebViewState
-import si.inova.tws.core.data.view.client.AccompanistWebChromeClient
-import si.inova.tws.core.data.view.client.AccompanistWebViewClient
-import si.inova.tws.core.data.view.client.TwsWebChromeClient
-import si.inova.tws.core.data.view.client.TwsWebViewClient
+import si.inova.tws.core.client.AccompanistWebChromeClient
+import si.inova.tws.core.client.AccompanistWebViewClient
+import si.inova.tws.core.client.TwsWebChromeClient
+import si.inova.tws.core.client.TwsWebViewClient
 import si.inova.tws.core.data.view.rememberWebViewNavigator
 import si.inova.tws.core.util.JavaScriptDownloadInterface
 import si.inova.tws.core.util.JavaScriptDownloadInterface.Companion.JAVASCRIPT_INTERFACE_NAME

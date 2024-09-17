@@ -14,7 +14,7 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.core.data.view.client
+package si.inova.tws.core.client
 
 import android.content.ComponentName
 import android.content.Context
