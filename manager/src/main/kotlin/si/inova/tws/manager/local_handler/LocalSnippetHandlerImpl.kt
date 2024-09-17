@@ -43,12 +43,8 @@ class LocalSnippetHandlerImpl(
 
     private var dateDifference: Long? = null
 
-    override fun calculateDateDifference(headerDate: String?, headerDatePattern: String) {
-        val formatter = DateTimeFormatter.ofPattern(headerDatePattern)
-        val zonedDateTime = ZonedDateTime.parse(headerDate, formatter)
-        val instant = zonedDateTime.toInstant()
-
-        dateDifference = timeProvider.currentInstant().minusMillis(instant.toEpochMilli()).toEpochMilli()
+    override fun calculateDateDifference(headerDate: Instant?) {
+        dateDifference = timeProvider.currentInstant().minusMillis(headerDate?.toEpochMilli() ?: 0).toEpochMilli()
     }
 
     override suspend fun updateAndScheduleCheck(snippets: List<WebSnippetDto>) {

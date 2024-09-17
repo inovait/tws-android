@@ -126,7 +126,7 @@ class WebSnippetManagerImpl(
         val twsProjectResponse = webSnippetFunction.getWebSnippets(organizationId, projectId, "someApiKey")
         val twsProject = twsProjectResponse.bodyOrThrow()
 
-        localSnippetHandler?.calculateDateDifference(twsProjectResponse.headers()[HEADER_DATE], HEADER_DATE_PATTERN)
+        localSnippetHandler?.calculateDateDifference(twsProjectResponse.headers().getDate(HEADER_DATE)?.toInstant())
 
         val wssUrl = twsProject.listenOn
 
