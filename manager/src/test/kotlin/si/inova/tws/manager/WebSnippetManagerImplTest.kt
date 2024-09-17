@@ -26,7 +26,6 @@ import org.mockito.Mockito.mock
 import si.inova.kotlinova.core.test.TestScopeWithDispatcherProvider
 import si.inova.kotlinova.core.test.outcomes.shouldBeProgressWith
 import si.inova.kotlinova.core.test.outcomes.shouldBeSuccessWithData
-import si.inova.kotlinova.core.test.outcomes.testCoroutineResourceManager
 import si.inova.tws.manager.data.ActionBody
 import si.inova.tws.manager.data.ActionType
 import si.inova.tws.manager.data.SnippetType
@@ -60,8 +59,9 @@ class WebSnippetManagerImplTest {
     fun setUp() {
         webSnippetManager = WebSnippetManagerImpl(
             context = mock(),
+            tag = "TestManager",
+            scope = scope.backgroundScope,
             webSnippetFunction = functions,
-            resources = scope.testCoroutineResourceManager(),
             twsSocket = socket,
             localSnippetHandler = handler,
             cacheManager = cache

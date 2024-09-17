@@ -50,7 +50,7 @@ import java.util.concurrent.ConcurrentHashMap
 
 class WebSnippetManagerImpl(
     context: Context,
-    tag: String,
+    tag: String = DEFAULT_MANAGER_TAG,
     private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default),
     private val webSnippetFunction: WebSnippetFunction = BaseServiceFactory().create(),
     private val twsSocket: TwsSocket? = TwsSocketImpl(context, scope),

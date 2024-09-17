@@ -29,4 +29,6 @@ class FakeLocalSnippetHandler : LocalSnippetHandler {
     suspend fun mockUpdateAction(action: SnippetUpdateAction) {
         updateActionFlow.emit(action)
     }
+
+    override fun release() { }
 }
