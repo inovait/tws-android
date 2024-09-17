@@ -126,7 +126,10 @@ class WebSnippetManagerImpl(
         val twsProjectResponse = webSnippetFunction.getWebSnippets(organizationId, projectId, "someApiKey")
         val twsProject = twsProjectResponse.bodyOrThrow()
 
-        localSnippetHandler?.calculateDateDifference(twsProjectResponse.headers().getDate(HEADER_DATE)?.toInstant())
+        localSnippetHandler?.calculateDateOffsetAndRerun(
+            twsProjectResponse.headers().getDate(HEADER_DATE)?.toInstant(),
+            twsProject.snippets
+        )
 
         val wssUrl = twsProject.listenOn
 
@@ -134,7 +137,6 @@ class WebSnippetManagerImpl(
         saveToCache(twsProject.snippets)
 
         twsSocket?.launchAndCollect(wssUrl)
-        localSnippetHandler?.launchAndCollect(twsProject.snippets)
     }
 
     private fun saveToCache(snippets: List<WebSnippetDto>) = resources.scope.launch(Dispatchers.IO) {

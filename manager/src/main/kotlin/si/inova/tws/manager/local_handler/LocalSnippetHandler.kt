@@ -26,5 +26,5 @@ interface LocalSnippetHandler {
 
     suspend fun updateAndScheduleCheck(snippets: List<WebSnippetDto>)
 
-    fun calculateDateDifference(headerDate: Instant?)
+    suspend fun calculateDateOffsetAndRerun(serverDate: Instant?, snippets: List<WebSnippetDto>)
 }

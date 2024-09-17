@@ -29,8 +29,6 @@ import si.inova.tws.manager.data.SnippetUpdateAction
 import si.inova.tws.manager.data.WebSnippetDto
 import java.time.Duration
 import java.time.Instant
-import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
 
 class LocalSnippetHandlerImpl(
     private val scope: CoroutineScope,
@@ -43,8 +41,9 @@ class LocalSnippetHandlerImpl(
 
     private var dateDifference: Long? = null
 
-    override fun calculateDateDifference(headerDate: Instant?) {
-        dateDifference = timeProvider.currentInstant().minusMillis(headerDate?.toEpochMilli() ?: 0).toEpochMilli()
+    override suspend fun calculateDateOffsetAndRerun(serverDate: Instant?, snippets: List<WebSnippetDto>) {
+        dateDifference = timeProvider.currentInstant().minusMillis(serverDate?.toEpochMilli() ?: 0).toEpochMilli()
+        updateAndScheduleCheck(snippets)
     }
 
     override suspend fun updateAndScheduleCheck(snippets: List<WebSnippetDto>) {
