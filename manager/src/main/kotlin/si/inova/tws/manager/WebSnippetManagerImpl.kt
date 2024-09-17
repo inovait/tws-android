@@ -24,6 +24,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
@@ -72,7 +73,7 @@ class WebSnippetManagerImpl(
                 it.type == SnippetType.POPUP && it.status == SnippetStatus.ENABLED
             }
         }
-    }
+    }.distinctUntilChanged()
 
     override val contentSnippetsFlow = snippetsFlow.map { outcome ->
         outcome.mapData { data ->
@@ -80,7 +81,7 @@ class WebSnippetManagerImpl(
                 it.type == SnippetType.TAB && it.status == SnippetStatus.ENABLED
             }
         }
-    }
+    }.distinctUntilChanged()
 
     override val unseenPopupSnippetsFlow: Flow<List<WebSnippetDto>> = combine(
         popupSnippetsFlow,
@@ -91,7 +92,7 @@ class WebSnippetManagerImpl(
         } else {
             allPopups.data.filter { !seenPopups.contains(it.id) }
         }
-    }
+    }.distinctUntilChanged()
 
     init {
         scope.launch {
