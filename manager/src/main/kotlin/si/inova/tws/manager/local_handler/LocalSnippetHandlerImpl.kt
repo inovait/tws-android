@@ -29,6 +29,8 @@ import si.inova.tws.manager.data.SnippetUpdateAction
 import si.inova.tws.manager.data.WebSnippetDto
 import java.time.Duration
 import java.time.Instant
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 
 class LocalSnippetHandlerImpl(
     private val scope: CoroutineScope,
@@ -39,12 +41,22 @@ class LocalSnippetHandlerImpl(
     private var snippets: List<WebSnippetDto> = emptyList()
     private var scheduledJob: Job? = null  // Reference to the currently scheduled job
 
+    private var dateDifference: Long? = null
+
+    override fun calculateDateDifference(headerDate: String?, headerDatePattern: String) {
+        val formatter = DateTimeFormatter.ofPattern(headerDatePattern)
+        val zonedDateTime = ZonedDateTime.parse(headerDate, formatter)
+        val instant = zonedDateTime.toInstant()
+
+        dateDifference = timeProvider.currentInstant().minusMillis(instant.toEpochMilli()).toEpochMilli()
+    }
+
     override suspend fun updateAndScheduleCheck(snippets: List<WebSnippetDto>) {
         // Cancel any previously scheduled check to avoid duplicate checks
         scheduledJob?.cancel()
 
         this.snippets = snippets
-        val now = timeProvider.currentInstant()
+        val now = timeProvider.currentInstant().minusMillis(dateDifference ?: 0)
 
         // Delete all snippets that should be hidden
         checkAndDeleteSnippets(snippets, now)
@@ -54,7 +66,7 @@ class LocalSnippetHandlerImpl(
     }
 
     private fun scheduleNextDeletion() {
-        val now = timeProvider.currentInstant()
+        val now = timeProvider.currentInstant().minusMillis(dateDifference ?: 0)
 
         // Schedule next deletion at earliest untilUtc of remaining snippets
         val nextScheduledCheck = snippets

@@ -24,4 +24,6 @@ interface LocalSnippetHandler {
     val updateActionFlow: Flow<SnippetUpdateAction>
 
     suspend fun updateAndScheduleCheck(snippets: List<WebSnippetDto>)
+
+    fun calculateDateDifference(headerDate: String?, headerDatePattern: String)
 }

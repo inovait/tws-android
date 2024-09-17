@@ -17,15 +17,12 @@
 package si.inova.tws.manager.factory
 
 import com.squareup.moshi.Moshi
-import dispatch.core.DefaultCoroutineScope
-import dispatch.core.DispatcherProvider
 import jakarta.inject.Singleton
 import okhttp3.Cache
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
-import si.inova.kotlinova.retrofit.callfactory.ErrorHandlingAdapterFactory
 import si.inova.kotlinova.retrofit.callfactory.StaleWhileRevalidateCallAdapterFactory
 import si.inova.kotlinova.retrofit.converter.LazyRetrofitConverterFactory
 import si.inova.tws.manager.singleton.provideErrorReporter
@@ -68,9 +65,6 @@ internal class BaseServiceFactory : ServiceFactory {
             .addConverterFactory(LazyRetrofitConverterFactory(moshiConverter))
             .addCallAdapterFactory(
                 StaleWhileRevalidateCallAdapterFactory(null, provideErrorReporter)
-            )
-            .addCallAdapterFactory(
-                ErrorHandlingAdapterFactory(DefaultCoroutineScope(object : DispatcherProvider {}))
             )
             .build()
             .create(klass)

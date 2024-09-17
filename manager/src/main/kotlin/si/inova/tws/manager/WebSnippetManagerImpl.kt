@@ -29,6 +29,7 @@ import si.inova.kotlinova.core.outcome.CauseException
 import si.inova.kotlinova.core.outcome.CoroutineResourceManager
 import si.inova.kotlinova.core.outcome.Outcome
 import si.inova.kotlinova.core.outcome.mapData
+import si.inova.kotlinova.retrofit.callfactory.bodyOrThrow
 import si.inova.tws.manager.cache.CacheManager
 import si.inova.tws.manager.cache.FileCacheManager
 import si.inova.tws.manager.data.SnippetStatus
@@ -122,7 +123,11 @@ class WebSnippetManagerImpl(
     ) {
         snippetsFlow.emit(Outcome.Progress(cacheManager?.load(CACHED_SNIPPETS)))
 
-        val twsProject = webSnippetFunction.getWebSnippets(organizationId, projectId, "someApiKey")
+        val twsProjectResponse = webSnippetFunction.getWebSnippets(organizationId, projectId, "someApiKey")
+        val twsProject = twsProjectResponse.bodyOrThrow()
+
+        localSnippetHandler?.calculateDateDifference(twsProjectResponse.headers()[HEADER_DATE], HEADER_DATE_PATTERN)
+
         val wssUrl = twsProject.listenOn
 
         snippetsFlow.emit(Outcome.Success(twsProject.snippets))
@@ -170,6 +175,8 @@ class WebSnippetManagerImpl(
     companion object {
         private const val DEFAULT_MANAGER_TAG = "ManagerSharedInstance"
         internal const val CACHED_SNIPPETS = "CachedSnippets"
+        private const val HEADER_DATE: String = "date"
+        private const val HEADER_DATE_PATTERN: String = "EEE, dd MMM yyyy HH:mm:ss z"
 
         private val instances = ConcurrentHashMap<String, WebSnippetManager>()
 
@@ -187,3 +194,4 @@ class WebSnippetManagerImpl(
         }
     }
 }
+
