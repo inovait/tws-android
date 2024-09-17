@@ -19,21 +19,15 @@ package si.inova.tws.core.data.view.client
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
-import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
-import android.webkit.WebViewClient
 import androidx.browser.customtabs.CustomTabsCallback
 import androidx.browser.customtabs.CustomTabsClient
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.browser.customtabs.CustomTabsServiceConnection
 import si.inova.tws.core.data.ModifierPageData
-import si.inova.tws.core.data.view.LoadingState
-import si.inova.tws.core.data.view.WebViewError
-import si.inova.tws.core.data.view.WebViewNavigator
 import si.inova.tws.core.data.view.WebViewState
 
 /**
@@ -44,11 +38,9 @@ import si.inova.tws.core.data.view.WebViewState
  * As Accompanist Web needs to set its own web client to function, it provides this intermediary
  * class that can be overridden if further custom behaviour is required.
  */
-open class TwsWebViewClient(private val popupStateCallback: ((WebViewState, Boolean) -> Unit)? = null) : WebViewClient() {
-    open lateinit var state: WebViewState
-        internal set
-    open lateinit var navigator: WebViewNavigator
-        internal set
+open class TwsWebViewClient(
+    private val popupStateCallback: ((WebViewState, Boolean) -> Unit)? = null
+) : AccompanistWebViewClient() {
     open lateinit var interceptOverrideUrl: (String) -> Boolean
         internal set
     open lateinit var dynamicModifiers: List<ModifierPageData>
@@ -67,47 +59,6 @@ open class TwsWebViewClient(private val popupStateCallback: ((WebViewState, Bool
         return request?.url?.let {
             interceptOverrideUrl(it.toString())
         } == true
-    }
-
-    override fun onPageStarted(view: WebView, url: String?, favicon: Bitmap?) {
-        super.onPageStarted(view, url, favicon)
-        state.loadingState = LoadingState.Loading(0.0f)
-        state.errorsForCurrentRequest.clear()
-
-        state.lastLoadedUrl = url
-    }
-
-    override fun onPageFinished(view: WebView, url: String?) {
-        super.onPageFinished(view, url)
-
-        if (state.loadingState != LoadingState.Finished) {
-            dynamicModifiers.forEach { modifier ->
-                modifier.inject?.let { inject ->
-                    view.evaluateJavascript(inject, null)
-                }
-            }
-        }
-
-        state.loadingState = LoadingState.Finished
-    }
-
-    override fun doUpdateVisitedHistory(view: WebView, url: String?, isReload: Boolean) {
-        super.doUpdateVisitedHistory(view, url, isReload)
-
-        navigator.canGoBack = view.canGoBack()
-        navigator.canGoForward = view.canGoForward()
-    }
-
-    override fun onReceivedError(
-        view: WebView,
-        request: WebResourceRequest?,
-        error: WebResourceError?
-    ) {
-        super.onReceivedError(view, request, error)
-
-        if (error != null) {
-            state.errorsForCurrentRequest.add(WebViewError(request, error))
-        }
     }
 
     private fun openCustomChromeTab(context: Context, url: String) {

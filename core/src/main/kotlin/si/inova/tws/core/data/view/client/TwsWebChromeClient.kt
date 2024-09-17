@@ -18,15 +18,12 @@ package si.inova.tws.core.data.view.client
 
 import android.Manifest
 import android.content.Context
-import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Message
 import android.webkit.GeolocationPermissions
 import android.webkit.PermissionRequest
 import android.webkit.ValueCallback
-import android.webkit.WebChromeClient
 import android.webkit.WebView
-import si.inova.tws.core.data.view.LoadingState
 import si.inova.tws.core.data.view.WebContent
 import si.inova.tws.core.data.view.WebViewState
 import si.inova.tws.core.util.hasPermissionInManifest
@@ -40,12 +37,17 @@ import si.inova.tws.core.util.hasPermissionInManifest
 
 open class TwsWebChromeClient(
     private val popupStateCallback: ((WebViewState, Boolean) -> Unit)? = null,
-) : WebChromeClient() {
-    open lateinit var state: WebViewState
-        internal set
-
+) : AccompanistWebChromeClient() {
     private lateinit var showPermissionRequest: (String, (Boolean) -> Unit) -> Unit
     private lateinit var showFileChooser: (ValueCallback<Array<Uri>>, FileChooserParams) -> Unit
+
+    fun setupPermissionRequestCallback(callback: (String, (Boolean) -> Unit) -> Unit) {
+        showPermissionRequest = callback
+    }
+
+    fun setupFileChooserRequestCallback(callback: (ValueCallback<Array<Uri>>, FileChooserParams) -> Unit) {
+        showFileChooser = callback
+    }
 
     override fun onCreateWindow(view: WebView, isDialog: Boolean, isUserGesture: Boolean, resultMsg: Message): Boolean {
         popupStateCallback?.invoke(
@@ -63,23 +65,6 @@ open class TwsWebChromeClient(
         window?.destroy()
     }
 
-    override fun onReceivedTitle(view: WebView, title: String?) {
-        super.onReceivedTitle(view, title)
-        state.pageTitle = title
-    }
-
-    override fun onReceivedIcon(view: WebView, icon: Bitmap?) {
-        super.onReceivedIcon(view, icon)
-        state.pageIcon = icon
-    }
-
-    override fun onProgressChanged(view: WebView, newProgress: Int) {
-        super.onProgressChanged(view, newProgress)
-        if (state.loadingState is LoadingState.Finished) return
-        @Suppress("MagicNumber")
-        state.loadingState = LoadingState.Loading(newProgress / 100.0f)
-    }
-
     override fun onShowFileChooser(
         webView: WebView,
         filePathCallback: ValueCallback<Array<Uri>>,
@@ -89,11 +74,6 @@ open class TwsWebChromeClient(
         return true
     }
 
-    /**
-     * Fix for:
-     * Spotify have some protected content
-     * https://stackoverflow.com/questions/53143363/how-to-enable-protected-content-in-a-webview
-     */
     override fun onPermissionRequest(request: PermissionRequest?) {
         request?.let {
             when {
@@ -115,14 +95,6 @@ open class TwsWebChromeClient(
         } else {
             callback?.invoke(origin, false, false)
         }
-    }
-
-    fun setupPermissionRequestCallback(callback: (String, (Boolean) -> Unit) -> Unit) {
-        showPermissionRequest = callback
-    }
-
-    fun setupFileChooserRequestCallback(callback: (ValueCallback<Array<Uri>>, FileChooserParams) -> Unit) {
-        showFileChooser = callback
     }
 
     private fun PermissionRequest.handleCameraPermission(context: Context?) {

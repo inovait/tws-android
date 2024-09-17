@@ -48,6 +48,8 @@ import si.inova.tws.core.data.view.TwsDownloadListener
 import si.inova.tws.core.data.view.WebContent
 import si.inova.tws.core.data.view.WebViewNavigator
 import si.inova.tws.core.data.view.WebViewState
+import si.inova.tws.core.data.view.client.AccompanistWebChromeClient
+import si.inova.tws.core.data.view.client.AccompanistWebViewClient
 import si.inova.tws.core.data.view.client.TwsWebChromeClient
 import si.inova.tws.core.data.view.client.TwsWebViewClient
 import si.inova.tws.core.data.view.rememberWebViewNavigator
@@ -96,8 +98,8 @@ fun WebView(
     navigator: WebViewNavigator = rememberWebViewNavigator(),
     onCreated: (WebView) -> Unit = {},
     onDispose: (WebView) -> Unit = {},
-    client: TwsWebViewClient = remember { TwsWebViewClient() },
-    chromeClient: TwsWebChromeClient = remember { TwsWebChromeClient() },
+    client: AccompanistWebViewClient = remember { AccompanistWebViewClient() },
+    chromeClient: AccompanistWebChromeClient = remember { AccompanistWebChromeClient() },
     interceptOverrideUrl: (String) -> Boolean = { false },
     factory: ((Context) -> WebView)? = null,
     dynamicModifiers: List<ModifierPageData>? = null
@@ -176,8 +178,8 @@ fun WebView(
     navigator: WebViewNavigator = rememberWebViewNavigator(),
     onCreated: (WebView) -> Unit = {},
     onDispose: (WebView) -> Unit = {},
-    client: TwsWebViewClient = remember { TwsWebViewClient() },
-    chromeClient: TwsWebChromeClient = remember { TwsWebChromeClient() },
+    client: AccompanistWebViewClient = remember { AccompanistWebViewClient() },
+    chromeClient: AccompanistWebChromeClient = remember { AccompanistWebChromeClient() },
     interceptOverrideUrl: (String) -> Boolean = { false },
     factory: ((Context) -> WebView)? = null,
     dynamicModifiers: List<ModifierPageData>? = null
@@ -189,19 +191,24 @@ fun WebView(
 
     val (permissionLauncher, permissionCallback) = createPermissionLauncher()
 
-    SetupFileChooserLauncher(chromeClient)
-
-    SetupPermissionHandling(chromeClient, permissionLauncher) { callback ->
-        permissionCallback.value = callback
+    if (chromeClient is TwsWebChromeClient) {
+        SetupFileChooserLauncher(chromeClient)
+        SetupPermissionHandling(chromeClient, permissionLauncher) { callback ->
+            permissionCallback.value = callback
+        }
     }
+
 
     webView?.let { wv -> HandleNavigationEvents(wv, navigator, state) }
 
     client.apply {
         this.state = state
         this.navigator = navigator
-        this.interceptOverrideUrl = interceptOverrideUrl
-        this.dynamicModifiers = dynamicModifiers ?: emptyList()
+
+        if (this is TwsWebViewClient) {
+            this.interceptOverrideUrl = interceptOverrideUrl
+            this.dynamicModifiers = dynamicModifiers ?: emptyList()
+        }
     }
     chromeClient.state = state
 
