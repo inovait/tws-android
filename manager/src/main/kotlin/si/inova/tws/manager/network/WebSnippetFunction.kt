@@ -17,6 +17,7 @@
 package si.inova.tws.manager.network
 
 import jakarta.inject.Singleton
+import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Headers
 import retrofit2.http.Path
@@ -34,7 +35,7 @@ interface WebSnippetFunction {
         projectId: String,
         @Query("apiKey")
         apiKey: String? = null
-    ): ProjectDto
+    ): Response<ProjectDto>
 
     @Headers("Accept: application/json")
     @GET("shared/{shareId}")

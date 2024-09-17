@@ -16,6 +16,7 @@
 
 package si.inova.tws.manager.utils
 
+import retrofit2.Response
 import si.inova.kotlinova.retrofit.FakeService
 import si.inova.kotlinova.retrofit.ServiceTestingHelper
 import si.inova.tws.manager.data.ProjectDto
@@ -28,10 +29,10 @@ class FakeWebSnippetFunction(
     var returnedProject: ProjectDto? = null
     var returnedSharedSnippet: SharedSnippetDto? = null
 
-    override suspend fun getWebSnippets(organizationId: String, projectId: String, apiKey: String?): ProjectDto {
+    override suspend fun getWebSnippets(organizationId: String, projectId: String, apiKey: String?): Response<ProjectDto> {
         helper.intercept()
 
-        return returnedProject ?: error("Returned project not faked!")
+        return Response.success(returnedProject) ?: error("Returned project not faked!")
     }
 
     override suspend fun getSharedSnippetData(shareId: String): SharedSnippetDto {
