@@ -31,5 +31,5 @@ class FakeLocalSnippetHandler : LocalSnippetHandler {
         updateActionFlow.emit(action)
     }
 
-    override fun calculateDateDifference(headerDate: Instant?) {}
+    override suspend fun calculateDateOffsetAndRerun(serverDate: Instant?, snippets: List<WebSnippetDto>) {}
 }
