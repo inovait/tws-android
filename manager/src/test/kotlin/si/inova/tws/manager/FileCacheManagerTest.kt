@@ -47,7 +47,7 @@ class FileCacheManagerTest {
         cacheDir = tempFolder.newFolder(CACHE_MANAGER_TEST_FOLDER)
         Mockito.`when`(context.cacheDir).thenReturn(cacheDir)
 
-        fileCacheManager = FileCacheManager(context)
+        fileCacheManager = FileCacheManager(context, FILE_CACHE_MANAGER_TAG)
     }
 
     @After
@@ -57,7 +57,7 @@ class FileCacheManagerTest {
 
     @Test
     fun `Save should write data to cache file`() {
-        val savedFile = File(cacheDir, CACHE_DIR)
+        val savedFile = File(cacheDir, "$CACHE_DIR-$FILE_CACHE_MANAGER_TAG")
         fileCacheManager.save(CACHED_SNIPPETS_KEY, FAKE_PROJECT_DTO.snippets)
 
         assert(savedFile.exists())
@@ -77,7 +77,7 @@ class FileCacheManagerTest {
 
     @Test
     fun `Clear should delete all cached files`() {
-        val savedFile = File(cacheDir, CACHE_DIR)
+        val savedFile = File(cacheDir, "$CACHE_DIR-$FILE_CACHE_MANAGER_TAG")
         fileCacheManager.save(CACHED_SNIPPETS_KEY, FAKE_PROJECT_DTO.snippets)
 
         assert(!savedFile.listFiles().isNullOrEmpty())
@@ -99,3 +99,4 @@ class FileCacheManagerTest {
 
 private const val CACHE_MANAGER_TEST_FOLDER = "CacheManagerTestFolder"
 private const val CACHED_SNIPPETS_KEY = "CachedKey"
+private const val FILE_CACHE_MANAGER_TAG = "FileCacheManagerTag"

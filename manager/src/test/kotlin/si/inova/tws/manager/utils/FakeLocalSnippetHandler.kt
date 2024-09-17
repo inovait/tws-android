@@ -32,4 +32,6 @@ class FakeLocalSnippetHandler : LocalSnippetHandler {
     }
 
     override suspend fun calculateDateOffsetAndRerun(serverDate: Instant?, snippets: List<WebSnippetDto>) {}
+
+    override fun release() { }
 }

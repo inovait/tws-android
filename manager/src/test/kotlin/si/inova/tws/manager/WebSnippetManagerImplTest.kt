@@ -26,11 +26,11 @@ import org.mockito.Mockito.mock
 import si.inova.kotlinova.core.test.TestScopeWithDispatcherProvider
 import si.inova.kotlinova.core.test.outcomes.shouldBeProgressWith
 import si.inova.kotlinova.core.test.outcomes.shouldBeSuccessWithData
-import si.inova.kotlinova.core.test.outcomes.testCoroutineResourceManager
 import si.inova.tws.manager.data.ActionBody
 import si.inova.tws.manager.data.ActionType
 import si.inova.tws.manager.data.SnippetType
 import si.inova.tws.manager.data.SnippetUpdateAction
+import si.inova.tws.manager.data.WebSnippetDto
 import si.inova.tws.manager.utils.FAKE_PROJECT_DTO
 import si.inova.tws.manager.utils.FAKE_SHARED_PROJECT
 import si.inova.tws.manager.utils.FAKE_SNIPPET_FIVE
@@ -60,8 +60,9 @@ class WebSnippetManagerImplTest {
     fun setUp() {
         webSnippetManager = WebSnippetManagerImpl(
             context = mock(),
+            tag = "TestManager",
+            scope = scope.backgroundScope,
             webSnippetFunction = functions,
-            resources = scope.testCoroutineResourceManager(),
             twsSocket = socket,
             localSnippetHandler = handler,
             cacheManager = cache
@@ -459,6 +460,27 @@ class WebSnippetManagerImplTest {
 
             val success = awaitItem() // success with network items
             success.shouldBeSuccessWithData(listOf(FAKE_SNIPPET_FOUR, FAKE_SNIPPET_FIVE)) // emitted are only popup snippets
+        }
+    }
+
+    @Test
+    fun `Load popup and mark them as seen`() = scope.runTest {
+        cache.save(WebSnippetManagerImpl.CACHED_SNIPPETS, listOf(FAKE_SNIPPET_FOUR))
+        functions.returnedProject = FAKE_PROJECT_DTO
+
+        webSnippetManager.unseenPopupSnippetsFlow.test {
+            webSnippetManager.loadWebSnippets("organization", "project")
+
+            val cache = awaitItem() // progress, cache is ignored
+            assert(cache == emptyList<WebSnippetDto>())
+
+            val response = awaitItem() // success from web
+            assert(response == listOf(FAKE_SNIPPET_FOUR, FAKE_SNIPPET_FIVE))
+
+            webSnippetManager.markPopupsAsSeen(listOf(FAKE_SNIPPET_FOUR.id))
+
+            val afterSeen = awaitItem() // after marking snippet as seen
+            assert(afterSeen == listOf(FAKE_SNIPPET_FIVE))
         }
     }
 }

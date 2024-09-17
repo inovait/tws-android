@@ -27,4 +27,6 @@ interface LocalSnippetHandler {
     suspend fun updateAndScheduleCheck(snippets: List<WebSnippetDto>)
 
     suspend fun calculateDateOffsetAndRerun(serverDate: Instant?, snippets: List<WebSnippetDto>)
+
+    fun release()
 }

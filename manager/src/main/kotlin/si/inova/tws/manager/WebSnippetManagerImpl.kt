@@ -17,16 +17,20 @@
 package si.inova.tws.manager
 
 import android.content.Context
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import si.inova.kotlinova.core.exceptions.UnknownCauseException
 import si.inova.kotlinova.core.outcome.CauseException
-import si.inova.kotlinova.core.outcome.CoroutineResourceManager
 import si.inova.kotlinova.core.outcome.Outcome
 import si.inova.kotlinova.core.outcome.mapData
 import si.inova.kotlinova.retrofit.callfactory.bodyOrThrow
@@ -41,7 +45,6 @@ import si.inova.tws.manager.factory.create
 import si.inova.tws.manager.local_handler.LocalSnippetHandler
 import si.inova.tws.manager.local_handler.LocalSnippetHandlerImpl
 import si.inova.tws.manager.network.WebSnippetFunction
-import si.inova.tws.manager.singleton.coroutineResourceManager
 import si.inova.tws.manager.web_socket.TwsSocket
 import si.inova.tws.manager.web_socket.TwsSocketImpl
 import timber.log.Timber
@@ -49,13 +52,15 @@ import java.util.concurrent.ConcurrentHashMap
 
 class WebSnippetManagerImpl(
     context: Context,
-    private val resources: CoroutineResourceManager = coroutineResourceManager,
+    tag: String = DEFAULT_MANAGER_TAG,
+    private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default),
     private val webSnippetFunction: WebSnippetFunction = BaseServiceFactory().create(),
-    private val twsSocket: TwsSocket? = TwsSocketImpl(context, resources.scope),
-    private val localSnippetHandler: LocalSnippetHandler? = LocalSnippetHandlerImpl(resources.scope),
-    private val cacheManager: CacheManager? = FileCacheManager(context)
+    private val twsSocket: TwsSocket? = TwsSocketImpl(context, scope),
+    private val localSnippetHandler: LocalSnippetHandler? = LocalSnippetHandlerImpl(scope),
+    private val cacheManager: CacheManager? = FileCacheManager(context, tag)
 ) : WebSnippetManager {
     private val snippetsFlow: MutableStateFlow<Outcome<List<WebSnippetDto>>> = MutableStateFlow(Outcome.Progress())
+    private val seenPopupSnippetsFlow: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
 
     private var collectingSocket: Boolean = false
     private var collectingLocalHandler: Boolean = false
@@ -69,7 +74,7 @@ class WebSnippetManagerImpl(
                 it.type == SnippetType.POPUP && it.status == SnippetStatus.ENABLED
             }
         }
-    }
+    }.distinctUntilChanged()
 
     override val contentSnippetsFlow = snippetsFlow.map { outcome ->
         outcome.mapData { data ->
@@ -77,10 +82,21 @@ class WebSnippetManagerImpl(
                 it.type == SnippetType.TAB && it.status == SnippetStatus.ENABLED
             }
         }
-    }
+    }.distinctUntilChanged()
+
+    override val unseenPopupSnippetsFlow: Flow<List<WebSnippetDto>> = combine(
+        popupSnippetsFlow,
+        seenPopupSnippetsFlow
+    ) { allPopups, seenPopups ->
+        if (allPopups !is Outcome.Success) {
+            emptyList()
+        } else {
+            allPopups.data.filter { !seenPopups.contains(it.id) }
+        }
+    }.distinctUntilChanged()
 
     init {
-        resources.scope.launch {
+        scope.launch {
             snippetsFlow.collect { outcome ->
                 outcome.data?.let {
                     localSnippetHandler?.launchAndCollect(it)
@@ -117,6 +133,16 @@ class WebSnippetManagerImpl(
         twsSocket?.closeWebsocketConnection()
     }
 
+    override fun markPopupsAsSeen(ids: List<String>) {
+        seenPopupSnippetsFlow.value += ids
+    }
+
+    override fun release() {
+        closeWebsocketConnection()
+        localSnippetHandler?.release()
+        scope.cancel()
+    }
+
     private suspend fun loadProjectAndSetupWss(
         organizationId: String,
         projectId: String
@@ -139,7 +165,7 @@ class WebSnippetManagerImpl(
         twsSocket?.launchAndCollect(wssUrl)
     }
 
-    private fun saveToCache(snippets: List<WebSnippetDto>) = resources.scope.launch(Dispatchers.IO) {
+    private fun saveToCache(snippets: List<WebSnippetDto>) = scope.launch(Dispatchers.IO) {
         try {
             cacheManager?.save(CACHED_SNIPPETS, snippets)
         } catch (e: Exception) {
@@ -155,7 +181,7 @@ class WebSnippetManagerImpl(
         updateActionFlow.onEach {
             val oldList = snippetsFlow.value.data ?: emptyList()
             snippetsFlow.emit(Outcome.Success(oldList.updateWith(it)))
-        }.launchIn(resources.scope).invokeOnCompletion {
+        }.launchIn(scope).invokeOnCompletion {
             collectingSocket = false
         }
     }
@@ -169,7 +195,7 @@ class WebSnippetManagerImpl(
         updateActionFlow.onEach {
             val oldList = snippetsFlow.value.data ?: emptyList()
             snippetsFlow.emit(Outcome.Success(oldList.updateWith(it)))
-        }.launchIn(resources.scope).invokeOnCompletion {
+        }.launchIn(scope).invokeOnCompletion {
             collectingLocalHandler = false
         }
     }
@@ -186,13 +212,14 @@ class WebSnippetManagerImpl(
             context: Context,
             tag: String? = null,
         ): WebSnippetManager {
-            return instances.computeIfAbsent(tag ?: DEFAULT_MANAGER_TAG) {
-                WebSnippetManagerImpl(context)
+            val managerTag = tag ?: DEFAULT_MANAGER_TAG
+            return instances.computeIfAbsent(managerTag) {
+                WebSnippetManagerImpl(context, tag = managerTag)
             }
         }
 
-        fun removeSharedInstance(key: String) {
-            instances.remove(key)
+        fun removeSharedInstance(tag: String?) {
+            instances.remove(tag ?: DEFAULT_MANAGER_TAG)?.release()
         }
     }
 }

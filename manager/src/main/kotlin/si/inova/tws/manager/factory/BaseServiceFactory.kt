@@ -25,7 +25,6 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
 import si.inova.kotlinova.retrofit.callfactory.StaleWhileRevalidateCallAdapterFactory
 import si.inova.kotlinova.retrofit.converter.LazyRetrofitConverterFactory
-import si.inova.tws.manager.singleton.provideErrorReporter
 import si.inova.tws.manager.singleton.twsMoshi
 import si.inova.tws.manager.singleton.twsOkHttpClient
 
@@ -63,9 +62,7 @@ internal class BaseServiceFactory : ServiceFactory {
             .baseUrl(TWS_API)
             .addConverterFactory(ScalarsConverterFactory.create())
             .addConverterFactory(LazyRetrofitConverterFactory(moshiConverter))
-            .addCallAdapterFactory(
-                StaleWhileRevalidateCallAdapterFactory(null, provideErrorReporter)
-            )
+            .addCallAdapterFactory(StaleWhileRevalidateCallAdapterFactory(null))
             .build()
             .create(klass)
     }

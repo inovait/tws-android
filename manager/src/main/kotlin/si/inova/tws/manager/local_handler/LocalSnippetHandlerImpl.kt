@@ -60,6 +60,10 @@ class LocalSnippetHandlerImpl(
         scheduleNextDeletion()
     }
 
+    override fun release() {
+        scheduledJob?.cancel()
+    }
+
     private fun scheduleNextDeletion() {
         val now = timeProvider.currentInstant().minusMillis(dateDifference ?: 0)
 
