@@ -39,7 +39,6 @@ dependencies {
     implementation(projects.core)
     implementation(projects.manager)
 
-
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)

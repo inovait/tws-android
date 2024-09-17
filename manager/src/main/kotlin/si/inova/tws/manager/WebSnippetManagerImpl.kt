@@ -17,7 +17,10 @@
 package si.inova.tws.manager
 
 import android.content.Context
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
@@ -27,7 +30,6 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import si.inova.kotlinova.core.exceptions.UnknownCauseException
 import si.inova.kotlinova.core.outcome.CauseException
-import si.inova.kotlinova.core.outcome.CoroutineResourceManager
 import si.inova.kotlinova.core.outcome.Outcome
 import si.inova.kotlinova.core.outcome.mapData
 import si.inova.tws.manager.cache.CacheManager
@@ -41,7 +43,6 @@ import si.inova.tws.manager.factory.create
 import si.inova.tws.manager.local_handler.LocalSnippetHandler
 import si.inova.tws.manager.local_handler.LocalSnippetHandlerImpl
 import si.inova.tws.manager.network.WebSnippetFunction
-import si.inova.tws.manager.singleton.coroutineResourceManager
 import si.inova.tws.manager.web_socket.TwsSocket
 import si.inova.tws.manager.web_socket.TwsSocketImpl
 import timber.log.Timber
@@ -49,10 +50,10 @@ import java.util.concurrent.ConcurrentHashMap
 
 class WebSnippetManagerImpl(
     context: Context,
-    private val resources: CoroutineResourceManager = coroutineResourceManager,
+    private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default),
     private val webSnippetFunction: WebSnippetFunction = BaseServiceFactory().create(),
-    private val twsSocket: TwsSocket? = TwsSocketImpl(context, resources.scope),
-    private val localSnippetHandler: LocalSnippetHandler? = LocalSnippetHandlerImpl(resources.scope),
+    private val twsSocket: TwsSocket? = TwsSocketImpl(context, scope),
+    private val localSnippetHandler: LocalSnippetHandler? = LocalSnippetHandlerImpl(scope),
     private val cacheManager: CacheManager? = FileCacheManager(context)
 ) : WebSnippetManager {
     private val snippetsFlow: MutableStateFlow<Outcome<List<WebSnippetDto>>> = MutableStateFlow(Outcome.Progress())
@@ -92,7 +93,7 @@ class WebSnippetManagerImpl(
     }
 
     init {
-        resources.scope.launch {
+        scope.launch {
             snippetsFlow.collect { outcome ->
                 outcome.data?.let {
                     localSnippetHandler?.launchAndCollect(it)
@@ -133,6 +134,12 @@ class WebSnippetManagerImpl(
         seenPopupSnippetsFlow.value += ids
     }
 
+    override fun release() {
+        closeWebsocketConnection()
+        localSnippetHandler?.release()
+        scope.cancel()
+    }
+
     private suspend fun loadProjectAndSetupWss(
         organizationId: String,
         projectId: String
@@ -149,7 +156,7 @@ class WebSnippetManagerImpl(
         localSnippetHandler?.launchAndCollect(twsProject.snippets)
     }
 
-    private fun saveToCache(snippets: List<WebSnippetDto>) = resources.scope.launch(Dispatchers.IO) {
+    private fun saveToCache(snippets: List<WebSnippetDto>) = scope.launch(Dispatchers.IO) {
         try {
             cacheManager?.save(CACHED_SNIPPETS, snippets)
         } catch (e: Exception) {
@@ -165,7 +172,7 @@ class WebSnippetManagerImpl(
         updateActionFlow.onEach {
             val oldList = snippetsFlow.value.data ?: emptyList()
             snippetsFlow.emit(Outcome.Success(oldList.updateWith(it)))
-        }.launchIn(resources.scope).invokeOnCompletion {
+        }.launchIn(scope).invokeOnCompletion {
             collectingSocket = false
         }
     }
@@ -179,7 +186,7 @@ class WebSnippetManagerImpl(
         updateActionFlow.onEach {
             val oldList = snippetsFlow.value.data ?: emptyList()
             snippetsFlow.emit(Outcome.Success(oldList.updateWith(it)))
-        }.launchIn(resources.scope).invokeOnCompletion {
+        }.launchIn(scope).invokeOnCompletion {
             collectingLocalHandler = false
         }
     }
@@ -200,7 +207,7 @@ class WebSnippetManagerImpl(
         }
 
         fun removeSharedInstance(key: String) {
-            instances.remove(key)
+            instances.remove(key)?.release()
         }
     }
 }

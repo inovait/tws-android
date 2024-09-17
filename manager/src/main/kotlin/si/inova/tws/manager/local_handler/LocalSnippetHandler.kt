@@ -24,4 +24,5 @@ interface LocalSnippetHandler {
     val updateActionFlow: Flow<SnippetUpdateAction>
 
     suspend fun updateAndScheduleCheck(snippets: List<WebSnippetDto>)
+    fun release()
 }

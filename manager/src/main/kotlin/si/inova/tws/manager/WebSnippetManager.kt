@@ -31,4 +31,5 @@ interface WebSnippetManager {
     suspend fun loadWebSnippets(organizationId: String, projectId: String)
     suspend fun loadSharedSnippetData(shareId: String)
     fun markPopupsAsSeen(ids: List<String>)
+    fun release()
 }

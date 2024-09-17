@@ -20,36 +20,13 @@ import com.appmattus.certificatetransparency.certificateTransparencyInterceptor
 import com.squareup.moshi.FromJson
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.ToJson
-import dispatch.core.DispatcherProvider
-import dispatch.core.MainImmediateCoroutineScope
 import jakarta.inject.Singleton
 import okhttp3.OkHttpClient
-import si.inova.kotlinova.core.outcome.CoroutineResourceManager
-import si.inova.kotlinova.core.reporting.ErrorReporter
 import si.inova.kotlinova.retrofit.interceptors.BypassCacheInterceptor
 import java.time.Instant
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeFormatter.ISO_INSTANT
-import kotlin.coroutines.cancellation.CancellationException
-
-@Singleton
-internal val provideErrorReporter = ErrorReporter {
-    object : ErrorReporter {
-        override fun report(throwable: Throwable) {
-            if (throwable is CancellationException) {
-                report(Exception("Got cancellation exception", throwable))
-                return
-            }
-
-            throwable.printStackTrace()
-        }
-    }
-}
-
-@Singleton
-internal val coroutineResourceManager =
-    CoroutineResourceManager(MainImmediateCoroutineScope(object : DispatcherProvider {}), provideErrorReporter)
 
 @Singleton
 internal fun twsMoshi(): Moshi {
