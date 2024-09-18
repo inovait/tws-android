@@ -92,7 +92,6 @@ fun WebSnippetComponent(
             // This is the first time load, so load the home page, else it will be restored from bundle
             navigator.loadUrl(
                 url = target.url,
-                loadOnlyInitial = webViewState.loadIteration == null,
                 additionalHttpHeaders = target.headers
             )
 
@@ -121,7 +120,7 @@ fun WebSnippetComponent(
         NewIntentListener { intent ->
             val data = intent.data?.toString()
             if (popupStates.value.isEmpty() && data?.startsWith(googleLoginRedirectUrl) == true) {
-                navigator.loadUrl(data, loadOnlyInitial = false)
+                navigator.loadUrl(data)
             }
         }
     }
@@ -225,7 +224,7 @@ private fun PopUpWebView(
         NewIntentListener { intent ->
             val data = intent.data?.toString()
             if (data?.startsWith(googleLoginRedirectUrl) == true) {
-                popupNavigator.loadUrl(data, loadOnlyInitial = false)
+                popupNavigator.loadUrl(data)
             }
         }
     }

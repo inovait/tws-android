@@ -47,8 +47,7 @@ class WebViewNavigator(private val coroutineScope: CoroutineScope) {
 
         data class LoadUrl(
             val url: String,
-            val additionalHttpHeaders: Map<String, String> = emptyMap(),
-            val loadOnlyInitial: Boolean = false
+            val additionalHttpHeaders: Map<String, String> = emptyMap()
         ) : NavigationEvent
 
         data class LoadHtml(
@@ -103,9 +102,7 @@ class WebViewNavigator(private val coroutineScope: CoroutineScope) {
                 )
 
                 is NavigationEvent.LoadUrl -> {
-                    if (url == null || !event.loadOnlyInitial) {
-                        loadUrl(event.url, event.additionalHttpHeaders)
-                    }
+                    loadUrl(event.url, event.additionalHttpHeaders)
                 }
 
                 is NavigationEvent.PostUrl -> {
@@ -131,17 +128,10 @@ class WebViewNavigator(private val coroutineScope: CoroutineScope) {
 
     fun loadUrl(
         url: String,
-        additionalHttpHeaders: Map<String, String> = emptyMap(),
-        loadOnlyInitial: Boolean
+        additionalHttpHeaders: Map<String, String> = emptyMap()
     ) {
         coroutineScope.launch {
-            navigationEvents.emit(
-                NavigationEvent.LoadUrl(
-                    url,
-                    additionalHttpHeaders,
-                    loadOnlyInitial
-                )
-            )
+            navigationEvents.emit(NavigationEvent.LoadUrl(url, additionalHttpHeaders))
         }
     }
 

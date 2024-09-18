@@ -42,11 +42,17 @@ class OkHttpTwsWebViewClient(
                 val response = okHttpClient.duplicateAndExecuteRequest(request)
 
                 val htmlContent = response.body?.getHtmlContent() ?: return super.shouldInterceptRequest(view, request)
-                val modifiedHtmlContent = htmlContent.insertCss()
+                val modifiedHtmlContent = if (request.isForMainFrame) {
+                    htmlContent.insertCss()
+                } else {
+                    htmlContent
+                }
 
+
+                val (mimeType, encoding) = response.getMimeTypeAndEncoding()
                 WebResourceResponse(
-                    "text/html",
-                    "UTF-8",
+                    mimeType,
+                    encoding,
                     modifiedHtmlContent.byteInputStream()
                 )
             } catch (e: Exception) {
@@ -56,6 +62,14 @@ class OkHttpTwsWebViewClient(
 
         // if anything occurs, fallback to default shouldInterceptRequest()
         return super.shouldInterceptRequest(view, request)
+    }
+
+    private fun Response.getMimeTypeAndEncoding(): Pair<String, String> {
+        val contentType = header("Content-Type") ?: "text/html; charset=UTF-8"
+        val mimeType = contentType.substringBefore(";").trim()
+        val encoding = contentType.substringAfter("charset=", "UTF-8").trim()
+
+        return Pair(mimeType, encoding)
     }
 
     private fun ResponseBody.getHtmlContent(): String {

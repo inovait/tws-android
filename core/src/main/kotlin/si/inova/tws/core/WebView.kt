@@ -367,13 +367,15 @@ private fun createWebView(
     return (factory?.invoke(context) ?: WebView(context)).apply {
         onCreated(this)
 
-        addJavascriptInterface(JavaScriptDownloadInterface(context), JAVASCRIPT_INTERFACE_NAME)
-        addJavascriptInterface(object {}, TWS_INJECTED_INTERFACE_NAME)
-
         this.layoutParams = layoutParams
-        state.viewState?.let { this.restoreState(it) }
+
         webChromeClient = chromeClient
         webViewClient = client
+
+        state.viewState?.let { this.restoreState(it) }
+
+        addJavascriptInterface(JavaScriptDownloadInterface(context), JAVASCRIPT_INTERFACE_NAME)
+        addJavascriptInterface(object {}, TWS_INJECTED_INTERFACE_NAME)
     }.also { state.webView = it }
 }
 
