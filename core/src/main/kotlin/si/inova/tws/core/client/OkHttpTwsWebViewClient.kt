@@ -42,12 +42,7 @@ class OkHttpTwsWebViewClient(
                 val response = okHttpClient.duplicateAndExecuteRequest(request)
 
                 val htmlContent = response.body?.getHtmlContent() ?: return super.shouldInterceptRequest(view, request)
-                val modifiedHtmlContent = if (request.isForMainFrame) {
-                    htmlContent.insertCss()
-                } else {
-                    htmlContent
-                }
-
+                val modifiedHtmlContent = htmlContent.insertCss()
 
                 val (mimeType, encoding) = response.getMimeTypeAndEncoding()
                 WebResourceResponse(

@@ -17,11 +17,14 @@
 package si.inova.tws.core.client
 
 import android.content.Context
+import android.webkit.CookieManager
 import jakarta.inject.Singleton
+import okhttp3.Cookie
+import okhttp3.CookieJar
+import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
 import si.inova.kotlinova.core.reporting.ErrorReporter
 import si.inova.kotlinova.retrofit.caching.GlobalOkHttpDiskCacheManager
-import si.inova.kotlinova.retrofit.interceptors.BypassCacheInterceptor
 import kotlin.coroutines.cancellation.CancellationException
 
 @Singleton
@@ -35,10 +38,11 @@ internal fun webViewHttpClient(context: Context): OkHttpClient {
 
 internal fun prepareDefaultOkHttpClient(context: Context): OkHttpClient.Builder {
     val manager = GlobalOkHttpDiskCacheManager(context, provideErrorReporter)
+    val cookieManager = CookieManager.getInstance().also { it.setAcceptCookie(true) }
 
     return OkHttpClient.Builder()
         .cache(manager.cache)
-        .addInterceptor(BypassCacheInterceptor())
+        .cookieJar(SharedCookieJar(cookieManager))
 }
 
 @Singleton
@@ -51,6 +55,21 @@ internal val provideErrorReporter = ErrorReporter {
             }
 
             throwable.printStackTrace()
+        }
+    }
+}
+
+class SharedCookieJar(private val cookieManager: CookieManager) : CookieJar {
+    override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
+        cookies.forEach { cookie ->
+            cookieManager.setCookie(url.toString(), cookie.toString())
+        }
+    }
+
+    override fun loadForRequest(url: HttpUrl): List<Cookie> {
+        val cookieString = cookieManager.getCookie(url.toString()) ?: return emptyList()
+        return cookieString.split(";").mapNotNull { cookiePart ->
+            Cookie.parse(url, cookiePart.trim())
         }
     }
 }
