@@ -34,10 +34,11 @@ open class AccompanistWebViewClient : WebViewClient() {
 
     override fun onPageStarted(view: WebView, url: String?, favicon: Bitmap?) {
         super.onPageStarted(view, url, favicon)
-        state.loadingState = LoadingState.Loading(0.0f)
-        state.errorsForCurrentRequest.clear()
-        state.pageTitle = null
-        state.pageIcon = null
+
+        if (state.loadingState !is LoadingState.Loading) {
+            state.loadingState = LoadingState.Loading(0.0f)
+            state.errorsForCurrentRequest.clear()
+        }
 
         state.lastLoadedUrl = url
     }
