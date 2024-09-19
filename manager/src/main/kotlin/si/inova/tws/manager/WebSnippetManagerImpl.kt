@@ -17,6 +17,7 @@
 package si.inova.tws.manager
 
 import android.content.Context
+import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -43,7 +44,6 @@ import si.inova.tws.manager.network.WebSnippetFunction
 import si.inova.tws.manager.singleton.coroutineResourceManager
 import si.inova.tws.manager.web_socket.TwsSocket
 import si.inova.tws.manager.web_socket.TwsSocketImpl
-import timber.log.Timber
 import java.util.concurrent.ConcurrentHashMap
 
 class WebSnippetManagerImpl(
@@ -136,7 +136,7 @@ class WebSnippetManagerImpl(
         try {
             cacheManager?.save(CACHED_SNIPPETS, snippets)
         } catch (e: Exception) {
-            Timber.e(e)
+            Log.e(TAG_ERROR_SAVE_CACHE, e.message, e)
         }
     }
 
@@ -170,6 +170,7 @@ class WebSnippetManagerImpl(
     companion object {
         private const val DEFAULT_MANAGER_TAG = "ManagerSharedInstance"
         internal const val CACHED_SNIPPETS = "CachedSnippets"
+        internal const val TAG_ERROR_SAVE_CACHE = "Save Cache"
 
         private val instances = ConcurrentHashMap<String, WebSnippetManager>()
 

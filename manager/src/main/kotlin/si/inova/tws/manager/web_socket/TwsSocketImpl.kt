@@ -17,6 +17,7 @@
 package si.inova.tws.manager.web_socket
 
 import android.content.Context
+import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
@@ -26,7 +27,6 @@ import si.inova.tws.manager.data.NetworkStatus
 import si.inova.tws.manager.service.NetworkConnectivityService
 import si.inova.tws.manager.service.NetworkConnectivityServiceImpl
 import si.inova.tws.manager.web_socket.SnippetWebSocketListener.Companion.CLOSING_CODE_ERROR_CODE
-import timber.log.Timber
 
 /**
  *
@@ -79,7 +79,7 @@ class TwsSocketImpl(
             webSocket = client.newWebSocket(request, listener)
             client.dispatcher.executorService.shutdown()
         } catch (e: Exception) {
-            Timber.e("Websocket error", e)
+            Log.e(TAG_ERROR_WEBSOCKET, e.message, e)
         }
     }
 
@@ -94,5 +94,9 @@ class TwsSocketImpl(
         return webSocket?.close(CLOSING_CODE_ERROR_CODE, null).apply {
             webSocket = null
         }
+    }
+
+    companion object {
+        private const val TAG_ERROR_WEBSOCKET = "Websocket error"
     }
 }
