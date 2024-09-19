@@ -24,6 +24,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.WebSocket
 import si.inova.tws.manager.data.NetworkStatus
+import si.inova.tws.manager.data.WebSocketStatus
 import si.inova.tws.manager.service.NetworkConnectivityService
 import si.inova.tws.manager.service.NetworkConnectivityServiceImpl
 import si.inova.tws.manager.web_socket.SnippetWebSocketListener.Companion.CLOSING_CODE_ERROR_CODE
@@ -48,9 +49,34 @@ class TwsSocketImpl(
     init {
         scope.launch {
             networkConnectivityService.networkStatus.collect {
-                val wssUrl = wssUrl
-                if (webSocket != null && it is NetworkStatus.Connected && wssUrl != null) {
-                    setupWebSocketConnection(wssUrl)
+                when (it) {
+                    is NetworkStatus.Connected -> {
+                        val wssUrl = wssUrl
+
+                        if (wssUrl != null) {
+                            setupWebSocketConnection(wssUrl)
+                        }
+                    }
+
+                    is NetworkStatus.Disconnected -> {
+                        closeWebsocketConnection()
+                    }
+                }
+            }
+        }
+
+        scope.launch {
+            listener.socketStatus.collect { status ->
+                when(status) {
+                    WebSocketStatus.Closed,
+                    WebSocketStatus.Open -> {}
+                    is WebSocketStatus.Failed -> {
+                        if (status.response?.code != 401 && status.response?.code != 403) {
+                            wssUrl?.let {
+                                setupWebSocketConnection(it)
+                            }
+                        }
+                    }
                 }
             }
         }
