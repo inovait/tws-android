@@ -23,9 +23,9 @@ import com.squareup.moshi.JsonClass
 @Keep
 @JsonClass(generateAdapter = false)
 enum class SnippetStatus {
-    @Json(name = "Enabled")
+    @Json(name = "enabled")
     ENABLED,
 
-    @Json(name = "Disabled")
+    @Json(name = "disabled")
     DISABLED
 }
