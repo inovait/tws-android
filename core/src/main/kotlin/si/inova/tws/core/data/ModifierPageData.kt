@@ -35,7 +35,7 @@ data class ContentInjectData(val content: String, override val type: ModifierInj
     }
 
     private fun injectContentCss(): String {
-        return """<style> $content</style>""".trimIndent()
+        return """<style>$content</style>""".trimIndent()
     }
 }
 
@@ -53,7 +53,7 @@ data class UrlInjectData(val url: String, override val type: ModifierInjectionTy
     }
 
     private fun injectUrlJs(): String {
-        return """<script src="$url"/>""".trimIndent()
+        return """<script src="$url" type="text/javascript"></script>"""
     }
 }
 

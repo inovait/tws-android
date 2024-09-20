@@ -25,11 +25,16 @@ import okhttp3.Request
 import okhttp3.Response
 import okhttp3.ResponseBody
 import si.inova.tws.core.data.ModifierInjectionType
+import si.inova.tws.core.data.ModifierPageData
 import si.inova.tws.core.data.view.WebViewState
+import si.inova.tws.core.util.webViewHttpClient
 
 class OkHttpTwsWebViewClient(
     popupStateCallback: ((WebViewState, Boolean) -> Unit)? = null
 ) : TwsWebViewClient(popupStateCallback) {
+    lateinit var dynamicModifiers: List<ModifierPageData>
+        internal set
+
     private lateinit var okHttpClient: OkHttpClient
 
     override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse? {
@@ -42,7 +47,7 @@ class OkHttpTwsWebViewClient(
                 val response = okHttpClient.duplicateAndExecuteRequest(request)
 
                 val htmlContent = response.body?.getHtmlContent() ?: return super.shouldInterceptRequest(view, request)
-                val modifiedHtmlContent = htmlContent.insertCss()
+                val modifiedHtmlContent = htmlContent.insertCss().insertJs()
 
                 val (mimeType, encoding) = response.getMimeTypeAndEncoding()
                 WebResourceResponse(
@@ -76,16 +81,38 @@ class OkHttpTwsWebViewClient(
             .filter { it.type == ModifierInjectionType.CSS }
             .joinToString(separator = System.lineSeparator()) { it.inject ?: "" }.trimIndent()
 
-        return if (contains("<head>")) {
-            replace(
+        return if (contains("</head>")) {
+            replaceFirst(
                 "</head>",
                 """$combinedCssInjection</head>"""
             )
         } else {
-            replace(
-                "</script>",
-                """</script>$combinedCssInjection"""
+            val htmlTagRegex = Regex("<html(\\s[^>]*)?>", RegexOption.IGNORE_CASE)
+            if (htmlTagRegex.containsMatchIn(this)) {
+                replaceFirst(htmlTagRegex, """$0$combinedCssInjection""")
+            } else {
+                "$combinedCssInjection$this"
+            }
+        }
+    }
+
+    private fun String.insertJs(): String {
+        val combinedJsInjection = dynamicModifiers
+            .filter { it.type == ModifierInjectionType.JAVASCRIPT }
+            .joinToString(separator = System.lineSeparator()) { it.inject ?: "" }.trimIndent()
+
+        return if (contains("<head>")) {
+            replaceFirst(
+                "<head>",
+                """<head>$combinedJsInjection"""
             )
+        } else {
+            val htmlTagRegex = Regex("<html(\\s[^>]*)?>", RegexOption.IGNORE_CASE)
+            if (htmlTagRegex.containsMatchIn(this)) {
+                replaceFirst(htmlTagRegex, """$0$combinedJsInjection""")
+            } else {
+                "$combinedJsInjection$this"
+            }
         }
     }
 

@@ -27,7 +27,6 @@ import androidx.browser.customtabs.CustomTabsCallback
 import androidx.browser.customtabs.CustomTabsClient
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.browser.customtabs.CustomTabsServiceConnection
-import si.inova.tws.core.data.ModifierPageData
 import si.inova.tws.core.data.view.WebViewState
 
 /**
@@ -42,8 +41,6 @@ open class TwsWebViewClient(
     private val popupStateCallback: ((WebViewState, Boolean) -> Unit)? = null
 ) : AccompanistWebViewClient() {
     open lateinit var interceptOverrideUrl: (String) -> Boolean
-        internal set
-    open lateinit var dynamicModifiers: List<ModifierPageData>
         internal set
 
     override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest?): Boolean {

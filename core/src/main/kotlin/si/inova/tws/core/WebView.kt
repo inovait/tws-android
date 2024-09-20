@@ -16,7 +16,6 @@
 
 package si.inova.tws.core
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -50,6 +49,7 @@ import si.inova.tws.core.data.view.WebViewNavigator
 import si.inova.tws.core.data.view.WebViewState
 import si.inova.tws.core.client.AccompanistWebChromeClient
 import si.inova.tws.core.client.AccompanistWebViewClient
+import si.inova.tws.core.client.OkHttpTwsWebViewClient
 import si.inova.tws.core.client.TwsWebChromeClient
 import si.inova.tws.core.client.TwsWebViewClient
 import si.inova.tws.core.data.view.rememberWebViewNavigator
@@ -205,10 +205,8 @@ fun WebView(
         this.state = state
         this.navigator = navigator
 
-        if (this is TwsWebViewClient) {
-            this.interceptOverrideUrl = interceptOverrideUrl
-            this.dynamicModifiers = dynamicModifiers ?: emptyList()
-        }
+        (this as? TwsWebViewClient)?.interceptOverrideUrl = interceptOverrideUrl
+        (this as? OkHttpTwsWebViewClient)?.dynamicModifiers = dynamicModifiers ?: emptyList()
     }
     chromeClient.state = state
 
@@ -354,7 +352,6 @@ private fun SetupFileChooserLauncher(chromeClient: TwsWebChromeClient) {
     }
 }
 
-@SuppressLint("JavascriptInterface") // Suppressing, we only need 'tws_injected' interface to be present, no methods required
 private fun createWebView(
     context: Context,
     state: WebViewState,
@@ -375,8 +372,5 @@ private fun createWebView(
         state.viewState?.let { this.restoreState(it) }
 
         addJavascriptInterface(JavaScriptDownloadInterface(context), JAVASCRIPT_INTERFACE_NAME)
-        addJavascriptInterface(object {}, TWS_INJECTED_INTERFACE_NAME)
     }.also { state.webView = it }
 }
-
-private const val TWS_INJECTED_INTERFACE_NAME = "tws_injected"
