@@ -14,39 +14,31 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-import util.publishLibrary
+package si.inova.tws.core.client
 
-plugins {
-    androidLibraryModule
-    alias(libs.plugins.compose.compiler)
-}
+import android.graphics.Bitmap
+import android.webkit.WebChromeClient
+import android.webkit.WebView
+import si.inova.tws.core.data.view.LoadingState
+import si.inova.tws.core.data.view.WebViewState
 
-android {
-    namespace = "si.inova.tws.core"
+open class AccompanistWebChromeClient : WebChromeClient() {
+    open lateinit var state: WebViewState
+        internal set
 
-    buildFeatures {
-        androidResources = true
+    override fun onReceivedTitle(view: WebView, title: String?) {
+        super.onReceivedTitle(view, title)
+        state.pageTitle = title
     }
-}
 
-publishLibrary(
-    userFriendlyName = "tws-core",
-    description = "A collection of core utilities",
-    githubPath = "core"
-)
+    override fun onReceivedIcon(view: WebView, icon: Bitmap?) {
+        super.onReceivedIcon(view, icon)
+        state.pageIcon = icon
+    }
 
-dependencies {
-    implementation(libs.androidx.activity.compose)
-    implementation(libs.kotlin.immutableCollections)
-    implementation(libs.androidx.compose.ui.tooling.preview)
-    implementation(libs.compose.foundation)
-    implementation(libs.androidx.compose.material3)
-    implementation(libs.timber)
-    implementation(libs.accompanist.permissions)
-    implementation(libs.androidx.browser)
-    implementation(libs.androidx.lifecycle.compose)
-    implementation(libs.coil.compose)
-    implementation(libs.kotlinova.retrofit)
-    implementation(libs.kotlinova.core)
-    implementation(libs.inject)
+    override fun onProgressChanged(view: WebView, newProgress: Int) {
+        super.onProgressChanged(view, newProgress)
+        if (state.loadingState is LoadingState.Finished) return
+        state.loadingState = LoadingState.Loading(newProgress / 100.0f)
+    }
 }

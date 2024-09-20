@@ -14,39 +14,24 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-import util.publishLibrary
+package si.inova.tws.core.util
 
-plugins {
-    androidLibraryModule
-    alias(libs.plugins.compose.compiler)
-}
+import android.webkit.CookieManager
+import okhttp3.Cookie
+import okhttp3.CookieJar
+import okhttp3.HttpUrl
 
-android {
-    namespace = "si.inova.tws.core"
-
-    buildFeatures {
-        androidResources = true
+class SharedCookieJar(private val cookieManager: CookieManager) : CookieJar {
+    override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
+        cookies.forEach { cookie ->
+            cookieManager.setCookie(url.toString(), cookie.toString())
+        }
     }
-}
 
-publishLibrary(
-    userFriendlyName = "tws-core",
-    description = "A collection of core utilities",
-    githubPath = "core"
-)
-
-dependencies {
-    implementation(libs.androidx.activity.compose)
-    implementation(libs.kotlin.immutableCollections)
-    implementation(libs.androidx.compose.ui.tooling.preview)
-    implementation(libs.compose.foundation)
-    implementation(libs.androidx.compose.material3)
-    implementation(libs.timber)
-    implementation(libs.accompanist.permissions)
-    implementation(libs.androidx.browser)
-    implementation(libs.androidx.lifecycle.compose)
-    implementation(libs.coil.compose)
-    implementation(libs.kotlinova.retrofit)
-    implementation(libs.kotlinova.core)
-    implementation(libs.inject)
+    override fun loadForRequest(url: HttpUrl): List<Cookie> {
+        val cookieString = cookieManager.getCookie(url.toString()) ?: return emptyList()
+        return cookieString.split(";").mapNotNull { cookiePart ->
+            Cookie.parse(url, cookiePart.trim())
+        }
+    }
 }
