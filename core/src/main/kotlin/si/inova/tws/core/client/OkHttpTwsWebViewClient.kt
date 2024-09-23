@@ -16,6 +16,7 @@
 
 package si.inova.tws.core.client
 
+import android.graphics.Bitmap
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
@@ -29,6 +30,7 @@ import si.inova.tws.core.data.ModifierInjectionType
 import si.inova.tws.core.data.ModifierPageData
 import si.inova.tws.core.data.view.WebViewState
 import si.inova.tws.core.client.okhttp.webViewHttpClient
+import si.inova.tws.core.data.view.LoadingState
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.TimeZone
@@ -42,6 +44,14 @@ class OkHttpTwsWebViewClient(
 
     private lateinit var okHttpClient: OkHttpClient
 
+    override fun onPageStarted(view: WebView, url: String?, favicon: Bitmap?) {
+        super.onPageStarted(view, url, favicon)
+
+        if (state.loadingState !is LoadingState.Loading) {
+            state.customErrorsForCurrentRequest.clear()
+        }
+    }
+
     override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse? {
         if (!::okHttpClient.isInitialized) {
             okHttpClient = webViewHttpClient(view.context)
@@ -54,8 +64,9 @@ class OkHttpTwsWebViewClient(
                     ?: super.shouldInterceptRequest(view, request)
             } catch (e: Exception) {
                 // Exception, get stale-if-error header and check if cache is still valid
-                okHttpClient.duplicateAndExecuteCachedRequest(request)?.modifyResponseAndServe()
-                    ?: super.shouldInterceptRequest(view, request)
+                okHttpClient.duplicateAndExecuteCachedRequest(request)?.modifyResponseAndServe()?.also {
+                    state.customErrorsForCurrentRequest.add(e)
+                } ?: super.shouldInterceptRequest(view, request)
             }
         }
 

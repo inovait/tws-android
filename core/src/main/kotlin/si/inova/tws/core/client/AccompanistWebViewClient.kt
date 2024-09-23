@@ -37,7 +37,7 @@ open class AccompanistWebViewClient : WebViewClient() {
 
         if (state.loadingState !is LoadingState.Loading) {
             state.loadingState = LoadingState.Loading(0.0f)
-            state.errorsForCurrentRequest.clear()
+            state.webViewErrorsForCurrentRequest.clear()
         }
 
         state.lastLoadedUrl = url
@@ -63,7 +63,7 @@ open class AccompanistWebViewClient : WebViewClient() {
         super.onReceivedError(view, request, error)
 
         if (error != null) {
-            state.errorsForCurrentRequest.add(WebViewError(request, error))
+            state.webViewErrorsForCurrentRequest.add(WebViewError(request, error))
         }
     }
 }
