@@ -52,7 +52,6 @@ import si.inova.tws.manager.local_handler.LocalSnippetHandlerImpl
 import si.inova.tws.manager.network.WebSnippetFunction
 import si.inova.tws.manager.service.NetworkConnectivityService
 import si.inova.tws.manager.service.NetworkConnectivityServiceImpl
-import si.inova.tws.manager.singleton.coroutineResourceManager
 import si.inova.tws.manager.web_socket.TwsSocket
 import si.inova.tws.manager.web_socket.TwsSocketImpl
 import java.util.concurrent.ConcurrentHashMap
@@ -63,7 +62,7 @@ class WebSnippetManagerImpl(
     tag: String = DEFAULT_MANAGER_TAG,
     private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default),
     private val webSnippetFunction: WebSnippetFunction = BaseServiceFactory().create(),
-    private val twsSocket: TwsSocket? = TwsSocketImpl(resources.scope),
+    private val twsSocket: TwsSocket? = TwsSocketImpl(scope),
     private val networkConnectivityService: NetworkConnectivityService = NetworkConnectivityServiceImpl(context),
     private val localSnippetHandler: LocalSnippetHandler? = LocalSnippetHandlerImpl(scope),
     private val cacheManager: CacheManager? = FileCacheManager(context, tag)
@@ -114,6 +113,7 @@ class WebSnippetManagerImpl(
             networkConnectivityService.networkStatus.collect {
                 when (it) {
                     is NetworkStatus.Connected -> {
+                        if (twsSocket?.connectionExists() == true) return@collect
                         val organizationId = orgId
                         val projectId = projId
 
@@ -195,6 +195,7 @@ class WebSnippetManagerImpl(
         SharingStarted.WhileSubscribed(5.seconds).command(snippetsFlow.subscriptionCount).collect {
             when (it) {
                 SharingCommand.START -> {
+                    println("dsdsds: start")
                     if (twsSocket?.connectionExists() == false) {
                         twsSocket.launchAndCollect(wssUrl)
                     }
@@ -202,6 +203,8 @@ class WebSnippetManagerImpl(
 
                 SharingCommand.STOP,
                 SharingCommand.STOP_AND_RESET_REPLAY_CACHE -> {
+                    println("dsdsds: stop")
+
                     closeWebsocketConnection()
                 }
             }
@@ -253,7 +256,6 @@ class WebSnippetManagerImpl(
         internal const val CACHED_SNIPPETS = "CachedSnippets"
         internal const val TAG_ERROR_SAVE_CACHE = "SaveCache"
         private const val HEADER_DATE: String = "date"
-        private const val HEADER_DATE_PATTERN: String = "EEE, dd MMM yyyy HH:mm:ss z"
 
         private val instances = ConcurrentHashMap<String, WebSnippetManager>()
 
