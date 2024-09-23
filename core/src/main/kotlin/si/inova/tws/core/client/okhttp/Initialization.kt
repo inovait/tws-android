@@ -14,24 +14,41 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.core.util
+package si.inova.tws.core.client.okhttp
 
+import android.content.Context
 import android.webkit.CookieManager
-import okhttp3.Cookie
-import okhttp3.CookieJar
-import okhttp3.HttpUrl
+import jakarta.inject.Singleton
+import okhttp3.OkHttpClient
+import si.inova.kotlinova.core.reporting.ErrorReporter
+import si.inova.kotlinova.retrofit.caching.GlobalOkHttpDiskCacheManager
+import kotlin.coroutines.cancellation.CancellationException
 
-class SharedCookieJar(private val cookieManager: CookieManager) : CookieJar {
-    override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
-        cookies.forEach { cookie ->
-            cookieManager.setCookie(url.toString(), cookie.toString())
-        }
+@Singleton
+internal fun webViewHttpClient(context: Context): OkHttpClient {
+    if (Thread.currentThread().name == "main") {
+        error("OkHttp should not be initialized on the main thread")
     }
 
-    override fun loadForRequest(url: HttpUrl): List<Cookie> {
-        val cookieString = cookieManager.getCookie(url.toString()) ?: return emptyList()
-        return cookieString.split(";").mapNotNull { cookiePart ->
-            Cookie.parse(url, cookiePart.trim())
+    val manager = GlobalOkHttpDiskCacheManager(context, provideErrorReporter)
+    val cookieManager = CookieManager.getInstance().also { it.setAcceptCookie(true) }
+
+    return OkHttpClient.Builder()
+        .cache(manager.cache)
+        .cookieJar(SharedCookieJar(cookieManager))
+        .build()
+}
+
+@Singleton
+internal val provideErrorReporter = ErrorReporter {
+    object : ErrorReporter {
+        override fun report(throwable: Throwable) {
+            if (throwable is CancellationException) {
+                report(Exception("Got cancellation exception", throwable))
+                return
+            }
+
+            throwable.printStackTrace()
         }
     }
 }

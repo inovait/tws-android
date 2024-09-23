@@ -19,6 +19,7 @@ package si.inova.tws.core.client
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
+import okhttp3.CacheControl
 import okhttp3.Headers
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -27,7 +28,11 @@ import okhttp3.ResponseBody
 import si.inova.tws.core.data.ModifierInjectionType
 import si.inova.tws.core.data.ModifierPageData
 import si.inova.tws.core.data.view.WebViewState
-import si.inova.tws.core.util.webViewHttpClient
+import si.inova.tws.core.client.okhttp.webViewHttpClient
+import java.text.SimpleDateFormat
+import java.util.Locale
+import java.util.TimeZone
+import java.util.concurrent.TimeUnit
 
 class OkHttpTwsWebViewClient(
     popupStateCallback: ((WebViewState, Boolean) -> Unit)? = null
@@ -44,24 +49,74 @@ class OkHttpTwsWebViewClient(
 
         if (request.method == GET_REQUEST && request.isForMainFrame) {
             return try {
-                val response = okHttpClient.duplicateAndExecuteRequest(request)
-
-                val htmlContent = response.body?.getHtmlContent() ?: return super.shouldInterceptRequest(view, request)
-                val modifiedHtmlContent = htmlContent.insertCss().insertJs()
-
-                val (mimeType, encoding) = response.getMimeTypeAndEncoding()
-                WebResourceResponse(
-                    mimeType,
-                    encoding,
-                    modifiedHtmlContent.byteInputStream()
-                )
+                // Get cached or web response, depending on headers
+                okHttpClient.duplicateAndExecuteRequest(request).modifyResponseAndServe()
+                    ?: super.shouldInterceptRequest(view, request)
             } catch (e: Exception) {
-                super.shouldInterceptRequest(view, request)
+                // Exception, get stale-if-error header and check if cache is still valid
+                okHttpClient.duplicateAndExecuteCachedRequest(request)?.modifyResponseAndServe()
+                    ?: super.shouldInterceptRequest(view, request)
             }
         }
 
-        // if anything occurs, fallback to default shouldInterceptRequest()
+        // Use default behavior for other requests
         return super.shouldInterceptRequest(view, request)
+    }
+
+    private fun Response.modifyResponseAndServe(): WebResourceResponse? {
+        val htmlContent = body?.getHtmlContent() ?: return null
+        val modifiedHtmlContent = htmlContent.insertCss().insertJs()
+
+        val (mimeType, encoding) = getMimeTypeAndEncoding()
+        return WebResourceResponse(
+            mimeType,
+            encoding,
+            modifiedHtmlContent.byteInputStream()
+        )
+    }
+
+    private fun OkHttpClient.duplicateAndExecuteRequest(request: WebResourceRequest): Response {
+        val overrideRequest = Request.Builder()
+            .url(request.buildUrl())
+            .method(request.method, null)
+            .headers(request.buildHeaders())
+            .build()
+
+        return newCall(overrideRequest).execute()
+    }
+
+    private fun OkHttpClient.duplicateAndExecuteCachedRequest(request: WebResourceRequest): Response? {
+        // Build a forced cache request
+        val overrideRequest = Request.Builder()
+            .url(request.buildUrl())
+            .method(request.method, null)
+            .cacheControl(CacheControl.FORCE_CACHE)
+            .build()
+
+        // Get the cached response
+        val cachedResponse = newCall(overrideRequest).execute()
+
+        // Extract and parse stale-if-error max age from Cache-Control header
+        val staleIfErrorMaxAge = cachedResponse.header("cache-Control")
+            ?.split(',')
+            ?.firstOrNull { it.trim().startsWith("stale-if-error") }
+            ?.substringAfter("=")
+            ?.toIntOrNull() ?: return null
+
+        // Parse the Date header
+        val responseDate = cachedResponse.header("date")?.let {
+            SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US).apply {
+                timeZone = TimeZone.getTimeZone("GMT")
+            }.parse(it)?.time
+        } ?: return null
+
+        // Calculate the current age
+        val currentAge = cachedResponse.header("age")?.toLongOrNull()?.let { ageHeader ->
+            ageHeader + TimeUnit.MILLISECONDS.toSeconds((System.currentTimeMillis() - responseDate))
+        } ?: TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - responseDate)
+
+        // Return the cached response if within stale-if-error max age, otherwise null
+        return if (currentAge <= staleIfErrorMaxAge) cachedResponse else null
     }
 
     private fun Response.getMimeTypeAndEncoding(): Pair<String, String> {
@@ -114,16 +169,6 @@ class OkHttpTwsWebViewClient(
                 "$combinedJsInjection$this"
             }
         }
-    }
-
-    private fun OkHttpClient.duplicateAndExecuteRequest(request: WebResourceRequest): Response {
-        val overrideRequest = Request.Builder()
-            .url(request.buildUrl())
-            .method(request.method, null)
-            .headers(request.buildHeaders())
-            .build()
-
-        return newCall(overrideRequest).execute()
     }
 
     private fun WebResourceRequest.buildHeaders(): Headers =
