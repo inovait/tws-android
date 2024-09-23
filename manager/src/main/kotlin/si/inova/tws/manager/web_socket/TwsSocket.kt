@@ -44,4 +44,6 @@ interface TwsSocket {
      *
      */
     fun closeWebsocketConnection(): Boolean?
+
+    fun connectionExists(): Boolean
 }

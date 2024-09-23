@@ -70,8 +70,6 @@ class WebSnippetManagerImpl(
     private var orgId: String? = null
     private var projId: String? = null
 
-    private var skipFirstNetworkConnectivity: Boolean = true
-
     private val _mainSnippetIdFlow: MutableStateFlow<String?> = MutableStateFlow(null)
     override val mainSnippetIdFlow: Flow<String?> = _mainSnippetIdFlow
 
@@ -94,20 +92,8 @@ class WebSnippetManagerImpl(
     }
 
     init {
-//        resources.scope.launch {
-//            snippetsFlow.collect { outcome ->
-//                outcome.data?.let {
-//                    localSnippetHandler?.launchAndCollect(it)
-//                }
-//            }
-//        }
-
         resources.scope.launch {
             networkConnectivityService.networkStatus.collect {
-                if (skipFirstNetworkConnectivity) {
-                    skipFirstNetworkConnectivity = false
-                    return@collect
-                }
                 when (it) {
                     is NetworkStatus.Connected -> {
                         val organizationId = orgId
@@ -122,12 +108,6 @@ class WebSnippetManagerImpl(
                         closeWebsocketConnection()
                     }
                 }
-            }
-        }
-
-        resources.scope.launch {
-            snippetsFlow.subscriptionCount.collect { count ->
-                println("dsdsdsdsdsd: snippetsFlow: Subscription count: $count")
             }
         }
     }
@@ -180,13 +160,14 @@ class WebSnippetManagerImpl(
         SharingStarted.WhileSubscribed(5.seconds).command(snippetsFlow.subscriptionCount).collect {
             when (it) {
                 SharingCommand.START -> {
-                    println("dsdsdsdsd: START")
+                    if (twsSocket?.connectionExists() == false) {
+                        twsSocket.launchAndCollect(wssUrl)
+                    }
                 }
 
                 SharingCommand.STOP,
                 SharingCommand.STOP_AND_RESET_REPLAY_CACHE -> {
-                    println("dsdsdsdsd: STOP")
-//                    closeWebsocketConnection()
+                    closeWebsocketConnection()
                 }
             }
         }
@@ -201,6 +182,7 @@ class WebSnippetManagerImpl(
     }
 
     private fun TwsSocket.launchAndCollect(wssUrl: String) {
+        if (connectionExists()) return
         setupWebSocketConnection(wssUrl)
 
         if (collectingSocket) return
@@ -208,6 +190,7 @@ class WebSnippetManagerImpl(
 
         updateActionFlow.onEach {
             val oldList = snippetsFlow.value.data ?: emptyList()
+            localSnippetHandler?.launchAndCollect(oldList)
             snippetsFlow.emit(Outcome.Success(oldList.updateWith(it)))
             saveToCache(oldList.updateWith(it))
         }.launchIn(resources.scope).invokeOnCompletion {

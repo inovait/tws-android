@@ -16,20 +16,14 @@
 
 package si.inova.tws.manager.utils
 
-import kotlinx.coroutines.flow.MutableSharedFlow
-import si.inova.tws.manager.data.SnippetUpdateAction
-import si.inova.tws.manager.web_socket.TwsSocket
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.filterNotNull
+import si.inova.tws.manager.data.NetworkStatus
+import si.inova.tws.manager.service.NetworkConnectivityService
 
-class FakeTwsSocket : TwsSocket {
-    override var updateActionFlow: MutableSharedFlow<SnippetUpdateAction> = MutableSharedFlow()
-
-    override fun setupWebSocketConnection(setupWssUrl: String) { }
-
-    override fun closeWebsocketConnection(): Boolean { return true }
-
-    override fun connectionExists(): Boolean = false
-
-    suspend fun mockUpdateAction(action: SnippetUpdateAction) {
-        updateActionFlow.emit(action)
-    }
+class FakeNetworkConnectivityService: NetworkConnectivityService {
+    private val _networkStatus = MutableStateFlow<NetworkStatus>(NetworkStatus.Connected)
+    override val networkStatus: Flow<NetworkStatus>
+        get() = _networkStatus.filterNotNull()
 }

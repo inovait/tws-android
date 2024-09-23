@@ -95,6 +95,14 @@ class TwsSocketImpl(scope: CoroutineScope) : TwsSocket {
         }
     }
 
+
+    /**
+     *
+     * Check if connections exists
+     *
+     */
+    override fun connectionExists(): Boolean = webSocket != null
+
     companion object {
         private const val TAG_ERROR_WEBSOCKET = "WebsocketError"
     }
