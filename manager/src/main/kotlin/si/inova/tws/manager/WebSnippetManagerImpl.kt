@@ -195,7 +195,6 @@ class WebSnippetManagerImpl(
         SharingStarted.WhileSubscribed(5.seconds).command(snippetsFlow.subscriptionCount).collect {
             when (it) {
                 SharingCommand.START -> {
-                    println("dsdsds: start")
                     if (twsSocket?.connectionExists() == false) {
                         twsSocket.launchAndCollect(wssUrl)
                     }
@@ -203,8 +202,6 @@ class WebSnippetManagerImpl(
 
                 SharingCommand.STOP,
                 SharingCommand.STOP_AND_RESET_REPLAY_CACHE -> {
-                    println("dsdsds: stop")
-
                     closeWebsocketConnection()
                 }
             }
