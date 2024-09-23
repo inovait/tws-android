@@ -16,7 +16,6 @@
 
 package si.inova.tws.core
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -40,6 +39,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import si.inova.tws.core.data.ModifierPageData
@@ -47,8 +47,11 @@ import si.inova.tws.core.data.view.TwsDownloadListener
 import si.inova.tws.core.data.view.WebContent
 import si.inova.tws.core.data.view.WebViewNavigator
 import si.inova.tws.core.data.view.WebViewState
-import si.inova.tws.core.data.view.client.TwsWebChromeClient
-import si.inova.tws.core.data.view.client.TwsWebViewClient
+import si.inova.tws.core.client.AccompanistWebChromeClient
+import si.inova.tws.core.client.AccompanistWebViewClient
+import si.inova.tws.core.client.OkHttpTwsWebViewClient
+import si.inova.tws.core.client.TwsWebChromeClient
+import si.inova.tws.core.client.TwsWebViewClient
 import si.inova.tws.core.data.view.rememberWebViewNavigator
 import si.inova.tws.core.util.JavaScriptDownloadInterface
 import si.inova.tws.core.util.JavaScriptDownloadInterface.Companion.JAVASCRIPT_INTERFACE_NAME
@@ -95,8 +98,8 @@ fun WebView(
     navigator: WebViewNavigator = rememberWebViewNavigator(),
     onCreated: (WebView) -> Unit = {},
     onDispose: (WebView) -> Unit = {},
-    client: TwsWebViewClient = remember { TwsWebViewClient() },
-    chromeClient: TwsWebChromeClient = remember { TwsWebChromeClient() },
+    client: AccompanistWebViewClient = remember { AccompanistWebViewClient() },
+    chromeClient: AccompanistWebChromeClient = remember { AccompanistWebChromeClient() },
     interceptOverrideUrl: (String) -> Boolean = { false },
     factory: ((Context) -> WebView)? = null,
     dynamicModifiers: List<ModifierPageData>? = null
@@ -175,8 +178,8 @@ fun WebView(
     navigator: WebViewNavigator = rememberWebViewNavigator(),
     onCreated: (WebView) -> Unit = {},
     onDispose: (WebView) -> Unit = {},
-    client: TwsWebViewClient = remember { TwsWebViewClient() },
-    chromeClient: TwsWebChromeClient = remember { TwsWebChromeClient() },
+    client: AccompanistWebViewClient = remember { AccompanistWebViewClient() },
+    chromeClient: AccompanistWebChromeClient = remember { AccompanistWebChromeClient() },
     interceptOverrideUrl: (String) -> Boolean = { false },
     factory: ((Context) -> WebView)? = null,
     dynamicModifiers: List<ModifierPageData>? = null
@@ -187,23 +190,23 @@ fun WebView(
     WebViewResumeOrPauseEffect(webView)
 
     val (permissionLauncher, permissionCallback) = createPermissionLauncher()
-    val (fileChooserLauncher, fileChooserCallback) = createFileChooserLauncher()
 
-    SetupPermissionHandling(chromeClient, permissionLauncher) { callback ->
-        permissionCallback.value = callback
+    if (chromeClient is TwsWebChromeClient) {
+        SetupFileChooserLauncher(chromeClient)
+        SetupPermissionHandling(chromeClient, permissionLauncher) { callback ->
+            permissionCallback.value = callback
+        }
     }
 
-    SetupFileChooserHandling(chromeClient, fileChooserLauncher) { valueCallback ->
-        fileChooserCallback.value = valueCallback
-    }
 
     webView?.let { wv -> HandleNavigationEvents(wv, navigator, state) }
 
     client.apply {
         this.state = state
         this.navigator = navigator
-        this.interceptOverrideUrl = interceptOverrideUrl
-        this.dynamicModifiers = dynamicModifiers ?: emptyList()
+
+        (this as? TwsWebViewClient)?.interceptOverrideUrl = interceptOverrideUrl
+        (this as? OkHttpTwsWebViewClient)?.dynamicModifiers = dynamicModifiers ?: emptyList()
     }
     chromeClient.state = state
 
@@ -314,20 +317,6 @@ private fun SetupPermissionHandling(
 }
 
 @Composable
-private fun SetupFileChooserHandling(
-    chromeClient: TwsWebChromeClient,
-    fileChooserLauncher: ActivityResultLauncher<Intent>,
-    setupCallback: (ValueCallback<Array<Uri>>) -> Unit
-) {
-    LaunchedEffect(chromeClient) {
-        chromeClient.setupFileChooserRequestCallback { valueCallback, fileChooserParams ->
-            setupCallback(valueCallback)
-            fileChooserLauncher.launch(fileChooserParams.createIntent())
-        }
-    }
-}
-
-@Composable
 private fun createPermissionLauncher(): Pair<ActivityResultLauncher<String>, MutableState<((Boolean) -> Unit)?>> {
     val permissionCallback = remember { mutableStateOf<((Boolean) -> Unit)?>(null) }
     val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
@@ -337,7 +326,9 @@ private fun createPermissionLauncher(): Pair<ActivityResultLauncher<String>, Mut
 }
 
 @Composable
-private fun createFileChooserLauncher(): Pair<ActivityResultLauncher<Intent>, MutableState<ValueCallback<Array<Uri>>?>> {
+private fun SetupFileChooserLauncher(chromeClient: TwsWebChromeClient) {
+    val context = LocalContext.current
+
     val fileChooserCallback = remember { mutableStateOf<ValueCallback<Array<Uri>>?>(null) }
     val fileChooserLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         val results = result.data?.data?.let { arrayOf(it) } ?: result.data?.clipData?.let {
@@ -346,10 +337,21 @@ private fun createFileChooserLauncher(): Pair<ActivityResultLauncher<Intent>, Mu
         fileChooserCallback.value?.onReceiveValue(results)
         fileChooserCallback.value = null
     }
-    return fileChooserLauncher to fileChooserCallback
+
+
+    LaunchedEffect(chromeClient) {
+        chromeClient.setupFileChooserRequestCallback { valueCallback, fileChooserParams ->
+            fileChooserCallback.value = valueCallback
+            fileChooserLauncher.launch(
+                Intent.createChooser(
+                    fileChooserParams.createIntent(),
+                    context.getString(R.string.file_chooser_title)
+                )
+            )
+        }
+    }
 }
 
-@SuppressLint("JavascriptInterface") // Suppressing, we only need 'tws_injected' interface to be present, no methods required
 private fun createWebView(
     context: Context,
     state: WebViewState,
@@ -362,14 +364,13 @@ private fun createWebView(
     return (factory?.invoke(context) ?: WebView(context)).apply {
         onCreated(this)
 
-        addJavascriptInterface(JavaScriptDownloadInterface(context), JAVASCRIPT_INTERFACE_NAME)
-        addJavascriptInterface(object {}, TWS_INJECTED_INTERFACE_NAME)
-
         this.layoutParams = layoutParams
-        state.viewState?.let { this.restoreState(it) }
+
         webChromeClient = chromeClient
         webViewClient = client
+
+        state.viewState?.let { this.restoreState(it) }
+
+        addJavascriptInterface(JavaScriptDownloadInterface(context), JAVASCRIPT_INTERFACE_NAME)
     }.also { state.webView = it }
 }
-
-private const val TWS_INJECTED_INTERFACE_NAME = "tws_injected"

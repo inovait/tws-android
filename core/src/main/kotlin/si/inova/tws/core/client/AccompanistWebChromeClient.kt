@@ -14,19 +14,31 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.manager.local_handler
+package si.inova.tws.core.client
 
-import kotlinx.coroutines.flow.Flow
-import si.inova.tws.manager.data.SnippetUpdateAction
-import si.inova.tws.manager.data.WebSnippetDto
-import java.time.Instant
+import android.graphics.Bitmap
+import android.webkit.WebChromeClient
+import android.webkit.WebView
+import si.inova.tws.core.data.view.LoadingState
+import si.inova.tws.core.data.view.WebViewState
 
-interface LocalSnippetHandler {
-    val updateActionFlow: Flow<SnippetUpdateAction>
+open class AccompanistWebChromeClient : WebChromeClient() {
+    open lateinit var state: WebViewState
+        internal set
 
-    suspend fun updateAndScheduleCheck(snippets: List<WebSnippetDto>)
+    override fun onReceivedTitle(view: WebView, title: String?) {
+        super.onReceivedTitle(view, title)
+        state.pageTitle = title
+    }
 
-    suspend fun calculateDateOffsetAndRerun(serverDate: Instant?, snippets: List<WebSnippetDto>)
+    override fun onReceivedIcon(view: WebView, icon: Bitmap?) {
+        super.onReceivedIcon(view, icon)
+        state.pageIcon = icon
+    }
 
-    fun release()
+    override fun onProgressChanged(view: WebView, newProgress: Int) {
+        super.onProgressChanged(view, newProgress)
+        if (state.loadingState is LoadingState.Finished) return
+        state.loadingState = LoadingState.Loading(newProgress / 100.0f)
+    }
 }

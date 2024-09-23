@@ -14,19 +14,24 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.manager.local_handler
+package si.inova.tws.core.util
 
-import kotlinx.coroutines.flow.Flow
-import si.inova.tws.manager.data.SnippetUpdateAction
-import si.inova.tws.manager.data.WebSnippetDto
-import java.time.Instant
+import android.webkit.CookieManager
+import okhttp3.Cookie
+import okhttp3.CookieJar
+import okhttp3.HttpUrl
 
-interface LocalSnippetHandler {
-    val updateActionFlow: Flow<SnippetUpdateAction>
+class SharedCookieJar(private val cookieManager: CookieManager) : CookieJar {
+    override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
+        cookies.forEach { cookie ->
+            cookieManager.setCookie(url.toString(), cookie.toString())
+        }
+    }
 
-    suspend fun updateAndScheduleCheck(snippets: List<WebSnippetDto>)
-
-    suspend fun calculateDateOffsetAndRerun(serverDate: Instant?, snippets: List<WebSnippetDto>)
-
-    fun release()
+    override fun loadForRequest(url: HttpUrl): List<Cookie> {
+        val cookieString = cookieManager.getCookie(url.toString()) ?: return emptyList()
+        return cookieString.split(";").mapNotNull { cookiePart ->
+            Cookie.parse(url, cookiePart.trim())
+        }
+    }
 }

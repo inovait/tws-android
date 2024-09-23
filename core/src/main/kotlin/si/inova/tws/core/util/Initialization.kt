@@ -14,56 +14,41 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.manager.singleton
+package si.inova.tws.core.util
 
-import com.appmattus.certificatetransparency.certificateTransparencyInterceptor
-import com.squareup.moshi.FromJson
-import com.squareup.moshi.Moshi
-import com.squareup.moshi.ToJson
+import android.content.Context
+import android.webkit.CookieManager
 import jakarta.inject.Singleton
 import okhttp3.OkHttpClient
-import si.inova.kotlinova.retrofit.interceptors.BypassCacheInterceptor
-import java.time.Instant
-import java.time.ZoneOffset
-import java.time.format.DateTimeFormatter
-import java.time.format.DateTimeFormatter.ISO_INSTANT
+import si.inova.kotlinova.core.reporting.ErrorReporter
+import si.inova.kotlinova.retrofit.caching.GlobalOkHttpDiskCacheManager
+import kotlin.coroutines.cancellation.CancellationException
 
 @Singleton
-internal fun twsMoshi(): Moshi {
-    if (Thread.currentThread().name == "main") {
-        error("Moshi should not be initialized on the main thread")
-    }
-
-    return Moshi.Builder()
-        .add(InstantJsonAdapter())
-        .build()
-}
-
-@Singleton
-internal fun twsOkHttpClient(): OkHttpClient {
+internal fun webViewHttpClient(context: Context): OkHttpClient {
     if (Thread.currentThread().name == "main") {
         error("OkHttp should not be initialized on the main thread")
     }
 
-    return prepareDefaultOkHttpClient().build()
-}
+    val manager = GlobalOkHttpDiskCacheManager(context, provideErrorReporter)
+    val cookieManager = CookieManager.getInstance().also { it.setAcceptCookie(true) }
 
-internal fun prepareDefaultOkHttpClient(): OkHttpClient.Builder {
     return OkHttpClient.Builder()
-        .addInterceptor(BypassCacheInterceptor())
-        .addNetworkInterceptor(certificateTransparencyInterceptor())
+        .cache(manager.cache)
+        .cookieJar(SharedCookieJar(cookieManager))
+        .build()
 }
 
-internal class InstantJsonAdapter {
-    private val formatter: DateTimeFormatter = ISO_INSTANT.withZone(ZoneOffset.UTC)
+@Singleton
+internal val provideErrorReporter = ErrorReporter {
+    object : ErrorReporter {
+        override fun report(throwable: Throwable) {
+            if (throwable is CancellationException) {
+                report(Exception("Got cancellation exception", throwable))
+                return
+            }
 
-    @ToJson
-    fun toJson(instant: Instant): String {
-        return formatter.format(instant)
-    }
-
-    @FromJson
-    fun fromJson(timestamp: String): Instant {
-        return Instant.from(formatter.parse(timestamp))
+            throwable.printStackTrace()
+        }
     }
 }
