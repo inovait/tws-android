@@ -17,6 +17,7 @@
 package si.inova.tws.core
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.background
@@ -53,7 +54,6 @@ import si.inova.tws.core.util.compose.SnippetErrorView
 import si.inova.tws.core.util.compose.SnippetLoadingView
 import si.inova.tws.core.util.compose.TabIconHandler
 import si.inova.tws.core.util.onScreenReset
-import timber.log.Timber
 
 /**
  *
@@ -114,7 +114,8 @@ fun TabsWebSnippetComponent(
         var tabIndex by rememberSaveable(targets.size.toString()) {
             mutableIntStateOf(
                 if (targets.size <= mainTabIndex) {
-                    Timber.e(
+                    Log.e(
+                        "OutOfBounds",
                         "targetUrl size should be > then mainTabIndex: " +
                             "targetUrls.size = ${targets.size} mainTabIndex = $mainTabIndex"
                     )

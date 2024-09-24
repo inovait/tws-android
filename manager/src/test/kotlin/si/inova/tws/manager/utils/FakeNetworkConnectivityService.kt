@@ -14,11 +14,16 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.manager.service
+package si.inova.tws.manager.utils
 
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.filterNotNull
 import si.inova.tws.manager.data.NetworkStatus
+import si.inova.tws.manager.service.NetworkConnectivityService
 
-interface NetworkConnectivityService {
-    val networkStatus: Flow<NetworkStatus>
+class FakeNetworkConnectivityService: NetworkConnectivityService {
+    private val _networkStatus = MutableStateFlow<NetworkStatus>(NetworkStatus.Connected)
+    override val networkStatus: Flow<NetworkStatus>
+        get() = _networkStatus.filterNotNull()
 }

@@ -23,9 +23,9 @@ import com.squareup.moshi.JsonClass
 @Keep
 @JsonClass(generateAdapter = false)
 enum class SnippetType {
-    @Json(name = "Popup")
+    @Json(name = "popup")
     POPUP,
 
-    @Json(name = "Tab")
+    @Json(name = "tab")
     TAB
 }

@@ -17,20 +17,30 @@
 package si.inova.tws.manager
 
 import android.content.Context
+import android.util.Log
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingCommand
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.WhileSubscribed
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import si.inova.kotlinova.core.exceptions.UnknownCauseException
 import si.inova.kotlinova.core.outcome.CauseException
-import si.inova.kotlinova.core.outcome.CoroutineResourceManager
 import si.inova.kotlinova.core.outcome.Outcome
 import si.inova.kotlinova.core.outcome.mapData
+import si.inova.kotlinova.retrofit.callfactory.bodyOrThrow
 import si.inova.tws.manager.cache.CacheManager
 import si.inova.tws.manager.cache.FileCacheManager
+import si.inova.tws.manager.data.NetworkStatus
 import si.inova.tws.manager.data.SnippetStatus
 import si.inova.tws.manager.data.SnippetType
 import si.inova.tws.manager.data.WebSnippetDto
@@ -40,49 +50,81 @@ import si.inova.tws.manager.factory.create
 import si.inova.tws.manager.local_handler.LocalSnippetHandler
 import si.inova.tws.manager.local_handler.LocalSnippetHandlerImpl
 import si.inova.tws.manager.network.WebSnippetFunction
-import si.inova.tws.manager.singleton.coroutineResourceManager
+import si.inova.tws.manager.service.NetworkConnectivityService
+import si.inova.tws.manager.service.NetworkConnectivityServiceImpl
 import si.inova.tws.manager.web_socket.TwsSocket
 import si.inova.tws.manager.web_socket.TwsSocketImpl
-import timber.log.Timber
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.time.Duration.Companion.seconds
 
 class WebSnippetManagerImpl(
     context: Context,
-    private val resources: CoroutineResourceManager = coroutineResourceManager,
+    tag: String = DEFAULT_MANAGER_TAG,
+    private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default),
     private val webSnippetFunction: WebSnippetFunction = BaseServiceFactory().create(),
-    private val twsSocket: TwsSocket? = TwsSocketImpl(context, resources.scope),
-    private val localSnippetHandler: LocalSnippetHandler? = LocalSnippetHandlerImpl(resources.scope),
-    private val cacheManager: CacheManager? = FileCacheManager(context)
+    private val twsSocket: TwsSocket? = TwsSocketImpl(scope),
+    private val networkConnectivityService: NetworkConnectivityService = NetworkConnectivityServiceImpl(context),
+    private val localSnippetHandler: LocalSnippetHandler? = LocalSnippetHandlerImpl(scope),
+    private val cacheManager: CacheManager? = FileCacheManager(context, tag)
 ) : WebSnippetManager {
     private val snippetsFlow: MutableStateFlow<Outcome<List<WebSnippetDto>>> = MutableStateFlow(Outcome.Progress())
+    private val seenPopupSnippetsFlow: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
 
     private var collectingSocket: Boolean = false
     private var collectingLocalHandler: Boolean = false
 
+    private var orgId: String? = null
+    private var projId: String? = null
+
     private val _mainSnippetIdFlow: MutableStateFlow<String?> = MutableStateFlow(null)
     override val mainSnippetIdFlow: Flow<String?> = _mainSnippetIdFlow
 
+    // collect with collectAsStateWithLifecycle so the websocket reconnection will work
     override val popupSnippetsFlow = snippetsFlow.map { outcome ->
         outcome.mapData { data ->
             data.filter {
                 it.type == SnippetType.POPUP && it.status == SnippetStatus.ENABLED
             }
         }
-    }
+    }.distinctUntilChanged()
 
+    // collect with collectAsStateWithLifecycle so the websocket reconnection will work
     override val contentSnippetsFlow = snippetsFlow.map { outcome ->
         outcome.mapData { data ->
             data.filter {
                 it.type == SnippetType.TAB && it.status == SnippetStatus.ENABLED
             }
         }
-    }
+    }.distinctUntilChanged()
+
+    override val unseenPopupSnippetsFlow: Flow<List<WebSnippetDto>> = combine(
+        popupSnippetsFlow,
+        seenPopupSnippetsFlow
+    ) { allPopups, seenPopups ->
+        if (allPopups !is Outcome.Success) {
+            emptyList()
+        } else {
+            allPopups.data.filter { !seenPopups.contains(it.id) }
+        }
+    }.distinctUntilChanged()
 
     init {
-        resources.scope.launch {
-            snippetsFlow.collect { outcome ->
-                outcome.data?.let {
-                    localSnippetHandler?.launchAndCollect(it)
+        scope.launch {
+            networkConnectivityService.networkStatus.collect {
+                when (it) {
+                    is NetworkStatus.Connected -> {
+                        if (twsSocket?.connectionExists() == true) return@collect
+                        val organizationId = orgId
+                        val projectId = projId
+
+                        if (organizationId != null && projectId != null) {
+                            loadWebSnippets(organizationId, projectId)
+                        }
+                    }
+
+                    is NetworkStatus.Disconnected -> {
+                        closeWebsocketConnection()
+                    }
                 }
             }
         }
@@ -104,6 +146,8 @@ class WebSnippetManagerImpl(
 
     override suspend fun loadWebSnippets(organizationId: String, projectId: String) {
         try {
+            orgId = organizationId
+            projId = projectId
             loadProjectAndSetupWss(organizationId, projectId)
         } catch (e: CauseException) {
             snippetsFlow.emit(Outcome.Error(e, snippetsFlow.value.data))
@@ -116,13 +160,30 @@ class WebSnippetManagerImpl(
         twsSocket?.closeWebsocketConnection()
     }
 
+    override fun markPopupsAsSeen(ids: List<String>) {
+        seenPopupSnippetsFlow.value += ids
+    }
+
+    override fun release() {
+        closeWebsocketConnection()
+        localSnippetHandler?.release()
+        scope.cancel()
+    }
+
     private suspend fun loadProjectAndSetupWss(
         organizationId: String,
         projectId: String
     ) {
         snippetsFlow.emit(Outcome.Progress(cacheManager?.load(CACHED_SNIPPETS)))
 
-        val twsProject = webSnippetFunction.getWebSnippets(organizationId, projectId, "someApiKey")
+        val twsProjectResponse = webSnippetFunction.getWebSnippets(organizationId, projectId, "someApiKey")
+        val twsProject = twsProjectResponse.bodyOrThrow()
+
+        localSnippetHandler?.calculateDateOffsetAndRerun(
+            twsProjectResponse.headers().getDate(HEADER_DATE)?.toInstant(),
+            twsProject.snippets
+        )
+
         val wssUrl = twsProject.listenOn
 
         snippetsFlow.emit(Outcome.Success(twsProject.snippets))
@@ -130,25 +191,44 @@ class WebSnippetManagerImpl(
 
         twsSocket?.launchAndCollect(wssUrl)
         localSnippetHandler?.launchAndCollect(twsProject.snippets)
+
+        SharingStarted.WhileSubscribed(5.seconds).command(snippetsFlow.subscriptionCount).collect {
+            when (it) {
+                SharingCommand.START -> {
+                    if (twsSocket?.connectionExists() == false) {
+                        twsSocket.launchAndCollect(wssUrl)
+                    }
+                }
+
+                SharingCommand.STOP,
+                SharingCommand.STOP_AND_RESET_REPLAY_CACHE -> {
+                    closeWebsocketConnection()
+                }
+            }
+        }
     }
 
-    private fun saveToCache(snippets: List<WebSnippetDto>) = resources.scope.launch(Dispatchers.IO) {
+    private fun saveToCache(snippets: List<WebSnippetDto>) = scope.launch(Dispatchers.IO) {
         try {
             cacheManager?.save(CACHED_SNIPPETS, snippets)
         } catch (e: Exception) {
-            Timber.e(e)
+            Log.e(TAG_ERROR_SAVE_CACHE, e.message, e)
         }
     }
 
     private fun TwsSocket.launchAndCollect(wssUrl: String) {
+        if (connectionExists()) return
+        setupWebSocketConnection(wssUrl)
+
         if (collectingSocket) return
         collectingSocket = true
 
-        setupWebSocketConnection(wssUrl)
         updateActionFlow.onEach {
             val oldList = snippetsFlow.value.data ?: emptyList()
+            localSnippetHandler?.launchAndCollect(oldList)
             snippetsFlow.emit(Outcome.Success(oldList.updateWith(it)))
-        }.launchIn(resources.scope).invokeOnCompletion {
+            saveToCache(oldList.updateWith(it))
+        }.launchIn(scope).invokeOnCompletion {
             collectingSocket = false
         }
     }
@@ -162,7 +242,8 @@ class WebSnippetManagerImpl(
         updateActionFlow.onEach {
             val oldList = snippetsFlow.value.data ?: emptyList()
             snippetsFlow.emit(Outcome.Success(oldList.updateWith(it)))
-        }.launchIn(resources.scope).invokeOnCompletion {
+            saveToCache(oldList.updateWith(it))
+        }.launchIn(scope).invokeOnCompletion {
             collectingLocalHandler = false
         }
     }
@@ -170,6 +251,8 @@ class WebSnippetManagerImpl(
     companion object {
         private const val DEFAULT_MANAGER_TAG = "ManagerSharedInstance"
         internal const val CACHED_SNIPPETS = "CachedSnippets"
+        internal const val TAG_ERROR_SAVE_CACHE = "SaveCache"
+        private const val HEADER_DATE: String = "date"
 
         private val instances = ConcurrentHashMap<String, WebSnippetManager>()
 
@@ -177,13 +260,15 @@ class WebSnippetManagerImpl(
             context: Context,
             tag: String? = null,
         ): WebSnippetManager {
-            return instances.computeIfAbsent(tag ?: DEFAULT_MANAGER_TAG) {
-                WebSnippetManagerImpl(context)
+            val managerTag = tag ?: DEFAULT_MANAGER_TAG
+            return instances.computeIfAbsent(managerTag) {
+                WebSnippetManagerImpl(context, tag = managerTag)
             }
         }
 
-        fun removeSharedInstance(key: String) {
-            instances.remove(key)
+        fun removeSharedInstance(tag: String?) {
+            instances.remove(tag ?: DEFAULT_MANAGER_TAG)?.release()
         }
     }
 }
+

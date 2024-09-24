@@ -14,11 +14,24 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.manager.service
+package si.inova.tws.core.client.okhttp
 
-import kotlinx.coroutines.flow.Flow
-import si.inova.tws.manager.data.NetworkStatus
+import android.webkit.CookieManager
+import okhttp3.Cookie
+import okhttp3.CookieJar
+import okhttp3.HttpUrl
 
-interface NetworkConnectivityService {
-    val networkStatus: Flow<NetworkStatus>
+class SharedCookieJar(private val cookieManager: CookieManager) : CookieJar {
+    override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
+        cookies.forEach { cookie ->
+            cookieManager.setCookie(url.toString(), cookie.toString())
+        }
+    }
+
+    override fun loadForRequest(url: HttpUrl): List<Cookie> {
+        val cookieString = cookieManager.getCookie(url.toString()) ?: return emptyList()
+        return cookieString.split(";").mapNotNull { cookiePart ->
+            Cookie.parse(url, cookiePart.trim())
+        }
+    }
 }

@@ -21,56 +21,39 @@ import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
 import java.util.Locale
 
-interface ModifierPageData: Parcelable {
-    val inject: String?
+abstract class ModifierPageData(open val type: ModifierInjectionType): Parcelable {
+    abstract val inject: String?
 }
 
 @Parcelize
-data class ContentInjectData(val content: String, val type: ModifierInjectionType) : ModifierPageData {
+data class ContentInjectData(val content: String, override val type: ModifierInjectionType) : ModifierPageData(type) {
     @IgnoredOnParcel
     override val inject = when (type) {
-        ModifierInjectionType.CSS -> injectContentCss(content)
+        ModifierInjectionType.CSS -> injectContentCss()
         ModifierInjectionType.JAVASCRIPT -> content.trimIndent()
         else -> null
     }
 
-    private fun injectContentCss(value: String): String {
-        return """
-             (function() {
-                 var style = document.createElement('style');
-                 style.type = 'text/css';
-                 style.innerHTML = `$value`;
-                 document.head.appendChild(style);
-             })();
-         """.trimIndent()
+    private fun injectContentCss(): String {
+        return """<style>$content</style>""".trimIndent()
     }
 }
 
 @Parcelize
-data class UrlInjectData(val url: String, val type: ModifierInjectionType) : ModifierPageData {
+data class UrlInjectData(val url: String, override val type: ModifierInjectionType) : ModifierPageData(type) {
     @IgnoredOnParcel
     override val inject = when (type) {
-        ModifierInjectionType.CSS -> injectUrlCss(url)
-        ModifierInjectionType.JAVASCRIPT -> injectUrlJs(url)
+        ModifierInjectionType.CSS -> injectUrlCss()
+        ModifierInjectionType.JAVASCRIPT -> injectUrlJs()
         else -> null
     }
 
-    private fun injectUrlCss(url: String): String {
-        return """
-            var link = document.createElement('link');
-            link.href = '$url';
-            link.rel = 'stylesheet';
-            document.head.appendChild(link);
-         """.trimIndent()
+    private fun injectUrlCss(): String {
+        return """<link rel="stylesheet" href="$url">""".trimIndent()
     }
 
-    private fun injectUrlJs(url: String): String {
-        return """
-            var script = document.createElement('script');
-            script.src = '$url';
-            script.type = 'text/javascript';
-            document.head.appendChild(script);
-         """.trimIndent()
+    private fun injectUrlJs(): String {
+        return """<script src="$url" type="text/javascript"></script>"""
     }
 }
 

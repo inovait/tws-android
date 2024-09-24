@@ -39,12 +39,19 @@ class LocalSnippetHandlerImpl(
     private var snippets: List<WebSnippetDto> = emptyList()
     private var scheduledJob: Job? = null  // Reference to the currently scheduled job
 
+    private var dateDifference: Long? = null
+
+    override suspend fun calculateDateOffsetAndRerun(serverDate: Instant?, snippets: List<WebSnippetDto>) {
+        dateDifference = timeProvider.currentInstant().minusMillis(serverDate?.toEpochMilli() ?: 0).toEpochMilli()
+        updateAndScheduleCheck(snippets)
+    }
+
     override suspend fun updateAndScheduleCheck(snippets: List<WebSnippetDto>) {
         // Cancel any previously scheduled check to avoid duplicate checks
         scheduledJob?.cancel()
 
         this.snippets = snippets
-        val now = timeProvider.currentInstant()
+        val now = timeProvider.currentInstant().minusMillis(dateDifference ?: 0)
 
         // Delete all snippets that should be hidden
         checkAndDeleteSnippets(snippets, now)
@@ -53,8 +60,12 @@ class LocalSnippetHandlerImpl(
         scheduleNextDeletion()
     }
 
+    override fun release() {
+        scheduledJob?.cancel()
+    }
+
     private fun scheduleNextDeletion() {
-        val now = timeProvider.currentInstant()
+        val now = timeProvider.currentInstant().minusMillis(dateDifference ?: 0)
 
         // Schedule next deletion at earliest untilUtc of remaining snippets
         val nextScheduledCheck = snippets
