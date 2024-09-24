@@ -41,6 +41,7 @@ import si.inova.tws.manager.utils.FAKE_SNIPPET_THREE
 import si.inova.tws.manager.utils.FAKE_SNIPPET_TWO
 import si.inova.tws.manager.utils.FakeCacheManager
 import si.inova.tws.manager.utils.FakeLocalSnippetHandler
+import si.inova.tws.manager.utils.FakeNetworkConnectivityService
 import si.inova.tws.manager.utils.FakeTwsSocket
 import si.inova.tws.manager.utils.FakeWebSnippetFunction
 import si.inova.tws.manager.utils.toActionBody
@@ -53,6 +54,7 @@ class WebSnippetManagerImplTest {
     private val socket = FakeTwsSocket()
     private val handler = FakeLocalSnippetHandler()
     private val cache = FakeCacheManager()
+    private val networkConnectivityService = FakeNetworkConnectivityService()
 
     private lateinit var webSnippetManager: WebSnippetManagerImpl
 
@@ -65,7 +67,8 @@ class WebSnippetManagerImplTest {
             webSnippetFunction = functions,
             twsSocket = socket,
             localSnippetHandler = handler,
-            cacheManager = cache
+            cacheManager = cache,
+            networkConnectivityService = networkConnectivityService
         )
         cache.clear()
     }

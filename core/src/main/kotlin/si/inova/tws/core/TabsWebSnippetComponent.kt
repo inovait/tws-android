@@ -16,14 +16,12 @@
 
 package si.inova.tws.core
 
+import android.annotation.SuppressLint
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
@@ -38,7 +36,6 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
@@ -57,7 +54,6 @@ import si.inova.tws.core.util.compose.SnippetErrorView
 import si.inova.tws.core.util.compose.SnippetLoadingView
 import si.inova.tws.core.util.compose.TabIconHandler
 import si.inova.tws.core.util.onScreenReset
-import timber.log.Timber
 
 /**
  *
@@ -89,6 +85,7 @@ import timber.log.Timber
  * @param tabIconHandler set how to handle tab icon (resources or url)
  */
 @Composable
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter") // WebView can be scrollable and do not want to limit padding
 fun TabsWebSnippetComponent(
     targets: ImmutableList<WebSnippetData>,
     modifier: Modifier = Modifier,
@@ -117,7 +114,8 @@ fun TabsWebSnippetComponent(
         var tabIndex by rememberSaveable(targets.size.toString()) {
             mutableIntStateOf(
                 if (targets.size <= mainTabIndex) {
-                    Timber.e(
+                    Log.e(
+                        "OutOfBounds",
                         "targetUrl size should be > then mainTabIndex: " +
                             "targetUrls.size = ${targets.size} mainTabIndex = $mainTabIndex"
                     )
@@ -163,45 +161,33 @@ fun TabsWebSnippetComponent(
                     tabIconHandler = tabIconHandler
                 )
             }
-        ) { padding ->
-            Column(
-                modifier = Modifier
-                    .padding(padding)
-                    .fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
-                ) {
-                    Crossfade(
-                        targetState = tabIndex.coerceAtMost(targets.size - 1),
-                        label = "Animation while changing tabs"
-                    ) { targetIndex ->
-                        // can crash because of the animation if tab is deleted
-                        val coercedIndex = targetIndex.coerceAtMost(targets.size - 1)
+        ) { _ ->
+            Crossfade(
+                modifier = Modifier.fillMaxSize(),
+                targetState = tabIndex.coerceAtMost(targets.size - 1),
+                label = "Animation while changing tabs"
+            ) { targetIndex ->
+                // can crash because of the animation if tab is deleted
+                val coercedIndex = targetIndex.coerceAtMost(targets.size - 1)
 
-                        DoOnScreenReset {
-                            onScreenReset(webViewStatesMap[coercedIndex])
-                        }
-
-                        WebSnippetComponent(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .background(Color.White),
-                            target = targets[coercedIndex],
-                            webViewState = webViewStatesMap[coercedIndex],
-                            navigator = navigatorsMap[coercedIndex],
-                            displayErrorViewOnError = displayErrorViewOnError,
-                            errorViewContent = errorViewContent,
-                            displayPlaceholderWhileLoading = displayPlaceholderWhileLoading,
-                            loadingPlaceholderContent = loadingPlaceholderContent,
-                            interceptOverrideUrl = interceptOverrideUrl,
-                            googleLoginRedirectUrl = googleLoginRedirectUrl
-                        )
-                    }
+                DoOnScreenReset {
+                    onScreenReset(webViewStatesMap[coercedIndex])
                 }
+
+                WebSnippetComponent(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.White),
+                    target = targets[coercedIndex],
+                    webViewState = webViewStatesMap[coercedIndex],
+                    navigator = navigatorsMap[coercedIndex],
+                    displayErrorViewOnError = displayErrorViewOnError,
+                    errorViewContent = errorViewContent,
+                    displayPlaceholderWhileLoading = displayPlaceholderWhileLoading,
+                    loadingPlaceholderContent = loadingPlaceholderContent,
+                    interceptOverrideUrl = interceptOverrideUrl,
+                    googleLoginRedirectUrl = googleLoginRedirectUrl
+                )
             }
         }
     }
