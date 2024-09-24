@@ -25,38 +25,70 @@ interface WebSnippetPopup {
         const val WEB_SNIPPET_DATA = "webSnippetData"
         const val WEB_SNIPPET_ID = "webSnippetId"
         const val MANAGER_TAG = "managerTag"
+        const val STATUS_BAR_COLOR = "statusBarColor"
+        const val NAVIGATION_BAR_COLOR = "navigationBarColor"
 
-        fun open(context: Context, popup: WebSnippetData) {
+        fun open(
+            context: Context,
+            popup: WebSnippetData,
+            statusBarColor: String? = null,
+            navigationBarColor: String? = null
+        ) {
             context.startActivity(
                 Intent(context, WebSnippetInterstitialActivity::class.java).apply {
                     putExtra(WEB_SNIPPET_DATA, popup)
+                    putExtra(STATUS_BAR_COLOR, statusBarColor)
+                    putExtra(NAVIGATION_BAR_COLOR, navigationBarColor)
                 }
             )
         }
 
-        fun open(context: Context, popups: List<WebSnippetData>) {
+        fun open(
+            context: Context,
+            popups: List<WebSnippetData>,
+            statusBarColor: String? = null,
+            navigationBarColor: String? = null
+        ) {
             val intents = popups.map {
                 Intent(context, WebSnippetInterstitialActivity::class.java).apply {
                     putExtra(WEB_SNIPPET_DATA, it)
+                    putExtra(STATUS_BAR_COLOR, statusBarColor)
+                    putExtra(NAVIGATION_BAR_COLOR, navigationBarColor)
                 }
             }.toTypedArray()
             context.startActivities(intents)
         }
 
-        fun open(context: Context, id: String, tag: String? = null) {
+        fun open(
+            context: Context,
+            id: String,
+            tag: String? = null,
+            statusBarColor: String? = null,
+            navigationBarColor: String? = null
+        ) {
             context.startActivity(
                 Intent(context, WebSnippetInterstitialActivity::class.java).apply {
                     putExtra(WEB_SNIPPET_ID, id)
                     putExtra(MANAGER_TAG, tag)
+                    putExtra(STATUS_BAR_COLOR, statusBarColor)
+                    putExtra(NAVIGATION_BAR_COLOR, navigationBarColor)
                 }
             )
         }
 
-        fun open(context: Context, ids: List<String>, tag: String? = null) {
+        fun open(
+            context: Context,
+            ids: List<String>,
+            tag: String? = null,
+            statusBarColor: String? = null,
+            navigationBarColor: String? = null
+        ) {
             val intents = ids.map {
                 Intent(context, WebSnippetInterstitialActivity::class.java).apply {
                     putExtra(WEB_SNIPPET_ID, it)
                     putExtra(MANAGER_TAG, tag)
+                    putExtra(STATUS_BAR_COLOR, statusBarColor)
+                    putExtra(NAVIGATION_BAR_COLOR, navigationBarColor)
                 }
             }.toTypedArray()
             context.startActivities(intents)
