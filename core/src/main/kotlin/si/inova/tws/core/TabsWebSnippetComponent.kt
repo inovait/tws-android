@@ -19,6 +19,8 @@ package si.inova.tws.core
 import android.annotation.SuppressLint
 import android.util.Log
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -38,6 +40,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -140,7 +143,7 @@ fun TabsWebSnippetComponent(
             tabIndex = if (targets.size <= mainTabIndex) 0 else mainTabIndex
         }
 
-        val targetScreens: List<@Composable () -> Unit > = targets.mapIndexed { i, data ->
+        val targetScreens: List<@Composable () -> Unit> = targets.mapIndexed { i, data ->
             {
                 val loadFirstTime = rememberSaveable { mutableStateOf(false) }
                 LaunchedEffect(tabIndex) {
@@ -201,9 +204,16 @@ fun TabsWebSnippetComponent(
         ) { _ ->
             Box(modifier = Modifier.fillMaxSize()) {
                 targetScreens.forEachIndexed { index, screen ->
+                    val animatedZIndex by animateFloatAsState(
+                        targetValue = if (index == tabIndex) 1f else 0f,
+                        animationSpec = tween(durationMillis = 500),
+                        label = "Animation while changing tabs"
+                    )
+
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
+                            .alpha(animatedZIndex)
                             .zIndex(if (index == tabIndex) 1f else 0f)
                     ) {
                         screen()
