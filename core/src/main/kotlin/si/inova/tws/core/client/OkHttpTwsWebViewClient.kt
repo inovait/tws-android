@@ -30,6 +30,7 @@ import si.inova.tws.core.data.ModifierInjectionType
 import si.inova.tws.core.data.ModifierPageData
 import si.inova.tws.core.data.view.WebViewState
 import si.inova.tws.core.client.okhttp.webViewHttpClient
+import si.inova.tws.core.data.ContentInjectData
 import si.inova.tws.core.data.view.LoadingState
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -163,7 +164,7 @@ class OkHttpTwsWebViewClient(
     }
 
     private fun String.insertJs(): String {
-        val combinedJsInjection = dynamicModifiers
+        val combinedJsInjection = (dynamicModifiers + STATIC_INJECT_DATA)
             .filter { it.type == ModifierInjectionType.JAVASCRIPT }
             .joinToString(separator = System.lineSeparator()) { it.inject ?: "" }.trimIndent()
 
@@ -189,3 +190,9 @@ class OkHttpTwsWebViewClient(
 }
 
 private const val GET_REQUEST = "GET"
+private val STATIC_INJECT_DATA = listOf(
+    ContentInjectData(
+        "var tws_injected = true;",
+        ModifierInjectionType.JAVASCRIPT
+    )
+)

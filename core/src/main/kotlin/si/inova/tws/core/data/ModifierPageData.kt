@@ -30,8 +30,12 @@ data class ContentInjectData(val content: String, override val type: ModifierInj
     @IgnoredOnParcel
     override val inject = when (type) {
         ModifierInjectionType.CSS -> injectContentCss()
-        ModifierInjectionType.JAVASCRIPT -> content.trimIndent()
+        ModifierInjectionType.JAVASCRIPT -> injectContentJs()
         else -> null
+    }
+
+    private fun injectContentJs(): String {
+        return """<script type="text/javascript">$content</script>""".trimIndent()
     }
 
     private fun injectContentCss(): String {
