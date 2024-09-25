@@ -1,3 +1,36 @@
+# 0.9.0
+
+### Features
+
+* **interstitial**: customisable systeam bar ([f0de8f2a](https://github.com/inovait/tws-android-sdk/commit/f0de8f2abca176bcc0b1af63be6d147d72003932))
+* **manager**: expose unseen popups and allow developer to mark a popup as seen ([233b67f5](https://github.com/inovait/tws-android-sdk/commit/233b67f5197846f3e2f33a5f789e66efb021cfad))
+* **interstitial**: let the developer enable popups collecting and opening ([0c13b51b](https://github.com/inovait/tws-android-sdk/commit/0c13b51bdeaacf3a4e90387468507f93dae30e23))
+* **core**: let the developer override main request in webview for better css/js injection ([e74051ea](https://github.com/inovait/tws-android-sdk/commit/e74051eab8b5f086a648f2b708d284218aa28b37))
+* **core**: sync cookies between web view and okhttp3 ([8ac17d8e](https://github.com/inovait/tws-android-sdk/commit/8ac17d8ef1a50ec9b7f0236819a88987751e6c84))
+* **manager**: try to reconnect to websocket if connection fails ([8944cc6e](https://github.com/inovait/tws-android-sdk/commit/8944cc6ec9150287e71ccd0677c8b80c54e3b6e6))
+* **core**: add js injection with modifying response content ([00725a64](https://github.com/inovait/tws-android-sdk/commit/00725a64e5debc6386d87436e7c8ed643aab1178))
+* **core**: add support for stale-if-error cache-control header ([28ec7ba5](https://github.com/inovait/tws-android-sdk/commit/28ec7ba5607890d9e26b9b62d01bb0996fa72d3e))
+* **core**: expose override requests errors if any occurs ([14096eff](https://github.com/inovait/tws-android-sdk/commit/14096eff6c478ebcda8867ae71667522e2d179d2))
+* **core**: if webview loaded stay saved in tab screen ([42788a4d](https://github.com/inovait/tws-android-sdk/commit/42788a4dcfcbd937557cbd07f5bbe16d6b4e5f50))
+* **core**: always inject tws_injected=true to web snippet mainFrame requests ([369cb443](https://github.com/inovait/tws-android-sdk/commit/369cb4433cdc16c3908078fef5b60ddb8482122e))
+
+### Bug Fixes
+
+* **core**: open unspecified file type ([42d81c36](https://github.com/inovait/tws-android-sdk/commit/42d81c3616c4532084eecf0bde164a27d09d55f7))
+* **manager**: replace CoroutineResourceManager with Scope in ManagerImpl ([dbe48a72](https://github.com/inovait/tws-android-sdk/commit/dbe48a720c6a7ed84c105f8f049326ba3240b775))
+* **manager**: add manager tag to FileCacheManager, to separate between caches for different managers ([14fbab37](https://github.com/inovait/tws-android-sdk/commit/14fbab37ffc564a00dd790d691b4697b3ad1c721))
+* **manager**: emit only distinct values ([ed4324ec](https://github.com/inovait/tws-android-sdk/commit/ed4324ecf45bd16c9ccc7f17c1bbcd7748bac3ca))
+* **interstitial**: check if nullable separately ([2925831e](https://github.com/inovait/tws-android-sdk/commit/2925831e6d60aedb85b349888e10fa0a6edaaaf1))
+* **manager**: get date and time from server ([0d2bd576](https://github.com/inovait/tws-android-sdk/commit/0d2bd576692cff7df4649334800915fbf3211bf2))
+* **core**: do not add system padding to tab snippets ([6277dd97](https://github.com/inovait/tws-android-sdk/commit/6277dd97f5c8e2d47348ea02361794d52d62953c))
+* **core**: it can happen that webview is restored before client is overriden, meaning default client is used for request ([7312e3fe](https://github.com/inovait/tws-android-sdk/commit/7312e3fee75992dbba0878bd28bc8bd1537c259c))
+* **core**: keep title and icon visible when page starts loading ([76077bb5](https://github.com/inovait/tws-android-sdk/commit/76077bb584d13ff43e757bb74f51eeab9c239697))
+* **manager**: use lowercase json name for enum values ([5c57dd72](https://github.com/inovait/tws-android-sdk/commit/5c57dd72bee6568a0f06a891e66cbe51a5216bb1))
+* **manager**: if network connection is lost and on network reconnect get web socket connection back ([453088be](https://github.com/inovait/tws-android-sdk/commit/453088be658b70002febae8373bc8bcbaa97ff81))
+* reconnecting websocket on lifecycle and on network reconnect ([ef83d57e](https://github.com/inovait/tws-android-sdk/commit/ef83d57e3f70a464683d97003a4e56657d63b8de))
+* **core**: stop video playing when switching tabs ([587c0d20](https://github.com/inovait/tws-android-sdk/commit/587c0d2002d152cd73a9ae08f98961bc3e25f2b2))
+* **core**: added animation on changing tabs ([40b8ac4e](https://github.com/inovait/tws-android-sdk/commit/40b8ac4e148b6c827e1a1a36515ff9492a533fd6))
+
 # 0.8.0
 
 ### Features
