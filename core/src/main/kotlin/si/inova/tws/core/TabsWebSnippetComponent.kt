@@ -146,6 +146,9 @@ fun TabsWebSnippetComponent(
                 LaunchedEffect(tabIndex) {
                     if (i == tabIndex) {
                         loadFirstTime.value = true
+                        webViewStatesMap[i].webView?.onResume()
+                    } else {
+                        webViewStatesMap[i].webView?.onPause()
                     }
                 }
 
