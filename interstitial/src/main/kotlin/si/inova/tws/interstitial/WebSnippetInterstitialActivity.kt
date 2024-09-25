@@ -16,6 +16,7 @@
 
 package si.inova.tws.interstitial
 
+import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -33,6 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
+import androidx.core.view.WindowCompat
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import si.inova.kotlinova.core.outcome.Outcome
@@ -41,6 +43,8 @@ import si.inova.tws.core.data.ModifierInjectionType
 import si.inova.tws.core.data.UrlInjectData
 import si.inova.tws.core.data.WebSnippetData
 import si.inova.tws.interstitial.WebSnippetPopup.Companion.MANAGER_TAG
+import si.inova.tws.interstitial.WebSnippetPopup.Companion.NAVIGATION_BAR_COLOR
+import si.inova.tws.interstitial.WebSnippetPopup.Companion.STATUS_BAR_COLOR
 import si.inova.tws.interstitial.WebSnippetPopup.Companion.WEB_SNIPPET_DATA
 import si.inova.tws.interstitial.WebSnippetPopup.Companion.WEB_SNIPPET_ID
 import si.inova.tws.manager.WebSnippetManagerImpl
@@ -49,6 +53,17 @@ import si.inova.tws.manager.data.WebSnippetDto
 class WebSnippetInterstitialActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val statusColor = intent.getStringExtra(STATUS_BAR_COLOR)
+        val navigationColor = intent.getStringExtra(NAVIGATION_BAR_COLOR)
+
+        if (statusColor != null) {
+            window.statusBarColor = Color.parseColor(statusColor)
+        }
+
+        if (navigationColor != null) {
+            window.navigationBarColor = Color.parseColor(navigationColor)
+        }
 
         val webSnippetId = intent.getStringExtra(WEB_SNIPPET_ID)
         val managerTag = intent.getStringExtra(MANAGER_TAG)
@@ -62,6 +77,11 @@ class WebSnippetInterstitialActivity : ComponentActivity() {
         } else {
             @Suppress("DEPRECATION")
             intent.getParcelableExtra(WEB_SNIPPET_DATA)
+        }
+
+        // observe for new popups if opened via manager
+        webSnippetId?.let {
+            launchPopupCollecting(this, managerTag)
         }
 
         setContent {

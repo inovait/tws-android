@@ -14,11 +14,31 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.manager.service
+package si.inova.tws.core.client
 
-import kotlinx.coroutines.flow.Flow
-import si.inova.tws.manager.data.NetworkStatus
+import android.graphics.Bitmap
+import android.webkit.WebChromeClient
+import android.webkit.WebView
+import si.inova.tws.core.data.view.LoadingState
+import si.inova.tws.core.data.view.WebViewState
 
-interface NetworkConnectivityService {
-    val networkStatus: Flow<NetworkStatus>
+open class AccompanistWebChromeClient : WebChromeClient() {
+    open lateinit var state: WebViewState
+        internal set
+
+    override fun onReceivedTitle(view: WebView, title: String?) {
+        super.onReceivedTitle(view, title)
+        state.pageTitle = title
+    }
+
+    override fun onReceivedIcon(view: WebView, icon: Bitmap?) {
+        super.onReceivedIcon(view, icon)
+        state.pageIcon = icon
+    }
+
+    override fun onProgressChanged(view: WebView, newProgress: Int) {
+        super.onProgressChanged(view, newProgress)
+        if (state.loadingState is LoadingState.Finished) return
+        state.loadingState = LoadingState.Loading(newProgress / 100.0f)
+    }
 }

@@ -16,29 +16,22 @@
 
 package si.inova.tws.manager.web_socket
 
-import android.content.Context
+import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.WebSocket
-import si.inova.tws.manager.data.NetworkStatus
-import si.inova.tws.manager.service.NetworkConnectivityService
-import si.inova.tws.manager.service.NetworkConnectivityServiceImpl
+import si.inova.tws.manager.data.WebSocketStatus
 import si.inova.tws.manager.web_socket.SnippetWebSocketListener.Companion.CLOSING_CODE_ERROR_CODE
-import timber.log.Timber
 
 /**
  *
  * Creation of The Web Snippet websocket
  *
  */
-class TwsSocketImpl(
-    context: Context,
-    scope: CoroutineScope,
-) : TwsSocket {
+class TwsSocketImpl(scope: CoroutineScope) : TwsSocket {
     private val listener = SnippetWebSocketListener()
-    private val networkConnectivityService: NetworkConnectivityService = NetworkConnectivityServiceImpl(context)
 
     private var webSocket: WebSocket? = null
     private var wssUrl: String? = null
@@ -47,10 +40,17 @@ class TwsSocketImpl(
 
     init {
         scope.launch {
-            networkConnectivityService.networkStatus.collect {
-                val wssUrl = wssUrl
-                if (webSocket != null && it is NetworkStatus.Connected && wssUrl != null) {
-                    setupWebSocketConnection(wssUrl)
+            listener.socketStatus.collect { status ->
+                when (status) {
+                    is WebSocketStatus.Failed -> {
+                        if (status.response?.code != 401 && status.response?.code != 403) {
+                            wssUrl?.let {
+                                setupWebSocketConnection(it)
+                            }
+                        }
+                    }
+
+                    else -> {}
                 }
             }
         }
@@ -63,8 +63,6 @@ class TwsSocketImpl(
      *     exception by calling [HttpUrl.parse]; it returns null for invalid URLs.
      */
     override fun setupWebSocketConnection(setupWssUrl: String) {
-        if (wssUrl == setupWssUrl) return
-
         if (wssUrl != null) {
             // wss url changed, close previous and open new
             closeWebsocketConnection()
@@ -79,7 +77,7 @@ class TwsSocketImpl(
             webSocket = client.newWebSocket(request, listener)
             client.dispatcher.executorService.shutdown()
         } catch (e: Exception) {
-            Timber.e("Websocket error", e)
+            Log.e(TAG_ERROR_WEBSOCKET, e.message, e)
         }
     }
 
@@ -92,7 +90,20 @@ class TwsSocketImpl(
      */
     override fun closeWebsocketConnection(): Boolean? {
         return webSocket?.close(CLOSING_CODE_ERROR_CODE, null).apply {
+            wssUrl = null
             webSocket = null
         }
+    }
+
+
+    /**
+     *
+     * Check if connections exists
+     *
+     */
+    override fun connectionExists(): Boolean = webSocket != null
+
+    companion object {
+        private const val TAG_ERROR_WEBSOCKET = "WebsocketError"
     }
 }

@@ -33,6 +33,7 @@ import si.inova.tws.manager.utils.FAKE_SNIPPET_ONE
 import si.inova.tws.manager.utils.FAKE_SNIPPET_THREE
 import si.inova.tws.manager.utils.FAKE_SNIPPET_TWO
 import si.inova.tws.manager.utils.setVisibility
+import java.time.Instant
 import java.util.concurrent.TimeUnit
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -74,7 +75,7 @@ class LocalSnippetHandlerImplTest {
 
     @Test
     fun `Check for deletion with active snippets and schedule its deletion`() = scope.runTest {
-        val willExpireSnippet = FAKE_SNIPPET_ONE.setVisibility(952077660000) // 3.3.2020 10:01
+        val willExpireSnippet = FAKE_SNIPPET_ONE.setVisibility(952077660000) // 3.3.2000 10:01
 
         handler.updateActionFlow.test {
             handler.updateAndScheduleCheck(listOf(willExpireSnippet, FAKE_SNIPPET_TWO, FAKE_SNIPPET_THREE))
@@ -85,6 +86,70 @@ class LocalSnippetHandlerImplTest {
             val delay = TimeUnit.MINUTES.toMillis(1) + 1
             timePassedBy += delay
             advanceTimeBy(TimeUnit.MINUTES.toMillis(1) + 1)
+
+            val action = awaitItem()
+            assert(action == SnippetUpdateAction(ActionType.DELETED, ActionBody(id = willExpireSnippet.id)))
+        }
+    }
+
+    @Test
+    fun `Check for deletion with server time in past`() = scope.runTest {
+        val willExpireSnippet = FAKE_SNIPPET_ONE.setVisibility(952077660000) // 3.3.2000 10:01
+
+        val serverDate = Instant.ofEpochMilli(952077540000) // 3.3.2000 09:59 - 1 minute in past of current time on mobile
+
+        handler.updateActionFlow.test {
+            handler.calculateDateOffsetAndRerun(serverDate, listOf(willExpireSnippet, FAKE_SNIPPET_TWO, FAKE_SNIPPET_THREE))
+            runCurrent()
+
+            expectNoEvents()
+
+            val delay = TimeUnit.MINUTES.toMillis(2) + 1
+            timePassedBy += delay
+            advanceTimeBy(delay)
+
+            val action = awaitItem()
+            assert(action == SnippetUpdateAction(ActionType.DELETED, ActionBody(id = willExpireSnippet.id)))
+        }
+    }
+
+    @Test
+    fun `Check for deletion with server time in future`() = scope.runTest {
+        val willExpireSnippet = FAKE_SNIPPET_ONE.setVisibility(952078260000) // 3.3.2000 10:11
+
+        val serverDate = Instant.ofEpochMilli(952077900000) // 3.3.2000 10:05 - 5 minute in future of current time on mobile
+
+        handler.updateActionFlow.test {
+            handler.calculateDateOffsetAndRerun(serverDate, listOf(willExpireSnippet, FAKE_SNIPPET_TWO, FAKE_SNIPPET_THREE))
+            runCurrent()
+
+            expectNoEvents()
+
+            val delay = TimeUnit.MINUTES.toMillis(6) + 1
+            timePassedBy += delay
+            advanceTimeBy(delay)
+
+            val action = awaitItem()
+            assert(action == SnippetUpdateAction(ActionType.DELETED, ActionBody(id = willExpireSnippet.id)))
+        }
+    }
+
+    @Test
+    fun `Check for deletion with server time in future and at the start empty list of snippets`() = scope.runTest {
+        val willExpireSnippet = FAKE_SNIPPET_ONE.setVisibility(952078260000) // 3.3.2000 10:11
+
+        val serverDate = Instant.ofEpochMilli(952077900000) // 3.3.2000 10:05 - 5 minute in future of current time on mobile
+        handler.calculateDateOffsetAndRerun(serverDate, emptyList())
+
+        handler.updateActionFlow.test {
+            handler.updateAndScheduleCheck(listOf(willExpireSnippet, FAKE_SNIPPET_TWO, FAKE_SNIPPET_THREE))
+            runCurrent()
+
+            expectNoEvents()
+
+            val delay = TimeUnit.MINUTES.toMillis(6) + 1
+            timePassedBy += delay
+            advanceTimeBy(delay)
 
             val action = awaitItem()
             assert(action == SnippetUpdateAction(ActionType.DELETED, ActionBody(id = willExpireSnippet.id)))

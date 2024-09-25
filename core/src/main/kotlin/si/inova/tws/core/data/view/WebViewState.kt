@@ -67,10 +67,10 @@ class WebViewState(webContent: WebContent) {
         get() = loadingState !is LoadingState.Finished
 
     /**
-     * Whether the webview is currently loading data in its main frame
+     * Whether the webviews request has any errors
      */
     val hasError: Boolean
-        get() = errorsForCurrentRequest.size > 0
+        get() = webViewErrorsForCurrentRequest.size > 0 || customErrorsForCurrentRequest.size > 0
 
     /**
      * The title received from the loaded content of the current page
@@ -95,7 +95,15 @@ class WebViewState(webContent: WebContent) {
      * Errors could be from any resource (iframe, image, etc.), not just for the main page.
      * For more fine grained control use the OnError callback of the WebView.
      */
-    val errorsForCurrentRequest: SnapshotStateList<WebViewError> = mutableStateListOf()
+    val webViewErrorsForCurrentRequest: SnapshotStateList<WebViewError> = mutableStateListOf()
+
+    /**
+     * A list for errors captured in the last load. Reset when a new page is loaded.
+     * Errors could be from any resource (iframe, image, etc.), not just for the main page.
+     * For more fine grained control use the OnError callback of the WebView.
+     */
+    val customErrorsForCurrentRequest: SnapshotStateList<Exception> = mutableStateListOf()
+
 
     /**
      * The saved view state from when the view was destroyed last. To restore state,

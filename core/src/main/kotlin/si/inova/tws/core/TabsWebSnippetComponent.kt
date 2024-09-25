@@ -16,14 +16,14 @@
 
 package si.inova.tws.core
 
+import android.annotation.SuppressLint
+import android.util.Log
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
@@ -35,14 +35,16 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import si.inova.tws.core.data.TabIcon
@@ -57,7 +59,6 @@ import si.inova.tws.core.util.compose.SnippetErrorView
 import si.inova.tws.core.util.compose.SnippetLoadingView
 import si.inova.tws.core.util.compose.TabIconHandler
 import si.inova.tws.core.util.onScreenReset
-import timber.log.Timber
 
 /**
  *
@@ -89,6 +90,7 @@ import timber.log.Timber
  * @param tabIconHandler set how to handle tab icon (resources or url)
  */
 @Composable
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter") // WebView can be scrollable and do not want to limit padding
 fun TabsWebSnippetComponent(
     targets: ImmutableList<WebSnippetData>,
     modifier: Modifier = Modifier,
@@ -117,7 +119,8 @@ fun TabsWebSnippetComponent(
         var tabIndex by rememberSaveable(targets.size.toString()) {
             mutableIntStateOf(
                 if (targets.size <= mainTabIndex) {
-                    Timber.e(
+                    Log.e(
+                        "OutOfBounds",
                         "targetUrl size should be > then mainTabIndex: " +
                             "targetUrls.size = ${targets.size} mainTabIndex = $mainTabIndex"
                     )
@@ -138,6 +141,41 @@ fun TabsWebSnippetComponent(
 
         BackHandler(tabIndex != mainTabIndex) {
             tabIndex = if (targets.size <= mainTabIndex) 0 else mainTabIndex
+        }
+
+        val targetScreens: List<@Composable () -> Unit> = targets.mapIndexed { i, data ->
+            {
+                val loadFirstTime = rememberSaveable { mutableStateOf(false) }
+                LaunchedEffect(tabIndex) {
+                    if (i == tabIndex) {
+                        loadFirstTime.value = true
+                        webViewStatesMap[i].webView?.onResume()
+                    } else {
+                        webViewStatesMap[i].webView?.onPause()
+                    }
+                }
+
+                if (loadFirstTime.value) {
+                    DoOnScreenReset {
+                        onScreenReset(webViewStatesMap[i])
+                    }
+
+                    WebSnippetComponent(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color.White),
+                        target = data,
+                        webViewState = webViewStatesMap[i],
+                        navigator = navigatorsMap[i],
+                        displayErrorViewOnError = displayErrorViewOnError,
+                        errorViewContent = errorViewContent,
+                        displayPlaceholderWhileLoading = displayPlaceholderWhileLoading,
+                        loadingPlaceholderContent = loadingPlaceholderContent,
+                        interceptOverrideUrl = interceptOverrideUrl,
+                        googleLoginRedirectUrl = googleLoginRedirectUrl
+                    )
+                }
+            }
         }
 
         Scaffold(
@@ -163,43 +201,22 @@ fun TabsWebSnippetComponent(
                     tabIconHandler = tabIconHandler
                 )
             }
-        ) { padding ->
-            Column(
-                modifier = Modifier
-                    .padding(padding)
-                    .fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
-                ) {
-                    Crossfade(
-                        targetState = tabIndex.coerceAtMost(targets.size - 1),
+        ) { _ ->
+            Box(modifier = Modifier.fillMaxSize()) {
+                targetScreens.forEachIndexed { index, screen ->
+                    val animatedZIndex by animateFloatAsState(
+                        targetValue = if (index == tabIndex) 1f else 0f,
+                        animationSpec = tween(durationMillis = 500),
                         label = "Animation while changing tabs"
-                    ) { targetIndex ->
-                        // can crash because of the animation if tab is deleted
-                        val coercedIndex = targetIndex.coerceAtMost(targets.size - 1)
+                    )
 
-                        DoOnScreenReset {
-                            onScreenReset(webViewStatesMap[coercedIndex])
-                        }
-
-                        WebSnippetComponent(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .background(Color.White),
-                            target = targets[coercedIndex],
-                            webViewState = webViewStatesMap[coercedIndex],
-                            navigator = navigatorsMap[coercedIndex],
-                            displayErrorViewOnError = displayErrorViewOnError,
-                            errorViewContent = errorViewContent,
-                            displayPlaceholderWhileLoading = displayPlaceholderWhileLoading,
-                            loadingPlaceholderContent = loadingPlaceholderContent,
-                            interceptOverrideUrl = interceptOverrideUrl,
-                            googleLoginRedirectUrl = googleLoginRedirectUrl
-                        )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .alpha(animatedZIndex)
+                            .zIndex(if (index == tabIndex) 1f else 0f)
+                    ) {
+                        screen()
                     }
                 }
             }

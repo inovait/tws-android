@@ -27,6 +27,8 @@ class FakeTwsSocket : TwsSocket {
 
     override fun closeWebsocketConnection(): Boolean { return true }
 
+    override fun connectionExists(): Boolean = false
+
     suspend fun mockUpdateAction(action: SnippetUpdateAction) {
         updateActionFlow.emit(action)
     }
