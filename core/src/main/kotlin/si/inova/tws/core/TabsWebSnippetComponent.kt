@@ -24,6 +24,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
@@ -180,9 +181,7 @@ fun TabsWebSnippetComponent(
 
         Scaffold(
             modifier = modifier,
-            topBar = {
-                topBar(webViewStatesMap[tabIndex.coerceAtMost(targets.size - 1)].pageTitle)
-            },
+            topBar = { topBar(webViewStatesMap[tabIndex.coerceAtMost(targets.size - 1)].pageTitle) },
             bottomBar = {
                 BottomTabRow(
                     tabsContainerColor = tabsContainerColor,
@@ -201,8 +200,12 @@ fun TabsWebSnippetComponent(
                     tabIconHandler = tabIconHandler
                 )
             }
-        ) { _ ->
-            Box(modifier = Modifier.fillMaxSize()) {
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize().
+                    padding(top = it.calculateTopPadding(), bottom = it.calculateBottomPadding())
+            ) {
                 targetScreens.forEachIndexed { index, screen ->
                     val animatedZIndex by animateFloatAsState(
                         targetValue = if (index == tabIndex) 1f else 0f,
