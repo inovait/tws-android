@@ -25,6 +25,7 @@ android {
     namespace = "si.inova.tws.core"
 
     buildFeatures {
+        compose = true
         androidResources = true
     }
 }
@@ -48,4 +49,6 @@ dependencies {
     implementation(libs.kotlinova.retrofit)
     implementation(libs.kotlinova.core)
     implementation(libs.inject)
+
+    debugImplementation(libs.androidx.compose.ui.tooling)
 }

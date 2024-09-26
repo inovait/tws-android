@@ -14,49 +14,22 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-import util.publishLibrary
+package si.inova.tws.core.util.compose
 
-plugins {
-    androidLibraryModule
-    kotlin("kapt")
-}
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
+import si.inova.tws.core.R
+import java.net.ConnectException
+import java.net.SocketTimeoutException
+import java.net.UnknownHostException
 
-android {
-    namespace = "si.inova.tws.manager"
+@Composable
+internal fun Exception.getUserFriendlyMessage(): String {
+    return when (this) {
+        is UnknownHostException,
+        is ConnectException,
+        is SocketTimeoutException -> stringResource(id = R.string.error_no_network)
 
-    testOptions {
-        unitTests.all {
-            it.useJUnit()
-        }
+        else -> stringResource(id = R.string.error_general)
     }
-}
-
-publishLibrary(
-    userFriendlyName = "tws-manager",
-    description = "A collection of manager and network connection",
-    githubPath = "manager",
-)
-
-dependencies {
-    api(libs.kotlinova.core)
-    implementation(libs.kotlinova.retrofit)
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.dispatch)
-    implementation(libs.retrofit.moshi)
-    implementation(libs.retrofit.scalars)
-    implementation(libs.certificateTransparency)
-    implementation(libs.moshi.kotlin)
-    implementation(libs.inject)
-    implementation(libs.moshi.adapters)
-
-    kapt(libs.moshi.codegen)
-
-    testImplementation(libs.kotlinova.core.test)
-    testImplementation(libs.kotlin.coroutines.test)
-    testImplementation(libs.mockito)
-    testImplementation(libs.junit)
-    testImplementation(libs.kotlinova.retrofit.test)
-    testImplementation(libs.turbine)
-    testImplementation(libs.mockk)
-
 }

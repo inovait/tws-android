@@ -5,6 +5,7 @@ coilCompose = "2.7.0"
 kotlin = "2.0.0"
 coreKtx = "1.13.1"
 junit = "4.13.2"
+mockk = "1.13.12"
 moshiKotlin = "1.15.1"
 okhttp = "4.12.0"
 runner = "1.0.2"
@@ -34,6 +35,7 @@ androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = 
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-browser = { module = "androidx.browser:browser", version.ref = "androidx-browser" }
+mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 moshi-adapters = { module = "com.squareup.moshi:moshi-adapters", version.ref = "moshiKotlin" }
 moshi-kotlin = { module = "com.squareup.moshi:moshi-kotlin", version.ref = "moshiKotlin" }
 moshi-codegen = { module = "com.squareup.moshi:moshi-kotlin-codegen", version.ref = "moshiKotlin" }
@@ -43,6 +45,7 @@ kotlin-immutableCollections = { module = "org.jetbrains.kotlinx:kotlinx-collecti
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activity-compose" }
 androidx-compose-material3 = { module = "androidx.compose.material3:material3", version.ref = "androidx-compose-material3" }
 androidx-compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "androidx-compose" }
+androidx-compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "androidx-compose" }
 kotlin-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 android-agp = { module = "com.android.tools.build:gradle", version.ref = "agp" }
 v-checker-plugin = { module = "com.github.ben-manes:gradle-versions-plugin", version.ref = "versionsChecker" }

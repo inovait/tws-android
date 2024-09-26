@@ -29,7 +29,7 @@ import kotlinx.coroutines.launch
 import si.inova.tws.manager.WebSnippetManagerImpl
 
 @Composable
-fun LaunchedEffectWithPopupCollecting(managerTag: String?) {
+fun LaunchedEffectWithPopupCollecting(managerTag: String? = null) {
     val owner = LocalLifecycleOwner.current
     val context = LocalContext.current
     LaunchedEffect(managerTag ?: Unit) {
