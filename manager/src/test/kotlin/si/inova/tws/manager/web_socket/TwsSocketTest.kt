@@ -20,8 +20,8 @@ import android.util.Log
 import io.mockk.every
 import io.mockk.mockkStatic
 import junit.framework.TestCase.assertTrue
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import okhttp3.WebSocket
@@ -32,6 +32,7 @@ import si.inova.kotlinova.core.test.TestScopeWithDispatcherProvider
 import si.inova.kotlinova.core.test.testMainImmediateBackgroundScope
 import si.inova.tws.manager.data.SnippetUpdateAction
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class TwsSocketTest {
     private val scope = TestScopeWithDispatcherProvider()
 
@@ -50,7 +51,7 @@ class TwsSocketTest {
     }
 
     @Test
-    fun `test setupWebSocketConnection opens socket`() = runBlocking {
+    fun `test setupWebSocketConnection opens socket`() = scope.runTest {
         val testUrl = "wss://example.com/socket"
 
         twsSocket.setupWebSocketConnection(testUrl)
@@ -59,7 +60,7 @@ class TwsSocketTest {
     }
 
     @Test
-    fun `test closeWebSocketConnection closes socket`() {
+    fun `test closeWebSocketConnection closes socket`() = scope.runTest {
         twsSocket.setupWebSocketConnection("wss://example.com/socket")
 
         assertTrue(twsSocket.connectionExists())
