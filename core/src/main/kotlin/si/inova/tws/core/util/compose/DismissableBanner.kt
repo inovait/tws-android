@@ -47,7 +47,7 @@ import si.inova.tws.core.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun BannerWithSwipeToDismiss() {
+internal fun ErrorBannerWithSwipeToDismiss(bannerText: String) {
     val dismissState = rememberSwipeToDismissBoxState()
     SwipeToDismissBox(
         state = dismissState,
@@ -79,7 +79,7 @@ internal fun BannerWithSwipeToDismiss() {
             Spacer(modifier = Modifier.width(8.dp))
 
             Text(
-                text = stringResource(R.string.stale_data_displayed),
+                text = bannerText,
                 textAlign = TextAlign.Center,
                 color = Color.White,
                 style = MaterialTheme.typography.bodyMedium
@@ -90,6 +90,12 @@ internal fun BannerWithSwipeToDismiss() {
 
 @Composable
 @Preview
-private fun BannerPreview() {
-    BannerWithSwipeToDismiss()
+private fun BannerPreviewNoNetwork() {
+    ErrorBannerWithSwipeToDismiss(stringResource(R.string.error_no_network))
+}
+
+@Composable
+@Preview
+private fun BannerPreviewGeneral() {
+    ErrorBannerWithSwipeToDismiss(stringResource(R.string.error_general))
 }

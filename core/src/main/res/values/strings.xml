@@ -12,5 +12,6 @@
     <string name="file_size_giga_byte">GB</string>
     <string name="file_size_tera_byte">TB</string>
     <string name="file_chooser_title">Choose a file</string>
-    <string name="stale_data_displayed">Oops, we couldn\'t fetch new data. The content may be outdated.</string>
+    <string name="error_general">Oops, something went wrong. Data may be outdated.</string>
+    <string name="error_no_network">Oops, no internet connection. Data may be outdated.</string>
 </resources>
