@@ -48,6 +48,7 @@ import si.inova.tws.core.data.view.WebViewState
 import si.inova.tws.core.client.TwsWebChromeClient
 import si.inova.tws.core.data.view.rememberSaveableWebViewState
 import si.inova.tws.core.data.view.rememberWebViewNavigator
+import si.inova.tws.core.util.compose.BannerWithSwipeToDismiss
 import si.inova.tws.core.util.compose.SnippetErrorView
 import si.inova.tws.core.util.compose.SnippetLoadingView
 import si.inova.tws.core.util.initializeSettings
@@ -198,6 +199,10 @@ private fun SnippetContentWithLoadingAndError(
 
         if (displayErrorContent) {
             errorViewContent()
+        }
+
+        if (webViewState.customErrorsForCurrentRequest.size > 0 && !displayErrorContent) {
+            BannerWithSwipeToDismiss()
         }
     }
 }
