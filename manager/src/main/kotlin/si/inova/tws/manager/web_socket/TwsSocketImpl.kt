@@ -18,6 +18,7 @@ package si.inova.tws.manager.web_socket
 
 import android.util.Log
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -43,9 +44,10 @@ class TwsSocketImpl(scope: CoroutineScope) : TwsSocket {
             listener.socketStatus.collect { status ->
                 when (status) {
                     is WebSocketStatus.Failed -> {
-                        if (status.response?.code != 401 && status.response?.code != 403) {
+                        if (status.response?.code != 403) {
                             wssUrl?.let {
                                 setupWebSocketConnection(it)
+                                delay(RECONNECT_DELAY)
                             }
                         }
                     }
@@ -105,5 +107,6 @@ class TwsSocketImpl(scope: CoroutineScope) : TwsSocket {
 
     companion object {
         private const val TAG_ERROR_WEBSOCKET = "WebsocketError"
+        private const val RECONNECT_DELAY = 5000L
     }
 }
