@@ -203,8 +203,8 @@ fun TabsWebSnippetComponent(
         ) {
             Box(
                 modifier = Modifier
-                    .fillMaxSize().
-                    padding(top = it.calculateTopPadding(), bottom = it.calculateBottomPadding())
+                    .fillMaxSize()
+                    .padding(top = it.calculateTopPadding(), bottom = it.calculateBottomPadding())
             ) {
                 targetScreens.forEachIndexed { index, screen ->
                     val animatedZIndex by animateFloatAsState(
