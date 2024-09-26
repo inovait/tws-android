@@ -1,3 +1,17 @@
+# 0.10.0
+
+### Features
+
+* **core**: display warning banner if displayed data is stale ([138600af](https://github.com/inovait/tws-android-sdk/commit/138600af6a5f525778d075bf1a65281dd39388f1))
+* **core**: display dismissable banner if staled data because of stale-if-error is displayed ([f8ac3d8a](https://github.com/inovait/tws-android-sdk/commit/f8ac3d8a2080c86be3dc849af799c552b7fbe400))
+
+### Bug Fixes
+
+* **core**: top bar overlays web content ([f1f1ad50](https://github.com/inovait/tws-android-sdk/commit/f1f1ad5038e3c55afaeb419f55bc155769293259))
+* **manager**: reconnect when websocket url expires and added 5s delay on reconnection ([096cd769](https://github.com/inovait/tws-android-sdk/commit/096cd769d3a650ff56a3cd5e08513cd8e34c8836))
+* **core**: display composable error view only if request for main frame fails ([eb2fca32](https://github.com/inovait/tws-android-sdk/commit/eb2fca321405c7061f53c3ba3128f862a87056e7))
+* **interstitial**: default to null manager tag, which will result in using DEFAULT_TAG ([776071b0](https://github.com/inovait/tws-android-sdk/commit/776071b09b93b60b53be2e7911df6d6ae7c80571))
+
 # 0.9.0
 
 ### Features
