@@ -67,10 +67,11 @@ class WebViewState(webContent: WebContent) {
         get() = loadingState !is LoadingState.Finished
 
     /**
-     * Whether the webviews request has any errors
+     * Whether the webviews main frame request has any errors
      */
     val hasError: Boolean
-        get() = webViewErrorsForCurrentRequest.size > 0 || customErrorsForCurrentRequest.size > 0
+        get() = webViewErrorsForCurrentRequest.any { it.request?.isForMainFrame == true } ||
+            customErrorsForCurrentRequest.size > 0
 
     /**
      * The title received from the loaded content of the current page
