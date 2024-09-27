@@ -191,21 +191,6 @@ class WebSnippetManagerImpl(
 
         twsSocket?.launchAndCollect(wssUrl)
         localSnippetHandler?.launchAndCollect(twsProject.snippets)
-
-        SharingStarted.WhileSubscribed(5.seconds).command(snippetsFlow.subscriptionCount).collect {
-            when (it) {
-                SharingCommand.START -> {
-                    if (twsSocket?.connectionExists() == false) {
-                        twsSocket.launchAndCollect(wssUrl)
-                    }
-                }
-
-                SharingCommand.STOP,
-                SharingCommand.STOP_AND_RESET_REPLAY_CACHE -> {
-                    closeWebsocketConnection()
-                }
-            }
-        }
     }
 
     private fun saveToCache(snippets: List<WebSnippetDto>) = scope.launch(Dispatchers.IO) {
@@ -230,6 +215,24 @@ class WebSnippetManagerImpl(
             saveToCache(oldList.updateWith(it))
         }.launchIn(scope).invokeOnCompletion {
             collectingSocket = false
+        }
+
+        // Close web socket connection when there are no subscribers and reconnect when resubscribed
+        scope.launch {
+            SharingStarted.WhileSubscribed(5.seconds).command(snippetsFlow.subscriptionCount).collect {
+                when (it) {
+                    SharingCommand.START -> {
+                        if (twsSocket?.connectionExists() == false) {
+                            twsSocket.launchAndCollect(wssUrl)
+                        }
+                    }
+
+                    SharingCommand.STOP,
+                    SharingCommand.STOP_AND_RESET_REPLAY_CACHE -> {
+                        closeWebsocketConnection()
+                    }
+                }
+            }
         }
     }
 
