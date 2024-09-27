@@ -44,6 +44,7 @@ import si.inova.tws.manager.data.NetworkStatus
 import si.inova.tws.manager.data.SnippetStatus
 import si.inova.tws.manager.data.SnippetType
 import si.inova.tws.manager.data.WebSnippetDto
+import si.inova.tws.manager.data.WebSocketStatus
 import si.inova.tws.manager.data.updateWith
 import si.inova.tws.manager.factory.BaseServiceFactory
 import si.inova.tws.manager.factory.create
@@ -113,17 +114,24 @@ class WebSnippetManagerImpl(
             networkConnectivityService.networkStatus.collect {
                 when (it) {
                     is NetworkStatus.Connected -> {
-                        if (twsSocket?.connectionExists() == true) return@collect
-                        val organizationId = orgId
-                        val projectId = projId
-
-                        if (organizationId != null && projectId != null) {
-                            loadWebSnippets(organizationId, projectId)
-                        }
+                        twsSocket?.reconnect()
                     }
 
                     is NetworkStatus.Disconnected -> {
                         closeWebsocketConnection()
+                    }
+                }
+            }
+        }
+
+        scope.launch {
+            twsSocket?.socketStatus?.collect { status ->
+                if (status is WebSocketStatus.Failed && status.response?.code == 401) {
+                    val organizationId = orgId
+                    val projectId = projId
+
+                    if (organizationId != null && projectId != null) {
+                        loadProjectAndSetupWss(organizationId, projectId)
                     }
                 }
             }
@@ -202,7 +210,6 @@ class WebSnippetManagerImpl(
     }
 
     private fun TwsSocket.launchAndCollect(wssUrl: String) {
-        if (connectionExists()) return
         setupWebSocketConnection(wssUrl)
 
         if (collectingSocket) return
@@ -217,23 +224,7 @@ class WebSnippetManagerImpl(
             collectingSocket = false
         }
 
-        // Close web socket connection when there are no subscribers and reconnect when resubscribed
-        scope.launch {
-            SharingStarted.WhileSubscribed(5.seconds).command(snippetsFlow.subscriptionCount).collect {
-                when (it) {
-                    SharingCommand.START -> {
-                        if (twsSocket?.connectionExists() == false) {
-                            twsSocket.launchAndCollect(wssUrl)
-                        }
-                    }
-
-                    SharingCommand.STOP,
-                    SharingCommand.STOP_AND_RESET_REPLAY_CACHE -> {
-                        closeWebsocketConnection()
-                    }
-                }
-            }
-        }
+        socketReconnectionLifecycle()
     }
 
     private suspend fun LocalSnippetHandler.launchAndCollect(snippets: List<WebSnippetDto>) {
@@ -251,11 +242,29 @@ class WebSnippetManagerImpl(
         }
     }
 
+    /**
+     * Close web socket connection when there are no subscribers and reconnect when resubscribed
+     */
+    private fun socketReconnectionLifecycle() = scope.launch {
+        SharingStarted.WhileSubscribed(5.seconds).command(snippetsFlow.subscriptionCount).collect {
+            when (it) {
+                SharingCommand.START -> {
+                    twsSocket?.reconnect()
+                }
+
+                SharingCommand.STOP,
+                SharingCommand.STOP_AND_RESET_REPLAY_CACHE -> {
+                    closeWebsocketConnection()
+                }
+            }
+        }
+    }
+
     companion object {
         private const val DEFAULT_MANAGER_TAG = "ManagerSharedInstance"
         internal const val CACHED_SNIPPETS = "CachedSnippets"
         internal const val TAG_ERROR_SAVE_CACHE = "SaveCache"
-        private const val HEADER_DATE: String = "date"
+        private const val HEADER_DATE = "date"
 
         private val instances = ConcurrentHashMap<String, WebSnippetManager>()
 
