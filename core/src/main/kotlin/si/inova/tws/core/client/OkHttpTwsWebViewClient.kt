@@ -32,9 +32,6 @@ import si.inova.tws.core.data.view.WebViewState
 import si.inova.tws.core.client.okhttp.webViewHttpClient
 import si.inova.tws.core.data.ContentInjectData
 import si.inova.tws.core.data.view.LoadingState
-import java.text.SimpleDateFormat
-import java.util.Locale
-import java.util.TimeZone
 import java.util.concurrent.TimeUnit
 
 class OkHttpTwsWebViewClient(
@@ -116,11 +113,7 @@ class OkHttpTwsWebViewClient(
             ?.toIntOrNull() ?: return null
 
         // Parse the Date header
-        val responseDate = cachedResponse.header("date")?.let {
-            SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US).apply {
-                timeZone = TimeZone.getTimeZone("GMT")
-            }.parse(it)?.time
-        } ?: return null
+        val responseDate = cachedResponse.headers.getDate("date")?.time ?: return null
 
         // Calculate the current age
         val currentAge = cachedResponse.header("age")?.toLongOrNull()?.let { ageHeader ->
