@@ -45,10 +45,14 @@ internal class FileCacheManager(context: Context, tag: String): CacheManager {
         val jsonAdapter = moshi.adapter<List<WebSnippetDto>>(type)
 
         val file = File(cacheDir, key)
-        return if (file.exists()) {
-            val json = file.readText()
-            jsonAdapter.fromJson(json)
-        } else {
+        return try {
+            if (file.exists()) {
+                val json = file.readText()
+                jsonAdapter.fromJson(json)
+            } else {
+                null
+            }
+        } catch (e: Exception) {
             null
         }
     }
