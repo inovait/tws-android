@@ -101,11 +101,7 @@ class WebSnippetManagerImpl(
         popupSnippetsFlow,
         seenPopupSnippetsFlow
     ) { allPopups, seenPopups ->
-        if (allPopups !is Outcome.Success) {
-            emptyList()
-        } else {
-            allPopups.data.filter { !seenPopups.contains(it.id) }
-        }
+        allPopups.data?.filter { !seenPopups.contains(it.id) } ?: emptyList()
     }.distinctUntilChanged()
 
     init {
