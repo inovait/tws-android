@@ -58,5 +58,4 @@ dependencies {
     testImplementation(libs.kotlinova.retrofit.test)
     testImplementation(libs.turbine)
     testImplementation(libs.mockk)
-
 }
