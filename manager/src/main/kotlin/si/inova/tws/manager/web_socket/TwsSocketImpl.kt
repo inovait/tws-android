@@ -36,20 +36,30 @@ class TwsSocketImpl(scope: CoroutineScope) : TwsSocket {
 
     private var webSocket: WebSocket? = null
     private var wssUrl: String? = null
+    private var failedSocketRefresh = 0
 
     override val updateActionFlow = listener.updateActionFlow
+
+    override val socketStatus = listener.socketStatus
 
     init {
         scope.launch {
             listener.socketStatus.collect { status ->
                 when (status) {
                     is WebSocketStatus.Failed -> {
-                        if (status.response?.code != 403) {
+                        if (failedSocketRefresh >= MAXIMUM_RETRIES) return@collect
+                        delay(RECONNECT_DELAY)
+                        failedSocketRefresh++
+
+                        if (status.response?.code != 401 && status.response?.code != 403) {
                             wssUrl?.let {
                                 setupWebSocketConnection(it)
-                                delay(RECONNECT_DELAY)
                             }
                         }
+                    }
+
+                    WebSocketStatus.Open -> {
+                        failedSocketRefresh = 0
                     }
 
                     else -> {}
@@ -83,6 +93,14 @@ class TwsSocketImpl(scope: CoroutineScope) : TwsSocket {
         }
     }
 
+    override fun reconnect() {
+        if (!connectionExists()) {
+            wssUrl?.let {
+                setupWebSocketConnection(it)
+            }
+        }
+    }
+
     /**
      * Attempts to initiate a graceful shutdown of this web socket.
      *
@@ -92,21 +110,15 @@ class TwsSocketImpl(scope: CoroutineScope) : TwsSocket {
      */
     override fun closeWebsocketConnection(): Boolean? {
         return webSocket?.close(CLOSING_CODE_ERROR_CODE, null).apply {
-            wssUrl = null
             webSocket = null
         }
     }
 
-
-    /**
-     *
-     * Check if connections exists
-     *
-     */
     override fun connectionExists(): Boolean = webSocket != null
 
     companion object {
         private const val TAG_ERROR_WEBSOCKET = "WebsocketError"
         private const val RECONNECT_DELAY = 5000L
+        private const val MAXIMUM_RETRIES = 5
     }
 }
