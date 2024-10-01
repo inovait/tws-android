@@ -20,6 +20,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.ViewGroup.LayoutParams
 import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
@@ -42,16 +43,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.LifecycleResumeEffect
-import si.inova.tws.core.data.ModifierPageData
-import si.inova.tws.core.data.view.TwsDownloadListener
-import si.inova.tws.core.data.view.WebContent
-import si.inova.tws.core.data.view.WebViewNavigator
-import si.inova.tws.core.data.view.WebViewState
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import si.inova.tws.core.client.AccompanistWebChromeClient
 import si.inova.tws.core.client.AccompanistWebViewClient
 import si.inova.tws.core.client.OkHttpTwsWebViewClient
 import si.inova.tws.core.client.TwsWebChromeClient
 import si.inova.tws.core.client.TwsWebViewClient
+import si.inova.tws.core.data.ModifierPageData
+import si.inova.tws.core.data.view.TwsDownloadListener
+import si.inova.tws.core.data.view.WebContent
+import si.inova.tws.core.data.view.WebViewNavigator
+import si.inova.tws.core.data.view.WebViewState
 import si.inova.tws.core.data.view.rememberWebViewNavigator
 import si.inova.tws.core.util.JavaScriptDownloadInterface
 import si.inova.tws.core.util.JavaScriptDownloadInterface.Companion.JAVASCRIPT_INTERFACE_NAME
@@ -213,8 +215,14 @@ fun WebView(
     key(key) {
         AndroidView(
             factory = { context ->
+                val layoutInflater = LayoutInflater.from(context)
+                val view = layoutInflater.inflate(R.layout.swipe_refresh_webview, null)
+
+                val swipeRefreshLayout = view.findViewById<SwipeRefreshLayout>(R.id.swipe_refresh_layout)
+
                 createWebView(
                     context = context,
+                    webView = view.findViewById(R.id.web_view),
                     state = state,
                     layoutParams = layoutParams,
                     factory = factory,
@@ -228,15 +236,27 @@ fun WebView(
                     client = client,
                     chromeClient = chromeClient
                 )
+
+                swipeRefreshLayout.setOnRefreshListener {
+                    navigator.reload()
+                }
+
+                view
             },
             modifier = modifier,
             onRelease = {
+                val wv = it.findViewById<WebView>(R.id.web_view)
+
                 state.viewState = Bundle().apply {
-                    it.saveState(this)
+                    wv.saveState(this)
                 }.takeIf { !it.isEmpty } ?: state.viewState
                 state.webView = null
 
-                onDispose(it)
+                onDispose(wv)
+            },
+            update = {
+                val swipeRefreshLayout = it.findViewById<SwipeRefreshLayout>(R.id.swipe_refresh_layout)
+                swipeRefreshLayout.isRefreshing = state.isLoading
             }
         )
     }
@@ -354,6 +374,7 @@ private fun SetupFileChooserLauncher(chromeClient: TwsWebChromeClient) {
 
 private fun createWebView(
     context: Context,
+    webView: WebView,
     state: WebViewState,
     layoutParams: FrameLayout.LayoutParams,
     factory: ((Context) -> WebView)?,
@@ -361,7 +382,7 @@ private fun createWebView(
     client: WebViewClient,
     chromeClient: WebChromeClient
 ): WebView {
-    return (factory?.invoke(context) ?: WebView(context)).apply {
+    return (factory?.invoke(context) ?: webView).apply {
         onCreated(this)
 
         this.layoutParams = layoutParams

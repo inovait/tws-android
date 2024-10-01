@@ -28,6 +28,7 @@ kotlin-coroutines = "1.7.3"
 mockito = "5.13.0"
 turbine = "1.0.0"
 lifecycle = "2.8.5"
+swiperefreshlayout = "1.1.0"
 
 [libraries]
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
@@ -65,6 +66,7 @@ dispatch = { module = "com.rickbusarow.dispatch:dispatch-core", version.ref = "d
 mockito = { module = "org.mockito:mockito-core", version.ref = "mockito" }
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 androidx-lifecycle-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose-android", version.ref = "lifecycle" }
+androidx-swiperefreshlayout = { group = "androidx.swiperefreshlayout", name = "swiperefreshlayout", version.ref = "swiperefreshlayout" }
 
 [plugins]
 versions = { id = "com.github.ben-manes.versions", version.ref = "versionsChecker" }

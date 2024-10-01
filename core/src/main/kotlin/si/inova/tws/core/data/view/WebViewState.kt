@@ -105,7 +105,6 @@ class WebViewState(webContent: WebContent) {
      */
     val customErrorsForCurrentRequest: SnapshotStateList<Exception> = mutableStateListOf()
 
-
     /**
      * The saved view state from when the view was destroyed last. To restore state,
      * use the navigator and only call loadUrl if the bundle is null.
