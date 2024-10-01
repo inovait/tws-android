@@ -21,6 +21,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup.LayoutParams
 import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
@@ -77,6 +78,7 @@ import si.inova.tws.core.util.JavaScriptDownloadInterface.Companion.JAVASCRIPT_I
  * @param modifier A compose modifier
  * @param captureBackPresses Set to true to have this Composable capture back presses and navigate
  * the WebView back.
+ * @param isRefreshable An option to have pull to refresh
  * @param navigator An optional navigator object that can be used to control the WebView's
  * navigation from outside the composable.
  * @param onCreated Called when the WebView is first created, this can be used to set additional
@@ -97,6 +99,7 @@ fun WebView(
     state: WebViewState,
     modifier: Modifier = Modifier,
     captureBackPresses: Boolean = true,
+    isRefreshable: Boolean = true,
     navigator: WebViewNavigator = rememberWebViewNavigator(),
     onCreated: (WebView) -> Unit = {},
     onDispose: (WebView) -> Unit = {},
@@ -129,6 +132,7 @@ fun WebView(
             layoutParams,
             Modifier,
             captureBackPresses,
+            isRefreshable,
             navigator,
             onCreated,
             onDispose,
@@ -156,6 +160,7 @@ fun WebView(
  * @param modifier A compose modifier
  * @param captureBackPresses Set to true to have this Composable capture back presses and navigate
  * the WebView back.
+ * @param isRefreshable An option to have pull to refresh
  * @param navigator An optional navigator object that can be used to control the WebView's
  * navigation from outside the composable.
  * @param onCreated Called when the WebView is first created, this can be used to set additional
@@ -177,6 +182,7 @@ fun WebView(
     layoutParams: FrameLayout.LayoutParams,
     modifier: Modifier = Modifier,
     captureBackPresses: Boolean = true,
+    isRefreshable: Boolean = true,
     navigator: WebViewNavigator = rememberWebViewNavigator(),
     onCreated: (WebView) -> Unit = {},
     onDispose: (WebView) -> Unit = {},
@@ -215,14 +221,26 @@ fun WebView(
     key(key) {
         AndroidView(
             factory = { context ->
-                val layoutInflater = LayoutInflater.from(context)
-                val view = layoutInflater.inflate(R.layout.swipe_refresh_webview, null)
+                val factoryWebView: WebView
+                val rootView: View
 
-                val swipeRefreshLayout = view.findViewById<SwipeRefreshLayout>(R.id.swipe_refresh_layout)
+                if (isRefreshable) {
+                    val layoutInflater = LayoutInflater.from(context)
+                    rootView = layoutInflater.inflate(R.layout.swipe_refresh_webview, null)
+                    val swipeRefreshLayout = rootView.findViewById<SwipeRefreshLayout>(R.id.swipe_refresh_layout)
+                    factoryWebView = rootView.findViewById(R.id.web_view)
+
+                    swipeRefreshLayout.setOnRefreshListener {
+                        navigator.reload()
+                    }
+                } else {
+                    rootView = WebView(context)
+                    factoryWebView = rootView
+                }
 
                 createWebView(
                     context = context,
-                    webView = view.findViewById(R.id.web_view),
+                    webView = factoryWebView,
                     state = state,
                     layoutParams = layoutParams,
                     factory = factory,
@@ -237,15 +255,11 @@ fun WebView(
                     chromeClient = chromeClient
                 )
 
-                swipeRefreshLayout.setOnRefreshListener {
-                    navigator.reload()
-                }
-
-                view
+                rootView
             },
             modifier = modifier,
             onRelease = {
-                val wv = it.findViewById<WebView>(R.id.web_view)
+                val wv = it as? WebView ?: it.findViewById<WebView>(R.id.web_view)
 
                 state.viewState = Bundle().apply {
                     wv.saveState(this)
@@ -255,8 +269,10 @@ fun WebView(
                 onDispose(wv)
             },
             update = {
-                val swipeRefreshLayout = it.findViewById<SwipeRefreshLayout>(R.id.swipe_refresh_layout)
-                swipeRefreshLayout.isRefreshing = state.isLoading
+                if (isRefreshable) {
+                    val swipeRefreshLayout = it.findViewById<SwipeRefreshLayout>(R.id.swipe_refresh_layout)
+                    swipeRefreshLayout.isRefreshing = state.isLoading
+                }
             }
         )
     }
