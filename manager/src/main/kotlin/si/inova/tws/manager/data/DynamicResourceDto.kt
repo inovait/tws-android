@@ -18,6 +18,12 @@ package si.inova.tws.manager.data
 
 import com.squareup.moshi.JsonClass
 
+/**
+ * @property DynamicResourceDto gets a [url] to a file to inject into WebView before page is loaded.
+ *
+ * @param url - path to the file to inject
+ * @param contentType - gets type of file "text/css" or "text/javascript"
+ */
 @JsonClass(generateAdapter = true)
 data class DynamicResourceDto(
     val url: String,
