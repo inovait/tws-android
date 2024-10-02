@@ -29,6 +29,7 @@ mockito = "5.13.0"
 turbine = "1.0.0"
 lifecycle = "2.8.5"
 swiperefreshlayout = "1.1.0"
+dokka = "1.9.20"
 
 [libraries]
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
@@ -72,3 +73,4 @@ androidx-swiperefreshlayout = { group = "androidx.swiperefreshlayout", name = "s
 versions = { id = "com.github.ben-manes.versions", version.ref = "versionsChecker" }
 nexusPublish = { id = "io.codearte.nexus-staging", version.ref = "nexusPublish" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
