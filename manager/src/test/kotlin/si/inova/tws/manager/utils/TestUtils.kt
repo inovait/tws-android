@@ -70,7 +70,6 @@ val FAKE_SNIPPET_SIX = WebSnippetDto(
     type = SnippetType.POPUP
 )
 
-
 val FAKE_PROJECT_DTO = ProjectDto(
     snippets = listOf(FAKE_SNIPPET_ONE, FAKE_SNIPPET_TWO, FAKE_SNIPPET_FOUR, FAKE_SNIPPET_FIVE),
     listenOn = "wss:someUrl.com"
@@ -85,7 +84,8 @@ fun WebSnippetDto.toActionBody() = ActionBody(
     projectId = projectId,
     organizationId = organizationId,
     headers = headers,
-    type = type
+    type = type,
+    dynamicResources = dynamicResources
 )
 
 fun WebSnippetDto.setVisibility(ts: Long) = copy(
