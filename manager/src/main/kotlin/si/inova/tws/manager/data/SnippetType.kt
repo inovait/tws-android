@@ -20,6 +20,9 @@ import androidx.annotation.Keep
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
+/**
+ * @property SnippetType to know if snippet should be fullscreen - [POPUP] or if it should be in list - [TAB]
+ */
 @Keep
 @JsonClass(generateAdapter = false)
 enum class SnippetType {

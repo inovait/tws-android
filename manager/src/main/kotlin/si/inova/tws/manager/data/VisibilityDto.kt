@@ -19,6 +19,9 @@ package si.inova.tws.manager.data
 import com.squareup.moshi.JsonClass
 import java.time.Instant
 
+/**
+ * @property VisibilityDto is used to know how till what time should snippet be visible
+ */
 @JsonClass(generateAdapter = true)
 data class VisibilityDto(
     val untilUtc: Instant? = null

@@ -61,6 +61,7 @@ dependencies {
     implementation(libs.kotlinova.retrofit)
     implementation(libs.kotlinova.core)
     implementation(libs.inject)
+    implementation(libs.androidx.swiperefreshlayout)
 
     debugImplementation(libs.androidx.compose.ui.tooling)
 }

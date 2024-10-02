@@ -91,7 +91,8 @@ fun WebSnippetComponent(
     displayPlaceholderWhileLoading: Boolean = false,
     loadingPlaceholderContent: @Composable () -> Unit = { SnippetLoadingView(false) },
     interceptOverrideUrl: (String) -> Boolean = { false },
-    googleLoginRedirectUrl: String? = null
+    googleLoginRedirectUrl: String? = null,
+    isRefreshable: Boolean = true
 ) {
     LaunchedEffect(navigator, target.loadIteration) {
         if (webViewState.viewState == null) {
@@ -142,7 +143,8 @@ fun WebSnippetComponent(
         interceptOverrideUrl = interceptOverrideUrl,
         errorViewContent = errorViewContent,
         popupStateCallback = popupStateCallback,
-        dynamicModifiers = target.dynamicModifiers
+        dynamicModifiers = target.dynamicModifiers,
+        isRefreshable = isRefreshable
     )
 
     popupStates.value.forEach { state ->
@@ -174,7 +176,8 @@ private fun SnippetContentWithLoadingAndError(
     onCreated: (WebView) -> Unit = {},
     popupStateCallback: ((WebViewState, Boolean) -> Unit)? = null,
     interceptOverrideUrl: (String) -> Boolean,
-    dynamicModifiers: List<ModifierPageData>? = null
+    dynamicModifiers: List<ModifierPageData>? = null,
+    isRefreshable: Boolean,
 ) {
     // https://github.com/google/accompanist/issues/1326 - WebView settings does not work in compose preview
     val isPreviewMode = LocalInspectionMode.current
@@ -195,7 +198,8 @@ private fun SnippetContentWithLoadingAndError(
             interceptOverrideUrl = interceptOverrideUrl,
             dynamicModifiers = dynamicModifiers,
             client = client,
-            chromeClient = chromeClient
+            chromeClient = chromeClient,
+            isRefreshable = isRefreshable
         )
 
         if (displayLoadingContent) {
@@ -224,7 +228,8 @@ private fun PopUpWebView(
     popupNavigator: WebViewNavigator = rememberWebViewNavigator(),
     popupStateCallback: ((WebViewState, Boolean) -> Unit)? = null,
     googleLoginRedirectUrl: String? = null,
-    dynamicModifiers: List<ModifierPageData>? = null
+    dynamicModifiers: List<ModifierPageData>? = null,
+    isRefreshable: Boolean = false
 ) {
     val displayErrorContent = displayErrorViewOnError && popupState.hasError
     val displayLoadingContent =
@@ -271,7 +276,8 @@ private fun PopUpWebView(
                 },
                 popupStateCallback = popupStateCallback,
                 interceptOverrideUrl = interceptOverrideUrl,
-                dynamicModifiers = dynamicModifiers
+                dynamicModifiers = dynamicModifiers,
+                isRefreshable = isRefreshable
             )
         }
     }

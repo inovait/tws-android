@@ -20,6 +20,8 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup.LayoutParams
 import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
@@ -42,16 +44,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.LifecycleResumeEffect
-import si.inova.tws.core.data.ModifierPageData
-import si.inova.tws.core.data.view.TwsDownloadListener
-import si.inova.tws.core.data.view.WebContent
-import si.inova.tws.core.data.view.WebViewNavigator
-import si.inova.tws.core.data.view.WebViewState
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import si.inova.tws.core.client.AccompanistWebChromeClient
 import si.inova.tws.core.client.AccompanistWebViewClient
 import si.inova.tws.core.client.OkHttpTwsWebViewClient
 import si.inova.tws.core.client.TwsWebChromeClient
 import si.inova.tws.core.client.TwsWebViewClient
+import si.inova.tws.core.data.ModifierPageData
+import si.inova.tws.core.data.view.TwsDownloadListener
+import si.inova.tws.core.data.view.WebContent
+import si.inova.tws.core.data.view.WebViewNavigator
+import si.inova.tws.core.data.view.WebViewState
 import si.inova.tws.core.data.view.rememberWebViewNavigator
 import si.inova.tws.core.util.JavaScriptDownloadInterface
 import si.inova.tws.core.util.JavaScriptDownloadInterface.Companion.JAVASCRIPT_INTERFACE_NAME
@@ -71,6 +74,7 @@ import si.inova.tws.core.util.JavaScriptDownloadInterface.Companion.JAVASCRIPT_I
  * @param modifier A compose modifier.
  * @param captureBackPresses Set to true to have this Composable capture back presses and navigate
  * the WebView back.
+ * @param isRefreshable An option to have pull to refresh
  * @param navigator An optional navigator object that can be used to control the WebView's
  * navigation from outside the composable.
  * @param onCreated Called when the WebView is first created, this can be used to set additional
@@ -92,6 +96,7 @@ internal fun WebView(
     state: WebViewState,
     modifier: Modifier = Modifier,
     captureBackPresses: Boolean = true,
+    isRefreshable: Boolean = true,
     navigator: WebViewNavigator = rememberWebViewNavigator(),
     onCreated: (WebView) -> Unit = {},
     onDispose: (WebView) -> Unit = {},
@@ -124,6 +129,7 @@ internal fun WebView(
             layoutParams,
             Modifier,
             captureBackPresses,
+            isRefreshable,
             navigator,
             onCreated,
             onDispose,
@@ -151,6 +157,7 @@ internal fun WebView(
  * @param modifier A compose modifier.
  * @param captureBackPresses Set to true to have this Composable capture back presses and navigate
  * the WebView back.
+ * @param isRefreshable An option to have pull to refresh
  * @param navigator An optional navigator object that can be used to control the WebView's
  * navigation from outside the composable.
  * @param onCreated Called when the WebView is first created, this can be used to set additional
@@ -173,6 +180,7 @@ fun WebView(
     layoutParams: FrameLayout.LayoutParams,
     modifier: Modifier = Modifier,
     captureBackPresses: Boolean = true,
+    isRefreshable: Boolean = true,
     navigator: WebViewNavigator = rememberWebViewNavigator(),
     onCreated: (WebView) -> Unit = {},
     onDispose: (WebView) -> Unit = {},
@@ -211,8 +219,26 @@ fun WebView(
     key(key) {
         AndroidView(
             factory = { context ->
+                val factoryWebView: WebView
+                val rootView: View
+
+                if (isRefreshable) {
+                    val layoutInflater = LayoutInflater.from(context)
+                    rootView = layoutInflater.inflate(R.layout.swipe_refresh_webview, null)
+                    val swipeRefreshLayout = rootView.findViewById<SwipeRefreshLayout>(R.id.swipe_refresh_layout)
+                    factoryWebView = rootView.findViewById(R.id.web_view)
+
+                    swipeRefreshLayout.setOnRefreshListener {
+                        navigator.reload()
+                    }
+                } else {
+                    rootView = WebView(context)
+                    factoryWebView = rootView
+                }
+
                 createWebView(
                     context = context,
+                    webView = factoryWebView,
                     state = state,
                     layoutParams = layoutParams,
                     factory = factory,
@@ -226,15 +252,25 @@ fun WebView(
                     client = client,
                     chromeClient = chromeClient
                 )
+
+                rootView
             },
             modifier = modifier,
             onRelease = {
+                val wv = it as? WebView ?: it.findViewById<WebView>(R.id.web_view)
+
                 state.viewState = Bundle().apply {
-                    it.saveState(this)
+                    wv.saveState(this)
                 }.takeIf { !it.isEmpty } ?: state.viewState
                 state.webView = null
 
-                onDispose(it)
+                onDispose(wv)
+            },
+            update = {
+                if (isRefreshable) {
+                    val swipeRefreshLayout = it.findViewById<SwipeRefreshLayout>(R.id.swipe_refresh_layout)
+                    swipeRefreshLayout.isRefreshing = state.isLoading
+                }
             }
         )
     }
@@ -352,6 +388,7 @@ private fun SetupFileChooserLauncher(chromeClient: TwsWebChromeClient) {
 
 private fun createWebView(
     context: Context,
+    webView: WebView,
     state: WebViewState,
     layoutParams: FrameLayout.LayoutParams,
     factory: ((Context) -> WebView)?,
@@ -359,7 +396,7 @@ private fun createWebView(
     client: WebViewClient,
     chromeClient: WebChromeClient
 ): WebView {
-    return (factory?.invoke(context) ?: WebView(context)).apply {
+    return (factory?.invoke(context) ?: webView).apply {
         onCreated(this)
 
         this.layoutParams = layoutParams
