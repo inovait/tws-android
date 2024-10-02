@@ -28,6 +28,7 @@ import si.inova.kotlinova.core.test.outcomes.shouldBeProgressWith
 import si.inova.kotlinova.core.test.outcomes.shouldBeSuccessWithData
 import si.inova.tws.manager.data.ActionBody
 import si.inova.tws.manager.data.ActionType
+import si.inova.tws.manager.data.DynamicResourceDto
 import si.inova.tws.manager.data.SnippetType
 import si.inova.tws.manager.data.SnippetUpdateAction
 import si.inova.tws.manager.utils.FAKE_PROJECT_DTO
@@ -484,6 +485,42 @@ class WebSnippetManagerImplTest {
 
             val afterSeen = awaitItem() // after marking snippet as seen
             assert(afterSeen == listOf(FAKE_SNIPPET_FIVE))
+        }
+    }
+
+    @Test
+    fun `Update dynamic resources with socket`() = scope.runTest {
+        functions.returnedProject = FAKE_PROJECT_DTO
+
+        webSnippetManager.loadWebSnippets("organization", "project")
+
+        webSnippetManager.contentSnippetsFlow.test {
+            runCurrent()
+
+            expectMostRecentItem().shouldBeSuccessWithData(listOf(FAKE_SNIPPET_ONE, FAKE_SNIPPET_TWO))
+
+            socket.mockUpdateAction(
+                SnippetUpdateAction(
+                    ActionType.UPDATED, ActionBody(
+                        id = FAKE_SNIPPET_ONE.id, dynamicResources = listOf(
+                            DynamicResourceDto("https://test.cs", "text/css")
+                        )
+                    )
+                )
+            )
+
+            expectMostRecentItem().shouldBeSuccessWithData(
+                listOf(
+                    FAKE_SNIPPET_ONE.copy(
+                        loadIteration = FAKE_SNIPPET_ONE.loadIteration + 1,
+                        dynamicResources = listOf(
+                            DynamicResourceDto("https://test.cs", "text/css")
+                        )
+                    ), FAKE_SNIPPET_TWO
+                )
+            )
+
+            expectNoEvents()
         }
     }
 }
