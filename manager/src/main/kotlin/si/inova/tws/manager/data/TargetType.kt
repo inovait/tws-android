@@ -20,37 +20,13 @@ import androidx.annotation.Keep
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
-@Keep
-@JsonClass(generateAdapter = true)
-data class SnippetUpdateAction(
-    val type: ActionType,
-    val data: ActionBody
-)
 
 @Keep
 @JsonClass(generateAdapter = false)
-enum class ActionType {
-    @Json(name = "SNIPPET_CREATED")
-    CREATED,
+enum class TargetType {
+    @Json(name = "url")
+    URL,
 
-    @Json(name = "SNIPPET_UPDATED")
-    UPDATED,
-
-    @Json(name = "SNIPPET_DELETED")
-    DELETED
+    @Json(name = "html")
+    HTML
 }
-
-@Keep
-@JsonClass(generateAdapter = true)
-data class ActionBody(
-    val id: String,
-    val target: String? = null,
-    val html: String? = null,
-    val headers: Map<String, String>? = null,
-    val organizationId: String? = null,
-    val projectId: String? = null,
-    val type: SnippetType? = null,
-    val visibility: VisibilityDto? = null,
-    val dynamicResources: List<DynamicResourceDto>? = null,
-    val targetType: TargetType? = null
-)
