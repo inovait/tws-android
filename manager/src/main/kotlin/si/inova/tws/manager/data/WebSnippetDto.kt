@@ -32,8 +32,7 @@ data class WebSnippetDto(
     val visibility: VisibilityDto? = null,
     val type: SnippetType = SnippetType.TAB,
     val status: SnippetStatus = SnippetStatus.ENABLED,
-    val loadIteration: Int = 0,
-    val targetType: TargetType = TargetType.URL
+    val loadIteration: Int = 0
 )
 
 internal fun List<WebSnippetDto>.updateWith(action: SnippetUpdateAction): List<WebSnippetDto> {
@@ -56,8 +55,7 @@ internal fun List<WebSnippetDto>.insert(data: ActionBody): List<WebSnippetDto> {
                     projectId = data.projectId,
                     visibility = data.visibility,
                     type = data.type ?: SnippetType.TAB,
-                    dynamicResources = data.dynamicResources,
-                    targetType = data.targetType ?: TargetType.URL
+                    dynamicResources = data.dynamicResources
                 )
             )
         }
@@ -74,8 +72,7 @@ internal fun List<WebSnippetDto>.update(data: ActionBody): List<WebSnippetDto> {
                 html = data.html ?: it.html,
                 visibility = data.visibility ?: it.visibility,
                 type = data.type ?: it.type,
-                dynamicResources = data.dynamicResources ?: it.dynamicResources,
-                targetType = data.targetType ?: it.targetType
+                dynamicResources = data.dynamicResources ?: it.dynamicResources
             )
         } else {
             it

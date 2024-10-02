@@ -51,6 +51,5 @@ data class ActionBody(
     val projectId: String? = null,
     val type: SnippetType? = null,
     val visibility: VisibilityDto? = null,
-    val dynamicResources: List<DynamicResourceDto>? = null,
-    val targetType: TargetType? = null
+    val dynamicResources: List<DynamicResourceDto>? = null
 )
