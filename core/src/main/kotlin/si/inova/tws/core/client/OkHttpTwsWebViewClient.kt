@@ -34,6 +34,17 @@ import si.inova.tws.core.data.ContentInjectData
 import si.inova.tws.core.data.view.LoadingState
 import java.util.concurrent.TimeUnit
 
+/**
+ * OkHttpTwsWebViewClient is a specialized subclass of [TwsWebViewClient] that integrates
+ * OkHttp for efficient HTTP request handling and response modification.
+ *
+ * This client overrides the default behavior of WebViewClient to use OkHttp for executing
+ * network requests. It supports dynamic content injection into HTML responses, manages
+ * caching behavior to enhance performance and sync cookie store with default WebView's cookie store..
+ *
+ * @param popupStateCallback An optional callback that handles the visibility state of popups
+ * in the WebView.
+ */
 class OkHttpTwsWebViewClient(
     popupStateCallback: ((WebViewState, Boolean) -> Unit)? = null
 ) : TwsWebViewClient(popupStateCallback) {

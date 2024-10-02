@@ -21,7 +21,7 @@ import okhttp3.Cookie
 import okhttp3.CookieJar
 import okhttp3.HttpUrl
 
-class SharedCookieJar(private val cookieManager: CookieManager) : CookieJar {
+internal class SharedCookieJar(private val cookieManager: CookieManager) : CookieJar {
     override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
         cookies.forEach { cookie ->
             cookieManager.setCookie(url.toString(), cookie.toString())

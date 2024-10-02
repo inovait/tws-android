@@ -214,7 +214,6 @@ fun createWebStateSaver(key: String): Saver<WebViewState, Any> {
 
     return mapSaver(
         save = { state ->
-            // fallback to viewstate from state, if it has not been restored yet (i.e. tab did not come into focus yet)
             val viewState = Bundle().apply {
                 state.webView?.saveState(this)
             }.takeIf { !it.isEmpty } ?: state.viewState

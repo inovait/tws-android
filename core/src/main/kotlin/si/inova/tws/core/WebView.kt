@@ -57,22 +57,18 @@ import si.inova.tws.core.util.JavaScriptDownloadInterface
 import si.inova.tws.core.util.JavaScriptDownloadInterface.Companion.JAVASCRIPT_INTERFACE_NAME
 
 /**
- * NOTE: This is a copy from Accompanists WebView wrapper, since it is not supported anymore and allows
+ *  A wrapper around the Android View WebView to provide a basic WebView composable.
+ *
+ * NOTE: This is a modified copy from Accompanists WebView wrapper, since it is not supported anymore and allows
  * us to further customize the component according to our needs. Check https://google.github.io/accompanist/web/
- * for default implementation or look at the git history of the file to see the customizations
- *
- *
- * A wrapper around the Android View WebView to provide a basic WebView composable.
- *
- * If you require more customisation you are most likely better rolling your own and using this
- * wrapper as an example.
- *
+ * for default implementation.
+ **
  * The WebView attempts to set the layoutParams based on the Compose modifier passed in. If it
  * is incorrectly sizing, use the layoutParams composable function instead.
  *
- * @param key A property, which allows us to recreate webview when needed
+ * @param key A property, which allows us to recreate webview when needed.
  * @param state The webview state holder where the Uri to load is defined.
- * @param modifier A compose modifier
+ * @param modifier A compose modifier.
  * @param captureBackPresses Set to true to have this Composable capture back presses and navigate
  * the WebView back.
  * @param navigator An optional navigator object that can be used to control the WebView's
@@ -82,15 +78,16 @@ import si.inova.tws.core.util.JavaScriptDownloadInterface.Companion.JAVASCRIPT_I
  * subsequently overwritten after this lambda is called.
  * @param onDispose Called when the WebView is destroyed. Provides a bundle which can be saved
  * if you need to save and restore state in this WebView.
- * @param client Provides access to WebViewClient via subclassing
- * @param chromeClient Provides access to WebChromeClient via subclassing
+ * @param client Provides access to WebViewClient via subclassing.
+ * @param chromeClient Provides access to WebChromeClient via subclassing.
  * @param interceptOverrideUrl optional callback, how to handle intercepted urls,
- * return true if do not want to navigate to the new url and return false if navigation to the new url is intact
- * @param factory An optional WebView factory for using a custom subclass of WebView
- * @param dynamicModifiers An optional parameter to set up a JS script.
+ * return true if do not want to navigate to the new url and return false if navigation to the new url is intact.
+ * @param factory An optional WebView factory for using a custom subclass of WebView.
+ * @param dynamicModifiers A list of dynamic modifiers, which will be injected into WebView, applicable
+ * only if client is OkHttpTwsWebViewClient. Dynamic modifier can be either CSS or JS.
  */
 @Composable
-fun WebView(
+internal fun WebView(
     key: Any?,
     state: WebViewState,
     modifier: Modifier = Modifier,
@@ -142,16 +139,16 @@ fun WebView(
 /**
  * A wrapper around the Android View WebView to provide a basic WebView composable.
  *
- * If you require more customisation you are most likely better rolling your own and using this
- * wrapper as an example.
- *
+ * This is a modified copy from Accompanists WebView wrapper, since it is not supported anymore and allows
+ * us to further customize the component according to our needs. Check https://google.github.io/accompanist/web/
+ * for default implementation.
+ **
  * The WebView attempts to set the layoutParams based on the Compose modifier passed in. If it
  * is incorrectly sizing, use the layoutParams composable function instead.
  *
- * @param key A property, which allows us to recreate webview when needed
+ * @param key A property, which allows us to recreate webview when needed.
  * @param state The webview state holder where the Uri to load is defined.
- * @param layoutParams A FrameLayout.LayoutParams object to custom size the underlying WebView.
- * @param modifier A compose modifier
+ * @param modifier A compose modifier.
  * @param captureBackPresses Set to true to have this Composable capture back presses and navigate
  * the WebView back.
  * @param navigator An optional navigator object that can be used to control the WebView's
@@ -161,12 +158,13 @@ fun WebView(
  * subsequently overwritten after this lambda is called.
  * @param onDispose Called when the WebView is destroyed. Provides a bundle which can be saved
  * if you need to save and restore state in this WebView.
- * @param client Provides access to WebViewClient via subclassing
- * @param chromeClient Provides access to WebChromeClient via subclassing
+ * @param client Provides access to WebViewClient via subclassing.
+ * @param chromeClient Provides access to WebChromeClient via subclassing.
  * @param interceptOverrideUrl optional callback, how to handle intercepted urls,
- * return true if do not want to navigate to the new url and return false if navigation to the new url is intact
- * @param factory An optional WebView factory for using a custom subclass of WebView
- * @param dynamicModifiers An optional parameter to inject a JS.
+ * return true if do not want to navigate to the new url and return false if navigation to the new url is intact.
+ * @param factory An optional WebView factory for using a custom subclass of WebView.
+ * @param dynamicModifiers A list of dynamic modifiers, which will be injected into WebView, applicable
+ * only if client is OkHttpTwsWebViewClient. Dynamic modifier can be either CSS or JS.
  */
 @Composable
 fun WebView(

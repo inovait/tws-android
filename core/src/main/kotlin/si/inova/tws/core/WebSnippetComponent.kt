@@ -56,25 +56,29 @@ import si.inova.tws.core.util.initializeSettings
 
 /**
  *
- * Extension of WebView
+ * WebSnippetComponent is a composable function that renders a WebView within a specified context,
+ * allowing dynamic loading and interaction with web content. It provides various customizable options
+ * to handle loading states, error handling, and URL interception.
  *
- *
- * @param target A property, which contains data to show in WebView
- * @param modifier A compose modifier
+ * @param target An object that holds the necessary details to load and render a web snippet.
+ * This includes the URL, custom HTTP headers, and any dynamic modifiers that might be applied to the web view.
+ * @param modifier A compose modifier.
  * @param navigator An optional navigator object that can be used to control the WebView's
  * navigation from outside the composable.
- * @param webViewState State of WebView
- * @param displayErrorViewOnError Show custom error content
- * if there is error during loading WebView content
- * @param errorViewContent If [displayErrorViewOnError] is set to true
- * show this compose error content
- * @param displayPlaceholderWhileLoading Show custom loading animation while loading WebView content
- * @param loadingPlaceholderContent If [displayPlaceholderWhileLoading] is set to true
- * show this compose loading content
- * @param interceptOverrideUrl Optional callback, how to handle intercepted urls,
- * return true if do not want to navigate to the new url and
- * return false if navigation to the new url is intact
- * @param googleLoginRedirectUrl open new intent for google login url
+ * @param webViewState State of WebView.
+ * @param displayErrorViewOnError Whether to show a custom error view if loading the WebView content fails.
+ * If set to true, the provided errorViewContent will be displayed in case of errors.
+ * @param errorViewContent A custom composable that defines the UI content to display when there's an error
+ * loading WebView content. Used only if [displayErrorViewOnError] is set to true.
+ * @param displayPlaceholderWhileLoading If set to true, a placeholder or loading animation will be
+ *  * shown while the WebView content is loading.
+ * @param loadingPlaceholderContent A custom composable that defines the UI content to show while the WebView content is loading.
+ *  Used only if [displayPlaceholderWhileLoading] is set to true.
+ * @param interceptOverrideUrl A lambda function that is invoked when a URL in WebView will be loaded.
+ * Returning true prevents navigation to the new URL (and allowing you to define custom behavior for specific urls),
+ * while returning false allows it to proceed.
+ * @param googleLoginRedirectUrl A URL to which user is redirected after successful Google login. This will allow us to redirect
+ * user back to the app after login in Custom Tabs has been completed.
  */
 @Composable
 fun WebSnippetComponent(
@@ -331,12 +335,6 @@ private fun WebSnippetLoadingPlaceholderFinishedComponentPreview() {
     )
 }
 
-private val webStateInitializing =
-    WebViewState(WebContent.NavigatorOnly)
-        .apply { loadingState = LoadingState.Initializing }
-private val webStateLoading =
-    WebViewState(WebContent.NavigatorOnly)
-        .apply { loadingState = LoadingState.Loading(0.5f) }
-private val webStateLoadingFinished =
-    WebViewState(WebContent.NavigatorOnly)
-        .apply { loadingState = LoadingState.Finished }
+private val webStateInitializing = WebViewState(WebContent.NavigatorOnly).apply { loadingState = LoadingState.Initializing }
+private val webStateLoading = WebViewState(WebContent.NavigatorOnly).apply { loadingState = LoadingState.Loading(0.5f) }
+private val webStateLoadingFinished = WebViewState(WebContent.NavigatorOnly).apply { loadingState = LoadingState.Finished }
