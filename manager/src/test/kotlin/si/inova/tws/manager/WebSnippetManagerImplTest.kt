@@ -30,7 +30,6 @@ import si.inova.tws.manager.data.ActionBody
 import si.inova.tws.manager.data.ActionType
 import si.inova.tws.manager.data.SnippetType
 import si.inova.tws.manager.data.SnippetUpdateAction
-import si.inova.tws.manager.data.WebSnippetDto
 import si.inova.tws.manager.utils.FAKE_PROJECT_DTO
 import si.inova.tws.manager.utils.FAKE_SHARED_PROJECT
 import si.inova.tws.manager.utils.FAKE_SNIPPET_FIVE
@@ -472,10 +471,11 @@ class WebSnippetManagerImplTest {
         functions.returnedProject = FAKE_PROJECT_DTO
 
         webSnippetManager.unseenPopupSnippetsFlow.test {
+            awaitItem() // initial empty progress
             webSnippetManager.loadWebSnippets("organization", "project")
 
-            val cache = awaitItem() // progress, cache is ignored
-            assert(cache == emptyList<WebSnippetDto>())
+            val cache = awaitItem() // progress, with cached data
+            assert(cache == listOf(FAKE_SNIPPET_FOUR))
 
             val response = awaitItem() // success from web
             assert(response == listOf(FAKE_SNIPPET_FOUR, FAKE_SNIPPET_FIVE))
