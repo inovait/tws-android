@@ -14,11 +14,23 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+import org.jetbrains.dokka.gradle.DokkaTaskPartial
 import util.publishLibrary
 
 plugins {
     androidLibraryModule
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.dokka)
+}
+
+// configuration specific to this subproject.
+// notice the use of Partial task
+tasks.withType<DokkaTaskPartial>().configureEach {
+    dokkaSourceSets {
+        configureEach {
+            includes.from("Module.md")
+        }
+    }
 }
 
 android {
