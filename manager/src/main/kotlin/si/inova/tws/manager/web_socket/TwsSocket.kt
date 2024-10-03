@@ -18,6 +18,7 @@ package si.inova.tws.manager.web_socket
 
 import kotlinx.coroutines.flow.Flow
 import si.inova.tws.manager.data.SnippetUpdateAction
+import si.inova.tws.manager.data.WebSocketStatus
 
 /**
  *
@@ -27,6 +28,7 @@ import si.inova.tws.manager.data.SnippetUpdateAction
 interface TwsSocket {
 
     val updateActionFlow: Flow<SnippetUpdateAction>
+    val socketStatus: Flow<WebSocketStatus>
 
     /**
      * Sets the URL target of this request.
@@ -37,6 +39,11 @@ interface TwsSocket {
     fun setupWebSocketConnection(setupWssUrl: String)
 
     /**
+     * try to reconnect on previous connected wss url
+     */
+    fun reconnect()
+
+    /**
      * Attempts to initiate a graceful shutdown of this web socket.
      *
      * This returns true if a graceful shutdown was initiated by this call. It returns false if
@@ -45,5 +52,9 @@ interface TwsSocket {
      */
     fun closeWebsocketConnection(): Boolean?
 
+
+    /**
+     * Check if wss connection exists
+     */
     fun connectionExists(): Boolean
 }

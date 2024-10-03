@@ -28,7 +28,7 @@ import android.webkit.WebView
 import si.inova.tws.core.util.JavaScriptDownloadInterface
 import si.inova.tws.core.util.hasPermissionInManifest
 
-class TwsDownloadListener(
+internal class TwsDownloadListener(
     private val context: Context,
     private val webView: WebView,
     private val permissionRequest: (String, (Boolean) -> Unit) -> Unit

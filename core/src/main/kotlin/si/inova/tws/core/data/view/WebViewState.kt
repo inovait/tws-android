@@ -105,7 +105,6 @@ class WebViewState(webContent: WebContent) {
      */
     val customErrorsForCurrentRequest: SnapshotStateList<Exception> = mutableStateListOf()
 
-
     /**
      * The saved view state from when the view was destroyed last. To restore state,
      * use the navigator and only call loadUrl if the bundle is null.
@@ -214,7 +213,6 @@ fun createWebStateSaver(key: String): Saver<WebViewState, Any> {
 
     return mapSaver(
         save = { state ->
-            // fallback to viewstate from state, if it has not been restored yet (i.e. tab did not come into focus yet)
             val viewState = Bundle().apply {
                 state.webView?.saveState(this)
             }.takeIf { !it.isEmpty } ?: state.viewState

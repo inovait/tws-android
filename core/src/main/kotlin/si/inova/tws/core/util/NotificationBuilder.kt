@@ -28,7 +28,7 @@ import si.inova.tws.core.R
 import kotlin.math.log10
 import kotlin.math.pow
 
-fun notificationBuilder(
+internal fun notificationBuilder(
     context: Context,
     notificationManager: NotificationManager,
     downloadFileName: String,

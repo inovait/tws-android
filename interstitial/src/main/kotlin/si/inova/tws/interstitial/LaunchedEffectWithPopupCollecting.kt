@@ -28,6 +28,14 @@ import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.launch
 import si.inova.tws.manager.WebSnippetManagerImpl
 
+/**
+ * Composable that launches a `LaunchedEffect` to handle popup collecting based on the provided `managerTag`.
+ * It observes the `LifecycleOwner` and launches popup collection when the manager tag is provided or updated.
+ *
+ * @param managerTag Optional tag for identifying the WebSnippetManager instance. If no tag is provided, default tag will be
+ * used to obtain shared manager instance.
+ *
+ */
 @Composable
 fun LaunchedEffectWithPopupCollecting(managerTag: String? = null) {
     val owner = LocalLifecycleOwner.current
@@ -37,6 +45,17 @@ fun LaunchedEffectWithPopupCollecting(managerTag: String? = null) {
     }
 }
 
+/**
+ * Extension function for `LifecycleOwner` that starts collecting unseen popup snippets.
+ * It listens for unseen popup snippets from the shared `WebSnippetManagerImpl` and opens them when they appear.
+ *
+ * This function will repeatedly check for unseen popups while the lifecycle is in the RESUMED state and
+ * will open them as interstitials.
+ *
+ * @param context The context from which to open the interstitials.
+ * @param managerTag Optional tag to retrieve the appropriate `WebSnippetManagerImpl` instance. If no tag is provided, default tag will be
+ * used to obtain shared manager instance.
+ */
 fun LifecycleOwner.launchPopupCollecting(context: Context, managerTag: String? = null) {
     lifecycleScope.launch {
         val sharedManager = WebSnippetManagerImpl.getSharedInstance(context, managerTag)

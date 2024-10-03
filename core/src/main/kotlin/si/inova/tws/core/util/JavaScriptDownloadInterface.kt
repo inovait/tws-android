@@ -30,7 +30,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 
-class JavaScriptDownloadInterface(private val context: Context) {
+internal class JavaScriptDownloadInterface(private val context: Context) {
 
     @Suppress("Unused") // it is used in javascript
     @JavascriptInterface

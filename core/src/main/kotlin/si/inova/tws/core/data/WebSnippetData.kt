@@ -19,12 +19,32 @@ package si.inova.tws.core.data
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
+/**
+ * The WebSnippetData class serves as a data model used to encapsulate information necessary for displaying web
+ * content within a WebSnippetComponent or TabWebSnippetComponent. It holds essential properties such as the URL,
+ * HTTP headers, and additional configuration options such as modifiers and tab content resources.
+ *
+ * @property id A unique identifier for the web snippet. This ID helps distinguish between different snippets
+ * and can be used for internal references or tracking.
+ * @property url The URL of the web page or content to be loaded in the WebView. This is the core property
+ * that directs the web snippet to load specific web content.
+ * @property headers A map of additional HTTP headers to include when loading the web content. This can be used to add custom
+ * authentication, tracking headers, or other metadata needed for the request.
+ * @property dynamicModifiers A list of ModifierPageData objects that define dynamic modifications or behaviors that will be
+ * applied to the web content. These could represent things like adjusting styles, scripts, or interacting with specific
+ * parts of the page. Note that those coule be applied only if used in combination with OkHttpTwsWebViewClient in WebView.
+ * @property tabContentResources Optional tab-specific resources that can be applied to the web snippet. Useful only fot
+ * TabWebSnippetComponent, where this parameter defines the content of the tab.
+ * @property loadIteration  An integer used to force reloading of the web content when needed. When this value changes, the
+ * WebView will reload the specified URL. This can be useful in scenarios where dynamic content needs to be refreshed
+ * without changing the actual URL.
+ */
 @Parcelize
 data class WebSnippetData(
     val id: String,
     val url: String,
     val headers: Map<String, String> = emptyMap(),
-    val loadIteration: Int = 0,
     val dynamicModifiers: List<ModifierPageData> = emptyList(),
-    val tabContentResources: TabContentResources? = null
+    val tabContentResources: TabContentResources? = null,
+    val loadIteration: Int = 0
 ) : Parcelable

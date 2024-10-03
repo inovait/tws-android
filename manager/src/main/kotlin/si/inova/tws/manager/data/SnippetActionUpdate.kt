@@ -20,6 +20,9 @@ import androidx.annotation.Keep
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
+/**
+ * @property SnippetUpdateAction to be returned on websocket update
+ */
 @Keep
 @JsonClass(generateAdapter = true)
 data class SnippetUpdateAction(
@@ -27,6 +30,13 @@ data class SnippetUpdateAction(
     val data: ActionBody
 )
 
+/**
+ * @property ActionType how to handle snippet in existing list of snippets
+ *
+ * [CREATED] new snippet create
+ * [UPDATED] existing snippet updated
+ * [DELETED] existing snippet removed
+ */
 @Keep
 @JsonClass(generateAdapter = false)
 enum class ActionType {
@@ -50,5 +60,6 @@ data class ActionBody(
     val organizationId: String? = null,
     val projectId: String? = null,
     val type: SnippetType? = null,
-    val visibility: VisibilityDto? = null
+    val visibility: VisibilityDto? = null,
+    val dynamicResources: List<DynamicResourceDto>? = null
 )
