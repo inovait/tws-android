@@ -29,12 +29,17 @@ import si.inova.tws.core.data.view.WebViewState
 import si.inova.tws.core.util.hasPermissionInManifest
 
 /**
- * TwsWebChromeClient, copied, modified and extended version of AccompanistWebChromeClient
+ * TwsWebChromeClient is a modified and extended version of [AccompanistWebChromeClient].
  *
- * A parent class implementation of WebChromeClient that can be subclassed to add custom behaviour.
+ * This class serves as a parent implementation of [AccompanistWebChromeClient], allowing customization
+ * and extension for specific behaviors in handling web content in a [WebView].
  *
+ * It includes features for managing permission requests, file chooser dialogs, and handling
+ * new window creation events.
+ *
+ * @property popupStateCallback An optional callback that provides updates regarding the
+ * state of popup windows within the WebView.
  */
-
 open class TwsWebChromeClient(
     private val popupStateCallback: ((WebViewState, Boolean) -> Unit)? = null,
 ) : AccompanistWebChromeClient() {

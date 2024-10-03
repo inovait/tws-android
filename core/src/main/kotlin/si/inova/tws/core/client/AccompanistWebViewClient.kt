@@ -26,6 +26,14 @@ import si.inova.tws.core.data.view.WebViewError
 import si.inova.tws.core.data.view.WebViewNavigator
 import si.inova.tws.core.data.view.WebViewState
 
+/**
+ * A custom implementation of [WebViewClient] designed to manage the state and navigation of a WebView.
+ *
+ * This class serves as a bridge between the WebView and the application state, providing the necessary hooks to track
+ * loading states, manage navigation history, and handle errors that may occur during page loads.
+ *
+ * The `AccompanistWebViewClient` class must be extended to customize its behavior for specific use cases.
+ */
 open class AccompanistWebViewClient : WebViewClient() {
     open lateinit var state: WebViewState
         internal set

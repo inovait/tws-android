@@ -29,7 +29,7 @@ import coil.size.Scale
 import si.inova.tws.core.data.TabIcon
 
 @Composable
-fun TabIcon.TabIconHandler() {
+internal fun TabIcon.TabIconHandler() {
     when (this) {
         is TabIcon.Url -> {
             AsyncImage(

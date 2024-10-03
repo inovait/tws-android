@@ -63,32 +63,43 @@ import si.inova.tws.core.util.onScreenReset
 
 /**
  *
- * Extension of WebSnippetComponent to contains multiple WebViews and navigate with bottom tab
+ * TabsWebSnippetComponent is a custom composable function designed to handle multiple WebView instances in a tabbed layout.
+ * It displays content in WebViews, where each WebView corresponds to a tab in the tab navigation.
+ * This component can handle multiple WebViews, manage their states, and switch between them through a tab-based navigation
+ * bar at the bottom of the screen.
  *
- * If only one item is in [targets] bottom tab is not visible
+ * This component can also display a top bar, handle URL interception, show loading placeholders, display custom error views,
+ * and reset screen states when tabs are reselected. It supports both fixed and scrollable tab rows. If [targets] contains only
+ * one item, bottom tab row is not displayed.
  *
- * @param targets A list, which contains list of data to show in WebView
+ * @param targets A list of WebSnippetData, where each item represents the data to be displayed in a WebView.
+ * This list determines the number of tabs displayed.
  * @param modifier A compose modifier
- * @param mainTabIndex Which tab to show when screen is loaded
- * @param scrollableTabRow If scrollable bottom tab
- * @param displayErrorViewOnError Show custom error content
- * if there is error during loading WebView content
- * @param errorViewContent If [displayErrorViewOnError] is set to true
- * show this compose error content
- * @param displayPlaceholderWhileLoading Show custom loading animation while loading WebView content
- * @param loadingPlaceholderContent If [displayPlaceholderWhileLoading] is set to true
- * show this compose loading content
- * @param interceptOverrideUrl Optional callback, how to handle intercepted urls,
- * return true if do not want to navigate to the new url and
- * return false if navigation to the new url is intact
- * @param topBar Optional callback, for showing TopBar, if left empty TopBar is not shown
- * @param resetScreenOnTabReselect If set to true,
- * [DoOnScreenReset] is triggered when tab is reselected
- * @param onScreenReset Optional callback, set what to do on screen reset
- * @param googleLoginRedirectUrl open new intent for google login url
- * @param tabsContainerColor the color used for the background of this tab row.
- * @param tabsContentColor the preferred color for content inside this tab row. Defaults to either the matching content color for containerColor, or to the current LocalContentColor if containerColor is not a color from the theme.
- * @param tabIconHandler set how to handle tab icon (resources or url)
+ * @param mainTabIndex The index of the tab that is initially selected and displayed when the component loads. Defaults to 0.
+ * @param scrollableTabRow Whether the bottom tab bar should be scrollable or fixed.
+ * If set to true, the tabs will scroll horizontally when there are too many to fit on the screen.
+ * @param displayErrorViewOnError Whether to show a custom error view if loading the WebView content fails.
+ * If set to true, the provided errorViewContent will be displayed in case of errors.
+ * @param errorViewContent A custom composable that defines the UI content to display when there's an error
+ * loading WebView content. Used only if [displayErrorViewOnError] is set to true.
+ * @param displayPlaceholderWhileLoading If set to true, a placeholder or loading animation will be
+ *  * shown while the WebView content is loading.
+ * @param loadingPlaceholderContent A custom composable that defines the UI content to show while the WebView content is loading.
+ *  Used only if [displayPlaceholderWhileLoading] is set to true.
+ * @param interceptOverrideUrl A lambda function that is invoked when a URL in WebView will be loaded.
+ * Returning true prevents navigation to the new URL (and allowing you to define custom behavior for specific urls),
+ * while returning false allows it to proceed.
+ * @param topBar A composable function to define a top bar above the WebView.
+ * The string parameter provides the current WebView’s title. If no top bar is needed, leave this function empty.
+ * @param resetScreenOnTabReselect If set to true, the [onScreenReset] method will be invoked when tab is reselected.
+ * @param onScreenReset A callback invoked to handle actions when a screen is reset.
+ * The WebViewState of the current tab is passed as a parameter, allowing you to customize the reset behavior.
+ * Defaults to scrolling WebView's content to top.
+ * @param googleLoginRedirectUrl A URL to which user is redirected after successful Google login. This will allow us to redirect
+ * user back to the app after login in Custom Tabs has been completed.
+ * @param tabsContainerColor The background color for the tab row.
+ * @param tabsContentColor The content color used inside the tab row (e.g., text and icons).
+ * @param tabIconHandler A composable function that defines how to display icons in the tab row.
  */
 @Composable
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter") // WebView can be scrollable and do not want to limit padding

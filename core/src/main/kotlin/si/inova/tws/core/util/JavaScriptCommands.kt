@@ -16,6 +16,6 @@
 
 package si.inova.tws.core.util
 
-object JavaScriptCommands {
+internal object JavaScriptCommands {
     const val ScrollToTop = "window.scrollTo({ top: 0, behavior: 'smooth' });"
 }

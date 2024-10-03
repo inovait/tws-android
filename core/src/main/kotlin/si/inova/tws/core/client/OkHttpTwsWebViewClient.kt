@@ -32,11 +32,19 @@ import si.inova.tws.core.data.view.WebViewState
 import si.inova.tws.core.client.okhttp.webViewHttpClient
 import si.inova.tws.core.data.ContentInjectData
 import si.inova.tws.core.data.view.LoadingState
-import java.text.SimpleDateFormat
-import java.util.Locale
-import java.util.TimeZone
 import java.util.concurrent.TimeUnit
 
+/**
+ * OkHttpTwsWebViewClient is a specialized subclass of [TwsWebViewClient] that integrates
+ * OkHttp for efficient HTTP request handling and response modification.
+ *
+ * This client overrides the default behavior of WebViewClient to use OkHttp for executing
+ * network requests. It supports dynamic content injection into HTML responses, manages
+ * caching behavior to enhance performance and sync cookie store with default WebView's cookie store..
+ *
+ * @param popupStateCallback An optional callback that handles the visibility state of popups
+ * in the WebView.
+ */
 class OkHttpTwsWebViewClient(
     popupStateCallback: ((WebViewState, Boolean) -> Unit)? = null
 ) : TwsWebViewClient(popupStateCallback) {
@@ -116,11 +124,7 @@ class OkHttpTwsWebViewClient(
             ?.toIntOrNull() ?: return null
 
         // Parse the Date header
-        val responseDate = cachedResponse.header("date")?.let {
-            SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US).apply {
-                timeZone = TimeZone.getTimeZone("GMT")
-            }.parse(it)?.time
-        } ?: return null
+        val responseDate = cachedResponse.headers.getDate("date")?.time ?: return null
 
         // Calculate the current age
         val currentAge = cachedResponse.header("age")?.toLongOrNull()?.let { ageHeader ->
