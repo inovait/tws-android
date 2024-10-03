@@ -1,0 +1,24 @@
+name: Create new PR
+on: create
+jobs:
+  createNewPr:
+    name: Create new PR
+    runs-on: "ubuntu-latest"
+    env:
+      OWNER_NAME: ${{github.actor}}
+      OWNER_MESSAGE: ${{github.event.ref}}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          lfs: true
+
+      - name: pull-request
+        id: open-pr
+        uses: inovait/pull-request@master
+        with:
+          github_token: ${{ github.token }}
+          destination_branch: "develop"
+          pr_title: "Draft: ${{env.OWNER_MESSAGE}} - ${{env.OWNER_NAME}}"
+          pr_body: "Owner ${{env.OWNER_NAME}}"
+          pr_reviewer: "zbezjak,tilenp-inova"
