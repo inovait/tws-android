@@ -25,3 +25,9 @@ jobs:
         uses: gradle/wrapper-validation-action@55e685c48d84285a5b0418cd094606e199cca3b6
       - name: Compile library
         run: "./gradlew --parallel assemble"
+
+      - name: "Compile Unit Tests"
+        run: "./gradlew --parallel compileReleaseUnitTestSources compileDebugUnitTestSources assembleDebugAndroidTest"
+
+      - name: "Run Unit Tests"
+        run: "./gradlew --continue test"
