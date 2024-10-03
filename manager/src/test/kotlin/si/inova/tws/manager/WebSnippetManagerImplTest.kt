@@ -88,6 +88,8 @@ class WebSnippetManagerImplTest {
             runCurrent()
             expectMostRecentItem().shouldBeSuccessWithData(listOf(FAKE_SNIPPET_FOUR, FAKE_SNIPPET_FIVE))
         }
+
+        assert(false)
     }
 
     @Test
