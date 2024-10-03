@@ -5,7 +5,8 @@ jobs:
     name: Create new PR
     runs-on: "ubuntu-latest"
     env:
-      BUILD_NUMBER: ${{ github.run_number }}
+      OWNER_NAME: ${{github.actor}}
+      OWNER_MESSAGE: ${{github.event.ref}}
     steps:
       - uses: actions/checkout@v3
         with:
