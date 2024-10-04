@@ -69,8 +69,13 @@ class OkHttpTwsWebViewClient(
         if (request.method == GET_REQUEST && request.isForMainFrame) {
             return try {
                 // Get cached or web response, depending on headers
-                okHttpClient.duplicateAndExecuteRequest(request).modifyResponseAndServe()
-                    ?: super.shouldInterceptRequest(view, request)
+                val response = okHttpClient.duplicateAndExecuteRequest(request)
+
+                if (response.isRedirect) {
+                    null
+                } else {
+                    response.modifyResponseAndServe() ?: super.shouldInterceptRequest(view, request)
+                }
             } catch (e: Exception) {
                 // Exception, get stale-if-error header and check if cache is still valid
                 okHttpClient.duplicateAndExecuteCachedRequest(request)?.modifyResponseAndServe()?.also {
