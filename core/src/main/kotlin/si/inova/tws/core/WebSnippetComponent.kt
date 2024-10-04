@@ -19,6 +19,7 @@ package si.inova.tws.core
 import android.content.Intent
 import android.webkit.WebView
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -39,13 +40,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.core.util.Consumer
 import si.inova.tws.core.client.OkHttpTwsWebViewClient
+import si.inova.tws.core.client.TwsWebChromeClient
 import si.inova.tws.core.data.ModifierPageData
 import si.inova.tws.core.data.WebSnippetData
 import si.inova.tws.core.data.view.LoadingState
 import si.inova.tws.core.data.view.WebContent
+import si.inova.tws.core.data.view.WebContent.MessageOnly
 import si.inova.tws.core.data.view.WebViewNavigator
 import si.inova.tws.core.data.view.WebViewState
-import si.inova.tws.core.client.TwsWebChromeClient
 import si.inova.tws.core.data.view.rememberSaveableWebViewState
 import si.inova.tws.core.data.view.rememberWebViewNavigator
 import si.inova.tws.core.util.compose.ErrorBannerWithSwipeToDismiss
@@ -148,18 +150,41 @@ fun WebSnippetComponent(
     )
 
     popupStates.value.forEach { state ->
-        PopUpWebView(
-            popupState = state,
-            displayPlaceholderWhileLoading = displayPlaceholderWhileLoading,
-            loadingPlaceholderContent = loadingPlaceholderContent,
-            displayErrorViewOnError = displayErrorViewOnError,
-            errorViewContent = errorViewContent,
-            onDismissRequest = { popupStates.value = popupStates.value.filter { it != state } },
-            popupStateCallback = popupStateCallback,
-            interceptOverrideUrl = interceptOverrideUrl,
-            googleLoginRedirectUrl = googleLoginRedirectUrl,
-            dynamicModifiers = target.dynamicModifiers
-        )
+        val msgState = state.content as MessageOnly
+        if (msgState.isDialog) {
+            PopUpWebView(
+                popupState = state,
+                displayPlaceholderWhileLoading = displayPlaceholderWhileLoading,
+                loadingPlaceholderContent = loadingPlaceholderContent,
+                displayErrorViewOnError = displayErrorViewOnError,
+                errorViewContent = errorViewContent,
+                onDismissRequest = { popupStates.value = popupStates.value.filter { it != state } },
+                popupStateCallback = popupStateCallback,
+                interceptOverrideUrl = interceptOverrideUrl,
+                googleLoginRedirectUrl = googleLoginRedirectUrl,
+                dynamicModifiers = target.dynamicModifiers
+            )
+        } else {
+            val nav = rememberWebViewNavigator()
+
+            BackHandler(!nav.canGoBack) {
+                popupStateCallback.invoke(state, false)
+            }
+
+            SnippetContentWithLoadingAndError(
+                key = "window",
+                navigator = nav,
+                webViewState = state,
+                displayLoadingContent = displayLoadingContent,
+                loadingPlaceholderContent = loadingPlaceholderContent,
+                displayErrorContent = displayErrorContent,
+                errorViewContent = errorViewContent,
+                onCreated = msgState::onCreateWindowStatus,
+                popupStateCallback = popupStateCallback,
+                interceptOverrideUrl = interceptOverrideUrl,
+                isRefreshable = isRefreshable
+            )
+        }
     }
 }
 
@@ -265,15 +290,7 @@ private fun PopUpWebView(
                 loadingPlaceholderContent = loadingPlaceholderContent,
                 displayErrorContent = displayErrorContent,
                 errorViewContent = errorViewContent,
-                onCreated = { webView ->
-                    val popupMessage =
-                        popupState.popupMessage ?: return@SnippetContentWithLoadingAndError
-                    val transport = popupMessage.obj as? WebView.WebViewTransport
-                    if (transport != null) {
-                        transport.webView = webView
-                        popupMessage.sendToTarget()
-                    }
-                },
+                onCreated = (popupState.content as MessageOnly)::onCreateWindowStatus,
                 popupStateCallback = popupStateCallback,
                 interceptOverrideUrl = interceptOverrideUrl,
                 dynamicModifiers = dynamicModifiers,

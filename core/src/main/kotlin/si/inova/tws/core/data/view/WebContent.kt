@@ -16,6 +16,9 @@
 
 package si.inova.tws.core.data.view
 
+import android.os.Message
+import android.webkit.WebView
+
 sealed class WebContent {
     data class Url(
         val url: String,
@@ -66,7 +69,15 @@ sealed class WebContent {
 
     data object NavigatorOnly : WebContent()
 
-    data object MessageOnly : WebContent()
+    data class MessageOnly(val msg: Message, val isDialog: Boolean) : WebContent() {
+        fun onCreateWindowStatus(webView: WebView) {
+            val transport = msg.obj as? WebView.WebViewTransport
+            if (transport != null) {
+                transport.webView = webView
+                msg.sendToTarget()
+            }
+        }
+    }
 }
 
 internal fun WebContent.withUrl(url: String): WebContent.Url {

@@ -56,9 +56,7 @@ open class TwsWebChromeClient(
 
     override fun onCreateWindow(view: WebView, isDialog: Boolean, isUserGesture: Boolean, resultMsg: Message): Boolean {
         popupStateCallback?.invoke(
-            WebViewState(WebContent.MessageOnly).apply {
-                popupMessage = resultMsg
-            },
+            WebViewState(WebContent.MessageOnly(msg = resultMsg, isDialog = isDialog)),
             true
         )
 

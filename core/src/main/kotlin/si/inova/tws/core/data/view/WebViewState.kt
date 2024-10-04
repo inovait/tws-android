@@ -49,12 +49,6 @@ class WebViewState(webContent: WebContent) {
     var content: WebContent by mutableStateOf(webContent)
 
     /**
-     * The message, which should be displayed as a popup if WebView does support Multiple Windows
-     * Note that message should be handled only once
-     */
-    var popupMessage: Message? by mutableStateOf(null)
-
-    /**
      * Whether the WebView is currently [LoadingState.Loading] data in its main frame (along with
      * progress) or the data loading has [LoadingState.Finished]. See [LoadingState]
      */
