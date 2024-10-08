@@ -19,7 +19,6 @@ package si.inova.tws.core
 import android.content.Intent
 import android.webkit.WebView
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -33,11 +32,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.core.util.Consumer
 import si.inova.tws.core.client.OkHttpTwsWebViewClient
 import si.inova.tws.core.client.TwsWebChromeClient
@@ -151,40 +152,19 @@ fun WebSnippetComponent(
 
     popupStates.value.forEach { state ->
         val msgState = state.content as MessageOnly
-        if (msgState.isDialog) {
-            PopUpWebView(
-                popupState = state,
-                displayPlaceholderWhileLoading = displayPlaceholderWhileLoading,
-                loadingPlaceholderContent = loadingPlaceholderContent,
-                displayErrorViewOnError = displayErrorViewOnError,
-                errorViewContent = errorViewContent,
-                onDismissRequest = { popupStates.value = popupStates.value.filter { it != state } },
-                popupStateCallback = popupStateCallback,
-                interceptOverrideUrl = interceptOverrideUrl,
-                googleLoginRedirectUrl = googleLoginRedirectUrl,
-                dynamicModifiers = target.dynamicModifiers
-            )
-        } else {
-            val nav = rememberWebViewNavigator()
-
-            BackHandler(!nav.canGoBack) {
-                popupStateCallback.invoke(state, false)
-            }
-
-            SnippetContentWithLoadingAndError(
-                key = "window",
-                navigator = nav,
-                webViewState = state,
-                displayLoadingContent = displayLoadingContent,
-                loadingPlaceholderContent = loadingPlaceholderContent,
-                displayErrorContent = displayErrorContent,
-                errorViewContent = errorViewContent,
-                onCreated = msgState::onCreateWindowStatus,
-                popupStateCallback = popupStateCallback,
-                interceptOverrideUrl = interceptOverrideUrl,
-                isRefreshable = isRefreshable
-            )
-        }
+        PopUpWebView(
+            popupState = state,
+            displayPlaceholderWhileLoading = displayPlaceholderWhileLoading,
+            loadingPlaceholderContent = loadingPlaceholderContent,
+            displayErrorViewOnError = displayErrorViewOnError,
+            errorViewContent = errorViewContent,
+            onDismissRequest = { popupStates.value = popupStates.value.filter { it != state } },
+            popupStateCallback = popupStateCallback,
+            interceptOverrideUrl = interceptOverrideUrl,
+            googleLoginRedirectUrl = googleLoginRedirectUrl,
+            dynamicModifiers = target.dynamicModifiers,
+            isFullscreen = !msgState.isDialog
+        )
     }
 }
 
@@ -254,7 +234,8 @@ private fun PopUpWebView(
     popupStateCallback: ((WebViewState, Boolean) -> Unit)? = null,
     googleLoginRedirectUrl: String? = null,
     dynamicModifiers: List<ModifierPageData>? = null,
-    isRefreshable: Boolean = false
+    isRefreshable: Boolean = false,
+    isFullscreen: Boolean = false
 ) {
     val displayErrorContent = displayErrorViewOnError && popupState.hasError
     val displayLoadingContent =
@@ -270,6 +251,7 @@ private fun PopUpWebView(
     }
 
     Dialog(
+        properties = DialogProperties(usePlatformDefaultWidth = !isFullscreen),
         onDismissRequest = {
             popupState.webView?.destroy()
             onDismissRequest()
@@ -277,9 +259,25 @@ private fun PopUpWebView(
     ) {
         Surface(
             modifier = Modifier
-                .fillMaxHeight(WEB_VIEW_POPUP_HEIGHT_PERCENTAGE)
-                .fillMaxWidth(WEB_VIEW_POPUP_WIDTH_PERCENTAGE),
-            shape = RoundedCornerShape(16.dp),
+                .fillMaxHeight(
+                    if (isFullscreen) {
+                        1f
+                    } else {
+                        WEB_VIEW_POPUP_HEIGHT_PERCENTAGE
+                    }
+                )
+                .fillMaxWidth(
+                    if (isFullscreen) {
+                        1f
+                    } else {
+                        WEB_VIEW_POPUP_WIDTH_PERCENTAGE
+                    }
+                ),
+            shape = if (isFullscreen) {
+                RectangleShape
+            } else {
+                RoundedCornerShape(16.dp)
+            },
             color = Color.White
         ) {
             SnippetContentWithLoadingAndError(
