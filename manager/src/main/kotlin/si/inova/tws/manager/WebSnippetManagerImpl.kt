@@ -239,13 +239,18 @@ class WebSnippetManagerImpl(
     }
 
     /**
-     * Close web socket connection when there are no subscribers and reconnect when resubscribed
+     * Close web socket connection when there are no subscribers and reload all data with new socket connection when resubscribed
      */
     private fun socketReconnectionLifecycle() = scope.launch {
         SharingStarted.WhileSubscribed(5.seconds).command(snippetsFlow.subscriptionCount).collect {
             when (it) {
                 SharingCommand.START -> {
-                    twsSocket?.reconnect()
+                    val organizationId = orgId
+                    val projectId = projId
+
+                    if (organizationId != null && projectId != null) {
+                        loadProjectAndSetupWss(organizationId, projectId)
+                    }
                 }
 
                 SharingCommand.STOP,
