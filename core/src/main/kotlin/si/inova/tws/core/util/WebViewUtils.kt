@@ -45,9 +45,3 @@ internal fun WebView.initializeSettings() {
         userAgentString = "$userAgentString TheWebSnippet"
     }
 }
-
-internal fun WebView.onScreenReset() {
-    post {
-        evaluateJavascript(JavaScriptCommands.ScrollToTop, null)
-    }
-}
