@@ -39,12 +39,11 @@ import si.inova.kotlinova.core.outcome.CauseException
 import si.inova.kotlinova.core.outcome.Outcome
 import si.inova.kotlinova.core.outcome.mapData
 import si.inova.kotlinova.retrofit.callfactory.bodyOrThrow
+import si.inova.tws.data.SnippetType
+import si.inova.tws.data.WebSnippetDto
 import si.inova.tws.manager.cache.CacheManager
 import si.inova.tws.manager.cache.FileCacheManager
 import si.inova.tws.manager.data.NetworkStatus
-import si.inova.tws.manager.data.SnippetStatus
-import si.inova.tws.manager.data.SnippetType
-import si.inova.tws.manager.data.WebSnippetDto
 import si.inova.tws.manager.data.WebSocketStatus
 import si.inova.tws.manager.data.updateWith
 import si.inova.tws.manager.factory.BaseServiceFactory
@@ -85,7 +84,7 @@ class WebSnippetManagerImpl(
     override val popupSnippetsFlow = snippetsFlow.map { outcome ->
         outcome.mapData { data ->
             data.filter {
-                it.type == SnippetType.POPUP && it.status == SnippetStatus.ENABLED
+                it.type == SnippetType.POPUP
             }
         }
     }.distinctUntilChanged()
@@ -94,7 +93,7 @@ class WebSnippetManagerImpl(
     override val contentSnippetsFlow = snippetsFlow.map { outcome ->
         outcome.mapData { data ->
             data.filter {
-                it.type == SnippetType.TAB && it.status == SnippetStatus.ENABLED
+                it.type == SnippetType.TAB
             }
         }
     }.distinctUntilChanged()

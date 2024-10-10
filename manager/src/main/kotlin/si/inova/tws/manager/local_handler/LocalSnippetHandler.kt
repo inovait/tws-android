@@ -17,8 +17,8 @@
 package si.inova.tws.manager.local_handler
 
 import kotlinx.coroutines.flow.Flow
+import si.inova.tws.data.WebSnippetDto
 import si.inova.tws.manager.data.SnippetUpdateAction
-import si.inova.tws.manager.data.WebSnippetDto
 import java.time.Instant
 
 interface LocalSnippetHandler {

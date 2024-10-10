@@ -26,10 +26,10 @@ import org.mockito.Mockito.mock
 import si.inova.kotlinova.core.test.TestScopeWithDispatcherProvider
 import si.inova.kotlinova.core.test.outcomes.shouldBeProgressWith
 import si.inova.kotlinova.core.test.outcomes.shouldBeSuccessWithData
+import si.inova.tws.data.DynamicResourceDto
+import si.inova.tws.data.SnippetType
 import si.inova.tws.manager.data.ActionBody
 import si.inova.tws.manager.data.ActionType
-import si.inova.tws.manager.data.DynamicResourceDto
-import si.inova.tws.manager.data.SnippetType
 import si.inova.tws.manager.data.SnippetUpdateAction
 import si.inova.tws.manager.utils.FAKE_PROJECT_DTO
 import si.inova.tws.manager.utils.FAKE_SHARED_PROJECT

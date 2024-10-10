@@ -19,8 +19,8 @@ package si.inova.tws.core.client
 import android.graphics.Bitmap
 import android.webkit.WebChromeClient
 import android.webkit.WebView
-import si.inova.tws.core.data.view.LoadingState
-import si.inova.tws.core.data.view.WebViewState
+import si.inova.tws.core.data.LoadingState
+import si.inova.tws.core.data.WebViewState
 
 /**
  * AccompanistWebChromeClient is a subclass of [WebChromeClient] designed to manage

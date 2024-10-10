@@ -14,23 +14,23 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.core.data.view
+package si.inova.tws.data
 
-import android.webkit.WebResourceError
-import android.webkit.WebResourceRequest
-import androidx.compose.runtime.Immutable
+import androidx.annotation.Keep
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
+import si.inova.tws.data.SnippetType.POPUP
+import si.inova.tws.data.SnippetType.TAB
 
 /**
- * A wrapper class to hold errors from the WebView.
+ * @property SnippetType to know if snippet should be fullscreen - [POPUP] or if it should be in list - [TAB]
  */
-@Immutable
-data class WebViewError(
-    /**
-     * The request the error came from.
-     */
-    val request: WebResourceRequest?,
-    /**
-     * The error that was reported.
-     */
-    val error: WebResourceError
-)
+@Keep
+@JsonClass(generateAdapter = false)
+enum class SnippetType {
+    @Json(name = "popup")
+    POPUP,
+
+    @Json(name = "tab")
+    TAB
+}

@@ -14,15 +14,20 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.manager.data
+package si.inova.tws.data
 
+import android.os.Parcelable
+import androidx.annotation.Keep
 import com.squareup.moshi.JsonClass
+import kotlinx.parcelize.Parcelize
 import java.time.Instant
 
 /**
  * @property VisibilityDto is used to know how till what time should snippet be visible
  */
 @JsonClass(generateAdapter = true)
+@Parcelize
+@Keep
 data class VisibilityDto(
     val untilUtc: Instant? = null
-)
+): Parcelable

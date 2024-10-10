@@ -26,12 +26,11 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
 import okhttp3.ResponseBody
-import si.inova.tws.core.data.ModifierInjectionType
-import si.inova.tws.core.data.ModifierPageData
-import si.inova.tws.core.data.view.WebViewState
+import si.inova.tws.core.data.WebViewState
 import si.inova.tws.core.client.okhttp.webViewHttpClient
-import si.inova.tws.core.data.ContentInjectData
-import si.inova.tws.core.data.view.LoadingState
+import si.inova.tws.core.data.LoadingState
+import si.inova.tws.data.DynamicResourceDto
+import si.inova.tws.data.ModifierInjectionType
 import java.util.concurrent.TimeUnit
 
 /**
@@ -48,7 +47,7 @@ import java.util.concurrent.TimeUnit
 class OkHttpTwsWebViewClient(
     popupStateCallback: ((WebViewState, Boolean) -> Unit)? = null
 ) : TwsWebViewClient(popupStateCallback) {
-    lateinit var dynamicModifiers: List<ModifierPageData>
+    lateinit var dynamicModifiers: List<DynamicResourceDto>
         internal set
 
     private lateinit var okHttpClient: OkHttpClient
@@ -173,9 +172,9 @@ class OkHttpTwsWebViewClient(
     }
 
     private fun String.insertJs(): String {
-        val combinedJsInjection = (dynamicModifiers + STATIC_INJECT_DATA)
+        val combinedJsInjection = dynamicModifiers
             .filter { it.type == ModifierInjectionType.JAVASCRIPT }
-            .joinToString(separator = System.lineSeparator()) { it.inject ?: "" }.trimIndent()
+            .joinToString(separator = System.lineSeparator()) { (it.inject ?: "") + STATIC_INJECT_DATA }.trimIndent()
 
         return if (contains("<head>")) {
             replaceFirst(
@@ -199,9 +198,4 @@ class OkHttpTwsWebViewClient(
 }
 
 private const val GET_REQUEST = "GET"
-private val STATIC_INJECT_DATA = listOf(
-    ContentInjectData(
-        "var tws_injected = true;",
-        ModifierInjectionType.JAVASCRIPT
-    )
-)
+private val STATIC_INJECT_DATA = listOf("""<script type="text/javascript">var tws_injected = true;</script>""".trimIndent())
