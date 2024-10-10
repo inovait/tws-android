@@ -33,6 +33,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import si.inova.kotlinova.core.exceptions.UnknownCauseException
 import si.inova.kotlinova.core.outcome.CauseException
 import si.inova.kotlinova.core.outcome.Outcome
@@ -134,7 +135,7 @@ class WebSnippetManagerImpl(
         }
     }
 
-    override suspend fun loadSharedSnippetData(shareId: String) {
+    override suspend fun loadSharedSnippetData(shareId: String) = withContext(Dispatchers.IO) {
         snippetsFlow.emit(Outcome.Progress(snippetsFlow.value.data))
 
         try {
@@ -148,7 +149,7 @@ class WebSnippetManagerImpl(
         }
     }
 
-    override suspend fun loadWebSnippets(organizationId: String, projectId: String) {
+    override suspend fun loadWebSnippets(organizationId: String, projectId: String) = withContext(Dispatchers.IO) {
         try {
             orgId = organizationId
             projId = projectId
