@@ -19,6 +19,10 @@ package si.inova.tws.manager.data
 import androidx.annotation.Keep
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
+import si.inova.tws.data.DynamicResourceDto
+import si.inova.tws.data.SnippetType
+import si.inova.tws.data.VisibilityDto
+import si.inova.tws.data.WebSnippetDto
 
 /**
  * @property SnippetUpdateAction to be returned on websocket update
@@ -63,3 +67,52 @@ data class ActionBody(
     val visibility: VisibilityDto? = null,
     val dynamicResources: List<DynamicResourceDto>? = null
 )
+
+internal fun List<WebSnippetDto>.updateWith(action: SnippetUpdateAction): List<WebSnippetDto> {
+    return when (action.type) {
+        ActionType.CREATED -> insert(action.data)
+        ActionType.UPDATED -> update(action.data)
+        ActionType.DELETED -> remove(action.data)
+    }
+}
+
+internal fun List<WebSnippetDto>.insert(data: ActionBody): List<WebSnippetDto> {
+    return toMutableList().apply {
+        if (data.target != null && data.organizationId != null && data.projectId != null) {
+            add(
+                WebSnippetDto(
+                    id = data.id,
+                    target = data.target,
+                    headers = data.headers ?: emptyMap(),
+                    organizationId = data.organizationId,
+                    projectId = data.projectId,
+                    visibility = data.visibility,
+                    type = data.type ?: SnippetType.TAB,
+                    dynamicResources = data.dynamicResources
+                )
+            )
+        }
+    }
+}
+
+internal fun List<WebSnippetDto>.update(data: ActionBody): List<WebSnippetDto> {
+    return map {
+        if (it.id == data.id) {
+            it.copy(
+                loadIteration = it.loadIteration + 1,
+                target = data.target ?: it.target,
+                headers = data.headers ?: it.headers,
+                html = data.html ?: it.html,
+                visibility = data.visibility ?: it.visibility,
+                type = data.type ?: it.type,
+                dynamicResources = data.dynamicResources ?: it.dynamicResources
+            )
+        } else {
+            it
+        }
+    }
+}
+
+internal fun List<WebSnippetDto>.remove(data: ActionBody): List<WebSnippetDto> {
+    return filter { it.id != data.id }
+}

@@ -27,7 +27,7 @@ import androidx.browser.customtabs.CustomTabsCallback
 import androidx.browser.customtabs.CustomTabsClient
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.browser.customtabs.CustomTabsServiceConnection
-import si.inova.tws.core.data.view.WebViewState
+import si.inova.tws.core.data.WebViewState
 
 /**
  * TwsWebViewClient is a subclass of [AccompanistWebViewClient] designed to provide custom behavior for handling WebView requests.

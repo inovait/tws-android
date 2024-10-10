@@ -19,7 +19,7 @@ package si.inova.tws.manager.cache
 import android.content.Context
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
-import si.inova.tws.manager.data.WebSnippetDto
+import si.inova.tws.data.WebSnippetDto
 import si.inova.tws.manager.singleton.twsMoshi
 import java.io.File
 

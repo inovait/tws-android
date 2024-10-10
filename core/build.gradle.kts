@@ -49,6 +49,8 @@ publishLibrary(
 )
 
 dependencies {
+    api(projects.data)
+
     implementation(libs.androidx.activity.compose)
     implementation(libs.kotlin.immutableCollections)
     implementation(libs.androidx.compose.ui.tooling.preview)

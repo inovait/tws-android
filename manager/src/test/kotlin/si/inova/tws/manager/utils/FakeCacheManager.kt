@@ -16,10 +16,10 @@
 
 package si.inova.tws.manager.utils
 
+import si.inova.tws.data.WebSnippetDto
 import si.inova.tws.manager.cache.CacheManager
-import si.inova.tws.manager.data.WebSnippetDto
 
-class FakeCacheManager: CacheManager {
+class FakeCacheManager : CacheManager {
     private var cachedList: List<WebSnippetDto>? = null
 
     override fun save(key: String, data: List<WebSnippetDto>) {

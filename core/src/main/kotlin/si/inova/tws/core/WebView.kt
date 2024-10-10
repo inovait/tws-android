@@ -50,14 +50,14 @@ import si.inova.tws.core.client.AccompanistWebViewClient
 import si.inova.tws.core.client.OkHttpTwsWebViewClient
 import si.inova.tws.core.client.TwsWebChromeClient
 import si.inova.tws.core.client.TwsWebViewClient
-import si.inova.tws.core.data.ModifierPageData
-import si.inova.tws.core.data.view.TwsDownloadListener
-import si.inova.tws.core.data.view.WebContent
-import si.inova.tws.core.data.view.WebViewNavigator
-import si.inova.tws.core.data.view.WebViewState
-import si.inova.tws.core.data.view.rememberWebViewNavigator
+import si.inova.tws.core.data.TwsDownloadListener
+import si.inova.tws.core.data.WebContent
+import si.inova.tws.core.data.WebViewNavigator
+import si.inova.tws.core.data.WebViewState
+import si.inova.tws.core.data.rememberWebViewNavigator
 import si.inova.tws.core.util.JavaScriptDownloadInterface
 import si.inova.tws.core.util.JavaScriptDownloadInterface.Companion.JAVASCRIPT_INTERFACE_NAME
+import si.inova.tws.data.DynamicResourceDto
 
 /**
  *  A wrapper around the Android View WebView to provide a basic WebView composable.
@@ -104,7 +104,7 @@ internal fun WebView(
     chromeClient: AccompanistWebChromeClient = remember { AccompanistWebChromeClient() },
     interceptOverrideUrl: (String) -> Boolean = { false },
     factory: ((Context) -> WebView)? = null,
-    dynamicModifiers: List<ModifierPageData>? = null
+    dynamicModifiers: List<DynamicResourceDto>? = null
 ) {
     BoxWithConstraints(modifier) {
         // WebView changes it's layout strategy based on
@@ -188,7 +188,7 @@ fun WebView(
     chromeClient: AccompanistWebChromeClient = remember { AccompanistWebChromeClient() },
     interceptOverrideUrl: (String) -> Boolean = { false },
     factory: ((Context) -> WebView)? = null,
-    dynamicModifiers: List<ModifierPageData>? = null
+    dynamicModifiers: List<DynamicResourceDto>? = null
 ) {
     val webView = state.webView
 

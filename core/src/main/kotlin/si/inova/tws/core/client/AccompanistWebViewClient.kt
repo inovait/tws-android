@@ -21,10 +21,10 @@ import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import si.inova.tws.core.data.view.LoadingState
-import si.inova.tws.core.data.view.WebViewError
-import si.inova.tws.core.data.view.WebViewNavigator
-import si.inova.tws.core.data.view.WebViewState
+import si.inova.tws.core.data.LoadingState
+import si.inova.tws.core.data.WebViewError
+import si.inova.tws.core.data.WebViewNavigator
+import si.inova.tws.core.data.WebViewState
 
 /**
  * A custom implementation of [WebViewClient] designed to manage the state and navigation of a WebView.

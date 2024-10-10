@@ -24,8 +24,8 @@ import android.webkit.GeolocationPermissions
 import android.webkit.PermissionRequest
 import android.webkit.ValueCallback
 import android.webkit.WebView
-import si.inova.tws.core.data.view.WebContent
-import si.inova.tws.core.data.view.WebViewState
+import si.inova.tws.core.data.WebContent
+import si.inova.tws.core.data.WebViewState
 import si.inova.tws.core.util.hasPermissionInManifest
 
 /**

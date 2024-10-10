@@ -14,19 +14,25 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.core.data
+package si.inova.tws.data
 
 import android.os.Parcelable
+import androidx.annotation.Keep
+import com.squareup.moshi.JsonClass
 import kotlinx.parcelize.Parcelize
 
-/**
- * The TabContentResources class is used to represent the visual and textual information associated with a tab in a UI component.
- * This class holds a name and an icon, allowing developers to define both text and image resources that will represent a
- * tab in a TabsWebSnippetComponent.
- *
- */
+@JsonClass(generateAdapter = true)
 @Parcelize
-data class TabContentResources(
-    val name: String? = null,
-    val icon: String? = null
+@Keep
+data class WebSnippetDto(
+    val id: String,
+    val target: String,
+    val organizationId: String,
+    val projectId: String,
+    val html: String? = null,
+    val headers: Map<String, String>? = emptyMap(),
+    val dynamicResources: List<DynamicResourceDto>? = emptyList(),
+    val visibility: VisibilityDto? = null,
+    val type: SnippetType = SnippetType.TAB,
+    val loadIteration: Int = 0
 ) : Parcelable

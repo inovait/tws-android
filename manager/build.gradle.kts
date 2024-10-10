@@ -54,6 +54,8 @@ publishLibrary(
 )
 
 dependencies {
+    api(projects.data)
+
     api(libs.kotlinova.core)
     implementation(libs.kotlinova.retrofit)
     implementation(libs.androidx.core.ktx)
