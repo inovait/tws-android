@@ -26,21 +26,28 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
 import okhttp3.ResponseBody
-import si.inova.tws.core.data.ModifierInjectionType
-import si.inova.tws.core.data.ModifierPageData
-import si.inova.tws.core.data.view.WebViewState
+import si.inova.tws.core.data.WebViewState
 import si.inova.tws.core.client.okhttp.webViewHttpClient
-import si.inova.tws.core.data.ContentInjectData
-import si.inova.tws.core.data.view.LoadingState
-import java.text.SimpleDateFormat
-import java.util.Locale
-import java.util.TimeZone
+import si.inova.tws.core.data.LoadingState
+import si.inova.tws.data.DynamicResourceDto
+import si.inova.tws.data.ModifierInjectionType
 import java.util.concurrent.TimeUnit
 
+/**
+ * OkHttpTwsWebViewClient is a specialized subclass of [TwsWebViewClient] that integrates
+ * OkHttp for efficient HTTP request handling and response modification.
+ *
+ * This client overrides the default behavior of WebViewClient to use OkHttp for executing
+ * network requests. It supports dynamic content injection into HTML responses, manages
+ * caching behavior to enhance performance and sync cookie store with default WebView's cookie store..
+ *
+ * @param popupStateCallback An optional callback that handles the visibility state of popups
+ * in the WebView.
+ */
 class OkHttpTwsWebViewClient(
     popupStateCallback: ((WebViewState, Boolean) -> Unit)? = null
 ) : TwsWebViewClient(popupStateCallback) {
-    lateinit var dynamicModifiers: List<ModifierPageData>
+    lateinit var dynamicModifiers: List<DynamicResourceDto>
         internal set
 
     private lateinit var okHttpClient: OkHttpClient
@@ -61,8 +68,13 @@ class OkHttpTwsWebViewClient(
         if (request.method == GET_REQUEST && request.isForMainFrame) {
             return try {
                 // Get cached or web response, depending on headers
-                okHttpClient.duplicateAndExecuteRequest(request).modifyResponseAndServe()
-                    ?: super.shouldInterceptRequest(view, request)
+                val response = okHttpClient.duplicateAndExecuteRequest(request)
+
+                if (response.isRedirect) {
+                    null
+                } else {
+                    response.modifyResponseAndServe() ?: super.shouldInterceptRequest(view, request)
+                }
             } catch (e: Exception) {
                 // Exception, get stale-if-error header and check if cache is still valid
                 okHttpClient.duplicateAndExecuteCachedRequest(request)?.modifyResponseAndServe()?.also {
@@ -116,11 +128,7 @@ class OkHttpTwsWebViewClient(
             ?.toIntOrNull() ?: return null
 
         // Parse the Date header
-        val responseDate = cachedResponse.header("date")?.let {
-            SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US).apply {
-                timeZone = TimeZone.getTimeZone("GMT")
-            }.parse(it)?.time
-        } ?: return null
+        val responseDate = cachedResponse.headers.getDate("date")?.time ?: return null
 
         // Calculate the current age
         val currentAge = cachedResponse.header("age")?.toLongOrNull()?.let { ageHeader ->
@@ -164,9 +172,9 @@ class OkHttpTwsWebViewClient(
     }
 
     private fun String.insertJs(): String {
-        val combinedJsInjection = (dynamicModifiers + STATIC_INJECT_DATA)
+        val combinedJsInjection = dynamicModifiers
             .filter { it.type == ModifierInjectionType.JAVASCRIPT }
-            .joinToString(separator = System.lineSeparator()) { it.inject ?: "" }.trimIndent()
+            .joinToString(separator = System.lineSeparator()) { (it.inject ?: "") + STATIC_INJECT_DATA }.trimIndent()
 
         return if (contains("<head>")) {
             replaceFirst(
@@ -190,9 +198,4 @@ class OkHttpTwsWebViewClient(
 }
 
 private const val GET_REQUEST = "GET"
-private val STATIC_INJECT_DATA = listOf(
-    ContentInjectData(
-        "var tws_injected = true;",
-        ModifierInjectionType.JAVASCRIPT
-    )
-)
+private val STATIC_INJECT_DATA = listOf("""<script type="text/javascript">var tws_injected = true;</script>""".trimIndent())

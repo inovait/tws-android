@@ -20,6 +20,8 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup.LayoutParams
 import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
@@ -42,39 +44,37 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.LifecycleResumeEffect
-import si.inova.tws.core.data.ModifierPageData
-import si.inova.tws.core.data.view.TwsDownloadListener
-import si.inova.tws.core.data.view.WebContent
-import si.inova.tws.core.data.view.WebViewNavigator
-import si.inova.tws.core.data.view.WebViewState
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import si.inova.tws.core.client.AccompanistWebChromeClient
 import si.inova.tws.core.client.AccompanistWebViewClient
 import si.inova.tws.core.client.OkHttpTwsWebViewClient
 import si.inova.tws.core.client.TwsWebChromeClient
 import si.inova.tws.core.client.TwsWebViewClient
-import si.inova.tws.core.data.view.rememberWebViewNavigator
+import si.inova.tws.core.data.TwsDownloadListener
+import si.inova.tws.core.data.WebContent
+import si.inova.tws.core.data.WebViewNavigator
+import si.inova.tws.core.data.WebViewState
+import si.inova.tws.core.data.rememberWebViewNavigator
 import si.inova.tws.core.util.JavaScriptDownloadInterface
 import si.inova.tws.core.util.JavaScriptDownloadInterface.Companion.JAVASCRIPT_INTERFACE_NAME
+import si.inova.tws.data.DynamicResourceDto
 
 /**
- * NOTE: This is a copy from Accompanists WebView wrapper, since it is not supported anymore and allows
+ *  A wrapper around the Android View WebView to provide a basic WebView composable.
+ *
+ * NOTE: This is a modified copy from Accompanists WebView wrapper, since it is not supported anymore and allows
  * us to further customize the component according to our needs. Check https://google.github.io/accompanist/web/
- * for default implementation or look at the git history of the file to see the customizations
- *
- *
- * A wrapper around the Android View WebView to provide a basic WebView composable.
- *
- * If you require more customisation you are most likely better rolling your own and using this
- * wrapper as an example.
- *
+ * for default implementation.
+ **
  * The WebView attempts to set the layoutParams based on the Compose modifier passed in. If it
  * is incorrectly sizing, use the layoutParams composable function instead.
  *
- * @param key A property, which allows us to recreate webview when needed
+ * @param key A property, which allows us to recreate webview when needed.
  * @param state The webview state holder where the Uri to load is defined.
- * @param modifier A compose modifier
+ * @param modifier A compose modifier.
  * @param captureBackPresses Set to true to have this Composable capture back presses and navigate
  * the WebView back.
+ * @param isRefreshable An option to have pull to refresh
  * @param navigator An optional navigator object that can be used to control the WebView's
  * navigation from outside the composable.
  * @param onCreated Called when the WebView is first created, this can be used to set additional
@@ -82,19 +82,21 @@ import si.inova.tws.core.util.JavaScriptDownloadInterface.Companion.JAVASCRIPT_I
  * subsequently overwritten after this lambda is called.
  * @param onDispose Called when the WebView is destroyed. Provides a bundle which can be saved
  * if you need to save and restore state in this WebView.
- * @param client Provides access to WebViewClient via subclassing
- * @param chromeClient Provides access to WebChromeClient via subclassing
+ * @param client Provides access to WebViewClient via subclassing.
+ * @param chromeClient Provides access to WebChromeClient via subclassing.
  * @param interceptOverrideUrl optional callback, how to handle intercepted urls,
- * return true if do not want to navigate to the new url and return false if navigation to the new url is intact
- * @param factory An optional WebView factory for using a custom subclass of WebView
- * @param dynamicModifiers An optional parameter to set up a JS script.
+ * return true if do not want to navigate to the new url and return false if navigation to the new url is intact.
+ * @param factory An optional WebView factory for using a custom subclass of WebView.
+ * @param dynamicModifiers A list of dynamic modifiers, which will be injected into WebView, applicable
+ * only if client is OkHttpTwsWebViewClient. Dynamic modifier can be either CSS or JS.
  */
 @Composable
-fun WebView(
+internal fun WebView(
     key: Any?,
     state: WebViewState,
     modifier: Modifier = Modifier,
     captureBackPresses: Boolean = true,
+    isRefreshable: Boolean = true,
     navigator: WebViewNavigator = rememberWebViewNavigator(),
     onCreated: (WebView) -> Unit = {},
     onDispose: (WebView) -> Unit = {},
@@ -102,7 +104,7 @@ fun WebView(
     chromeClient: AccompanistWebChromeClient = remember { AccompanistWebChromeClient() },
     interceptOverrideUrl: (String) -> Boolean = { false },
     factory: ((Context) -> WebView)? = null,
-    dynamicModifiers: List<ModifierPageData>? = null
+    dynamicModifiers: List<DynamicResourceDto>? = null
 ) {
     BoxWithConstraints(modifier) {
         // WebView changes it's layout strategy based on
@@ -127,6 +129,7 @@ fun WebView(
             layoutParams,
             Modifier,
             captureBackPresses,
+            isRefreshable,
             navigator,
             onCreated,
             onDispose,
@@ -142,18 +145,19 @@ fun WebView(
 /**
  * A wrapper around the Android View WebView to provide a basic WebView composable.
  *
- * If you require more customisation you are most likely better rolling your own and using this
- * wrapper as an example.
- *
+ * This is a modified copy from Accompanists WebView wrapper, since it is not supported anymore and allows
+ * us to further customize the component according to our needs. Check https://google.github.io/accompanist/web/
+ * for default implementation.
+ **
  * The WebView attempts to set the layoutParams based on the Compose modifier passed in. If it
  * is incorrectly sizing, use the layoutParams composable function instead.
  *
- * @param key A property, which allows us to recreate webview when needed
+ * @param key A property, which allows us to recreate webview when needed.
  * @param state The webview state holder where the Uri to load is defined.
- * @param layoutParams A FrameLayout.LayoutParams object to custom size the underlying WebView.
- * @param modifier A compose modifier
+ * @param modifier A compose modifier.
  * @param captureBackPresses Set to true to have this Composable capture back presses and navigate
  * the WebView back.
+ * @param isRefreshable An option to have pull to refresh
  * @param navigator An optional navigator object that can be used to control the WebView's
  * navigation from outside the composable.
  * @param onCreated Called when the WebView is first created, this can be used to set additional
@@ -161,12 +165,13 @@ fun WebView(
  * subsequently overwritten after this lambda is called.
  * @param onDispose Called when the WebView is destroyed. Provides a bundle which can be saved
  * if you need to save and restore state in this WebView.
- * @param client Provides access to WebViewClient via subclassing
- * @param chromeClient Provides access to WebChromeClient via subclassing
+ * @param client Provides access to WebViewClient via subclassing.
+ * @param chromeClient Provides access to WebChromeClient via subclassing.
  * @param interceptOverrideUrl optional callback, how to handle intercepted urls,
- * return true if do not want to navigate to the new url and return false if navigation to the new url is intact
- * @param factory An optional WebView factory for using a custom subclass of WebView
- * @param dynamicModifiers An optional parameter to inject a JS.
+ * return true if do not want to navigate to the new url and return false if navigation to the new url is intact.
+ * @param factory An optional WebView factory for using a custom subclass of WebView.
+ * @param dynamicModifiers A list of dynamic modifiers, which will be injected into WebView, applicable
+ * only if client is OkHttpTwsWebViewClient. Dynamic modifier can be either CSS or JS.
  */
 @Composable
 fun WebView(
@@ -175,6 +180,7 @@ fun WebView(
     layoutParams: FrameLayout.LayoutParams,
     modifier: Modifier = Modifier,
     captureBackPresses: Boolean = true,
+    isRefreshable: Boolean = true,
     navigator: WebViewNavigator = rememberWebViewNavigator(),
     onCreated: (WebView) -> Unit = {},
     onDispose: (WebView) -> Unit = {},
@@ -182,7 +188,7 @@ fun WebView(
     chromeClient: AccompanistWebChromeClient = remember { AccompanistWebChromeClient() },
     interceptOverrideUrl: (String) -> Boolean = { false },
     factory: ((Context) -> WebView)? = null,
-    dynamicModifiers: List<ModifierPageData>? = null
+    dynamicModifiers: List<DynamicResourceDto>? = null
 ) {
     val webView = state.webView
 
@@ -213,8 +219,26 @@ fun WebView(
     key(key) {
         AndroidView(
             factory = { context ->
+                val factoryWebView: WebView
+                val rootView: View
+
+                if (isRefreshable) {
+                    val layoutInflater = LayoutInflater.from(context)
+                    rootView = layoutInflater.inflate(R.layout.swipe_refresh_webview, null)
+                    val swipeRefreshLayout = rootView.findViewById<SwipeRefreshLayout>(R.id.swipe_refresh_layout)
+                    factoryWebView = rootView.findViewById(R.id.web_view)
+
+                    swipeRefreshLayout.setOnRefreshListener {
+                        navigator.reload()
+                    }
+                } else {
+                    rootView = WebView(context)
+                    factoryWebView = rootView
+                }
+
                 createWebView(
                     context = context,
+                    webView = factoryWebView,
                     state = state,
                     layoutParams = layoutParams,
                     factory = factory,
@@ -228,15 +252,25 @@ fun WebView(
                     client = client,
                     chromeClient = chromeClient
                 )
+
+                rootView
             },
             modifier = modifier,
             onRelease = {
+                val wv = it as? WebView ?: it.findViewById<WebView>(R.id.web_view)
+
                 state.viewState = Bundle().apply {
-                    it.saveState(this)
+                    wv.saveState(this)
                 }.takeIf { !it.isEmpty } ?: state.viewState
                 state.webView = null
 
-                onDispose(it)
+                onDispose(wv)
+            },
+            update = {
+                if (isRefreshable) {
+                    val swipeRefreshLayout = it.findViewById<SwipeRefreshLayout>(R.id.swipe_refresh_layout)
+                    swipeRefreshLayout.isRefreshing = state.isLoading
+                }
             }
         )
     }
@@ -354,6 +388,7 @@ private fun SetupFileChooserLauncher(chromeClient: TwsWebChromeClient) {
 
 private fun createWebView(
     context: Context,
+    webView: WebView,
     state: WebViewState,
     layoutParams: FrameLayout.LayoutParams,
     factory: ((Context) -> WebView)?,
@@ -361,7 +396,7 @@ private fun createWebView(
     client: WebViewClient,
     chromeClient: WebChromeClient
 ): WebView {
-    return (factory?.invoke(context) ?: WebView(context)).apply {
+    return (factory?.invoke(context) ?: webView).apply {
         onCreated(this)
 
         this.layoutParams = layoutParams

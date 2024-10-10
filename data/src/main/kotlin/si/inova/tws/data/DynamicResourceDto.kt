@@ -14,42 +14,38 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.core.data
+package si.inova.tws.data
 
 import android.os.Parcelable
+import androidx.annotation.Keep
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
+import si.inova.tws.data.ModifierInjectionType.Companion.fromContentType
 import java.util.Locale
 
-abstract class ModifierPageData(open val type: ModifierInjectionType): Parcelable {
-    abstract val inject: String?
-}
-
+/**
+ * @property DynamicResourceDto gets a [url] to a file to inject into WebView before page is loaded.
+ *
+ * @param url - path to the file to inject
+ * @param contentType - gets type of file "text/css" or "text/javascript"
+ */
+@JsonClass(generateAdapter = true)
 @Parcelize
-data class ContentInjectData(val content: String, override val type: ModifierInjectionType) : ModifierPageData(type) {
+@Keep
+data class DynamicResourceDto(
+    val url: String,
+    val contentType: String
+): Parcelable {
     @IgnoredOnParcel
-    override val inject = when (type) {
-        ModifierInjectionType.CSS -> injectContentCss()
-        ModifierInjectionType.JAVASCRIPT -> injectContentJs()
-        else -> null
-    }
+    val type: ModifierInjectionType = contentType.fromContentType()
 
-    private fun injectContentJs(): String {
-        return """<script type="text/javascript">$content</script>""".trimIndent()
-    }
-
-    private fun injectContentCss(): String {
-        return """<style>$content</style>""".trimIndent()
-    }
-}
-
-@Parcelize
-data class UrlInjectData(val url: String, override val type: ModifierInjectionType) : ModifierPageData(type) {
     @IgnoredOnParcel
-    override val inject = when (type) {
+    val inject = when (type) {
         ModifierInjectionType.CSS -> injectUrlCss()
         ModifierInjectionType.JAVASCRIPT -> injectUrlJs()
-        else -> null
+        ModifierInjectionType.UNKNOWN -> null
     }
 
     private fun injectUrlCss(): String {
@@ -61,14 +57,27 @@ data class UrlInjectData(val url: String, override val type: ModifierInjectionTy
     }
 }
 
+/**
+ * Enum class representing the types of content injections that can be performed.
+ */
 enum class ModifierInjectionType {
+    @Json(name = "text/css")
     CSS,
+
+    @Json(name = "text/javascript")
     JAVASCRIPT,
+
     UNKNOWN;
 
     companion object {
-        fun fromContentType(contentType: String): ModifierInjectionType {
-            return when (contentType.lowercase(Locale.getDefault())) {
+        /**
+         * Converts a string content type to a corresponding ModifierInjectionType.
+         *
+         * [this] The string content type (e.g., "text/css" or "text/javascript").
+         * @return The corresponding ModifierInjectionType.
+         */
+        internal fun String.fromContentType(): ModifierInjectionType {
+            return when (lowercase(Locale.getDefault())) {
                 "text/css" -> CSS
                 "text/javascript" -> JAVASCRIPT
                 else -> UNKNOWN

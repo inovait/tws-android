@@ -27,15 +27,16 @@ import androidx.browser.customtabs.CustomTabsCallback
 import androidx.browser.customtabs.CustomTabsClient
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.browser.customtabs.CustomTabsServiceConnection
-import si.inova.tws.core.data.view.WebViewState
+import si.inova.tws.core.data.WebViewState
 
 /**
- * TwsWebViewClient, copied from AccompanistWebViewClient to allow further modifications
+ * TwsWebViewClient is a subclass of [AccompanistWebViewClient] designed to provide custom behavior for handling WebView requests.
+ * It includes a mechanism to handle URLs and supports opening Google authentication flow in Custom Chrome tabs for
+ * better user experience.
  *
- * A parent class implementation of WebViewClient that can be subclassed to add custom behaviour.
- *
- * As Accompanist Web needs to set its own web client to function, it provides this intermediary
- * class that can be overridden if further custom behaviour is required.
+ * @param popupStateCallback An optional callback function that can be used to manage the visibility state of
+ * popups in the WebView. This can be useful for tracking whether a custom tab is open
+ * or closed.
  */
 open class TwsWebViewClient(
     private val popupStateCallback: ((WebViewState, Boolean) -> Unit)? = null

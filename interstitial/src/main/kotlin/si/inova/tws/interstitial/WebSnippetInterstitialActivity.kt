@@ -34,22 +34,30 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
-import androidx.core.view.WindowCompat
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import si.inova.kotlinova.core.outcome.Outcome
 import si.inova.tws.core.WebSnippetComponent
-import si.inova.tws.core.data.ModifierInjectionType
-import si.inova.tws.core.data.UrlInjectData
-import si.inova.tws.core.data.WebSnippetData
+import si.inova.tws.data.WebSnippetDto
 import si.inova.tws.interstitial.WebSnippetPopup.Companion.MANAGER_TAG
 import si.inova.tws.interstitial.WebSnippetPopup.Companion.NAVIGATION_BAR_COLOR
 import si.inova.tws.interstitial.WebSnippetPopup.Companion.STATUS_BAR_COLOR
 import si.inova.tws.interstitial.WebSnippetPopup.Companion.WEB_SNIPPET_DATA
 import si.inova.tws.interstitial.WebSnippetPopup.Companion.WEB_SNIPPET_ID
 import si.inova.tws.manager.WebSnippetManagerImpl
-import si.inova.tws.manager.data.WebSnippetDto
 
+/**
+ * WebSnippetInterstitialActivity is a ComponentActivity responsible for displaying
+ * a WebSnippet within an interstitial layout. It manages WebView content and configuration
+ * through WebSnippetComponent and provides functionality to close the interstitial.
+ *
+ * Key features:
+ * - Sets up the status and navigation bar colors based on provided extras.
+ * - Can load and display a WebSnippet based on `webSnippetId`. In that case it also Listens for changes in the associated
+ * WebSnippetManager and responds accordingly (i.e. closes activity when deleted or updates content when changed).
+ * - Can load and display a WebSnippet from WebSnippetData. In that case, connection with manager is not established, meaning
+ * changes to snippet will not be reflected.
+ */
 class WebSnippetInterstitialActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,7 +81,7 @@ class WebSnippetInterstitialActivity : ComponentActivity() {
         }
 
         val webSnippetData = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            intent.getParcelableExtra(WEB_SNIPPET_DATA, WebSnippetData::class.java)
+            intent.getParcelableExtra(WEB_SNIPPET_DATA, WebSnippetDto::class.java)
         } else {
             @Suppress("DEPRECATION")
             intent.getParcelableExtra(WEB_SNIPPET_DATA)
@@ -92,7 +100,7 @@ class WebSnippetInterstitialActivity : ComponentActivity() {
             }?.collectAsState(false)?.value ?: false
 
             val snippet = manager?.popupSnippetsFlow?.map { outcome ->
-                outcome.data?.find { it.id == webSnippetId }?.toWebSnippetData()
+                outcome.data?.find { it.id == webSnippetId }
             }?.filterNotNull()?.collectAsState(null)?.value ?: webSnippetData
 
             LaunchedEffect(shouldCloseFlow) {
@@ -119,19 +127,4 @@ class WebSnippetInterstitialActivity : ComponentActivity() {
             }
         }
     }
-}
-
-private fun WebSnippetDto.toWebSnippetData(): WebSnippetData {
-    return WebSnippetData(
-        id = id,
-        url = target,
-        headers = headers.orEmpty(),
-        loadIteration = loadIteration,
-        dynamicModifiers = dynamicResources?.map {
-            UrlInjectData(
-                it.url,
-                ModifierInjectionType.fromContentType(it.contentType)
-            )
-        }.orEmpty()
-    )
 }

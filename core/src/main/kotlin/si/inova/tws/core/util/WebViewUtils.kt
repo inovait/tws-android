@@ -23,7 +23,7 @@ import android.webkit.WebSettings
 import android.webkit.WebView
 
 @SuppressLint("SetJavaScriptEnabled")
-fun WebView.initializeSettings() {
+internal fun WebView.initializeSettings() {
     CookieManager.getInstance().setAcceptThirdPartyCookies(this, true)
     CookieManager.getInstance().setAcceptCookie(true)
     setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY)
@@ -43,11 +43,5 @@ fun WebView.initializeSettings() {
         mediaPlaybackRequiresUserGesture = false
         setGeolocationEnabled(true)
         userAgentString = "$userAgentString TheWebSnippet"
-    }
-}
-
-fun WebView.onScreenReset() {
-    post {
-        evaluateJavascript(JavaScriptCommands.ScrollToTop, null)
     }
 }

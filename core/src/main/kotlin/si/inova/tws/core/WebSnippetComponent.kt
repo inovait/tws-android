@@ -32,53 +32,59 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.core.util.Consumer
 import si.inova.tws.core.client.OkHttpTwsWebViewClient
-import si.inova.tws.core.data.ModifierPageData
-import si.inova.tws.core.data.WebSnippetData
-import si.inova.tws.core.data.view.LoadingState
-import si.inova.tws.core.data.view.WebContent
-import si.inova.tws.core.data.view.WebViewNavigator
-import si.inova.tws.core.data.view.WebViewState
 import si.inova.tws.core.client.TwsWebChromeClient
-import si.inova.tws.core.data.view.rememberSaveableWebViewState
-import si.inova.tws.core.data.view.rememberWebViewNavigator
+import si.inova.tws.core.data.LoadingState
+import si.inova.tws.core.data.WebContent
+import si.inova.tws.core.data.WebViewNavigator
+import si.inova.tws.core.data.WebViewState
+import si.inova.tws.core.data.rememberSaveableWebViewState
+import si.inova.tws.core.data.rememberWebViewNavigator
 import si.inova.tws.core.util.compose.ErrorBannerWithSwipeToDismiss
 import si.inova.tws.core.util.compose.SnippetErrorView
 import si.inova.tws.core.util.compose.SnippetLoadingView
 import si.inova.tws.core.util.compose.getUserFriendlyMessage
 import si.inova.tws.core.util.initializeSettings
+import si.inova.tws.data.DynamicResourceDto
+import si.inova.tws.data.WebSnippetDto
 
 /**
  *
- * Extension of WebView
+ * WebSnippetComponent is a composable function that renders a WebView within a specified context,
+ * allowing dynamic loading and interaction with web content. It provides various customizable options
+ * to handle loading states, error handling, and URL interception.
  *
- *
- * @param target A property, which contains data to show in WebView
- * @param modifier A compose modifier
+ * @param target An object that holds the necessary details to load and render a web snippet.
+ * This includes the URL, custom HTTP headers, and any dynamic modifiers that might be applied to the web view.
+ * @param modifier A compose modifier.
  * @param navigator An optional navigator object that can be used to control the WebView's
  * navigation from outside the composable.
- * @param webViewState State of WebView
- * @param displayErrorViewOnError Show custom error content
- * if there is error during loading WebView content
- * @param errorViewContent If [displayErrorViewOnError] is set to true
- * show this compose error content
- * @param displayPlaceholderWhileLoading Show custom loading animation while loading WebView content
- * @param loadingPlaceholderContent If [displayPlaceholderWhileLoading] is set to true
- * show this compose loading content
- * @param interceptOverrideUrl Optional callback, how to handle intercepted urls,
- * return true if do not want to navigate to the new url and
- * return false if navigation to the new url is intact
- * @param googleLoginRedirectUrl open new intent for google login url
+ * @param webViewState State of WebView.
+ * @param displayErrorViewOnError Whether to show a custom error view if loading the WebView content fails.
+ * If set to true, the provided errorViewContent will be displayed in case of errors.
+ * @param errorViewContent A custom composable that defines the UI content to display when there's an error
+ * loading WebView content. Used only if [displayErrorViewOnError] is set to true.
+ * @param displayPlaceholderWhileLoading If set to true, a placeholder or loading animation will be
+ *  * shown while the WebView content is loading.
+ * @param loadingPlaceholderContent A custom composable that defines the UI content to show while the WebView content is loading.
+ *  Used only if [displayPlaceholderWhileLoading] is set to true.
+ * @param interceptOverrideUrl A lambda function that is invoked when a URL in WebView will be loaded.
+ * Returning true prevents navigation to the new URL (and allowing you to define custom behavior for specific urls),
+ * while returning false allows it to proceed.
+ * @param googleLoginRedirectUrl A URL to which user is redirected after successful Google login. This will allow us to redirect
+ * user back to the app after login in Custom Tabs has been completed.
  */
 @Composable
 fun WebSnippetComponent(
-    target: WebSnippetData,
+    target: WebSnippetDto,
     modifier: Modifier = Modifier,
     navigator: WebViewNavigator = rememberWebViewNavigator(target.id),
     webViewState: WebViewState = rememberSaveableWebViewState(target.id),
@@ -87,14 +93,15 @@ fun WebSnippetComponent(
     displayPlaceholderWhileLoading: Boolean = false,
     loadingPlaceholderContent: @Composable () -> Unit = { SnippetLoadingView(false) },
     interceptOverrideUrl: (String) -> Boolean = { false },
-    googleLoginRedirectUrl: String? = null
+    googleLoginRedirectUrl: String? = null,
+    isRefreshable: Boolean = true
 ) {
     LaunchedEffect(navigator, target.loadIteration) {
         if (webViewState.viewState == null) {
             // This is the first time load, so load the home page, else it will be restored from bundle
             navigator.loadUrl(
-                url = target.url,
-                additionalHttpHeaders = target.headers
+                url = target.target,
+                additionalHttpHeaders = target.headers ?: emptyMap()
             )
 
             webViewState.loadIteration = target.loadIteration
@@ -138,10 +145,12 @@ fun WebSnippetComponent(
         interceptOverrideUrl = interceptOverrideUrl,
         errorViewContent = errorViewContent,
         popupStateCallback = popupStateCallback,
-        dynamicModifiers = target.dynamicModifiers
+        dynamicModifiers = target.dynamicResources,
+        isRefreshable = isRefreshable
     )
 
     popupStates.value.forEach { state ->
+        val msgState = state.content as WebContent.MessageOnly
         PopUpWebView(
             popupState = state,
             displayPlaceholderWhileLoading = displayPlaceholderWhileLoading,
@@ -152,7 +161,8 @@ fun WebSnippetComponent(
             popupStateCallback = popupStateCallback,
             interceptOverrideUrl = interceptOverrideUrl,
             googleLoginRedirectUrl = googleLoginRedirectUrl,
-            dynamicModifiers = target.dynamicModifiers
+            dynamicModifiers = target.dynamicResources,
+            isFullscreen = !msgState.isDialog
         )
     }
 }
@@ -170,7 +180,8 @@ private fun SnippetContentWithLoadingAndError(
     onCreated: (WebView) -> Unit = {},
     popupStateCallback: ((WebViewState, Boolean) -> Unit)? = null,
     interceptOverrideUrl: (String) -> Boolean,
-    dynamicModifiers: List<ModifierPageData>? = null
+    dynamicModifiers: List<DynamicResourceDto>? = null,
+    isRefreshable: Boolean,
 ) {
     // https://github.com/google/accompanist/issues/1326 - WebView settings does not work in compose preview
     val isPreviewMode = LocalInspectionMode.current
@@ -191,7 +202,8 @@ private fun SnippetContentWithLoadingAndError(
             interceptOverrideUrl = interceptOverrideUrl,
             dynamicModifiers = dynamicModifiers,
             client = client,
-            chromeClient = chromeClient
+            chromeClient = chromeClient,
+            isRefreshable = isRefreshable
         )
 
         if (displayLoadingContent) {
@@ -220,7 +232,9 @@ private fun PopUpWebView(
     popupNavigator: WebViewNavigator = rememberWebViewNavigator(),
     popupStateCallback: ((WebViewState, Boolean) -> Unit)? = null,
     googleLoginRedirectUrl: String? = null,
-    dynamicModifiers: List<ModifierPageData>? = null
+    dynamicModifiers: List<DynamicResourceDto>? = null,
+    isRefreshable: Boolean = false,
+    isFullscreen: Boolean = false
 ) {
     val displayErrorContent = displayErrorViewOnError && popupState.hasError
     val displayLoadingContent =
@@ -236,6 +250,7 @@ private fun PopUpWebView(
     }
 
     Dialog(
+        properties = DialogProperties(usePlatformDefaultWidth = !isFullscreen),
         onDismissRequest = {
             popupState.webView?.destroy()
             onDismissRequest()
@@ -243,9 +258,25 @@ private fun PopUpWebView(
     ) {
         Surface(
             modifier = Modifier
-                .fillMaxHeight(WEB_VIEW_POPUP_HEIGHT_PERCENTAGE)
-                .fillMaxWidth(WEB_VIEW_POPUP_WIDTH_PERCENTAGE),
-            shape = RoundedCornerShape(16.dp),
+                .fillMaxHeight(
+                    if (isFullscreen) {
+                        1f
+                    } else {
+                        WEB_VIEW_POPUP_HEIGHT_PERCENTAGE
+                    }
+                )
+                .fillMaxWidth(
+                    if (isFullscreen) {
+                        1f
+                    } else {
+                        WEB_VIEW_POPUP_WIDTH_PERCENTAGE
+                    }
+                ),
+            shape = if (isFullscreen) {
+                RectangleShape
+            } else {
+                RoundedCornerShape(16.dp)
+            },
             color = Color.White
         ) {
             SnippetContentWithLoadingAndError(
@@ -256,18 +287,11 @@ private fun PopUpWebView(
                 loadingPlaceholderContent = loadingPlaceholderContent,
                 displayErrorContent = displayErrorContent,
                 errorViewContent = errorViewContent,
-                onCreated = { webView ->
-                    val popupMessage =
-                        popupState.popupMessage ?: return@SnippetContentWithLoadingAndError
-                    val transport = popupMessage.obj as? WebView.WebViewTransport
-                    if (transport != null) {
-                        transport.webView = webView
-                        popupMessage.sendToTarget()
-                    }
-                },
+                onCreated = (popupState.content as WebContent.MessageOnly)::onCreateWindowStatus,
                 popupStateCallback = popupStateCallback,
                 interceptOverrideUrl = interceptOverrideUrl,
-                dynamicModifiers = dynamicModifiers
+                dynamicModifiers = dynamicModifiers,
+                isRefreshable = isRefreshable
             )
         }
     }
@@ -295,14 +319,25 @@ private const val WEB_VIEW_POPUP_HEIGHT_PERCENTAGE = 0.8f
 @Composable
 @Preview
 private fun WebSnippetComponentPreview() {
-    WebSnippetComponent(WebSnippetData(id = "id", url = "https://www.google.com/"))
+    WebSnippetComponent(
+        WebSnippetDto(
+            id = "id",
+            target = "https://www.google.com/",
+            projectId = "projId",
+            organizationId = "orgId"
+        )
+    )
 }
 
 @Composable
 @Preview
 private fun WebSnippetLoadingPlaceholderComponentPreview() {
     WebSnippetComponent(
-        WebSnippetData(id = "id", url = "https://www.google.com/"),
+        WebSnippetDto(
+            id = "id", target = "https://www.google.com/",
+            projectId = "projId",
+            organizationId = "orgId"
+        ),
         webViewState = webStateLoading,
         displayErrorViewOnError = true,
         displayPlaceholderWhileLoading = true
@@ -313,7 +348,11 @@ private fun WebSnippetLoadingPlaceholderComponentPreview() {
 @Preview
 private fun WebSnippetLoadingPlaceholderInitComponentPreview() {
     WebSnippetComponent(
-        WebSnippetData(id = "id", url = "https://www.google.com/"),
+        WebSnippetDto(
+            id = "id", target = "https://www.google.com/",
+            projectId = "projId",
+            organizationId = "orgId"
+        ),
         webViewState = webStateInitializing,
         displayErrorViewOnError = true,
         displayPlaceholderWhileLoading = true
@@ -324,19 +363,17 @@ private fun WebSnippetLoadingPlaceholderInitComponentPreview() {
 @Preview
 private fun WebSnippetLoadingPlaceholderFinishedComponentPreview() {
     WebSnippetComponent(
-        WebSnippetData(id = "id", url = "https://www.google.com/"),
+        WebSnippetDto(
+            id = "id", target = "https://www.google.com/",
+            projectId = "projId",
+            organizationId = "orgId"
+        ),
         webViewState = webStateLoadingFinished,
         displayErrorViewOnError = true,
         displayPlaceholderWhileLoading = true
     )
 }
 
-private val webStateInitializing =
-    WebViewState(WebContent.NavigatorOnly)
-        .apply { loadingState = LoadingState.Initializing }
-private val webStateLoading =
-    WebViewState(WebContent.NavigatorOnly)
-        .apply { loadingState = LoadingState.Loading(0.5f) }
-private val webStateLoadingFinished =
-    WebViewState(WebContent.NavigatorOnly)
-        .apply { loadingState = LoadingState.Finished }
+private val webStateInitializing = WebViewState(WebContent.NavigatorOnly).apply { loadingState = LoadingState.Initializing }
+private val webStateLoading = WebViewState(WebContent.NavigatorOnly).apply { loadingState = LoadingState.Loading(0.5f) }
+private val webStateLoadingFinished = WebViewState(WebContent.NavigatorOnly).apply { loadingState = LoadingState.Finished }

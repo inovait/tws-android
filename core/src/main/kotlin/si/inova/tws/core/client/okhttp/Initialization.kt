@@ -36,6 +36,8 @@ internal fun webViewHttpClient(context: Context): OkHttpClient {
     return OkHttpClient.Builder()
         .cache(manager.cache)
         .cookieJar(SharedCookieJar(cookieManager))
+        .followRedirects(false)
+        .followSslRedirects(false)
         .build()
 }
 

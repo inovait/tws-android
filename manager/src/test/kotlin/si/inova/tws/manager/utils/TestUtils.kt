@@ -16,12 +16,12 @@
 
 package si.inova.tws.manager.utils
 
+import si.inova.tws.data.SnippetType
+import si.inova.tws.data.VisibilityDto
+import si.inova.tws.data.WebSnippetDto
 import si.inova.tws.manager.data.ActionBody
 import si.inova.tws.manager.data.ProjectDto
 import si.inova.tws.manager.data.SharedSnippetDto
-import si.inova.tws.manager.data.SnippetType
-import si.inova.tws.manager.data.VisibilityDto
-import si.inova.tws.manager.data.WebSnippetDto
 import java.time.Instant
 
 val FAKE_SNIPPET_ONE = WebSnippetDto(
@@ -70,7 +70,6 @@ val FAKE_SNIPPET_SIX = WebSnippetDto(
     type = SnippetType.POPUP
 )
 
-
 val FAKE_PROJECT_DTO = ProjectDto(
     snippets = listOf(FAKE_SNIPPET_ONE, FAKE_SNIPPET_TWO, FAKE_SNIPPET_FOUR, FAKE_SNIPPET_FIVE),
     listenOn = "wss:someUrl.com"
@@ -85,7 +84,8 @@ fun WebSnippetDto.toActionBody() = ActionBody(
     projectId = projectId,
     organizationId = organizationId,
     headers = headers,
-    type = type
+    type = type,
+    dynamicResources = dynamicResources
 )
 
 fun WebSnippetDto.setVisibility(ts: Long) = copy(

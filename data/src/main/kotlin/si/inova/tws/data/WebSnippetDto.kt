@@ -14,8 +14,25 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.core.util
+package si.inova.tws.data
 
-object JavaScriptCommands {
-    const val ScrollToTop = "window.scrollTo({ top: 0, behavior: 'smooth' });"
-}
+import android.os.Parcelable
+import androidx.annotation.Keep
+import com.squareup.moshi.JsonClass
+import kotlinx.parcelize.Parcelize
+
+@JsonClass(generateAdapter = true)
+@Parcelize
+@Keep
+data class WebSnippetDto(
+    val id: String,
+    val target: String,
+    val organizationId: String,
+    val projectId: String,
+    val html: String? = null,
+    val headers: Map<String, String>? = emptyMap(),
+    val dynamicResources: List<DynamicResourceDto>? = emptyList(),
+    val visibility: VisibilityDto? = null,
+    val type: SnippetType = SnippetType.TAB,
+    val loadIteration: Int = 0
+) : Parcelable

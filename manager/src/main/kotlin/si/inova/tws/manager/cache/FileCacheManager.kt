@@ -19,7 +19,7 @@ package si.inova.tws.manager.cache
 import android.content.Context
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
-import si.inova.tws.manager.data.WebSnippetDto
+import si.inova.tws.data.WebSnippetDto
 import si.inova.tws.manager.singleton.twsMoshi
 import java.io.File
 
@@ -45,10 +45,14 @@ internal class FileCacheManager(context: Context, tag: String): CacheManager {
         val jsonAdapter = moshi.adapter<List<WebSnippetDto>>(type)
 
         val file = File(cacheDir, key)
-        return if (file.exists()) {
-            val json = file.readText()
-            jsonAdapter.fromJson(json)
-        } else {
+        return try {
+            if (file.exists()) {
+                val json = file.readText()
+                jsonAdapter.fromJson(json)
+            } else {
+                null
+            }
+        } catch (e: Exception) {
             null
         }
     }

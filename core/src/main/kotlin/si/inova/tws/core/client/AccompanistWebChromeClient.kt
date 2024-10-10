@@ -19,9 +19,17 @@ package si.inova.tws.core.client
 import android.graphics.Bitmap
 import android.webkit.WebChromeClient
 import android.webkit.WebView
-import si.inova.tws.core.data.view.LoadingState
-import si.inova.tws.core.data.view.WebViewState
+import si.inova.tws.core.data.LoadingState
+import si.inova.tws.core.data.WebViewState
 
+/**
+ * AccompanistWebChromeClient is a subclass of [WebChromeClient] designed to manage
+ * the web content displayed in a [WebView].
+ *
+ * This class provides additional features beyond the basic functionality of [WebChromeClient]
+ * by allowing you to handle events such as page title updates, icon changes, and progress
+ * updates for the loading state of the WebView.
+ */
 open class AccompanistWebChromeClient : WebChromeClient() {
     open lateinit var state: WebViewState
         internal set

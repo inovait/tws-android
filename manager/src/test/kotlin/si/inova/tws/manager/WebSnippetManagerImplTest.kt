@@ -26,11 +26,11 @@ import org.mockito.Mockito.mock
 import si.inova.kotlinova.core.test.TestScopeWithDispatcherProvider
 import si.inova.kotlinova.core.test.outcomes.shouldBeProgressWith
 import si.inova.kotlinova.core.test.outcomes.shouldBeSuccessWithData
+import si.inova.tws.data.DynamicResourceDto
+import si.inova.tws.data.SnippetType
 import si.inova.tws.manager.data.ActionBody
 import si.inova.tws.manager.data.ActionType
-import si.inova.tws.manager.data.SnippetType
 import si.inova.tws.manager.data.SnippetUpdateAction
-import si.inova.tws.manager.data.WebSnippetDto
 import si.inova.tws.manager.utils.FAKE_PROJECT_DTO
 import si.inova.tws.manager.utils.FAKE_SHARED_PROJECT
 import si.inova.tws.manager.utils.FAKE_SNIPPET_FIVE
@@ -472,10 +472,11 @@ class WebSnippetManagerImplTest {
         functions.returnedProject = FAKE_PROJECT_DTO
 
         webSnippetManager.unseenPopupSnippetsFlow.test {
+            awaitItem() // initial empty progress
             webSnippetManager.loadWebSnippets("organization", "project")
 
-            val cache = awaitItem() // progress, cache is ignored
-            assert(cache == emptyList<WebSnippetDto>())
+            val cache = awaitItem() // progress, with cached data
+            assert(cache == listOf(FAKE_SNIPPET_FOUR))
 
             val response = awaitItem() // success from web
             assert(response == listOf(FAKE_SNIPPET_FOUR, FAKE_SNIPPET_FIVE))
@@ -484,6 +485,42 @@ class WebSnippetManagerImplTest {
 
             val afterSeen = awaitItem() // after marking snippet as seen
             assert(afterSeen == listOf(FAKE_SNIPPET_FIVE))
+        }
+    }
+
+    @Test
+    fun `Update dynamic resources with socket`() = scope.runTest {
+        functions.returnedProject = FAKE_PROJECT_DTO
+
+        webSnippetManager.loadWebSnippets("organization", "project")
+
+        webSnippetManager.contentSnippetsFlow.test {
+            runCurrent()
+
+            expectMostRecentItem().shouldBeSuccessWithData(listOf(FAKE_SNIPPET_ONE, FAKE_SNIPPET_TWO))
+
+            socket.mockUpdateAction(
+                SnippetUpdateAction(
+                    ActionType.UPDATED, ActionBody(
+                        id = FAKE_SNIPPET_ONE.id, dynamicResources = listOf(
+                            DynamicResourceDto("https://test.cs", "text/css")
+                        )
+                    )
+                )
+            )
+
+            expectMostRecentItem().shouldBeSuccessWithData(
+                listOf(
+                    FAKE_SNIPPET_ONE.copy(
+                        loadIteration = FAKE_SNIPPET_ONE.loadIteration + 1,
+                        dynamicResources = listOf(
+                            DynamicResourceDto("https://test.cs", "text/css")
+                        )
+                    ), FAKE_SNIPPET_TWO
+                )
+            )
+
+            expectNoEvents()
         }
     }
 }

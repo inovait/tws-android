@@ -14,11 +14,27 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+import org.jetbrains.dokka.gradle.DokkaTaskPartial
 import util.publishLibrary
 
 plugins {
     androidLibraryModule
     kotlin("kapt")
+    alias(libs.plugins.dokka)
+}
+
+// configuration specific to this subproject.
+// notice the use of Partial task
+tasks.withType<DokkaTaskPartial>().configureEach {
+    dokkaSourceSets {
+        configureEach {
+            includes.from("Module.md")
+        }
+    }
+}
+
+afterEvaluate {
+    tasks["dokkaHtmlPartial"].dependsOn(tasks.getByName("kaptReleaseKotlin"), tasks.getByName("kaptDebugKotlin"))
 }
 
 android {
@@ -38,6 +54,8 @@ publishLibrary(
 )
 
 dependencies {
+    api(projects.data)
+
     api(libs.kotlinova.core)
     implementation(libs.kotlinova.retrofit)
     implementation(libs.androidx.core.ktx)
@@ -58,5 +76,4 @@ dependencies {
     testImplementation(libs.kotlinova.retrofit.test)
     testImplementation(libs.turbine)
     testImplementation(libs.mockk)
-
 }

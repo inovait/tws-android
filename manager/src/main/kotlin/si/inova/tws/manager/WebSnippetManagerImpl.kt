@@ -33,17 +33,18 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import si.inova.kotlinova.core.exceptions.UnknownCauseException
 import si.inova.kotlinova.core.outcome.CauseException
 import si.inova.kotlinova.core.outcome.Outcome
 import si.inova.kotlinova.core.outcome.mapData
 import si.inova.kotlinova.retrofit.callfactory.bodyOrThrow
+import si.inova.tws.data.SnippetType
+import si.inova.tws.data.WebSnippetDto
 import si.inova.tws.manager.cache.CacheManager
 import si.inova.tws.manager.cache.FileCacheManager
 import si.inova.tws.manager.data.NetworkStatus
-import si.inova.tws.manager.data.SnippetStatus
-import si.inova.tws.manager.data.SnippetType
-import si.inova.tws.manager.data.WebSnippetDto
+import si.inova.tws.manager.data.WebSocketStatus
 import si.inova.tws.manager.data.updateWith
 import si.inova.tws.manager.factory.BaseServiceFactory
 import si.inova.tws.manager.factory.create
@@ -83,7 +84,7 @@ class WebSnippetManagerImpl(
     override val popupSnippetsFlow = snippetsFlow.map { outcome ->
         outcome.mapData { data ->
             data.filter {
-                it.type == SnippetType.POPUP && it.status == SnippetStatus.ENABLED
+                it.type == SnippetType.POPUP
             }
         }
     }.distinctUntilChanged()
@@ -92,7 +93,7 @@ class WebSnippetManagerImpl(
     override val contentSnippetsFlow = snippetsFlow.map { outcome ->
         outcome.mapData { data ->
             data.filter {
-                it.type == SnippetType.TAB && it.status == SnippetStatus.ENABLED
+                it.type == SnippetType.TAB
             }
         }
     }.distinctUntilChanged()
@@ -101,11 +102,7 @@ class WebSnippetManagerImpl(
         popupSnippetsFlow,
         seenPopupSnippetsFlow
     ) { allPopups, seenPopups ->
-        if (allPopups !is Outcome.Success) {
-            emptyList()
-        } else {
-            allPopups.data.filter { !seenPopups.contains(it.id) }
-        }
+        allPopups.data?.filter { !seenPopups.contains(it.id) } ?: emptyList()
     }.distinctUntilChanged()
 
     init {
@@ -113,13 +110,7 @@ class WebSnippetManagerImpl(
             networkConnectivityService.networkStatus.collect {
                 when (it) {
                     is NetworkStatus.Connected -> {
-                        if (twsSocket?.connectionExists() == true) return@collect
-                        val organizationId = orgId
-                        val projectId = projId
-
-                        if (organizationId != null && projectId != null) {
-                            loadWebSnippets(organizationId, projectId)
-                        }
+                        twsSocket?.reconnect()
                     }
 
                     is NetworkStatus.Disconnected -> {
@@ -128,9 +119,22 @@ class WebSnippetManagerImpl(
                 }
             }
         }
+
+        scope.launch {
+            twsSocket?.socketStatus?.collect { status ->
+                if (status is WebSocketStatus.Failed && status.response?.code == 401) {
+                    val organizationId = orgId
+                    val projectId = projId
+
+                    if (organizationId != null && projectId != null) {
+                        loadProjectAndSetupWss(organizationId, projectId)
+                    }
+                }
+            }
+        }
     }
 
-    override suspend fun loadSharedSnippetData(shareId: String) {
+    override suspend fun loadSharedSnippetData(shareId: String) = withContext(Dispatchers.IO) {
         snippetsFlow.emit(Outcome.Progress(snippetsFlow.value.data))
 
         try {
@@ -144,7 +148,7 @@ class WebSnippetManagerImpl(
         }
     }
 
-    override suspend fun loadWebSnippets(organizationId: String, projectId: String) {
+    override suspend fun loadWebSnippets(organizationId: String, projectId: String) = withContext(Dispatchers.IO) {
         try {
             orgId = organizationId
             projId = projectId
@@ -191,21 +195,6 @@ class WebSnippetManagerImpl(
 
         twsSocket?.launchAndCollect(wssUrl)
         localSnippetHandler?.launchAndCollect(twsProject.snippets)
-
-        SharingStarted.WhileSubscribed(5.seconds).command(snippetsFlow.subscriptionCount).collect {
-            when (it) {
-                SharingCommand.START -> {
-                    if (twsSocket?.connectionExists() == false) {
-                        twsSocket.launchAndCollect(wssUrl)
-                    }
-                }
-
-                SharingCommand.STOP,
-                SharingCommand.STOP_AND_RESET_REPLAY_CACHE -> {
-                    closeWebsocketConnection()
-                }
-            }
-        }
     }
 
     private fun saveToCache(snippets: List<WebSnippetDto>) = scope.launch(Dispatchers.IO) {
@@ -217,7 +206,6 @@ class WebSnippetManagerImpl(
     }
 
     private fun TwsSocket.launchAndCollect(wssUrl: String) {
-        if (connectionExists()) return
         setupWebSocketConnection(wssUrl)
 
         if (collectingSocket) return
@@ -231,6 +219,8 @@ class WebSnippetManagerImpl(
         }.launchIn(scope).invokeOnCompletion {
             collectingSocket = false
         }
+
+        socketReconnectionLifecycle()
     }
 
     private suspend fun LocalSnippetHandler.launchAndCollect(snippets: List<WebSnippetDto>) {
@@ -248,11 +238,34 @@ class WebSnippetManagerImpl(
         }
     }
 
+    /**
+     * Close web socket connection when there are no subscribers and reload all data with new socket connection when resubscribed
+     */
+    private fun socketReconnectionLifecycle() = scope.launch {
+        SharingStarted.WhileSubscribed(5.seconds).command(snippetsFlow.subscriptionCount).collect {
+            when (it) {
+                SharingCommand.START -> {
+                    val organizationId = orgId
+                    val projectId = projId
+
+                    if (organizationId != null && projectId != null) {
+                        loadProjectAndSetupWss(organizationId, projectId)
+                    }
+                }
+
+                SharingCommand.STOP,
+                SharingCommand.STOP_AND_RESET_REPLAY_CACHE -> {
+                    closeWebsocketConnection()
+                }
+            }
+        }
+    }
+
     companion object {
         private const val DEFAULT_MANAGER_TAG = "ManagerSharedInstance"
         internal const val CACHED_SNIPPETS = "CachedSnippets"
         internal const val TAG_ERROR_SAVE_CACHE = "SaveCache"
-        private const val HEADER_DATE: String = "date"
+        private const val HEADER_DATE = "date"
 
         private val instances = ConcurrentHashMap<String, WebSnippetManager>()
 

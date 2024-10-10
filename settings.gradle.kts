@@ -41,3 +41,4 @@ rootProject.name = "TheWebSnippetSdk"
 include(":core")
 include(":interstitial")
 include(":manager")
+include(":data")

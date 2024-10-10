@@ -14,7 +14,7 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.core.data.view
+package si.inova.tws.core.data
 
 import android.graphics.Bitmap
 import android.os.Bundle
@@ -47,12 +47,6 @@ class WebViewState(webContent: WebContent) {
      *  The content being loaded by the WebView
      */
     var content: WebContent by mutableStateOf(webContent)
-
-    /**
-     * The message, which should be displayed as a popup if WebView does support Multiple Windows
-     * Note that message should be handled only once
-     */
-    var popupMessage: Message? by mutableStateOf(null)
 
     /**
      * Whether the WebView is currently [LoadingState.Loading] data in its main frame (along with
@@ -105,7 +99,6 @@ class WebViewState(webContent: WebContent) {
      */
     val customErrorsForCurrentRequest: SnapshotStateList<Exception> = mutableStateListOf()
 
-
     /**
      * The saved view state from when the view was destroyed last. To restore state,
      * use the navigator and only call loadUrl if the bundle is null.
@@ -116,7 +109,8 @@ class WebViewState(webContent: WebContent) {
 
     // We need access to this in the state saver. An internal DisposableEffect or AndroidView
     // onDestroy is called after the state saver and so can't be used.
-    internal var webView by mutableStateOf<WebView?>(null)
+    var webView by mutableStateOf<WebView?>(null)
+        internal set
 }
 
 /**
@@ -214,7 +208,6 @@ fun createWebStateSaver(key: String): Saver<WebViewState, Any> {
 
     return mapSaver(
         save = { state ->
-            // fallback to viewstate from state, if it has not been restored yet (i.e. tab did not come into focus yet)
             val viewState = Bundle().apply {
                 state.webView?.saveState(this)
             }.takeIf { !it.isEmpty } ?: state.viewState

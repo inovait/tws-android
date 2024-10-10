@@ -14,7 +14,7 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.core.data.view
+package si.inova.tws.core.data
 
 import android.Manifest
 import android.app.DownloadManager
@@ -28,7 +28,7 @@ import android.webkit.WebView
 import si.inova.tws.core.util.JavaScriptDownloadInterface
 import si.inova.tws.core.util.hasPermissionInManifest
 
-class TwsDownloadListener(
+internal class TwsDownloadListener(
     private val context: Context,
     private val webView: WebView,
     private val permissionRequest: (String, (Boolean) -> Unit) -> Unit

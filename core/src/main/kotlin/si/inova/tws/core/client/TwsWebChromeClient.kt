@@ -24,17 +24,22 @@ import android.webkit.GeolocationPermissions
 import android.webkit.PermissionRequest
 import android.webkit.ValueCallback
 import android.webkit.WebView
-import si.inova.tws.core.data.view.WebContent
-import si.inova.tws.core.data.view.WebViewState
+import si.inova.tws.core.data.WebContent
+import si.inova.tws.core.data.WebViewState
 import si.inova.tws.core.util.hasPermissionInManifest
 
 /**
- * TwsWebChromeClient, copied, modified and extended version of AccompanistWebChromeClient
+ * TwsWebChromeClient is a modified and extended version of [AccompanistWebChromeClient].
  *
- * A parent class implementation of WebChromeClient that can be subclassed to add custom behaviour.
+ * This class serves as a parent implementation of [AccompanistWebChromeClient], allowing customization
+ * and extension for specific behaviors in handling web content in a [WebView].
  *
+ * It includes features for managing permission requests, file chooser dialogs, and handling
+ * new window creation events.
+ *
+ * @property popupStateCallback An optional callback that provides updates regarding the
+ * state of popup windows within the WebView.
  */
-
 open class TwsWebChromeClient(
     private val popupStateCallback: ((WebViewState, Boolean) -> Unit)? = null,
 ) : AccompanistWebChromeClient() {
@@ -51,9 +56,7 @@ open class TwsWebChromeClient(
 
     override fun onCreateWindow(view: WebView, isDialog: Boolean, isUserGesture: Boolean, resultMsg: Message): Boolean {
         popupStateCallback?.invoke(
-            WebViewState(WebContent.MessageOnly).apply {
-                popupMessage = resultMsg
-            },
+            WebViewState(WebContent.MessageOnly(msg = resultMsg, isDialog = isDialog)),
             true
         )
 

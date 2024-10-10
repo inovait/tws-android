@@ -18,8 +18,13 @@ package si.inova.tws.interstitial
 
 import android.content.Context
 import android.content.Intent
-import si.inova.tws.core.data.WebSnippetData
+import si.inova.tws.data.WebSnippetDto
 
+/**
+ * Interface that provides methods for opening web snippet popups in the form of interstitials.
+ * The popups can be opened with a specific web snippet or with a list of snippets, and the status
+ * bar and navigation bar colors can be customized.
+ */
 interface WebSnippetPopup {
     companion object {
         const val WEB_SNIPPET_DATA = "webSnippetData"
@@ -28,9 +33,17 @@ interface WebSnippetPopup {
         const val STATUS_BAR_COLOR = "statusBarColor"
         const val NAVIGATION_BAR_COLOR = "navigationBarColor"
 
+        /**
+         * Opens a single web snippet interstitial activity.
+         *
+         * @param context The context from which the activity is started.
+         * @param popup The WebSnippetData containing the web content to be shown in the full screen popup.
+         * @param statusBarColor The optional color for the status bar in hexadecimal format.
+         * @param navigationBarColor The optional color for the navigation bar in hexadecimal format.
+         */
         fun open(
             context: Context,
-            popup: WebSnippetData,
+            popup: WebSnippetDto,
             statusBarColor: String? = null,
             navigationBarColor: String? = null
         ) {
@@ -43,9 +56,18 @@ interface WebSnippetPopup {
             )
         }
 
+        /**
+         * Opens multiple web snippet interstitial activities with a list of popups.
+         * Each snippet will be shown in a separate activity.
+         *
+         * @param context The context from which the activities are started.
+         * @param popups A list of WebSnippetData objects, each containing web content to be shown.
+         * @param statusBarColor The optional color for the status bar in hexadecimal format.
+         * @param navigationBarColor The optional color for the navigation bar in hexadecimal format.
+         */
         fun open(
             context: Context,
-            popups: List<WebSnippetData>,
+            popups: List<WebSnippetDto>,
             statusBarColor: String? = null,
             navigationBarColor: String? = null
         ) {
@@ -59,6 +81,16 @@ interface WebSnippetPopup {
             context.startActivities(intents)
         }
 
+        /**
+         * Opens a web snippet interstitial activity by snippet ID and optionally a manager tag.
+         *
+         * @param context The context from which the activity is started.
+         * @param id The ID of the web snippet to be shown in the popup.
+         * @param tag The optional manager tag to identify the popup manager.
+         * If no tag is provided, default tag will be used to obtain shared manager instance.
+         * @param statusBarColor The optional color for the status bar in hexadecimal format.
+         * @param navigationBarColor The optional color for the navigation bar in hexadecimal format.
+         */
         fun open(
             context: Context,
             id: String,
@@ -76,6 +108,17 @@ interface WebSnippetPopup {
             )
         }
 
+        /**
+         * Opens multiple web snippet interstitial activities by their IDs.
+         * Each snippet will be shown in a separate activity.
+         *
+         * @param context The context from which the activities are started.
+         * @param ids A list of web snippet IDs to be shown in separate popups.
+         * @param tag The optional manager tag to identify the popup manager.
+         * If no tag is provided, default tag will be used to obtain shared manager instance.
+         * @param statusBarColor The optional color for the status bar in hexadecimal format.
+         * @param navigationBarColor The optional color for the navigation bar in hexadecimal format.
+         */
         fun open(
             context: Context,
             ids: List<String>,
