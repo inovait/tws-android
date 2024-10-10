@@ -32,20 +32,25 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.core.util.Consumer
 import si.inova.tws.core.client.OkHttpTwsWebViewClient
 import si.inova.tws.core.client.TwsWebChromeClient
-import si.inova.tws.core.data.LoadingState
-import si.inova.tws.core.data.WebContent
-import si.inova.tws.core.data.WebViewNavigator
-import si.inova.tws.core.data.WebViewState
-import si.inova.tws.core.data.rememberSaveableWebViewState
-import si.inova.tws.core.data.rememberWebViewNavigator
+import si.inova.tws.core.data.ModifierPageData
+import si.inova.tws.core.data.WebSnippetData
+import si.inova.tws.core.data.view.LoadingState
+import si.inova.tws.core.data.view.WebContent
+import si.inova.tws.core.data.view.WebContent.MessageOnly
+import si.inova.tws.core.data.view.WebViewNavigator
+import si.inova.tws.core.data.view.WebViewState
+import si.inova.tws.core.data.view.rememberSaveableWebViewState
+import si.inova.tws.core.data.view.rememberWebViewNavigator
 import si.inova.tws.core.util.compose.ErrorBannerWithSwipeToDismiss
 import si.inova.tws.core.util.compose.SnippetErrorView
 import si.inova.tws.core.util.compose.SnippetLoadingView
@@ -148,6 +153,7 @@ fun WebSnippetComponent(
     )
 
     popupStates.value.forEach { state ->
+        val msgState = state.content as MessageOnly
         PopUpWebView(
             popupState = state,
             displayPlaceholderWhileLoading = displayPlaceholderWhileLoading,
@@ -158,7 +164,8 @@ fun WebSnippetComponent(
             popupStateCallback = popupStateCallback,
             interceptOverrideUrl = interceptOverrideUrl,
             googleLoginRedirectUrl = googleLoginRedirectUrl,
-            dynamicModifiers = target.dynamicResources
+            dynamicModifiers = target.dynamicResources,
+            isFullscreen = !msgState.isDialog
         )
     }
 }
@@ -229,7 +236,8 @@ private fun PopUpWebView(
     popupStateCallback: ((WebViewState, Boolean) -> Unit)? = null,
     googleLoginRedirectUrl: String? = null,
     dynamicModifiers: List<DynamicResourceDto>? = null,
-    isRefreshable: Boolean = false
+    isRefreshable: Boolean = false,
+    isFullscreen: Boolean = false
 ) {
     val displayErrorContent = displayErrorViewOnError && popupState.hasError
     val displayLoadingContent =
@@ -245,6 +253,7 @@ private fun PopUpWebView(
     }
 
     Dialog(
+        properties = DialogProperties(usePlatformDefaultWidth = !isFullscreen),
         onDismissRequest = {
             popupState.webView?.destroy()
             onDismissRequest()
@@ -252,9 +261,25 @@ private fun PopUpWebView(
     ) {
         Surface(
             modifier = Modifier
-                .fillMaxHeight(WEB_VIEW_POPUP_HEIGHT_PERCENTAGE)
-                .fillMaxWidth(WEB_VIEW_POPUP_WIDTH_PERCENTAGE),
-            shape = RoundedCornerShape(16.dp),
+                .fillMaxHeight(
+                    if (isFullscreen) {
+                        1f
+                    } else {
+                        WEB_VIEW_POPUP_HEIGHT_PERCENTAGE
+                    }
+                )
+                .fillMaxWidth(
+                    if (isFullscreen) {
+                        1f
+                    } else {
+                        WEB_VIEW_POPUP_WIDTH_PERCENTAGE
+                    }
+                ),
+            shape = if (isFullscreen) {
+                RectangleShape
+            } else {
+                RoundedCornerShape(16.dp)
+            },
             color = Color.White
         ) {
             SnippetContentWithLoadingAndError(
@@ -265,15 +290,7 @@ private fun PopUpWebView(
                 loadingPlaceholderContent = loadingPlaceholderContent,
                 displayErrorContent = displayErrorContent,
                 errorViewContent = errorViewContent,
-                onCreated = { webView ->
-                    val popupMessage =
-                        popupState.popupMessage ?: return@SnippetContentWithLoadingAndError
-                    val transport = popupMessage.obj as? WebView.WebViewTransport
-                    if (transport != null) {
-                        transport.webView = webView
-                        popupMessage.sendToTarget()
-                    }
-                },
+                onCreated = (popupState.content as MessageOnly)::onCreateWindowStatus,
                 popupStateCallback = popupStateCallback,
                 interceptOverrideUrl = interceptOverrideUrl,
                 dynamicModifiers = dynamicModifiers,
