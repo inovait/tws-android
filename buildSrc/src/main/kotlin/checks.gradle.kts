@@ -1,3 +1,6 @@
+import org.gradle.accessors.dm.LibrariesForLibs
+import util.commonAndroid
+
 /*
  * Copyright 2024 INOVA IT d.o.o.
  *
@@ -14,21 +17,33 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.data
+val libs = the<LibrariesForLibs>()
 
-import android.os.Parcelable
-import androidx.annotation.Keep
-import com.squareup.moshi.JsonClass
-import kotlinx.parcelize.Parcelize
-import java.time.Instant
+plugins {
+    id("io.gitlab.arturbosch.detekt")
+}
 
-/**
- * @property VisibilityDto is used to know how till what time should snippet be visible
- *
- */
-@JsonClass(generateAdapter = true)
-@Parcelize
-@Keep
-data class VisibilityDto(
-    val untilUtc: Instant? = null
-): Parcelable
+commonAndroid {
+    lint {
+        lintConfig = file("$rootDir/config/android-lint.xml")
+        abortOnError = true
+
+        warningsAsErrors = true
+        sarifReport = true
+    }
+}
+
+tasks.withType<com.android.build.gradle.internal.lint.AndroidLintTask>().configureEach {
+    finalizedBy(":reportMerge")
+}
+
+
+detekt {
+    config.setFrom("$rootDir/config/detekt.yml")
+}
+
+dependencies {
+    detektPlugins(libs.detekt.formatting)
+    detektPlugins(libs.detekt.compilerWarnings)
+    detektPlugins(libs.detekt.compose)
+}

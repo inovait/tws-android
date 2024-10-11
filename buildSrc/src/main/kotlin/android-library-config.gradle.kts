@@ -24,6 +24,7 @@ plugins {
     id("android-commons")
     kotlin("android")
     id("kotlin-parcelize")
+    id("checks")
 }
 
 android {
