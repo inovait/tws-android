@@ -1,3 +1,9 @@
+# 0.11.1
+
+### Bug Fixes
+
+* **data**: module not properly published ([fcad00ca](https://github.com/inovait/tws-android-sdk/commit/fcad00ca51a825e2c10dc008022b229045193312))
+
 # 0.11.0
 
 ### Features
