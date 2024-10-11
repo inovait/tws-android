@@ -41,6 +41,12 @@ android {
     namespace = "si.inova.tws.data"
 }
 
+publishLibrary(
+    userFriendlyName = "tws-data",
+    description = "A collection of data",
+    githubPath = "data",
+)
+
 dependencies {
     implementation(libs.moshi.kotlin)
     implementation(libs.androidx.core.ktx)
