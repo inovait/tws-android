@@ -33,7 +33,6 @@ data class WebSnippetDto(
     val headers: Map<String, String>? = emptyMap(),
     val dynamicResources: List<DynamicResourceDto>? = emptyList(),
     val visibility: VisibilityDto? = null,
-    val type: SnippetType = SnippetType.TAB,
     val loadIteration: Int = 0,
-//    val props: Map<String, String> = emptyMap()
+    val props: Map<String, String> = emptyMap()
 ) : Parcelable
