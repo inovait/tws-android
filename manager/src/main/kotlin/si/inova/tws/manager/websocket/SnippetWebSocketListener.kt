@@ -14,7 +14,7 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.manager.web_socket
+package si.inova.tws.manager.websocket
 
 import android.util.Log
 import com.squareup.moshi.Moshi

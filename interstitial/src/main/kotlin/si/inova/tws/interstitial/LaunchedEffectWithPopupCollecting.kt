@@ -53,8 +53,8 @@ fun LaunchedEffectWithPopupCollecting(managerTag: String? = null) {
  * will open them as interstitials.
  *
  * @param context The context from which to open the interstitials.
- * @param managerTag Optional tag to retrieve the appropriate `WebSnippetManagerImpl` instance. If no tag is provided, default tag will be
- * used to obtain shared manager instance.
+ * @param managerTag Optional tag to retrieve the appropriate `WebSnippetManagerImpl` instance.
+ * If no tag is provided, default tag will be used to obtain shared manager instance.
  */
 fun LifecycleOwner.launchPopupCollecting(context: Context, managerTag: String? = null) {
     lifecycleScope.launch {

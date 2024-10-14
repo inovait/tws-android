@@ -118,7 +118,7 @@ class WebSnippetInterstitialActivity : ComponentActivity() {
                     )
 
                     FilledIconButton(
-                        modifier = Modifier.padding(8.dp).align(Alignment.TopEnd).alpha(0.7f),
+                        modifier = Modifier.padding(8.dp).align(Alignment.TopEnd).alpha(closeIconAlpha),
                         onClick = { finish() }
                     ) {
                         Icon(Icons.Default.Close, "close")
@@ -127,4 +127,6 @@ class WebSnippetInterstitialActivity : ComponentActivity() {
             }
         }
     }
+
+    private val closeIconAlpha: Float = 0.7f
 }

@@ -19,7 +19,7 @@ package si.inova.tws.manager.utils
 import kotlinx.coroutines.flow.MutableSharedFlow
 import si.inova.tws.data.WebSnippetDto
 import si.inova.tws.manager.data.SnippetUpdateAction
-import si.inova.tws.manager.local_handler.LocalSnippetHandler
+import si.inova.tws.manager.localhandler.LocalSnippetHandler
 import java.time.Instant
 
 class FakeLocalSnippetHandler : LocalSnippetHandler {

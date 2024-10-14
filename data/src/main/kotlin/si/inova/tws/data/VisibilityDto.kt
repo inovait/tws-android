@@ -23,7 +23,8 @@ import kotlinx.parcelize.Parcelize
 import java.time.Instant
 
 /**
- * @property VisibilityDto is used to know how till what time should snippet be visible
+ *
+ * @param untilUtc till what time should snippet be visible
  *
  */
 @JsonClass(generateAdapter = true)
@@ -31,4 +32,4 @@ import java.time.Instant
 @Keep
 data class VisibilityDto(
     val untilUtc: Instant? = null
-): Parcelable
+) : Parcelable

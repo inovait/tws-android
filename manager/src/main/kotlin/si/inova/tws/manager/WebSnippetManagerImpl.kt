@@ -48,13 +48,14 @@ import si.inova.tws.manager.data.WebSocketStatus
 import si.inova.tws.manager.data.updateWith
 import si.inova.tws.manager.factory.BaseServiceFactory
 import si.inova.tws.manager.factory.create
-import si.inova.tws.manager.local_handler.LocalSnippetHandler
-import si.inova.tws.manager.local_handler.LocalSnippetHandlerImpl
+import si.inova.tws.manager.localhandler.LocalSnippetHandler
+import si.inova.tws.manager.localhandler.LocalSnippetHandlerImpl
 import si.inova.tws.manager.network.WebSnippetFunction
 import si.inova.tws.manager.service.NetworkConnectivityService
 import si.inova.tws.manager.service.NetworkConnectivityServiceImpl
-import si.inova.tws.manager.web_socket.TwsSocket
-import si.inova.tws.manager.web_socket.TwsSocketImpl
+import si.inova.tws.manager.websocket.TwsSocket
+import si.inova.tws.manager.websocket.TwsSocketImpl
+import si.inova.tws.manager.websocket.TwsSocketImpl.Companion.ERROR_UNAUTHORIZED
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.time.Duration.Companion.seconds
 
@@ -122,7 +123,7 @@ class WebSnippetManagerImpl(
 
         scope.launch {
             twsSocket?.socketStatus?.collect { status ->
-                if (status is WebSocketStatus.Failed && status.response?.code == 401) {
+                if (status is WebSocketStatus.Failed && status.response?.code == ERROR_UNAUTHORIZED) {
                     val organizationId = orgId
                     val projectId = projId
 
@@ -284,4 +285,3 @@ class WebSnippetManagerImpl(
         }
     }
 }
-

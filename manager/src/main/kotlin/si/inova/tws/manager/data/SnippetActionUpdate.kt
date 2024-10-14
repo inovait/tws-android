@@ -25,7 +25,11 @@ import si.inova.tws.data.VisibilityDto
 import si.inova.tws.data.WebSnippetDto
 
 /**
- * @property SnippetUpdateAction to be returned on websocket update
+ * Data class representing an action to be returned on a WebSocket update.
+ *
+ * @property type The type of action being performed, represented by [ActionType].
+ * @property data The content of the action, represented by [ActionBody], which contains the relevant information for the update.
+ *
  */
 @Keep
 @JsonClass(generateAdapter = true)
@@ -35,11 +39,12 @@ data class SnippetUpdateAction(
 )
 
 /**
- * @property ActionType how to handle snippet in existing list of snippets
  *
- * [CREATED] new snippet create
- * [UPDATED] existing snippet updated
- * [DELETED] existing snippet removed
+ * Defines the type of action performed on a snippet.
+ *
+ * - [CREATED] indicates that a new snippet has been created.
+ * - [UPDATED] indicates that an existing snippet has been updated.
+ * - [DELETED] indicates that an existing snippet has been removed.
  */
 @Keep
 @JsonClass(generateAdapter = false)

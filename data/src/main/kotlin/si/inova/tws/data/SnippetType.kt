@@ -19,11 +19,12 @@ package si.inova.tws.data
 import androidx.annotation.Keep
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
-import si.inova.tws.data.SnippetType.POPUP
-import si.inova.tws.data.SnippetType.TAB
 
 /**
- * @property SnippetType to know if snippet should be fullscreen - [POPUP] or if it should be in list - [TAB]
+ * [SnippetType] Represents the type of snippet display.
+ *
+ * - [POPUP] Indicates that the snippet should be displayed in fullscreen.
+ * - [TAB] Indicates that the snippet should be displayed in a list.
  */
 @Keep
 @JsonClass(generateAdapter = false)

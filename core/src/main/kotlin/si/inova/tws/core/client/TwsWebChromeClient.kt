@@ -37,7 +37,7 @@ import si.inova.tws.core.util.hasPermissionInManifest
  * It includes features for managing permission requests, file chooser dialogs, and handling
  * new window creation events.
  *
- * @property popupStateCallback An optional callback that provides updates regarding the
+ * @param popupStateCallback An optional callback that provides updates regarding the
  * state of popup windows within the WebView.
  */
 open class TwsWebChromeClient(
@@ -114,4 +114,3 @@ open class TwsWebChromeClient(
         }
     }
 }
-

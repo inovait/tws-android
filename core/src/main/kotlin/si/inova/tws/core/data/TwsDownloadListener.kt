@@ -42,7 +42,9 @@ internal class TwsDownloadListener(
         contentLength: Long
     ) {
         if (url.startsWith(BLOB_URL)) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && context.hasPermissionInManifest(Manifest.permission.POST_NOTIFICATIONS)) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                context.hasPermissionInManifest(Manifest.permission.POST_NOTIFICATIONS)
+            ) {
                 permissionRequest(Manifest.permission.POST_NOTIFICATIONS) { isGranted ->
                     webView.evaluateJavascript(
                         JavaScriptDownloadInterface.getBase64StringFromBlobUrl(url, mimetype, isGranted), null

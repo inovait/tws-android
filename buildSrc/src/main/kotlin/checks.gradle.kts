@@ -37,7 +37,6 @@ tasks.withType<com.android.build.gradle.internal.lint.AndroidLintTask>().configu
     finalizedBy(":reportMerge")
 }
 
-
 detekt {
     config.setFrom("$rootDir/config/detekt.yml")
 }

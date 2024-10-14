@@ -14,7 +14,7 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.manager.local_handler
+package si.inova.tws.manager.localhandler
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -37,7 +37,7 @@ class LocalSnippetHandlerImpl(
     override val updateActionFlow: MutableSharedFlow<SnippetUpdateAction> = MutableSharedFlow(replay = 0, extraBufferCapacity = 1)
 
     private var snippets: List<WebSnippetDto> = emptyList()
-    private var scheduledJob: Job? = null  // Reference to the currently scheduled job
+    private var scheduledJob: Job? = null // Reference to the currently scheduled job
 
     private var dateDifference: Long? = null
 

@@ -28,7 +28,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SwipeToDismissBox
@@ -45,7 +44,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import si.inova.tws.core.R
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun ErrorBannerWithSwipeToDismiss(bannerText: String) {
     val dismissState = rememberSwipeToDismissBoxState()
@@ -64,7 +62,7 @@ internal fun ErrorBannerWithSwipeToDismiss(bannerText: String) {
                 .fillMaxWidth()
                 .wrapContentHeight()
                 .padding(8.dp)
-                .background(color = Color(0xFFB71C1C), shape = RoundedCornerShape(8.dp))
+                .background(color = Color(baseDismissColor), shape = RoundedCornerShape(8.dp))
                 .padding(8.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
@@ -88,14 +86,16 @@ internal fun ErrorBannerWithSwipeToDismiss(bannerText: String) {
     }
 }
 
+private const val baseDismissColor = 0xFFB71C1C
+
 @Composable
 @Preview
-private fun BannerPreviewNoNetwork() {
+private fun BannerNoNetworkPreview() {
     ErrorBannerWithSwipeToDismiss(stringResource(R.string.error_no_network))
 }
 
 @Composable
 @Preview
-private fun BannerPreviewGeneral() {
+private fun BannerGeneralPreview() {
     ErrorBannerWithSwipeToDismiss(stringResource(R.string.error_general))
 }
