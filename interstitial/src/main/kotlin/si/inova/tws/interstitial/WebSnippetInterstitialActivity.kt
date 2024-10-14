@@ -88,7 +88,7 @@ class WebSnippetInterstitialActivity : ComponentActivity() {
         }
 
         // observe for new popups if opened via manager
-        webSnippetId?.let {
+        if (webSnippetId != null) {
             launchPopupCollecting(this, managerTag)
         }
 
@@ -97,14 +97,14 @@ class WebSnippetInterstitialActivity : ComponentActivity() {
                 outcome is Outcome.Success && !outcome.data.any {
                     it.id == webSnippetId
                 }
-            }?.collectAsState(false)?.value ?: false
+            }?.collectAsState(false)?.value
 
             val snippet = manager?.popupSnippetsFlow?.map { outcome ->
                 outcome.data?.find { it.id == webSnippetId }
             }?.filterNotNull()?.collectAsState(null)?.value ?: webSnippetData
 
             LaunchedEffect(shouldCloseFlow) {
-                if (shouldCloseFlow) {
+                if (shouldCloseFlow == true) {
                     finish()
                 }
             }

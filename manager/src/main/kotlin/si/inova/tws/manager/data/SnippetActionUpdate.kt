@@ -88,7 +88,7 @@ internal fun List<WebSnippetDto>.insert(data: ActionBody): List<WebSnippetDto> {
                 WebSnippetDto(
                     id = data.id,
                     target = data.target,
-                    headers = data.headers ?: emptyMap(),
+                    headers = data.headers.orEmpty(),
                     organizationId = data.organizationId,
                     projectId = data.projectId,
                     visibility = data.visibility,

@@ -101,7 +101,12 @@ open class TwsWebChromeClient(
     }
 
     private fun PermissionRequest.handleCameraPermission(context: Context?) {
-        if (context?.hasPermissionInManifest(Manifest.permission.CAMERA) == true) {
+        if (context == null) {
+            deny()
+            return
+        }
+
+        if (context.hasPermissionInManifest(Manifest.permission.CAMERA)) {
             showPermissionRequest(Manifest.permission.CAMERA) { isGranted ->
                 if (isGranted) {
                     grant(arrayOf(PermissionRequest.RESOURCE_VIDEO_CAPTURE))

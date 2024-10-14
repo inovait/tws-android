@@ -18,6 +18,7 @@ package si.inova.tws.manager
 
 import android.content.Context
 import android.util.Log
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -67,7 +68,8 @@ class WebSnippetManagerImpl(
     private val twsSocket: TwsSocket? = TwsSocketImpl(scope),
     private val networkConnectivityService: NetworkConnectivityService = NetworkConnectivityServiceImpl(context),
     private val localSnippetHandler: LocalSnippetHandler? = LocalSnippetHandlerImpl(scope),
-    private val cacheManager: CacheManager? = FileCacheManager(context, tag)
+    private val cacheManager: CacheManager? = FileCacheManager(context, tag),
+    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : WebSnippetManager {
     private val snippetsFlow: MutableStateFlow<Outcome<List<WebSnippetDto>>> = MutableStateFlow(Outcome.Progress())
     private val seenPopupSnippetsFlow: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
@@ -103,7 +105,7 @@ class WebSnippetManagerImpl(
         popupSnippetsFlow,
         seenPopupSnippetsFlow
     ) { allPopups, seenPopups ->
-        allPopups.data?.filter { !seenPopups.contains(it.id) } ?: emptyList()
+        allPopups.data?.filter { !seenPopups.contains(it.id) }.orEmpty()
     }.distinctUntilChanged()
 
     init {
@@ -135,7 +137,7 @@ class WebSnippetManagerImpl(
         }
     }
 
-    override suspend fun loadSharedSnippetData(shareId: String) = withContext(Dispatchers.IO) {
+    override suspend fun loadSharedSnippetData(shareId: String) = withContext(ioDispatcher) {
         snippetsFlow.emit(Outcome.Progress(snippetsFlow.value.data))
 
         try {
@@ -149,7 +151,7 @@ class WebSnippetManagerImpl(
         }
     }
 
-    override suspend fun loadWebSnippets(organizationId: String, projectId: String) = withContext(Dispatchers.IO) {
+    override suspend fun loadWebSnippets(organizationId: String, projectId: String) = withContext(ioDispatcher) {
         try {
             orgId = organizationId
             projId = projectId
@@ -198,7 +200,7 @@ class WebSnippetManagerImpl(
         localSnippetHandler?.launchAndCollect(twsProject.snippets)
     }
 
-    private fun saveToCache(snippets: List<WebSnippetDto>) = scope.launch(Dispatchers.IO) {
+    private fun saveToCache(snippets: List<WebSnippetDto>) = scope.launch(ioDispatcher) {
         try {
             cacheManager?.save(CACHED_SNIPPETS, snippets)
         } catch (e: Exception) {
@@ -213,7 +215,7 @@ class WebSnippetManagerImpl(
         collectingSocket = true
 
         updateActionFlow.onEach {
-            val oldList = snippetsFlow.value.data ?: emptyList()
+            val oldList = snippetsFlow.value.data.orEmpty()
             localSnippetHandler?.launchAndCollect(oldList)
             snippetsFlow.emit(Outcome.Success(oldList.updateWith(it)))
             saveToCache(oldList.updateWith(it))
@@ -231,7 +233,7 @@ class WebSnippetManagerImpl(
         collectingLocalHandler = true
 
         updateActionFlow.onEach {
-            val oldList = snippetsFlow.value.data ?: emptyList()
+            val oldList = snippetsFlow.value.data.orEmpty()
             snippetsFlow.emit(Outcome.Success(oldList.updateWith(it)))
             saveToCache(oldList.updateWith(it))
         }.launchIn(scope).invokeOnCompletion {

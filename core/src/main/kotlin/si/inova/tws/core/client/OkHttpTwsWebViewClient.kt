@@ -154,7 +154,7 @@ class OkHttpTwsWebViewClient(
     private fun String.insertCss(): String {
         val combinedCssInjection = dynamicModifiers
             .filter { it.type == ModifierInjectionType.CSS }
-            .joinToString(separator = System.lineSeparator()) { it.inject ?: "" }.trimIndent()
+            .joinToString(separator = System.lineSeparator()) { it.inject.orEmpty() }.trimIndent()
 
         return if (contains("</head>")) {
             replaceFirst(
@@ -174,7 +174,7 @@ class OkHttpTwsWebViewClient(
     private fun String.insertJs(): String {
         val combinedJsInjection = dynamicModifiers
             .filter { it.type == ModifierInjectionType.JAVASCRIPT }
-            .joinToString(separator = System.lineSeparator()) { (it.inject ?: "") + STATIC_INJECT_DATA }.trimIndent()
+            .joinToString(separator = System.lineSeparator()) { (it.inject.orEmpty()) + STATIC_INJECT_DATA }.trimIndent()
 
         return if (contains("<head>")) {
             replaceFirst(

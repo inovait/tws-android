@@ -67,8 +67,8 @@ internal class TwsDownloadListener(
                 )
             }
 
-            val downloadManager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
-            downloadManager.enqueue(request)
+            val downloadManager = context.getSystemService(Context.DOWNLOAD_SERVICE) as? DownloadManager?
+            downloadManager?.enqueue(request)
         }
     }
 

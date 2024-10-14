@@ -188,7 +188,9 @@ fun WebView(
     val webView = state.webView
 
     HandleBackPresses(captureBackPresses, navigator, webView)
-    WebViewResumeOrPauseEffect(webView)
+    webView?.let {
+        WebViewResumeOrPauseEffect(it)
+    }
 
     val (permissionLauncher, permissionCallback) = createPermissionLauncher()
 
@@ -206,7 +208,7 @@ fun WebView(
         this.navigator = navigator
 
         (this as? TwsWebViewClient)?.interceptOverrideUrl = interceptOverrideUrl
-        (this as? OkHttpTwsWebViewClient)?.dynamicModifiers = dynamicModifiers ?: emptyList()
+        (this as? OkHttpTwsWebViewClient)?.dynamicModifiers = dynamicModifiers.orEmpty()
     }
     chromeClient.state = state
 
@@ -236,7 +238,9 @@ fun WebView(
 
                 state.viewState = Bundle().apply {
                     wv.saveState(this)
-                }.takeIf { !it.isEmpty } ?: state.viewState
+                }.takeIf { bundle ->
+                    !bundle.isEmpty
+                } ?: state.viewState
                 state.webView = null
 
                 onDispose(wv)
@@ -298,9 +302,7 @@ private fun HandleNavigationEvents(wv: WebView, navigator: WebViewNavigator, sta
 }
 
 @Composable
-private fun WebViewResumeOrPauseEffect(webView: WebView?) {
-    if (webView == null) return
-
+private fun WebViewResumeOrPauseEffect(webView: WebView) {
     LifecycleResumeEffect(Unit) {
         webView.onResume()
 
@@ -366,18 +368,17 @@ private fun createWebView(
     client: WebViewClient,
     chromeClient: WebChromeClient
 ): SwipeRefreshLayout {
+    val webView = WebView(context).apply {
+        onCreated(this)
+
+        webChromeClient = chromeClient
+        webViewClient = client
+
+        state.viewState?.let { this.restoreState(it) }
+
+        addJavascriptInterface(JavaScriptDownloadInterface(context), JAVASCRIPT_INTERFACE_NAME)
+    }.also { state.webView = it }
     return SwipeRefreshLayout(context).apply {
-        val webView = WebView(context).apply {
-            onCreated(this)
-
-            webChromeClient = chromeClient
-            webViewClient = client
-
-            state.viewState?.let { this.restoreState(it) }
-
-            addJavascriptInterface(JavaScriptDownloadInterface(context), JAVASCRIPT_INTERFACE_NAME)
-        }.also { state.webView = it }
-
         addView(webView)
     }
 }
