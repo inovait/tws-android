@@ -18,7 +18,6 @@ package si.inova.tws.core.data
 
 import android.graphics.Bitmap
 import android.os.Bundle
-import android.os.Message
 import android.webkit.WebView
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable

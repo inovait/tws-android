@@ -14,7 +14,7 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.manager.web_socket
+package si.inova.tws.manager.websocket
 
 import android.util.Log
 import io.mockk.every
@@ -31,6 +31,7 @@ import org.mockito.Mockito.mock
 import si.inova.kotlinova.core.test.TestScopeWithDispatcherProvider
 import si.inova.kotlinova.core.test.testMainImmediateBackgroundScope
 import si.inova.tws.manager.data.SnippetUpdateAction
+import si.inova.tws.manager.utils.CREATE_SNIPPET
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class TwsSocketTest {
@@ -72,10 +73,8 @@ class TwsSocketTest {
 
     @Test
     fun `test websocket receives message`() = scope.runTest {
-        val testMessage = "{\"type\":\"SNIPPET_CREATED\",\"data\":{\"id\":\"test\"}}"
-
         twsSocket.setupWebSocketConnection("wss://example.com/socket")
-        mockListener.onMessage(mockWebSocket, testMessage)
+        mockListener.onMessage(mockWebSocket, CREATE_SNIPPET)
 
         val actions = mutableListOf<SnippetUpdateAction>()
         val job = launch {

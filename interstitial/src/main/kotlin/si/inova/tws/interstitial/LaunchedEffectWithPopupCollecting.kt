@@ -20,7 +20,7 @@ import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
@@ -53,8 +53,8 @@ fun LaunchedEffectWithPopupCollecting(managerTag: String? = null) {
  * will open them as interstitials.
  *
  * @param context The context from which to open the interstitials.
- * @param managerTag Optional tag to retrieve the appropriate `WebSnippetManagerImpl` instance. If no tag is provided, default tag will be
- * used to obtain shared manager instance.
+ * @param managerTag Optional tag to retrieve the appropriate `WebSnippetManagerImpl` instance.
+ * If no tag is provided, default tag will be used to obtain shared manager instance.
  */
 fun LifecycleOwner.launchPopupCollecting(context: Context, managerTag: String? = null) {
     lifecycleScope.launch {

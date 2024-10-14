@@ -19,6 +19,7 @@ import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 plugins {
     `kotlin-dsl`
     alias(libs.plugins.versions)
+    alias(libs.plugins.detekt)
 }
 
 repositories {
@@ -27,14 +28,23 @@ repositories {
     gradlePluginPortal()
 }
 
+detekt {
+    config.setFrom("$projectDir/../config/detekt.yml")
+}
+
 dependencies {
     implementation(libs.androidGradleCacheFix)
     implementation(libs.android.agp)
     implementation(libs.kotlin.plugin)
     implementation(libs.v.checker.plugin)
+    implementation(libs.detekt.plugin)
 
     // Workaround to have libs accessible (from https://github.com/gradle/gradle/issues/15383)
     compileOnly(files(libs.javaClass.superclass.protectionDomain.codeSource.location))
+
+    detektPlugins(libs.detekt.formatting)
+    detektPlugins(libs.detekt.compilerWarnings)
+    detektPlugins(libs.detekt.compose)
 }
 
 tasks.withType<DependencyUpdatesTask> {

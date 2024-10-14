@@ -18,7 +18,6 @@ package si.inova.tws.manager.factory
 
 import com.squareup.moshi.Moshi
 import jakarta.inject.Singleton
-import okhttp3.Cache
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
@@ -41,16 +40,9 @@ internal class BaseServiceFactory : ServiceFactory {
         configuration(scope)
 
         val updatedClient = lazy {
-            okHttpClient.newBuilder()
-                .apply {
-                    if (scope.cache) {
-                        createCache()?.let { cache(it) }
-                    }
-                }
-                .apply {
-                    scope.okHttpCustomizer?.let { it() }
-                }
-                .build()
+            okHttpClient.newBuilder().apply {
+                scope.okHttpCustomizer?.let { it() }
+            }.build()
         }
 
         val moshiConverter = lazy {
@@ -65,10 +57,6 @@ internal class BaseServiceFactory : ServiceFactory {
             .addCallAdapterFactory(StaleWhileRevalidateCallAdapterFactory(null))
             .build()
             .create(klass)
-    }
-
-    private fun createCache(): Cache? {
-        return null
     }
 }
 

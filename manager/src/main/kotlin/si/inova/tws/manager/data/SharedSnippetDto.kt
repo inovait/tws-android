@@ -25,4 +25,3 @@ import si.inova.tws.data.WebSnippetDto
 data class SharedSnippetDto(
     val snippet: WebSnippetDto
 )
-

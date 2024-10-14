@@ -91,3 +91,18 @@ fun WebSnippetDto.toActionBody() = ActionBody(
 fun WebSnippetDto.setVisibility(ts: Long) = copy(
     visibility = VisibilityDto(untilUtc = Instant.ofEpochMilli(ts))
 )
+
+const val CREATE_SNIPPET = """
+{
+    "type": "SNIPPET_CREATED",
+    "data": {
+        "id": "test"
+    }
+}
+"""
+
+const val MILLISECONDS_DATE = 952_077_600_000 // 3.3.2000 10:00
+const val MILLISECONDS_DATE_FUTURE_1 = 952_077_660_000 // 3.3.2000 10:01
+const val MILLISECONDS_DATE_FUTURE_5 = 952_077_900_000 // 3.3.2000 10:11
+const val MILLISECONDS_DATE_FUTURE_11 = 952_078_260_000 // 3.3.2000 10:11
+const val MILLISECONDS_DATE_PAST = 952_077_540_000 // 3.3.2020 9:59

@@ -23,5 +23,5 @@ internal fun Context.hasPermissionInManifest(permission: String): Boolean {
     val packageInfo = packageManager.getPackageInfo(packageName, PackageManager.GET_PERMISSIONS)
     val permissions = packageInfo.requestedPermissions
 
-    return permissions?.any { it == permission } ?: false
+    return permissions?.any { it == permission } == true
 }

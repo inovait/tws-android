@@ -21,6 +21,7 @@ val libs = the<LibrariesForLibs>()
 
 plugins {
     id("standard-config")
+    id("checks")
 }
 
 commonAndroid {

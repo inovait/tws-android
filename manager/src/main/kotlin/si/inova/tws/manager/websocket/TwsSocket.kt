@@ -14,24 +14,46 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.manager.utils
+package si.inova.tws.manager.websocket
 
-import kotlinx.coroutines.flow.MutableSharedFlow
-import si.inova.tws.data.WebSnippetDto
+import kotlinx.coroutines.flow.Flow
 import si.inova.tws.manager.data.SnippetUpdateAction
-import si.inova.tws.manager.localhandler.LocalSnippetHandler
-import java.time.Instant
+import si.inova.tws.manager.data.WebSocketStatus
 
-class FakeLocalSnippetHandler : LocalSnippetHandler {
-    override val updateActionFlow: MutableSharedFlow<SnippetUpdateAction> = MutableSharedFlow()
+/**
+ *
+ * Creation of The Web Snippet websocket
+ *
+ */
+interface TwsSocket {
 
-    override suspend fun updateAndScheduleCheck(snippets: List<WebSnippetDto>) {}
+    val updateActionFlow: Flow<SnippetUpdateAction>
+    val socketStatus: Flow<WebSocketStatus>
 
-    suspend fun mockUpdateAction(action: SnippetUpdateAction) {
-        updateActionFlow.emit(action)
-    }
+    /**
+     * Sets the URL target of this request.
+     *
+     * @throws IllegalArgumentException if [setupWssUrl] is not a valid HTTP or HTTPS URL. Avoid this
+     *     exception by calling [HttpUrl.parse]; it returns null for invalid URLs.
+     */
+    fun setupWebSocketConnection(setupWssUrl: String)
 
-    override suspend fun calculateDateOffsetAndRerun(serverDate: Instant?, snippets: List<WebSnippetDto>) {}
+    /**
+     * try to reconnect on previous connected wss url
+     */
+    fun reconnect()
 
-    override fun release() {}
+    /**
+     * Attempts to initiate a graceful shutdown of this web socket.
+     *
+     * This returns true if a graceful shutdown was initiated by this call. It returns false if
+     * a graceful shutdown was already underway or if the web socket is already closed or canceled.
+     *
+     */
+    fun closeWebsocketConnection(): Boolean?
+
+    /**
+     * Check if wss connection exists
+     */
+    fun connectionExists(): Boolean
 }

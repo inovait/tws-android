@@ -17,13 +17,14 @@
 package si.inova.tws.manager.cache
 
 import android.content.Context
+import android.util.Log
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
 import si.inova.tws.data.WebSnippetDto
 import si.inova.tws.manager.singleton.twsMoshi
 import java.io.File
 
-internal class FileCacheManager(context: Context, tag: String): CacheManager {
+internal class FileCacheManager(context: Context, tag: String) : CacheManager {
     private val moshi: Moshi by lazy { twsMoshi() }
     private val cacheDir = File(context.cacheDir, "$CACHE_DIR-$tag")
 
@@ -53,6 +54,7 @@ internal class FileCacheManager(context: Context, tag: String): CacheManager {
                 null
             }
         } catch (e: Exception) {
+            Log.e(CACHE_DIR, e.message, e)
             null
         }
     }

@@ -69,15 +69,7 @@ sealed class WebContent {
 
     data object NavigatorOnly : WebContent()
 
-    data class MessageOnly(val msg: Message, val isDialog: Boolean) : WebContent() {
-        fun onCreateWindowStatus(webView: WebView) {
-            val transport = msg.obj as? WebView.WebViewTransport
-            if (transport != null) {
-                transport.webView = webView
-                msg.sendToTarget()
-            }
-        }
-    }
+    data class MessageOnly(val msg: Message, val isDialog: Boolean) : WebContent()
 }
 
 internal fun WebContent.withUrl(url: String): WebContent.Url {
@@ -85,5 +77,13 @@ internal fun WebContent.withUrl(url: String): WebContent.Url {
         copy(url = url)
     } else {
         WebContent.Url(url)
+    }
+}
+
+internal fun WebContent.MessageOnly.onCreateWindowStatus(webView: WebView) {
+    val transport = msg.obj as? WebView.WebViewTransport
+    if (transport != null) {
+        transport.webView = webView
+        msg.sendToTarget()
     }
 }

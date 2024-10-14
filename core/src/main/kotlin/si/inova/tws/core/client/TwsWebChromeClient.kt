@@ -37,7 +37,7 @@ import si.inova.tws.core.util.hasPermissionInManifest
  * It includes features for managing permission requests, file chooser dialogs, and handling
  * new window creation events.
  *
- * @property popupStateCallback An optional callback that provides updates regarding the
+ * @param popupStateCallback An optional callback that provides updates regarding the
  * state of popup windows within the WebView.
  */
 open class TwsWebChromeClient(
@@ -101,7 +101,12 @@ open class TwsWebChromeClient(
     }
 
     private fun PermissionRequest.handleCameraPermission(context: Context?) {
-        if (context?.hasPermissionInManifest(Manifest.permission.CAMERA) == true) {
+        if (context == null) {
+            deny()
+            return
+        }
+
+        if (context.hasPermissionInManifest(Manifest.permission.CAMERA)) {
             showPermissionRequest(Manifest.permission.CAMERA) { isGranted ->
                 if (isGranted) {
                     grant(arrayOf(PermissionRequest.RESOURCE_VIDEO_CAPTURE))
@@ -114,4 +119,3 @@ open class TwsWebChromeClient(
         }
     }
 }
-

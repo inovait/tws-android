@@ -1,3 +1,5 @@
+@file:Suppress("MissingPackageDeclaration") // it will be declared in PluginAccessorsKt.class
+
 /*
  * Copyright 2024 INOVA IT d.o.o.
  *

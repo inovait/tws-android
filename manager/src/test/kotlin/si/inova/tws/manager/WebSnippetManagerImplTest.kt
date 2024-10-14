@@ -501,8 +501,10 @@ class WebSnippetManagerImplTest {
 
             socket.mockUpdateAction(
                 SnippetUpdateAction(
-                    ActionType.UPDATED, ActionBody(
-                        id = FAKE_SNIPPET_ONE.id, dynamicResources = listOf(
+                    type = ActionType.UPDATED,
+                    data = ActionBody(
+                        id = FAKE_SNIPPET_ONE.id,
+                        dynamicResources = listOf(
                             DynamicResourceDto("https://test.cs", "text/css")
                         )
                     )
@@ -516,7 +518,8 @@ class WebSnippetManagerImplTest {
                         dynamicResources = listOf(
                             DynamicResourceDto("https://test.cs", "text/css")
                         )
-                    ), FAKE_SNIPPET_TWO
+                    ),
+                    FAKE_SNIPPET_TWO
                 )
             )
 

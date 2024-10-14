@@ -25,7 +25,7 @@ import si.inova.tws.manager.network.WebSnippetFunction
 
 class FakeWebSnippetFunction(
     private val helper: ServiceTestingHelper = ServiceTestingHelper()
-): WebSnippetFunction, FakeService by helper {
+) : WebSnippetFunction, FakeService by helper {
     var returnedProject: ProjectDto? = null
     var returnedSharedSnippet: SharedSnippetDto? = null
 
