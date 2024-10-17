@@ -23,8 +23,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Surface
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -93,9 +97,9 @@ fun WebSnippetComponent(
     navigator: WebViewNavigator = rememberWebViewNavigator(target.id),
     webViewState: WebViewState = rememberSaveableWebViewState(target.id),
     displayErrorViewOnError: Boolean = false,
-    errorViewContent: @Composable () -> Unit = { SnippetErrorView(false) },
+    errorViewContent: @Composable () -> Unit = { SnippetErrorView(true) },
     displayPlaceholderWhileLoading: Boolean = false,
-    loadingPlaceholderContent: @Composable () -> Unit = { SnippetLoadingView(false) },
+    loadingPlaceholderContent: @Composable () -> Unit = { SnippetLoadingView(true) },
     interceptOverrideUrl: (String) -> Boolean = { false },
     googleLoginRedirectUrl: String? = null,
     isRefreshable: Boolean = true
@@ -171,6 +175,7 @@ fun WebSnippetComponent(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SnippetContentWithLoadingAndError(
     key: String,
@@ -193,10 +198,10 @@ private fun SnippetContentWithLoadingAndError(
     val client = remember(key1 = key) { OkHttpTwsWebViewClient(popupStateCallback) }
     val chromeClient = remember(key1 = key) { TwsWebChromeClient(popupStateCallback) }
 
-    Box(modifier = modifier) {
+    val content: @Composable (Modifier) -> Unit = { contentModifier ->
         WebView(
             key = key,
-            modifier = Modifier.fillMaxSize(),
+            modifier = contentModifier.fillMaxSize(),
             state = webViewState,
             navigator = navigator,
             onCreated = {
@@ -206,8 +211,7 @@ private fun SnippetContentWithLoadingAndError(
             interceptOverrideUrl = interceptOverrideUrl,
             dynamicModifiers = dynamicModifiers,
             client = client,
-            chromeClient = chromeClient,
-            isRefreshable = isRefreshable
+            chromeClient = chromeClient
         )
 
         if (displayLoadingContent) {
@@ -220,6 +224,20 @@ private fun SnippetContentWithLoadingAndError(
 
         if (webViewState.customErrorsForCurrentRequest.size > 0 && !displayErrorContent) {
             ErrorBannerWithSwipeToDismiss(webViewState.customErrorsForCurrentRequest.first().getUserFriendlyMessage())
+        }
+    }
+
+    if (isRefreshable) {
+        PullToRefreshBox(
+            modifier = modifier,
+            isRefreshing = webViewState.isLoading,
+            onRefresh = { navigator.reload() }
+        ) {
+            content(Modifier.verticalScroll(rememberScrollState()))
+        }
+    } else {
+        Box(modifier = modifier) {
+            content(Modifier)
         }
     }
 }

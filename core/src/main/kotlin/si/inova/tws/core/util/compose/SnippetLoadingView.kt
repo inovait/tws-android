@@ -14,13 +14,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 @Composable
-internal fun SnippetLoadingView(fullScreen: Boolean) {
+internal fun SnippetLoadingView(fillSize: Boolean) {
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
             .apply {
-                if (!fullScreen) {
+                if (!fillSize) {
                     height(200.dp)
                 }
             }
