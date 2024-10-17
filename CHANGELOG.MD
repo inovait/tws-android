@@ -1,3 +1,35 @@
+# 0.11.1
+
+### Bug Fixes
+
+* **data**: module not properly published ([fcad00ca](https://github.com/inovait/tws-android-sdk/commit/fcad00ca51a825e2c10dc008022b229045193312))
+
+# 0.11.0
+
+### Features
+
+* **core**: added pull to refresh on snippet ([39b7e873](https://github.com/inovait/tws-android-sdk/commit/39b7e8734cd871cf2cd341d1862c2703d1ef41c2))
+* **general**: add dokka plugin, to allow developers to generate documentation ([c65a6f2b](https://github.com/inovait/tws-android-sdk/commit/c65a6f2b27be7f469134095cac93a2139240cfe2))
+* **core**: added support that you can still have webview without pull to refresh ([eef98974](https://github.com/inovait/tws-android-sdk/commit/eef98974ac0797c4a72a5d9fae9b6a4c3e7989e5))
+* **manager**: added support to update over socket dynamicResources ([7f1014e6](https://github.com/inovait/tws-android-sdk/commit/7f1014e652c92391d6c045acb8ade8c9659168cc))
+* **main**: prepare dokka tasks for generating docs and add setup google login section ([6ffde619](https://github.com/inovait/tws-android-sdk/commit/6ffde619e95c7dc4d8ff12c2b97ba54207b7cd3d))
+* **core**: add documentation ([a9905028](https://github.com/inovait/tws-android-sdk/commit/a99050281d47b1c2210391aa0108233cd1e56fad))
+* **manager**: refresh snippets when app comes to foreground ([1c93c6ec](https://github.com/inovait/tws-android-sdk/commit/1c93c6ecaf39cd1672c43998399146c6ac0e9528))
+* **manager**: refresh snippets when app comes to foreground ([1ca49a01](https://github.com/inovait/tws-android-sdk/commit/1ca49a014c90515a40782db78ed0cbd2666a59db))
+
+### Bug Fixes
+
+* **manager**: do not display exception if cache is corrupted, invalidate from web ([b4ee83b2](https://github.com/inovait/tws-android-sdk/commit/b4ee83b2b26874a935db50399745bba4505b0171))
+* **manager**: when websocket url expires try to reconnect with new url (call /register) ([db3b0ef8](https://github.com/inovait/tws-android-sdk/commit/db3b0ef8dfcb58846a4a3dea965792a793b593c3))
+* **manager**: use cache for unseen popups also, to handle no network when opening app ([6c18e1fd](https://github.com/inovait/tws-android-sdk/commit/6c18e1fd7ceac6021b8ceb316bbf8ed36e9a07fb))
+* **manager**: removed redundant targetType ([1ca230b0](https://github.com/inovait/tws-android-sdk/commit/1ca230b073e4c37ea817890d85adc7747ba109e8))
+* **core**: redirect urls with relative css/js paths in html are not handled correctly, can result in external resources not loading correctly ([b4dde9e1](https://github.com/inovait/tws-android-sdk/commit/b4dde9e14ee5c0fa985e5c4691aa7da1ee173a5d))
+* **core**: open new web view tab over existing ([495fa1dd](https://github.com/inovait/tws-android-sdk/commit/495fa1dd43488d4f00538713cb7627fe09271304))
+* **core**: open new web view tab over existing as a fullscreen dialog ([dd2310ce](https://github.com/inovait/tws-android-sdk/commit/dd2310ce3ee448a4add1d40ef8c4b9e590964667))
+* **core**: remove unsupported UI component ([95907cc9](https://github.com/inovait/tws-android-sdk/commit/95907cc936cd9531d18ed38f2a15c3cfdcd12a33))
+* **core**: remove unsupported TabIcons ([4e070f7a](https://github.com/inovait/tws-android-sdk/commit/4e070f7a43a051df217ba9207f21499d661fa6cf))
+* **manager**: make sure loading snippets is done with Dispatchers.IO context ([b16832e7](https://github.com/inovait/tws-android-sdk/commit/b16832e760e00ecb75a8b901ee41f043a631825b))
+
 # 0.10.0
 
 ### Features
