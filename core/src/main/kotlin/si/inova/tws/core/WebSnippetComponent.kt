@@ -19,12 +19,15 @@ package si.inova.tws.core
 import android.content.Intent
 import android.webkit.WebView
 import androidx.activity.ComponentActivity
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Surface
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -171,6 +174,7 @@ fun WebSnippetComponent(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SnippetContentWithLoadingAndError(
     key: String,
@@ -193,10 +197,16 @@ private fun SnippetContentWithLoadingAndError(
     val client = remember(key1 = key) { OkHttpTwsWebViewClient(popupStateCallback) }
     val chromeClient = remember(key1 = key) { TwsWebChromeClient(popupStateCallback) }
 
-    Box(modifier = modifier) {
+    PullToRefreshBox(
+        modifier = modifier,
+        isRefreshing = webViewState.isLoading,
+        onRefresh = { navigator.reload() }
+    ) {
         WebView(
             key = key,
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .then(if (isRefreshable) Modifier.verticalScroll(rememberScrollState()) else Modifier),
             state = webViewState,
             navigator = navigator,
             onCreated = {
@@ -206,8 +216,7 @@ private fun SnippetContentWithLoadingAndError(
             interceptOverrideUrl = interceptOverrideUrl,
             dynamicModifiers = dynamicModifiers,
             client = client,
-            chromeClient = chromeClient,
-            isRefreshable = isRefreshable
+            chromeClient = chromeClient
         )
 
         if (displayLoadingContent) {

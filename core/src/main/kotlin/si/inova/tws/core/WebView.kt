@@ -42,7 +42,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.LifecycleResumeEffect
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import kotlinx.collections.immutable.ImmutableList
 import si.inova.tws.core.client.AccompanistWebChromeClient
 import si.inova.tws.core.client.AccompanistWebViewClient
@@ -73,7 +72,6 @@ import si.inova.tws.data.DynamicResourceDto
  * @param modifier A compose modifier.
  * @param captureBackPresses Set to true to have this Composable capture back presses and navigate
  * the WebView back.
- * @param isRefreshable An option to have pull to refresh
  * @param navigator An optional navigator object that can be used to control the WebView's
  * navigation from outside the composable.
  * @param onCreated Called when the WebView is first created, this can be used to set additional
@@ -94,7 +92,6 @@ internal fun WebView(
     state: WebViewState,
     modifier: Modifier = Modifier,
     captureBackPresses: Boolean = true,
-    isRefreshable: Boolean = true,
     navigator: WebViewNavigator = rememberWebViewNavigator(),
     onCreated: (WebView) -> Unit = {},
     onDispose: (WebView) -> Unit = {},
@@ -126,7 +123,6 @@ internal fun WebView(
             key,
             Modifier,
             captureBackPresses,
-            isRefreshable,
             navigator,
             onCreated,
             onDispose,
@@ -154,7 +150,6 @@ internal fun WebView(
  * @param modifier A compose modifier.
  * @param captureBackPresses Set to true to have this Composable capture back presses and navigate
  * the WebView back.
- * @param isRefreshable An option to have pull to refresh
  * @param navigator An optional navigator object that can be used to control the WebView's
  * navigation from outside the composable.
  * @param onCreated Called when the WebView is first created, this can be used to set additional
@@ -176,7 +171,6 @@ fun WebView(
     key: Any?,
     modifier: Modifier = Modifier,
     captureBackPresses: Boolean = true,
-    isRefreshable: Boolean = true,
     navigator: WebViewNavigator = rememberWebViewNavigator(),
     onCreated: (WebView) -> Unit = {},
     onDispose: (WebView) -> Unit = {},
@@ -233,9 +227,7 @@ fun WebView(
                 )
             },
             modifier = modifier,
-            onRelease = {
-                val wv = state.webView ?: return@AndroidView
-
+            onRelease = { wv ->
                 state.viewState = Bundle().apply {
                     wv.saveState(this)
                 }.takeIf { bundle ->
@@ -244,11 +236,6 @@ fun WebView(
                 state.webView = null
 
                 onDispose(wv)
-            },
-            update = {
-                if (isRefreshable) {
-                    it.isRefreshing = state.isLoading
-                }
             }
         )
     }
@@ -367,8 +354,8 @@ private fun createWebView(
     onCreated: (WebView) -> Unit,
     client: WebViewClient,
     chromeClient: WebChromeClient
-): SwipeRefreshLayout {
-    val webView = WebView(context).apply {
+): WebView {
+    return WebView(context).apply {
         onCreated(this)
 
         webChromeClient = chromeClient
@@ -378,7 +365,4 @@ private fun createWebView(
 
         addJavascriptInterface(JavaScriptDownloadInterface(context), JAVASCRIPT_INTERFACE_NAME)
     }.also { state.webView = it }
-    return SwipeRefreshLayout(context).apply {
-        addView(webView)
-    }
 }
