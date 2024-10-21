@@ -93,7 +93,7 @@ internal fun List<WebSnippetDto>.insert(data: ActionBody): List<WebSnippetDto> {
                     organizationId = data.organizationId,
                     projectId = data.projectId,
                     visibility = data.visibility,
-                    dynamicResources = data.dynamicResources ?: emptyList(),
+                    dynamicResources = data.dynamicResources.orEmpty(),
                     props = data.props.orEmpty()
                 )
             )
