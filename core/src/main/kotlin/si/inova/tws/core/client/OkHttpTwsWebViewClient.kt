@@ -20,7 +20,6 @@ import android.graphics.Bitmap
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
-import com.samskivert.mustache.Mustache
 import okhttp3.CacheControl
 import okhttp3.Headers
 import okhttp3.OkHttpClient
@@ -30,8 +29,8 @@ import okhttp3.ResponseBody
 import si.inova.tws.core.data.WebViewState
 import si.inova.tws.core.client.okhttp.webViewHttpClient
 import si.inova.tws.core.data.LoadingState
+import si.inova.tws.core.util.HtmlModifierHelper
 import si.inova.tws.data.DynamicResourceDto
-import si.inova.tws.data.ModifierInjectionType
 import java.util.concurrent.TimeUnit
 
 /**
@@ -57,13 +56,9 @@ class OkHttpTwsWebViewClient(
     interceptOverrideUrl: (String) -> Boolean,
     popupStateCallback: ((WebViewState, Boolean) -> Unit)? = null
 ) : TwsWebViewClient(interceptOverrideUrl, popupStateCallback) {
+
     private lateinit var okHttpClient: OkHttpClient
-
-    private val cssModifiers: List<DynamicResourceDto>
-        get() = dynamicModifiers.filter { it.type == ModifierInjectionType.CSS }
-
-    private val jsModifiers: List<DynamicResourceDto>
-        get() = dynamicModifiers.filter { it.type == ModifierInjectionType.JAVASCRIPT }
+    private val htmlModifier = HtmlModifierHelper()
 
     override fun onPageStarted(view: WebView, url: String?, favicon: Bitmap?) {
         super.onPageStarted(view, url, favicon)
@@ -78,7 +73,7 @@ class OkHttpTwsWebViewClient(
             okHttpClient = webViewHttpClient(view.context)
         }
 
-        if (request.method == GET_REQUEST && request.isForMainFrame) {
+        if (request.method == "GET" && request.isForMainFrame) {
             return try {
                 // Get cached or web response, depending on headers
                 val response = okHttpClient.duplicateAndExecuteRequest(request)
@@ -102,10 +97,7 @@ class OkHttpTwsWebViewClient(
 
     private fun Response.modifyResponseAndServe(): WebResourceResponse? {
         val htmlContent = body?.getHtmlContent() ?: return null
-        val modifiedHtmlContent = htmlContent
-            .processAsMustache(mustacheProps)
-            .insertCss(cssModifiers)
-            .insertJs(jsModifiers)
+        val modifiedHtmlContent = htmlModifier.modifyContent(htmlContent, dynamicModifiers, mustacheProps)
 
         val (mimeType, encoding) = getMimeTypeAndEncoding()
         return WebResourceResponse(
@@ -167,62 +159,8 @@ class OkHttpTwsWebViewClient(
         return byteStream().bufferedReader().use { it.readText() }
     }
 
-    private fun String.insertCss(dynamicModifiers: List<DynamicResourceDto>): String {
-        val combinedCssInjection = dynamicModifiers.joinToString(separator = System.lineSeparator()) {
-            it.inject.orEmpty()
-        }.trimIndent()
-
-        return if (contains("</head>")) {
-            replaceFirst(
-                "</head>",
-                """$combinedCssInjection</head>"""
-            )
-        } else {
-            val htmlTagRegex = Regex("<html(\\s[^>]*)?>", RegexOption.IGNORE_CASE)
-            if (htmlTagRegex.containsMatchIn(this)) {
-                replaceFirst(htmlTagRegex, """$0$combinedCssInjection""")
-            } else {
-                "$combinedCssInjection$this"
-            }
-        }
-    }
-
-    private fun String.insertJs(dynamicModifiers: List<DynamicResourceDto>): String {
-        val combinedJsInjection = STATIC_INJECT_DATA + dynamicModifiers.joinToString(separator = System.lineSeparator()) {
-            it.inject.orEmpty()
-        }.trimIndent()
-
-        return if (contains("<head>")) {
-            replaceFirst(
-                "<head>",
-                """<head>$combinedJsInjection"""
-            )
-        } else {
-            val htmlTagRegex = Regex("<html(\\s[^>]*)?>", RegexOption.IGNORE_CASE)
-            if (htmlTagRegex.containsMatchIn(this)) {
-                replaceFirst(htmlTagRegex, """$0$combinedJsInjection""")
-            } else {
-                "$combinedJsInjection$this"
-            }
-        }
-    }
-
-    private fun String.processAsMustache(props: Map<String, Any>): String {
-        return if (props.isEmpty()) {
-            this
-        } else {
-            Mustache.compiler()
-                .defaultValue("")
-                .compile(this)
-                .execute(props)
-        }
-    }
-
     private fun WebResourceRequest.buildHeaders(): Headers =
         Headers.headersOf(*requestHeaders.flatMap { listOf(it.key, it.value) }.toTypedArray())
 
     private fun WebResourceRequest.buildUrl(): String = url.toString()
 }
-
-private const val GET_REQUEST = "GET"
-private val STATIC_INJECT_DATA = """<script type="text/javascript">var tws_injected = true;</script>""".trimIndent()
