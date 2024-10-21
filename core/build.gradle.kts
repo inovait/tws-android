@@ -40,6 +40,12 @@ android {
         compose = true
         androidResources = true
     }
+
+    testOptions {
+        unitTests.all {
+            it.useJUnit()
+        }
+    }
 }
 
 publishLibrary(
@@ -67,4 +73,6 @@ dependencies {
     implementation(libs.mustache)
 
     debugImplementation(libs.androidx.compose.ui.tooling)
+
+    testImplementation(libs.junit)
 }
