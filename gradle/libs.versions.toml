@@ -27,6 +27,7 @@ certificateTransparency = "2.5.19"
 dispatch = "1.0.0-beta10"
 kotlin-coroutines = "1.7.3"
 mockito = "5.13.0"
+mustache = "1.15"
 turbine = "1.0.0"
 lifecycle = "2.8.5"
 swiperefreshlayout = "1.1.0"
@@ -70,6 +71,7 @@ certificateTransparency = { module = "com.appmattus.certificatetransparency:cert
 inject = { module = "jakarta.inject:jakarta.inject-api", version.ref = "inject" }
 dispatch = { module = "com.rickbusarow.dispatch:dispatch-core", version.ref = "dispatch" }
 mockito = { module = "org.mockito:mockito-core", version.ref = "mockito" }
+mustache = { module = "com.samskivert:jmustache", version.ref = "mustache" }
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 androidx-lifecycle-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose-android", version.ref = "lifecycle" }
 androidx-swiperefreshlayout = { group = "androidx.swiperefreshlayout", name = "swiperefreshlayout", version.ref = "swiperefreshlayout" }

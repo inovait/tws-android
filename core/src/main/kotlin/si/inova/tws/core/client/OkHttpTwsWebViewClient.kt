@@ -20,6 +20,7 @@ import android.graphics.Bitmap
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
+import com.samskivert.mustache.Mustache
 import okhttp3.CacheControl
 import okhttp3.Headers
 import okhttp3.OkHttpClient
@@ -34,23 +35,35 @@ import si.inova.tws.data.ModifierInjectionType
 import java.util.concurrent.TimeUnit
 
 /**
- * OkHttpTwsWebViewClient is a specialized subclass of [TwsWebViewClient] that integrates
- * OkHttp for efficient HTTP request handling and response modification.
+ * [OkHttpTwsWebViewClient] is a specialized subclass of [TwsWebViewClient] that integrates OkHttp for
+ * efficient network request handling and response modification. This client overrides the default
+ * WebViewClient behavior by using OkHttp for executing network requests and offers advanced features such as:
  *
- * This client overrides the default behavior of WebViewClient to use OkHttp for executing
- * network requests. It supports dynamic content injection into HTML responses, manages
- * caching behavior to enhance performance and sync cookie store with default WebView's cookie store..
+ * - Dynamic Content Injection: Allows injection of custom CSS and JavaScript into HTML responses using
+ *   `dynamicModifiers`. Mustache templating is also supported to modify HTML content based on dynamic properties.
+ * - Caching Management: Utilizes OkHttp's caching capabilities to enhance performance, including support for
+ *   handling stale content with `stale-if-error` directives.
+ * - Google Authentication Flow: Inherits handling of specific URL redirections from [TwsWebViewClient], including
+ *   the ability to open custom tabs for Google authentication.
  *
- * @param popupStateCallback An optional callback that handles the visibility state of popups
- * in the WebView.
+ * @param dynamicModifiers A list of [DynamicResourceDto] objects representing CSS or JS to be injected into the HTML response.
+ * @param mustacheProps A map of properties used to process HTML content via Mustache templating for dynamic content injection.
+ * @param interceptOverrideUrl A function to intercept and handle specific URL requests before passing them to OkHttp.
+ * @param popupStateCallback An optional callback to manage the visibility of popups or custom tabs in the WebView.
  */
 class OkHttpTwsWebViewClient(
+    private val dynamicModifiers: List<DynamicResourceDto>,
+    private val mustacheProps: Map<String, Any>,
+    interceptOverrideUrl: (String) -> Boolean,
     popupStateCallback: ((WebViewState, Boolean) -> Unit)? = null
-) : TwsWebViewClient(popupStateCallback) {
-    lateinit var dynamicModifiers: List<DynamicResourceDto>
-        internal set
-
+) : TwsWebViewClient(interceptOverrideUrl, popupStateCallback) {
     private lateinit var okHttpClient: OkHttpClient
+
+    private val cssModifiers: List<DynamicResourceDto>
+        get() = dynamicModifiers.filter { it.type == ModifierInjectionType.CSS }
+
+    private val jsModifiers: List<DynamicResourceDto>
+        get() = dynamicModifiers.filter { it.type == ModifierInjectionType.JAVASCRIPT }
 
     override fun onPageStarted(view: WebView, url: String?, favicon: Bitmap?) {
         super.onPageStarted(view, url, favicon)
@@ -89,7 +102,10 @@ class OkHttpTwsWebViewClient(
 
     private fun Response.modifyResponseAndServe(): WebResourceResponse? {
         val htmlContent = body?.getHtmlContent() ?: return null
-        val modifiedHtmlContent = htmlContent.insertCss().insertJs()
+        val modifiedHtmlContent = htmlContent
+            .processAsMustache(mustacheProps)
+            .insertCss(cssModifiers)
+            .insertJs(jsModifiers)
 
         val (mimeType, encoding) = getMimeTypeAndEncoding()
         return WebResourceResponse(
@@ -151,10 +167,10 @@ class OkHttpTwsWebViewClient(
         return byteStream().bufferedReader().use { it.readText() }
     }
 
-    private fun String.insertCss(): String {
-        val combinedCssInjection = dynamicModifiers
-            .filter { it.type == ModifierInjectionType.CSS }
-            .joinToString(separator = System.lineSeparator()) { it.inject.orEmpty() }.trimIndent()
+    private fun String.insertCss(dynamicModifiers: List<DynamicResourceDto>): String {
+        val combinedCssInjection = dynamicModifiers.joinToString(separator = System.lineSeparator()) {
+            it.inject.orEmpty()
+        }.trimIndent()
 
         return if (contains("</head>")) {
             replaceFirst(
@@ -171,10 +187,10 @@ class OkHttpTwsWebViewClient(
         }
     }
 
-    private fun String.insertJs(): String {
-        val combinedJsInjection = dynamicModifiers
-            .filter { it.type == ModifierInjectionType.JAVASCRIPT }
-            .joinToString(separator = System.lineSeparator()) { (it.inject.orEmpty()) + STATIC_INJECT_DATA }.trimIndent()
+    private fun String.insertJs(dynamicModifiers: List<DynamicResourceDto>): String {
+        val combinedJsInjection = STATIC_INJECT_DATA + dynamicModifiers.joinToString(separator = System.lineSeparator()) {
+            it.inject.orEmpty()
+        }.trimIndent()
 
         return if (contains("<head>")) {
             replaceFirst(
@@ -191,6 +207,17 @@ class OkHttpTwsWebViewClient(
         }
     }
 
+    private fun String.processAsMustache(props: Map<String, Any>): String {
+        return if (props.isEmpty()) {
+            this
+        } else {
+            Mustache.compiler()
+                .defaultValue("")
+                .compile(this)
+                .execute(props)
+        }
+    }
+
     private fun WebResourceRequest.buildHeaders(): Headers =
         Headers.headersOf(*requestHeaders.flatMap { listOf(it.key, it.value) }.toTypedArray())
 
@@ -198,4 +225,4 @@ class OkHttpTwsWebViewClient(
 }
 
 private const val GET_REQUEST = "GET"
-private val STATIC_INJECT_DATA = listOf("""<script type="text/javascript">var tws_injected = true;</script>""".trimIndent())
+private val STATIC_INJECT_DATA = """<script type="text/javascript">var tws_injected = true;</script>""".trimIndent()

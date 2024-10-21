@@ -28,7 +28,6 @@ val FAKE_SNIPPET_ONE = WebSnippetDto(
     target = "www.google.com",
     organizationId = "organization",
     projectId = "project",
-    html = "<html></html>",
     props = mapOf(
         Pair("tabName", "test1"),
         Pair("tabIcon", "icon1")
@@ -71,13 +70,6 @@ val FAKE_SNIPPET_FIVE = WebSnippetDto(
     projectId = "project"
 )
 
-val FAKE_SNIPPET_SIX = WebSnippetDto(
-    id = "6",
-    target = "www.popup3.com",
-    organizationId = "organization",
-    projectId = "project"
-)
-
 val FAKE_PROJECT_DTO = ProjectDto(
     snippets = listOf(FAKE_SNIPPET_ONE, FAKE_SNIPPET_TWO, FAKE_SNIPPET_FOUR, FAKE_SNIPPET_FIVE),
     listenOn = "wss:someUrl.com"
@@ -88,7 +80,6 @@ val FAKE_SHARED_PROJECT = SharedSnippetDto(snippet = FAKE_SNIPPET_ONE)
 fun WebSnippetDto.toActionBody() = ActionBody(
     id = id,
     target = target,
-    html = html,
     projectId = projectId,
     organizationId = organizationId,
     headers = headers,

@@ -176,42 +176,6 @@ class WebSnippetManagerImplTest {
     }
 
     @Test
-    fun `Load snippets and update html tab from web socket`() = scope.runTest {
-        functions.returnedProject = FAKE_PROJECT_DTO
-
-        webSnippetManager.loadWebSnippets("organization", "project")
-
-        webSnippetManager.snippetsFlow.test {
-            runCurrent()
-
-            expectMostRecentItem().shouldBeSuccessWithData(
-                listOf(
-                    FAKE_SNIPPET_ONE,
-                    FAKE_SNIPPET_TWO,
-                    FAKE_SNIPPET_FOUR,
-                    FAKE_SNIPPET_FIVE
-                )
-            )
-
-            socket.mockUpdateAction(
-                SnippetUpdateAction(
-                    ActionType.UPDATED,
-                    ActionBody(id = FAKE_SNIPPET_ONE.id, html = "<script></script>>")
-                )
-            )
-
-            expectMostRecentItem().shouldBeSuccessWithData(
-                listOf(
-                    FAKE_SNIPPET_ONE.copy(html = "<script></script>>", loadIteration = 1),
-                    FAKE_SNIPPET_TWO,
-                    FAKE_SNIPPET_FOUR,
-                    FAKE_SNIPPET_FIVE
-                )
-            )
-        }
-    }
-
-    @Test
     fun `Load snippets and create tab from web socket`() = scope.runTest {
         functions.returnedProject = FAKE_PROJECT_DTO
 

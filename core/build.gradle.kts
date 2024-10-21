@@ -64,6 +64,7 @@ dependencies {
     implementation(libs.kotlinova.core)
     implementation(libs.inject)
     implementation(libs.androidx.swiperefreshlayout)
+    implementation(libs.mustache)
 
     debugImplementation(libs.androidx.compose.ui.tooling)
 }

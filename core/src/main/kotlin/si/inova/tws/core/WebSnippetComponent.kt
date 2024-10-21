@@ -41,7 +41,11 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.util.Consumer
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.ImmutableMap
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.collections.immutable.toImmutableMap
 import si.inova.tws.core.client.OkHttpTwsWebViewClient
 import si.inova.tws.core.client.TwsWebChromeClient
 import si.inova.tws.core.data.LoadingState
@@ -149,7 +153,8 @@ fun WebSnippetComponent(
         interceptOverrideUrl = interceptOverrideUrl,
         errorViewContent = errorViewContent,
         popupStateCallback = popupStateCallback,
-        dynamicModifiers = target.dynamicResources?.toImmutableList(),
+        dynamicModifiers = target.dynamicResources.toImmutableList(),
+        mustacheProps = target.props.toImmutableMap(),
         isRefreshable = isRefreshable
     )
 
@@ -165,7 +170,7 @@ fun WebSnippetComponent(
             popupStateCallback = popupStateCallback,
             interceptOverrideUrl = interceptOverrideUrl,
             googleLoginRedirectUrl = googleLoginRedirectUrl,
-            dynamicModifiers = target.dynamicResources?.toImmutableList(),
+            dynamicModifiers = target.dynamicResources.toImmutableList(),
             isFullscreen = !msgState.isDialog
         )
     }
@@ -185,12 +190,14 @@ private fun SnippetContentWithLoadingAndError(
     modifier: Modifier = Modifier,
     onCreated: (WebView) -> Unit = {},
     popupStateCallback: ((WebViewState, Boolean) -> Unit)? = null,
-    dynamicModifiers: ImmutableList<DynamicResourceDto>? = null,
+    dynamicModifiers: ImmutableList<DynamicResourceDto> = persistentListOf(),
+    mustacheProps: ImmutableMap<String, Any> = persistentMapOf()
 ) {
     // https://github.com/google/accompanist/issues/1326 - WebView settings does not work in compose preview
     val isPreviewMode = LocalInspectionMode.current
-
-    val client = remember(key1 = key) { OkHttpTwsWebViewClient(popupStateCallback) }
+    val client = remember(key1 = key) {
+        OkHttpTwsWebViewClient(dynamicModifiers, mustacheProps, interceptOverrideUrl, popupStateCallback)
+    }
     val chromeClient = remember(key1 = key) { TwsWebChromeClient(popupStateCallback) }
 
     Box(modifier = modifier) {
@@ -203,8 +210,6 @@ private fun SnippetContentWithLoadingAndError(
                 if (!isPreviewMode) it.initializeSettings()
                 onCreated(it)
             },
-            interceptOverrideUrl = interceptOverrideUrl,
-            dynamicModifiers = dynamicModifiers,
             client = client,
             chromeClient = chromeClient,
             isRefreshable = isRefreshable
@@ -236,7 +241,8 @@ private fun PopUpWebView(
     popupNavigator: WebViewNavigator = rememberWebViewNavigator(),
     popupStateCallback: ((WebViewState, Boolean) -> Unit)? = null,
     googleLoginRedirectUrl: String? = null,
-    dynamicModifiers: ImmutableList<DynamicResourceDto>? = null,
+    dynamicModifiers: ImmutableList<DynamicResourceDto> = persistentListOf(),
+    mustacheProps: ImmutableMap<String, Any> = persistentMapOf(),
     isRefreshable: Boolean = false,
     isFullscreen: Boolean = false
 ) {
@@ -262,25 +268,9 @@ private fun PopUpWebView(
     ) {
         Surface(
             modifier = Modifier
-                .fillMaxHeight(
-                    if (isFullscreen) {
-                        1f
-                    } else {
-                        WEB_VIEW_POPUP_HEIGHT_PERCENTAGE
-                    }
-                )
-                .fillMaxWidth(
-                    if (isFullscreen) {
-                        1f
-                    } else {
-                        WEB_VIEW_POPUP_WIDTH_PERCENTAGE
-                    }
-                ),
-            shape = if (isFullscreen) {
-                RectangleShape
-            } else {
-                RoundedCornerShape(16.dp)
-            },
+                .fillMaxHeight(if (isFullscreen) 1f else WEB_VIEW_POPUP_HEIGHT_PERCENTAGE)
+                .fillMaxWidth(if (isFullscreen) 1f else WEB_VIEW_POPUP_WIDTH_PERCENTAGE),
+            shape = if (isFullscreen) RectangleShape else RoundedCornerShape(16.dp),
             color = Color.White
         ) {
             SnippetContentWithLoadingAndError(
@@ -295,6 +285,7 @@ private fun PopUpWebView(
                 popupStateCallback = popupStateCallback,
                 interceptOverrideUrl = interceptOverrideUrl,
                 dynamicModifiers = dynamicModifiers,
+                mustacheProps = mustacheProps,
                 isRefreshable = isRefreshable
             )
         }

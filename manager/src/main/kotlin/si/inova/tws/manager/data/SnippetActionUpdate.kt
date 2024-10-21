@@ -71,7 +71,7 @@ data class ActionBody(
     val type: SnippetType? = null,
     val visibility: VisibilityDto? = null,
     val dynamicResources: List<DynamicResourceDto>? = null,
-    val props: Map<String, String>? = null
+    val props: Map<String, Any>? = null
 )
 
 internal fun List<WebSnippetDto>.updateWith(action: SnippetUpdateAction): List<WebSnippetDto> {
@@ -93,7 +93,7 @@ internal fun List<WebSnippetDto>.insert(data: ActionBody): List<WebSnippetDto> {
                     organizationId = data.organizationId,
                     projectId = data.projectId,
                     visibility = data.visibility,
-                    dynamicResources = data.dynamicResources,
+                    dynamicResources = data.dynamicResources ?: emptyList(),
                     props = data.props.orEmpty()
                 )
             )
@@ -108,7 +108,6 @@ internal fun List<WebSnippetDto>.update(data: ActionBody): List<WebSnippetDto> {
                 loadIteration = it.loadIteration + 1,
                 target = data.target ?: it.target,
                 headers = data.headers ?: it.headers,
-                html = data.html ?: it.html,
                 visibility = data.visibility ?: it.visibility,
                 dynamicResources = data.dynamicResources ?: it.dynamicResources,
                 props = data.props ?: it.props,
