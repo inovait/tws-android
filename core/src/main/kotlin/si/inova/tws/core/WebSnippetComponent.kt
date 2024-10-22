@@ -35,11 +35,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.util.Consumer
+import com.samskivert.mustache.MustacheException
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.persistentListOf
@@ -97,7 +99,7 @@ fun WebSnippetComponent(
     navigator: WebViewNavigator = rememberWebViewNavigator(target.id),
     webViewState: WebViewState = rememberSaveableWebViewState(target.id),
     displayErrorViewOnError: Boolean = false,
-    errorViewContent: @Composable () -> Unit = { SnippetErrorView(false) },
+    errorViewContent: @Composable (String) -> Unit = { SnippetErrorView(it, false) },
     displayPlaceholderWhileLoading: Boolean = false,
     loadingPlaceholderContent: @Composable () -> Unit = { SnippetLoadingView(false) },
     interceptOverrideUrl: (String) -> Boolean = { false },
@@ -185,7 +187,7 @@ private fun SnippetContentWithLoadingAndError(
     loadingPlaceholderContent: @Composable () -> Unit,
     displayErrorContent: Boolean,
     isRefreshable: Boolean,
-    errorViewContent: @Composable () -> Unit,
+    errorViewContent: @Composable (String) -> Unit,
     interceptOverrideUrl: (String) -> Boolean,
     modifier: Modifier = Modifier,
     onCreated: (WebView) -> Unit = {},
@@ -220,11 +222,19 @@ private fun SnippetContentWithLoadingAndError(
         }
 
         if (displayErrorContent) {
-            errorViewContent()
+            val message = webViewState.webViewErrorsForCurrentRequest.firstOrNull()?.error?.description?.toString()
+                ?: stringResource(id = R.string.oops_loading_failed)
+
+            errorViewContent(message)
         }
 
         if (webViewState.customErrorsForCurrentRequest.size > 0 && !displayErrorContent) {
-            ErrorBannerWithSwipeToDismiss(webViewState.customErrorsForCurrentRequest.first().getUserFriendlyMessage())
+            val error = webViewState.customErrorsForCurrentRequest.first()
+            if (error is MustacheException) {
+                errorViewContent(error.message ?: error.getUserFriendlyMessage())
+            } else {
+                ErrorBannerWithSwipeToDismiss(error.getUserFriendlyMessage())
+            }
         }
     }
 }
@@ -235,7 +245,7 @@ private fun PopUpWebView(
     displayPlaceholderWhileLoading: Boolean,
     loadingPlaceholderContent: @Composable () -> Unit,
     displayErrorViewOnError: Boolean,
-    errorViewContent: @Composable () -> Unit,
+    errorViewContent: @Composable (String) -> Unit,
     onDismissRequest: () -> Unit,
     interceptOverrideUrl: (String) -> Boolean = { false },
     popupNavigator: WebViewNavigator = rememberWebViewNavigator(),
@@ -247,8 +257,7 @@ private fun PopUpWebView(
     isFullscreen: Boolean = false
 ) {
     val displayErrorContent = displayErrorViewOnError && popupState.hasError
-    val displayLoadingContent =
-        displayPlaceholderWhileLoading && popupState.loadingState is LoadingState.Loading
+    val displayLoadingContent = displayPlaceholderWhileLoading && popupState.loadingState is LoadingState.Loading
 
     googleLoginRedirectUrl?.let {
         NewIntentListener { intent ->

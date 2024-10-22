@@ -29,13 +29,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import si.inova.tws.core.R
 
 @Composable
-internal fun SnippetErrorView(fullScreen: Boolean) {
+internal fun SnippetErrorView(
+    errorMessage: String,
+    fullScreen: Boolean
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -56,12 +60,37 @@ internal fun SnippetErrorView(fullScreen: Boolean) {
 
         Text(
             modifier = Modifier
-                .padding(all = 16.dp)
+                .padding(horizontal = 48.dp, vertical = 16.dp)
                 .align(Alignment.CenterHorizontally),
-            text = stringResource(id = R.string.oops_loading_failed),
+            text = errorMessage,
+            textAlign = TextAlign.Center,
             style = TextStyle(color = Color.Black)
         )
 
         Spacer(modifier = Modifier.weight(1f))
     }
+}
+
+@Preview
+@Composable
+fun SnippetErrorViewFullScreenPreview() {
+    SnippetErrorView(errorMessage = "No internet connection", fullScreen = true)
+}
+
+@Preview
+@Composable
+fun SnippetErrorViewCardPreview() {
+    SnippetErrorView(errorMessage = "No internet connection", fullScreen = false)
+}
+
+@Preview
+@Composable
+fun SnippetErrorViewFullScreenLongTextPreview() {
+    SnippetErrorView(errorMessage = "Section close tag with mismatched open tag 'title' != 'person @line 559", fullScreen = true)
+}
+
+@Preview
+@Composable
+fun SnippetErrorViewCardLongTextPreview() {
+    SnippetErrorView(errorMessage = "Section close tag with mismatched open tag 'title' != 'person @line 559", fullScreen = false)
 }
