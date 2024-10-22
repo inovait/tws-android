@@ -16,9 +16,11 @@
 
 package si.inova.tws.core.util
 
+import android.os.Build
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
+import si.inova.tws.core.BuildConfig
 import si.inova.tws.data.DynamicResourceDto
 
 class HtmlModifierHelperTest {
@@ -303,6 +305,30 @@ class HtmlModifierHelperTest {
             """<script type="text/javascript">var tws_injected = true;</script>""" +
             """<body>Hello World</body>""" +
             """</html>"""
+
+        assertEquals(expected, result)
+    }
+
+    @Test
+    fun `Default system variables should not be overridden in Mustache`() {
+        val html = "<html>" +
+            "<body>" +
+            "Hello {{name}}\n" +
+            "This is {{version}} comparing to {{ device.vendor }}, {{os.version}}" +
+            "</body>" +
+            "</html>"
+
+        val mustacheProps = mapOf("name" to "ZAN", "version" to "1.0.0-override")
+
+        val result = helper.modifyContent(html, emptyList(), mustacheProps)
+
+        val expected = "<html>" +
+            "<script type=\"text/javascript\">var tws_injected = true;</script>" +
+            "<body>" +
+            "Hello ZAN\n" +
+            "This is ${BuildConfig.TWS_VERSION} comparing to ${Build.MANUFACTURER ?: ""}, ${Build.VERSION.RELEASE ?: ""}" +
+            "</body>" +
+            "</html>"
 
         assertEquals(expected, result)
     }
