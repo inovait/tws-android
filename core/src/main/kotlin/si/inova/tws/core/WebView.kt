@@ -43,12 +43,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import kotlinx.collections.immutable.ImmutableList
 import si.inova.tws.core.client.AccompanistWebChromeClient
 import si.inova.tws.core.client.AccompanistWebViewClient
-import si.inova.tws.core.client.OkHttpTwsWebViewClient
 import si.inova.tws.core.client.TwsWebChromeClient
-import si.inova.tws.core.client.TwsWebViewClient
 import si.inova.tws.core.data.TwsDownloadListener
 import si.inova.tws.core.data.WebContent
 import si.inova.tws.core.data.WebViewNavigator
@@ -56,7 +53,6 @@ import si.inova.tws.core.data.WebViewState
 import si.inova.tws.core.data.rememberWebViewNavigator
 import si.inova.tws.core.util.JavaScriptDownloadInterface
 import si.inova.tws.core.util.JavaScriptDownloadInterface.Companion.JAVASCRIPT_INTERFACE_NAME
-import si.inova.tws.data.DynamicResourceDto
 
 /**
  *  A wrapper around the Android View WebView to provide a basic WebView composable.
@@ -83,10 +79,6 @@ import si.inova.tws.data.DynamicResourceDto
  * if you need to save and restore state in this WebView.
  * @param client Provides access to WebViewClient via subclassing.
  * @param chromeClient Provides access to WebChromeClient via subclassing.
- * @param interceptOverrideUrl optional callback, how to handle intercepted urls,
- * return true if do not want to navigate to the new url and return false if navigation to the new url is intact.
- * @param dynamicModifiers A list of dynamic modifiers, which will be injected into WebView, applicable
- * only if client is OkHttpTwsWebViewClient. Dynamic modifier can be either CSS or JS.
  */
 @Composable
 internal fun WebView(
@@ -99,9 +91,7 @@ internal fun WebView(
     onCreated: (WebView) -> Unit = {},
     onDispose: (WebView) -> Unit = {},
     client: AccompanistWebViewClient = remember { AccompanistWebViewClient() },
-    chromeClient: AccompanistWebChromeClient = remember { AccompanistWebChromeClient() },
-    interceptOverrideUrl: (String) -> Boolean = { false },
-    dynamicModifiers: ImmutableList<DynamicResourceDto>? = null
+    chromeClient: AccompanistWebChromeClient = remember { AccompanistWebChromeClient() }
 ) {
     BoxWithConstraints(modifier) {
         // WebView changes it's layout strategy based on
@@ -131,9 +121,7 @@ internal fun WebView(
             onCreated,
             onDispose,
             client,
-            chromeClient,
-            interceptOverrideUrl,
-            dynamicModifiers
+            chromeClient
         )
     }
 }
@@ -164,10 +152,6 @@ internal fun WebView(
  * if you need to save and restore state in this WebView.
  * @param client Provides access to WebViewClient via subclassing.
  * @param chromeClient Provides access to WebChromeClient via subclassing.
- * @param interceptOverrideUrl optional callback, how to handle intercepted urls,
- * return true if do not want to navigate to the new url and return false if navigation to the new url is intact.
- * @param dynamicModifiers A list of dynamic modifiers, which will be injected into WebView, applicable
- * only if client is OkHttpTwsWebViewClient. Dynamic modifier can be either CSS or JS.
  */
 @Composable
 fun WebView(
@@ -181,9 +165,7 @@ fun WebView(
     onCreated: (WebView) -> Unit = {},
     onDispose: (WebView) -> Unit = {},
     client: AccompanistWebViewClient = remember { AccompanistWebViewClient() },
-    chromeClient: AccompanistWebChromeClient = remember { AccompanistWebChromeClient() },
-    interceptOverrideUrl: (String) -> Boolean = { false },
-    dynamicModifiers: ImmutableList<DynamicResourceDto>? = null
+    chromeClient: AccompanistWebChromeClient = remember { AccompanistWebChromeClient() }
 ) {
     val webView = state.webView
 
@@ -203,13 +185,8 @@ fun WebView(
 
     webView?.let { wv -> HandleNavigationEvents(wv, navigator, state) }
 
-    client.apply {
-        this.state = state
-        this.navigator = navigator
-
-        (this as? TwsWebViewClient)?.interceptOverrideUrl = interceptOverrideUrl
-        (this as? OkHttpTwsWebViewClient)?.dynamicModifiers = dynamicModifiers.orEmpty()
-    }
+    client.state = state
+    client.navigator = navigator
     chromeClient.state = state
 
     key(key) {

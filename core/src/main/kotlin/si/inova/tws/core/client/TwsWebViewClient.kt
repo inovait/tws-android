@@ -34,15 +34,21 @@ import si.inova.tws.core.data.WebViewState
  * It includes a mechanism to handle URLs and supports opening Google authentication flow in Custom Chrome tabs for
  * better user experience.
  *
- * @param popupStateCallback An optional callback function that can be used to manage the visibility state of
- * popups in the WebView. This can be useful for tracking whether a custom tab is open
- * or closed.
+ * Key features include:
+ * - Intercepting URLs and handling specific ones, such as Google authentication URLs.
+ * - Opening Google authentication URLs in Custom Chrome Tabs.
+ * - Providing an optional mechanism to track the state of popups or custom tabs.
+ *
+ * @param interceptOverrideUrl A function that intercepts URLs. It takes a URL string as input and returns a
+ * Boolean indicating whether the URL has been handled by the application.
+ * @param popupStateCallback An optional callback function to manage the visibility state of popups or custom tabs.
+ * The callback takes two parameters: a [WebViewState] and a Boolean. The Boolean indicates whether the
+ * custom tab is open (true) or closed (false).
  */
 open class TwsWebViewClient(
+    private val interceptOverrideUrl: (String) -> Boolean,
     private val popupStateCallback: ((WebViewState, Boolean) -> Unit)? = null
 ) : AccompanistWebViewClient() {
-    open lateinit var interceptOverrideUrl: (String) -> Boolean
-        internal set
 
     override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest?): Boolean {
         val url = request?.url

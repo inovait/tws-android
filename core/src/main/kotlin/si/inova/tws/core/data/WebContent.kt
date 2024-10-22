@@ -22,7 +22,7 @@ import android.webkit.WebView
 sealed class WebContent {
     data class Url(
         val url: String,
-        val additionalHttpHeaders: Map<String, String> = emptyMap(),
+        val additionalHttpHeaders: Map<String, String> = emptyMap()
     ) : WebContent()
 
     data class Data(
@@ -56,28 +56,9 @@ sealed class WebContent {
         }
     }
 
-    @Deprecated("Use state.lastLoadedUrl instead")
-    fun getCurrentUrl(): String? {
-        return when (this) {
-            is Url -> url
-            is Data -> baseUrl
-            is Post -> url
-            is NavigatorOnly -> error("Unsupported")
-            is MessageOnly -> error("Unsupported")
-        }
-    }
-
     data object NavigatorOnly : WebContent()
 
     data class MessageOnly(val msg: Message, val isDialog: Boolean) : WebContent()
-}
-
-internal fun WebContent.withUrl(url: String): WebContent.Url {
-    return if (this is WebContent.Url) {
-        copy(url = url)
-    } else {
-        WebContent.Url(url)
-    }
 }
 
 internal fun WebContent.MessageOnly.onCreateWindowStatus(webView: WebView) {
