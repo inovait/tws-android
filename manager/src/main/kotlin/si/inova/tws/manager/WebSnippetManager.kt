@@ -21,15 +21,12 @@ import si.inova.kotlinova.core.outcome.Outcome
 import si.inova.tws.data.WebSnippetDto
 
 interface WebSnippetManager {
-    val contentSnippetsFlow: Flow<Outcome<List<WebSnippetDto>>>
-    val popupSnippetsFlow: Flow<Outcome<List<WebSnippetDto>>>
-    val unseenPopupSnippetsFlow: Flow<List<WebSnippetDto>>
+    val snippetsFlow: Flow<Outcome<List<WebSnippetDto>>>
 
     val mainSnippetIdFlow: Flow<String?>
 
     fun closeWebsocketConnection()
     suspend fun loadWebSnippets(organizationId: String, projectId: String)
     suspend fun loadSharedSnippetData(shareId: String)
-    fun markPopupsAsSeen(ids: List<String>)
     fun release()
 }

@@ -16,7 +16,6 @@
 
 package si.inova.tws.manager.utils
 
-import si.inova.tws.data.SnippetType
 import si.inova.tws.data.VisibilityDto
 import si.inova.tws.data.WebSnippetDto
 import si.inova.tws.manager.data.ActionBody
@@ -29,45 +28,46 @@ val FAKE_SNIPPET_ONE = WebSnippetDto(
     target = "www.google.com",
     organizationId = "organization",
     projectId = "project",
-    html = "<html></html>"
+    props = mapOf(
+        Pair("tabName", "test1"),
+        Pair("tabIcon", "icon1")
+    )
 )
 
 val FAKE_SNIPPET_TWO = WebSnippetDto(
     id = "1",
     target = "www.blink.com",
     organizationId = "organization",
-    projectId = "project"
+    projectId = "project",
+    props = mapOf(
+        Pair("tabName", "test2"),
+        Pair("tabIcon", "icon2")
+    )
 )
 
 val FAKE_SNIPPET_THREE = WebSnippetDto(
     id = "3",
     target = "www.example.com",
     organizationId = "organization",
-    projectId = "project"
+    projectId = "project",
+    props = mapOf(
+        Pair("tabName", "test3"),
+        Pair("tabIcon", "icon3")
+    )
 )
 
 val FAKE_SNIPPET_FOUR = WebSnippetDto(
     id = "4",
     target = "www.popup1.com",
     organizationId = "organization",
-    projectId = "project",
-    type = SnippetType.POPUP
+    projectId = "project"
 )
 
 val FAKE_SNIPPET_FIVE = WebSnippetDto(
     id = "5",
     target = "www.popup2.com",
     organizationId = "organization",
-    projectId = "project",
-    type = SnippetType.POPUP
-)
-
-val FAKE_SNIPPET_SIX = WebSnippetDto(
-    id = "6",
-    target = "www.popup3.com",
-    organizationId = "organization",
-    projectId = "project",
-    type = SnippetType.POPUP
+    projectId = "project"
 )
 
 val FAKE_PROJECT_DTO = ProjectDto(
@@ -80,12 +80,11 @@ val FAKE_SHARED_PROJECT = SharedSnippetDto(snippet = FAKE_SNIPPET_ONE)
 fun WebSnippetDto.toActionBody() = ActionBody(
     id = id,
     target = target,
-    html = html,
     projectId = projectId,
     organizationId = organizationId,
     headers = headers,
-    type = type,
-    dynamicResources = dynamicResources
+    dynamicResources = dynamicResources,
+    props = props
 )
 
 fun WebSnippetDto.setVisibility(ts: Long) = copy(
