@@ -16,7 +16,9 @@
 
 package si.inova.tws.core.util
 
+import android.os.Build
 import com.samskivert.mustache.Mustache
+import si.inova.tws.core.BuildConfig
 import si.inova.tws.data.DynamicResourceDto
 import si.inova.tws.data.ModifierInjectionType
 
@@ -39,7 +41,10 @@ class HtmlModifierHelper {
         val cssModifiers = dynamicModifiers.filter { it.type == ModifierInjectionType.CSS }
         val jsModifiers = dynamicModifiers.filter { it.type == ModifierInjectionType.JAVASCRIPT }
 
-        return htmlContent.processAsMustache(mustacheProps).insertCss(cssModifiers).insertJs(jsModifiers)
+        return htmlContent
+            .processAsMustache(mustacheProps)
+            .insertCss(cssModifiers)
+            .insertJs(jsModifiers)
     }
 
     private fun String.insertCss(cssModifiers: List<DynamicResourceDto>): String {
@@ -75,18 +80,25 @@ class HtmlModifierHelper {
     }
 
     private fun String.processAsMustache(mustacheProps: Map<String, Any>): String {
-        return if (mustacheProps.isEmpty()) {
-            this
-        } else {
-            Mustache.compiler()
-                .defaultValue("")
-                .escapeHTML(false)
-                .compile(this)
-                .execute(mustacheProps)
-        }
+        return Mustache.compiler()
+            .defaultValue("")
+            .escapeHTML(false)
+            .compile(this)
+            .execute(mustacheProps + MUSTACHE_SYSTEM_DEFAULTS)
     }
 
     companion object {
         private val STATIC_INJECT_DATA = """<script type="text/javascript">var tws_injected = true;</script>""".trimIndent()
+
+        private val MUSTACHE_SYSTEM_DEFAULTS = mapOf(
+            "version" to BuildConfig.TWS_VERSION,
+            "device" to mapOf(
+                "vendor" to Build.MANUFACTURER,
+                "name" to Build.DEVICE
+            ),
+            "os" to mapOf(
+                "version" to Build.VERSION.RELEASE
+            )
+        )
     }
 }
