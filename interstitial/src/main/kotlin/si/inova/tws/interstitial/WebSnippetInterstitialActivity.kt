@@ -87,24 +87,19 @@ class WebSnippetInterstitialActivity : ComponentActivity() {
             intent.getParcelableExtra(WEB_SNIPPET_DATA)
         }
 
-        // observe for new popups if opened via manager
-        webSnippetId?.let {
-            launchPopupCollecting(this, managerTag)
-        }
-
         setContent {
-            val shouldCloseFlow = manager?.popupSnippetsFlow?.map { outcome ->
+            val shouldCloseFlow = manager?.snippetsFlow?.map { outcome ->
                 outcome is Outcome.Success && !outcome.data.any {
                     it.id == webSnippetId
                 }
-            }?.collectAsState(false)?.value ?: false
+            }?.collectAsState(false)?.value
 
-            val snippet = manager?.popupSnippetsFlow?.map { outcome ->
+            val snippet = manager?.snippetsFlow?.map { outcome ->
                 outcome.data?.find { it.id == webSnippetId }
             }?.filterNotNull()?.collectAsState(null)?.value ?: webSnippetData
 
             LaunchedEffect(shouldCloseFlow) {
-                if (shouldCloseFlow) {
+                if (shouldCloseFlow == true) {
                     finish()
                 }
             }
@@ -118,7 +113,7 @@ class WebSnippetInterstitialActivity : ComponentActivity() {
                     )
 
                     FilledIconButton(
-                        modifier = Modifier.padding(8.dp).align(Alignment.TopEnd).alpha(0.7f),
+                        modifier = Modifier.padding(8.dp).align(Alignment.TopEnd).alpha(closeIconAlpha),
                         onClick = { finish() }
                     ) {
                         Icon(Icons.Default.Close, "close")
@@ -127,4 +122,6 @@ class WebSnippetInterstitialActivity : ComponentActivity() {
             }
         }
     }
+
+    private val closeIconAlpha: Float = 0.7f
 }

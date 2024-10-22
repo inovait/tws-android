@@ -20,19 +20,19 @@ import android.os.Parcelable
 import androidx.annotation.Keep
 import com.squareup.moshi.JsonClass
 import kotlinx.parcelize.Parcelize
+import kotlinx.parcelize.RawValue
 
 @JsonClass(generateAdapter = true)
-@Parcelize
 @Keep
+@Parcelize
 data class WebSnippetDto(
     val id: String,
     val target: String,
     val organizationId: String,
     val projectId: String,
-    val html: String? = null,
-    val headers: Map<String, String>? = emptyMap(),
-    val dynamicResources: List<DynamicResourceDto>? = emptyList(),
     val visibility: VisibilityDto? = null,
-    val type: SnippetType = SnippetType.TAB,
+    val headers: Map<String, String>? = emptyMap(),
+    val dynamicResources: List<DynamicResourceDto> = emptyList(),
+    val props: Map<String, @RawValue Any> = emptyMap(),
     val loadIteration: Int = 0
 ) : Parcelable

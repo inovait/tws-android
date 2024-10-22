@@ -1,3 +1,6 @@
+import org.gradle.accessors.dm.LibrariesForLibs
+import util.commonAndroid
+
 /*
  * Copyright 2024 INOVA IT d.o.o.
  *
@@ -14,19 +17,32 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.manager.local_handler
+val libs = the<LibrariesForLibs>()
 
-import kotlinx.coroutines.flow.Flow
-import si.inova.tws.data.WebSnippetDto
-import si.inova.tws.manager.data.SnippetUpdateAction
-import java.time.Instant
+plugins {
+    id("io.gitlab.arturbosch.detekt")
+}
 
-interface LocalSnippetHandler {
-    val updateActionFlow: Flow<SnippetUpdateAction>
+commonAndroid {
+    lint {
+        lintConfig = file("$rootDir/config/android-lint.xml")
+        abortOnError = true
 
-    suspend fun updateAndScheduleCheck(snippets: List<WebSnippetDto>)
+        warningsAsErrors = true
+        sarifReport = true
+    }
+}
 
-    suspend fun calculateDateOffsetAndRerun(serverDate: Instant?, snippets: List<WebSnippetDto>)
+tasks.withType<com.android.build.gradle.internal.lint.AndroidLintTask>().configureEach {
+    finalizedBy(":reportMerge")
+}
 
-    fun release()
+detekt {
+    config.setFrom("$rootDir/config/detekt.yml")
+}
+
+dependencies {
+    detektPlugins(libs.detekt.formatting)
+    detektPlugins(libs.detekt.compilerWarnings)
+    detektPlugins(libs.detekt.compose)
 }

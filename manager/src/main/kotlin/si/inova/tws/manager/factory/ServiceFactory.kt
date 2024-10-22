@@ -27,6 +27,8 @@ internal interface ServiceFactory {
     }
 }
 
-internal inline fun <reified S> ServiceFactory.create(noinline configuration: ServiceFactory.ServiceCreationScope.() -> Unit = {}): S {
+internal inline fun <reified S> ServiceFactory.create(
+    noinline configuration: ServiceFactory.ServiceCreationScope.() -> Unit = { }
+): S {
     return create(S::class.java, configuration)
 }

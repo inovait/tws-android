@@ -14,7 +14,7 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.manager.web_socket
+package si.inova.tws.manager.websocket
 
 import android.util.Log
 import kotlinx.coroutines.CoroutineScope
@@ -24,7 +24,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.WebSocket
 import si.inova.tws.manager.data.WebSocketStatus
-import si.inova.tws.manager.web_socket.SnippetWebSocketListener.Companion.CLOSING_CODE_ERROR_CODE
+import si.inova.tws.manager.websocket.SnippetWebSocketListener.Companion.CLOSING_CODE_ERROR_CODE
 
 /**
  *
@@ -51,7 +51,7 @@ class TwsSocketImpl(scope: CoroutineScope) : TwsSocket {
                         delay(RECONNECT_DELAY)
                         failedSocketRefresh++
 
-                        if (status.response?.code != 401 && status.response?.code != 403) {
+                        if (status.response?.code != ERROR_UNAUTHORIZED && status.response?.code != ERROR_FORBIDDEN) {
                             wssUrl?.let {
                                 setupWebSocketConnection(it)
                             }
@@ -120,5 +120,7 @@ class TwsSocketImpl(scope: CoroutineScope) : TwsSocket {
         private const val TAG_ERROR_WEBSOCKET = "WebsocketError"
         private const val RECONNECT_DELAY = 5000L
         private const val MAXIMUM_RETRIES = 5
+        const val ERROR_UNAUTHORIZED = 401
+        private const val ERROR_FORBIDDEN = 403
     }
 }

@@ -14,47 +14,19 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.manager.web_socket
+package si.inova.tws.manager.localhandler
 
 import kotlinx.coroutines.flow.Flow
+import si.inova.tws.data.WebSnippetDto
 import si.inova.tws.manager.data.SnippetUpdateAction
-import si.inova.tws.manager.data.WebSocketStatus
+import java.time.Instant
 
-/**
- *
- * Creation of The Web Snippet websocket
- *
- */
-interface TwsSocket {
-
+interface LocalSnippetHandler {
     val updateActionFlow: Flow<SnippetUpdateAction>
-    val socketStatus: Flow<WebSocketStatus>
 
-    /**
-     * Sets the URL target of this request.
-     *
-     * @throws IllegalArgumentException if [setupWssUrl] is not a valid HTTP or HTTPS URL. Avoid this
-     *     exception by calling [HttpUrl.parse]; it returns null for invalid URLs.
-     */
-    fun setupWebSocketConnection(setupWssUrl: String)
+    suspend fun updateAndScheduleCheck(snippets: List<WebSnippetDto>)
 
-    /**
-     * try to reconnect on previous connected wss url
-     */
-    fun reconnect()
+    suspend fun calculateDateOffsetAndRerun(serverDate: Instant?, snippets: List<WebSnippetDto>)
 
-    /**
-     * Attempts to initiate a graceful shutdown of this web socket.
-     *
-     * This returns true if a graceful shutdown was initiated by this call. It returns false if
-     * a graceful shutdown was already underway or if the web socket is already closed or canceled.
-     *
-     */
-    fun closeWebsocketConnection(): Boolean?
-
-
-    /**
-     * Check if wss connection exists
-     */
-    fun connectionExists(): Boolean
+    fun release()
 }

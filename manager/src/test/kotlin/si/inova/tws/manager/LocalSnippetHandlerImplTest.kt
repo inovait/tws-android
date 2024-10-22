@@ -28,10 +28,15 @@ import si.inova.kotlinova.core.time.FakeAndroidTimeProvider
 import si.inova.tws.manager.data.ActionBody
 import si.inova.tws.manager.data.ActionType
 import si.inova.tws.manager.data.SnippetUpdateAction
-import si.inova.tws.manager.local_handler.LocalSnippetHandlerImpl
+import si.inova.tws.manager.localhandler.LocalSnippetHandlerImpl
 import si.inova.tws.manager.utils.FAKE_SNIPPET_ONE
 import si.inova.tws.manager.utils.FAKE_SNIPPET_THREE
 import si.inova.tws.manager.utils.FAKE_SNIPPET_TWO
+import si.inova.tws.manager.utils.MILLISECONDS_DATE
+import si.inova.tws.manager.utils.MILLISECONDS_DATE_FUTURE_1
+import si.inova.tws.manager.utils.MILLISECONDS_DATE_FUTURE_11
+import si.inova.tws.manager.utils.MILLISECONDS_DATE_FUTURE_5
+import si.inova.tws.manager.utils.MILLISECONDS_DATE_PAST
 import si.inova.tws.manager.utils.setVisibility
 import java.time.Instant
 import java.util.concurrent.TimeUnit
@@ -40,7 +45,7 @@ import java.util.concurrent.TimeUnit
 class LocalSnippetHandlerImplTest {
     private val scope = TestScopeWithDispatcherProvider()
     private val timeProvider = FakeAndroidTimeProvider(
-        currentMilliseconds = { 952077600000 + timePassedBy } // 3.3.2000 10:00
+        currentMilliseconds = { MILLISECONDS_DATE + timePassedBy } // 3.3.2000 10:00
     )
     private var timePassedBy: Long = 0
 
@@ -55,7 +60,7 @@ class LocalSnippetHandlerImplTest {
     @Test
     fun `Schedule snippet deletion with expired snippets`() = scope.runTest {
         handler.updateActionFlow.test {
-            handler.updateAndScheduleCheck(listOf(FAKE_SNIPPET_ONE.setVisibility(952077540000))) // 3.3.2020 9:59
+            handler.updateAndScheduleCheck(listOf(FAKE_SNIPPET_ONE.setVisibility(MILLISECONDS_DATE_PAST))) // 3.3.2020 9:59
             runCurrent()
 
             val action = expectMostRecentItem()
@@ -75,7 +80,7 @@ class LocalSnippetHandlerImplTest {
 
     @Test
     fun `Check for deletion with active snippets and schedule its deletion`() = scope.runTest {
-        val willExpireSnippet = FAKE_SNIPPET_ONE.setVisibility(952077660000) // 3.3.2000 10:01
+        val willExpireSnippet = FAKE_SNIPPET_ONE.setVisibility(MILLISECONDS_DATE_FUTURE_1) // 3.3.2000 10:01
 
         handler.updateActionFlow.test {
             handler.updateAndScheduleCheck(listOf(willExpireSnippet, FAKE_SNIPPET_TWO, FAKE_SNIPPET_THREE))
@@ -94,9 +99,10 @@ class LocalSnippetHandlerImplTest {
 
     @Test
     fun `Check for deletion with server time in past`() = scope.runTest {
-        val willExpireSnippet = FAKE_SNIPPET_ONE.setVisibility(952077660000) // 3.3.2000 10:01
+        val willExpireSnippet = FAKE_SNIPPET_ONE.setVisibility(MILLISECONDS_DATE_FUTURE_1) // 3.3.2000 10:01
 
-        val serverDate = Instant.ofEpochMilli(952077540000) // 3.3.2000 09:59 - 1 minute in past of current time on mobile
+        // 3.3.2000 09:59 - 1 minute in past of current time on mobile
+        val serverDate = Instant.ofEpochMilli(MILLISECONDS_DATE_PAST)
 
         handler.updateActionFlow.test {
             handler.calculateDateOffsetAndRerun(serverDate, listOf(willExpireSnippet, FAKE_SNIPPET_TWO, FAKE_SNIPPET_THREE))
@@ -115,9 +121,10 @@ class LocalSnippetHandlerImplTest {
 
     @Test
     fun `Check for deletion with server time in future`() = scope.runTest {
-        val willExpireSnippet = FAKE_SNIPPET_ONE.setVisibility(952078260000) // 3.3.2000 10:11
+        val willExpireSnippet = FAKE_SNIPPET_ONE.setVisibility(MILLISECONDS_DATE_FUTURE_11) // 3.3.2000 10:11
 
-        val serverDate = Instant.ofEpochMilli(952077900000) // 3.3.2000 10:05 - 5 minute in future of current time on mobile
+        // 3.3.2000 10:05 - 5 minute in future of current time on mobile
+        val serverDate = Instant.ofEpochMilli(MILLISECONDS_DATE_FUTURE_5)
 
         handler.updateActionFlow.test {
             handler.calculateDateOffsetAndRerun(serverDate, listOf(willExpireSnippet, FAKE_SNIPPET_TWO, FAKE_SNIPPET_THREE))
@@ -136,9 +143,10 @@ class LocalSnippetHandlerImplTest {
 
     @Test
     fun `Check for deletion with server time in future and at the start empty list of snippets`() = scope.runTest {
-        val willExpireSnippet = FAKE_SNIPPET_ONE.setVisibility(952078260000) // 3.3.2000 10:11
+        val willExpireSnippet = FAKE_SNIPPET_ONE.setVisibility(MILLISECONDS_DATE_FUTURE_11) // 3.3.2000 10:11
 
-        val serverDate = Instant.ofEpochMilli(952077900000) // 3.3.2000 10:05 - 5 minute in future of current time on mobile
+        // 3.3.2000 10:05 - 5 minute in future of current time on mobile
+        val serverDate = Instant.ofEpochMilli(MILLISECONDS_DATE_FUTURE_5)
         handler.calculateDateOffsetAndRerun(serverDate, emptyList())
 
         handler.updateActionFlow.test {
@@ -158,7 +166,7 @@ class LocalSnippetHandlerImplTest {
 
     @Test
     fun `Check for deletion with active snippets and schedule its deletion after 2 checks`() = scope.runTest {
-        val willExpireSnippet = FAKE_SNIPPET_ONE.setVisibility(952077660000) // 3.3.2020 10:01
+        val willExpireSnippet = FAKE_SNIPPET_ONE.setVisibility(MILLISECONDS_DATE_FUTURE_1) // 3.3.2020 10:01
 
         handler.updateActionFlow.test {
             handler.updateAndScheduleCheck(listOf(willExpireSnippet, FAKE_SNIPPET_TWO, FAKE_SNIPPET_THREE))
@@ -180,4 +188,3 @@ class LocalSnippetHandlerImplTest {
         }
     }
 }
-

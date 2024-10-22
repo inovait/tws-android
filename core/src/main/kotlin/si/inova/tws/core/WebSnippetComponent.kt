@@ -40,12 +40,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.util.Consumer
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.ImmutableMap
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.persistentMapOf
+import kotlinx.collections.immutable.toImmutableList
+import kotlinx.collections.immutable.toImmutableMap
 import si.inova.tws.core.client.OkHttpTwsWebViewClient
 import si.inova.tws.core.client.TwsWebChromeClient
 import si.inova.tws.core.data.LoadingState
 import si.inova.tws.core.data.WebContent
 import si.inova.tws.core.data.WebViewNavigator
 import si.inova.tws.core.data.WebViewState
+import si.inova.tws.core.data.onCreateWindowStatus
 import si.inova.tws.core.data.rememberSaveableWebViewState
 import si.inova.tws.core.data.rememberWebViewNavigator
 import si.inova.tws.core.util.compose.ErrorBannerWithSwipeToDismiss
@@ -81,6 +88,7 @@ import si.inova.tws.data.WebSnippetDto
  * while returning false allows it to proceed.
  * @param googleLoginRedirectUrl A URL to which user is redirected after successful Google login. This will allow us to redirect
  * user back to the app after login in Custom Tabs has been completed.
+ * @param isRefreshable if we allow to create pull to refresh
  */
 @Composable
 fun WebSnippetComponent(
@@ -101,7 +109,7 @@ fun WebSnippetComponent(
             // This is the first time load, so load the home page, else it will be restored from bundle
             navigator.loadUrl(
                 url = target.target,
-                additionalHttpHeaders = target.headers ?: emptyMap()
+                additionalHttpHeaders = target.headers.orEmpty()
             )
 
             webViewState.loadIteration = target.loadIteration
@@ -128,7 +136,7 @@ fun WebSnippetComponent(
     googleLoginRedirectUrl?.let {
         NewIntentListener { intent ->
             val data = intent.data?.toString()
-            if (popupStates.value.isEmpty() && data?.startsWith(googleLoginRedirectUrl) == true) {
+            if (popupStates.value.isEmpty() && data?.startsWith(it) == true) {
                 navigator.loadUrl(data)
             }
         }
@@ -145,7 +153,8 @@ fun WebSnippetComponent(
         interceptOverrideUrl = interceptOverrideUrl,
         errorViewContent = errorViewContent,
         popupStateCallback = popupStateCallback,
-        dynamicModifiers = target.dynamicResources,
+        dynamicModifiers = target.dynamicResources.toImmutableList(),
+        mustacheProps = target.props.toImmutableMap(),
         isRefreshable = isRefreshable
     )
 
@@ -161,7 +170,7 @@ fun WebSnippetComponent(
             popupStateCallback = popupStateCallback,
             interceptOverrideUrl = interceptOverrideUrl,
             googleLoginRedirectUrl = googleLoginRedirectUrl,
-            dynamicModifiers = target.dynamicResources,
+            dynamicModifiers = target.dynamicResources.toImmutableList(),
             isFullscreen = !msgState.isDialog
         )
     }
@@ -175,18 +184,20 @@ private fun SnippetContentWithLoadingAndError(
     displayLoadingContent: Boolean,
     loadingPlaceholderContent: @Composable () -> Unit,
     displayErrorContent: Boolean,
+    isRefreshable: Boolean,
     errorViewContent: @Composable () -> Unit,
+    interceptOverrideUrl: (String) -> Boolean,
     modifier: Modifier = Modifier,
     onCreated: (WebView) -> Unit = {},
     popupStateCallback: ((WebViewState, Boolean) -> Unit)? = null,
-    interceptOverrideUrl: (String) -> Boolean,
-    dynamicModifiers: List<DynamicResourceDto>? = null,
-    isRefreshable: Boolean,
+    dynamicModifiers: ImmutableList<DynamicResourceDto> = persistentListOf(),
+    mustacheProps: ImmutableMap<String, Any> = persistentMapOf()
 ) {
     // https://github.com/google/accompanist/issues/1326 - WebView settings does not work in compose preview
     val isPreviewMode = LocalInspectionMode.current
-
-    val client = remember(key1 = key) { OkHttpTwsWebViewClient(popupStateCallback) }
+    val client = remember(key1 = key) {
+        OkHttpTwsWebViewClient(dynamicModifiers, mustacheProps, interceptOverrideUrl, popupStateCallback)
+    }
     val chromeClient = remember(key1 = key) { TwsWebChromeClient(popupStateCallback) }
 
     Box(modifier = modifier) {
@@ -199,8 +210,6 @@ private fun SnippetContentWithLoadingAndError(
                 if (!isPreviewMode) it.initializeSettings()
                 onCreated(it)
             },
-            interceptOverrideUrl = interceptOverrideUrl,
-            dynamicModifiers = dynamicModifiers,
             client = client,
             chromeClient = chromeClient,
             isRefreshable = isRefreshable
@@ -232,7 +241,8 @@ private fun PopUpWebView(
     popupNavigator: WebViewNavigator = rememberWebViewNavigator(),
     popupStateCallback: ((WebViewState, Boolean) -> Unit)? = null,
     googleLoginRedirectUrl: String? = null,
-    dynamicModifiers: List<DynamicResourceDto>? = null,
+    dynamicModifiers: ImmutableList<DynamicResourceDto> = persistentListOf(),
+    mustacheProps: ImmutableMap<String, Any> = persistentMapOf(),
     isRefreshable: Boolean = false,
     isFullscreen: Boolean = false
 ) {
@@ -243,7 +253,7 @@ private fun PopUpWebView(
     googleLoginRedirectUrl?.let {
         NewIntentListener { intent ->
             val data = intent.data?.toString()
-            if (data?.startsWith(googleLoginRedirectUrl) == true) {
+            if (data?.startsWith(it) == true) {
                 popupNavigator.loadUrl(data)
             }
         }
@@ -258,25 +268,9 @@ private fun PopUpWebView(
     ) {
         Surface(
             modifier = Modifier
-                .fillMaxHeight(
-                    if (isFullscreen) {
-                        1f
-                    } else {
-                        WEB_VIEW_POPUP_HEIGHT_PERCENTAGE
-                    }
-                )
-                .fillMaxWidth(
-                    if (isFullscreen) {
-                        1f
-                    } else {
-                        WEB_VIEW_POPUP_WIDTH_PERCENTAGE
-                    }
-                ),
-            shape = if (isFullscreen) {
-                RectangleShape
-            } else {
-                RoundedCornerShape(16.dp)
-            },
+                .fillMaxHeight(if (isFullscreen) 1f else WEB_VIEW_POPUP_HEIGHT_PERCENTAGE)
+                .fillMaxWidth(if (isFullscreen) 1f else WEB_VIEW_POPUP_WIDTH_PERCENTAGE),
+            shape = if (isFullscreen) RectangleShape else RoundedCornerShape(16.dp),
             color = Color.White
         ) {
             SnippetContentWithLoadingAndError(
@@ -291,6 +285,7 @@ private fun PopUpWebView(
                 popupStateCallback = popupStateCallback,
                 interceptOverrideUrl = interceptOverrideUrl,
                 dynamicModifiers = dynamicModifiers,
+                mustacheProps = mustacheProps,
                 isRefreshable = isRefreshable
             )
         }

@@ -26,10 +26,18 @@ import si.inova.tws.data.ModifierInjectionType.Companion.fromContentType
 import java.util.Locale
 
 /**
- * @property DynamicResourceDto gets a [url] to a file to inject into WebView before page is loaded.
+ * Data class representing a dynamic resource that can be injected into a WebView before the page is loaded.
  *
- * @param url - path to the file to inject
- * @param contentType - gets type of file "text/css" or "text/javascript"
+ * @param url The path to the file to inject into the WebView.
+ * @param contentType The type of file to inject,
+ * either "text/css" for CSS files or "text/javascript" for JavaScript files or other.
+ *
+ * @constructor Creates a [DynamicResourceDto] with the provided [url] and [contentType].
+ * The [type] is automatically inferred from [contentType] using [ModifierInjectionType].
+ * Depending on the [type], the corresponding injection code for CSS or JavaScript is generated.
+ *
+ * - [type] The type of the resource, inferred from [contentType], which can be CSS, JavaScript, or UNKNOWN.
+ * - [inject] The generated HTML code snippet for injecting the resource into a WebView, depending on the [type].
  */
 @JsonClass(generateAdapter = true)
 @Parcelize
@@ -37,7 +45,7 @@ import java.util.Locale
 data class DynamicResourceDto(
     val url: String,
     val contentType: String
-): Parcelable {
+) : Parcelable {
     @IgnoredOnParcel
     val type: ModifierInjectionType = contentType.fromContentType()
 
@@ -47,14 +55,14 @@ data class DynamicResourceDto(
         ModifierInjectionType.JAVASCRIPT -> injectUrlJs()
         ModifierInjectionType.UNKNOWN -> null
     }
+}
 
-    private fun injectUrlCss(): String {
-        return """<link rel="stylesheet" href="$url">""".trimIndent()
-    }
+private fun DynamicResourceDto.injectUrlCss(): String {
+    return """<link rel="stylesheet" href="$url">""".trimIndent()
+}
 
-    private fun injectUrlJs(): String {
-        return """<script src="$url" type="text/javascript"></script>"""
-    }
+private fun DynamicResourceDto.injectUrlJs(): String {
+    return """<script src="$url" type="text/javascript"></script>"""
 }
 
 /**

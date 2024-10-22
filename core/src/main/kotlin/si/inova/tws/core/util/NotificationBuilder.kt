@@ -81,7 +81,6 @@ private fun ByteArray.toHumanReadableSize(context: Context): String {
     )
     val digitGroups = (log10(size) / log10(BINARY_PREFIX)).toInt()
 
-
     return context.getString(R.string.human_readable_size, size / 1024.0.pow(digitGroups.toDouble()), units[digitGroups])
 }
 

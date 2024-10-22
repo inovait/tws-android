@@ -18,6 +18,7 @@ package si.inova.tws.manager
 
 import android.content.Context
 import android.util.Log
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -27,19 +28,15 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingCommand
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.WhileSubscribed
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import si.inova.kotlinova.core.exceptions.UnknownCauseException
 import si.inova.kotlinova.core.outcome.CauseException
 import si.inova.kotlinova.core.outcome.Outcome
-import si.inova.kotlinova.core.outcome.mapData
 import si.inova.kotlinova.retrofit.callfactory.bodyOrThrow
-import si.inova.tws.data.SnippetType
 import si.inova.tws.data.WebSnippetDto
 import si.inova.tws.manager.cache.CacheManager
 import si.inova.tws.manager.cache.FileCacheManager
@@ -48,13 +45,14 @@ import si.inova.tws.manager.data.WebSocketStatus
 import si.inova.tws.manager.data.updateWith
 import si.inova.tws.manager.factory.BaseServiceFactory
 import si.inova.tws.manager.factory.create
-import si.inova.tws.manager.local_handler.LocalSnippetHandler
-import si.inova.tws.manager.local_handler.LocalSnippetHandlerImpl
+import si.inova.tws.manager.localhandler.LocalSnippetHandler
+import si.inova.tws.manager.localhandler.LocalSnippetHandlerImpl
 import si.inova.tws.manager.network.WebSnippetFunction
 import si.inova.tws.manager.service.NetworkConnectivityService
 import si.inova.tws.manager.service.NetworkConnectivityServiceImpl
-import si.inova.tws.manager.web_socket.TwsSocket
-import si.inova.tws.manager.web_socket.TwsSocketImpl
+import si.inova.tws.manager.websocket.TwsSocket
+import si.inova.tws.manager.websocket.TwsSocketImpl
+import si.inova.tws.manager.websocket.TwsSocketImpl.Companion.ERROR_UNAUTHORIZED
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.time.Duration.Companion.seconds
 
@@ -66,10 +64,13 @@ class WebSnippetManagerImpl(
     private val twsSocket: TwsSocket? = TwsSocketImpl(scope),
     private val networkConnectivityService: NetworkConnectivityService = NetworkConnectivityServiceImpl(context),
     private val localSnippetHandler: LocalSnippetHandler? = LocalSnippetHandlerImpl(scope),
-    private val cacheManager: CacheManager? = FileCacheManager(context, tag)
+    private val cacheManager: CacheManager? = FileCacheManager(context, tag),
+    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : WebSnippetManager {
-    private val snippetsFlow: MutableStateFlow<Outcome<List<WebSnippetDto>>> = MutableStateFlow(Outcome.Progress())
-    private val seenPopupSnippetsFlow: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
+    private val _snippetsFlow: MutableStateFlow<Outcome<List<WebSnippetDto>>> = MutableStateFlow(Outcome.Progress())
+
+    // collect with collectAsStateWithLifecycle so the websocket reconnection will work
+    override val snippetsFlow = _snippetsFlow.filterNotNull()
 
     private var collectingSocket: Boolean = false
     private var collectingLocalHandler: Boolean = false
@@ -79,31 +80,6 @@ class WebSnippetManagerImpl(
 
     private val _mainSnippetIdFlow: MutableStateFlow<String?> = MutableStateFlow(null)
     override val mainSnippetIdFlow: Flow<String?> = _mainSnippetIdFlow
-
-    // collect with collectAsStateWithLifecycle so the websocket reconnection will work
-    override val popupSnippetsFlow = snippetsFlow.map { outcome ->
-        outcome.mapData { data ->
-            data.filter {
-                it.type == SnippetType.POPUP
-            }
-        }
-    }.distinctUntilChanged()
-
-    // collect with collectAsStateWithLifecycle so the websocket reconnection will work
-    override val contentSnippetsFlow = snippetsFlow.map { outcome ->
-        outcome.mapData { data ->
-            data.filter {
-                it.type == SnippetType.TAB
-            }
-        }
-    }.distinctUntilChanged()
-
-    override val unseenPopupSnippetsFlow: Flow<List<WebSnippetDto>> = combine(
-        popupSnippetsFlow,
-        seenPopupSnippetsFlow
-    ) { allPopups, seenPopups ->
-        allPopups.data?.filter { !seenPopups.contains(it.id) } ?: emptyList()
-    }.distinctUntilChanged()
 
     init {
         scope.launch {
@@ -122,7 +98,7 @@ class WebSnippetManagerImpl(
 
         scope.launch {
             twsSocket?.socketStatus?.collect { status ->
-                if (status is WebSocketStatus.Failed && status.response?.code == 401) {
+                if (status is WebSocketStatus.Failed && status.response?.code == ERROR_UNAUTHORIZED) {
                     val organizationId = orgId
                     val projectId = projId
 
@@ -134,38 +110,34 @@ class WebSnippetManagerImpl(
         }
     }
 
-    override suspend fun loadSharedSnippetData(shareId: String) = withContext(Dispatchers.IO) {
-        snippetsFlow.emit(Outcome.Progress(snippetsFlow.value.data))
+    override suspend fun loadSharedSnippetData(shareId: String) = withContext(ioDispatcher) {
+        _snippetsFlow.emit(Outcome.Progress(_snippetsFlow.value.data))
 
         try {
             val sharedSnippet = webSnippetFunction.getSharedSnippetData(shareId).snippet
             _mainSnippetIdFlow.emit(sharedSnippet.id)
             loadProjectAndSetupWss(sharedSnippet.organizationId, sharedSnippet.projectId)
         } catch (e: CauseException) {
-            snippetsFlow.emit(Outcome.Error(e, snippetsFlow.value.data))
+            _snippetsFlow.emit(Outcome.Error(e, _snippetsFlow.value.data))
         } catch (e: Exception) {
-            snippetsFlow.emit(Outcome.Error(UnknownCauseException("", e), snippetsFlow.value.data))
+            _snippetsFlow.emit(Outcome.Error(UnknownCauseException("", e), _snippetsFlow.value.data))
         }
     }
 
-    override suspend fun loadWebSnippets(organizationId: String, projectId: String) = withContext(Dispatchers.IO) {
+    override suspend fun loadWebSnippets(organizationId: String, projectId: String) = withContext(ioDispatcher) {
         try {
             orgId = organizationId
             projId = projectId
             loadProjectAndSetupWss(organizationId, projectId)
         } catch (e: CauseException) {
-            snippetsFlow.emit(Outcome.Error(e, snippetsFlow.value.data))
+            _snippetsFlow.emit(Outcome.Error(e, _snippetsFlow.value.data))
         } catch (e: Exception) {
-            snippetsFlow.emit(Outcome.Error(UnknownCauseException("", e), snippetsFlow.value.data))
+            _snippetsFlow.emit(Outcome.Error(UnknownCauseException("", e), _snippetsFlow.value.data))
         }
     }
 
     override fun closeWebsocketConnection() {
         twsSocket?.closeWebsocketConnection()
-    }
-
-    override fun markPopupsAsSeen(ids: List<String>) {
-        seenPopupSnippetsFlow.value += ids
     }
 
     override fun release() {
@@ -178,7 +150,7 @@ class WebSnippetManagerImpl(
         organizationId: String,
         projectId: String
     ) {
-        snippetsFlow.emit(Outcome.Progress(cacheManager?.load(CACHED_SNIPPETS)))
+        _snippetsFlow.emit(Outcome.Progress(cacheManager?.load(CACHED_SNIPPETS)))
 
         val twsProjectResponse = webSnippetFunction.getWebSnippets(organizationId, projectId, "someApiKey")
         val twsProject = twsProjectResponse.bodyOrThrow()
@@ -190,14 +162,14 @@ class WebSnippetManagerImpl(
 
         val wssUrl = twsProject.listenOn
 
-        snippetsFlow.emit(Outcome.Success(twsProject.snippets))
+        _snippetsFlow.emit(Outcome.Success(twsProject.snippets))
         saveToCache(twsProject.snippets)
 
         twsSocket?.launchAndCollect(wssUrl)
         localSnippetHandler?.launchAndCollect(twsProject.snippets)
     }
 
-    private fun saveToCache(snippets: List<WebSnippetDto>) = scope.launch(Dispatchers.IO) {
+    private fun saveToCache(snippets: List<WebSnippetDto>) = scope.launch(ioDispatcher) {
         try {
             cacheManager?.save(CACHED_SNIPPETS, snippets)
         } catch (e: Exception) {
@@ -212,9 +184,9 @@ class WebSnippetManagerImpl(
         collectingSocket = true
 
         updateActionFlow.onEach {
-            val oldList = snippetsFlow.value.data ?: emptyList()
+            val oldList = _snippetsFlow.value.data.orEmpty()
             localSnippetHandler?.launchAndCollect(oldList)
-            snippetsFlow.emit(Outcome.Success(oldList.updateWith(it)))
+            _snippetsFlow.emit(Outcome.Success(oldList.updateWith(it)))
             saveToCache(oldList.updateWith(it))
         }.launchIn(scope).invokeOnCompletion {
             collectingSocket = false
@@ -230,8 +202,8 @@ class WebSnippetManagerImpl(
         collectingLocalHandler = true
 
         updateActionFlow.onEach {
-            val oldList = snippetsFlow.value.data ?: emptyList()
-            snippetsFlow.emit(Outcome.Success(oldList.updateWith(it)))
+            val oldList = _snippetsFlow.value.data.orEmpty()
+            _snippetsFlow.emit(Outcome.Success(oldList.updateWith(it)))
             saveToCache(oldList.updateWith(it))
         }.launchIn(scope).invokeOnCompletion {
             collectingLocalHandler = false
@@ -242,7 +214,7 @@ class WebSnippetManagerImpl(
      * Close web socket connection when there are no subscribers and reload all data with new socket connection when resubscribed
      */
     private fun socketReconnectionLifecycle() = scope.launch {
-        SharingStarted.WhileSubscribed(5.seconds).command(snippetsFlow.subscriptionCount).collect {
+        SharingStarted.WhileSubscribed(5.seconds).command(_snippetsFlow.subscriptionCount).collect {
             when (it) {
                 SharingCommand.START -> {
                     val organizationId = orgId
@@ -284,4 +256,3 @@ class WebSnippetManagerImpl(
         }
     }
 }
-

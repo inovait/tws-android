@@ -20,8 +20,6 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup.LayoutParams
 import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
@@ -47,9 +45,7 @@ import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import si.inova.tws.core.client.AccompanistWebChromeClient
 import si.inova.tws.core.client.AccompanistWebViewClient
-import si.inova.tws.core.client.OkHttpTwsWebViewClient
 import si.inova.tws.core.client.TwsWebChromeClient
-import si.inova.tws.core.client.TwsWebViewClient
 import si.inova.tws.core.data.TwsDownloadListener
 import si.inova.tws.core.data.WebContent
 import si.inova.tws.core.data.WebViewNavigator
@@ -57,7 +53,6 @@ import si.inova.tws.core.data.WebViewState
 import si.inova.tws.core.data.rememberWebViewNavigator
 import si.inova.tws.core.util.JavaScriptDownloadInterface
 import si.inova.tws.core.util.JavaScriptDownloadInterface.Companion.JAVASCRIPT_INTERFACE_NAME
-import si.inova.tws.data.DynamicResourceDto
 
 /**
  *  A wrapper around the Android View WebView to provide a basic WebView composable.
@@ -84,11 +79,6 @@ import si.inova.tws.data.DynamicResourceDto
  * if you need to save and restore state in this WebView.
  * @param client Provides access to WebViewClient via subclassing.
  * @param chromeClient Provides access to WebChromeClient via subclassing.
- * @param interceptOverrideUrl optional callback, how to handle intercepted urls,
- * return true if do not want to navigate to the new url and return false if navigation to the new url is intact.
- * @param factory An optional WebView factory for using a custom subclass of WebView.
- * @param dynamicModifiers A list of dynamic modifiers, which will be injected into WebView, applicable
- * only if client is OkHttpTwsWebViewClient. Dynamic modifier can be either CSS or JS.
  */
 @Composable
 internal fun WebView(
@@ -101,10 +91,7 @@ internal fun WebView(
     onCreated: (WebView) -> Unit = {},
     onDispose: (WebView) -> Unit = {},
     client: AccompanistWebViewClient = remember { AccompanistWebViewClient() },
-    chromeClient: AccompanistWebChromeClient = remember { AccompanistWebChromeClient() },
-    interceptOverrideUrl: (String) -> Boolean = { false },
-    factory: ((Context) -> WebView)? = null,
-    dynamicModifiers: List<DynamicResourceDto>? = null
+    chromeClient: AccompanistWebChromeClient = remember { AccompanistWebChromeClient() }
 ) {
     BoxWithConstraints(modifier) {
         // WebView changes it's layout strategy based on
@@ -124,9 +111,9 @@ internal fun WebView(
         val layoutParams = FrameLayout.LayoutParams(width, height)
 
         WebView(
-            key,
             state,
             layoutParams,
+            key,
             Modifier,
             captureBackPresses,
             isRefreshable,
@@ -134,10 +121,7 @@ internal fun WebView(
             onCreated,
             onDispose,
             client,
-            chromeClient,
-            interceptOverrideUrl,
-            factory,
-            dynamicModifiers
+            chromeClient
         )
     }
 }
@@ -152,8 +136,9 @@ internal fun WebView(
  * The WebView attempts to set the layoutParams based on the Compose modifier passed in. If it
  * is incorrectly sizing, use the layoutParams composable function instead.
  *
- * @param key A property, which allows us to recreate webview when needed.
  * @param state The webview state holder where the Uri to load is defined.
+ * @param layoutParams layout information for WebView
+ * @param key A property, which allows us to recreate webview when needed.
  * @param modifier A compose modifier.
  * @param captureBackPresses Set to true to have this Composable capture back presses and navigate
  * the WebView back.
@@ -167,17 +152,12 @@ internal fun WebView(
  * if you need to save and restore state in this WebView.
  * @param client Provides access to WebViewClient via subclassing.
  * @param chromeClient Provides access to WebChromeClient via subclassing.
- * @param interceptOverrideUrl optional callback, how to handle intercepted urls,
- * return true if do not want to navigate to the new url and return false if navigation to the new url is intact.
- * @param factory An optional WebView factory for using a custom subclass of WebView.
- * @param dynamicModifiers A list of dynamic modifiers, which will be injected into WebView, applicable
- * only if client is OkHttpTwsWebViewClient. Dynamic modifier can be either CSS or JS.
  */
 @Composable
 fun WebView(
-    key: Any?,
     state: WebViewState,
     layoutParams: FrameLayout.LayoutParams,
+    key: Any?,
     modifier: Modifier = Modifier,
     captureBackPresses: Boolean = true,
     isRefreshable: Boolean = true,
@@ -185,15 +165,14 @@ fun WebView(
     onCreated: (WebView) -> Unit = {},
     onDispose: (WebView) -> Unit = {},
     client: AccompanistWebViewClient = remember { AccompanistWebViewClient() },
-    chromeClient: AccompanistWebChromeClient = remember { AccompanistWebChromeClient() },
-    interceptOverrideUrl: (String) -> Boolean = { false },
-    factory: ((Context) -> WebView)? = null,
-    dynamicModifiers: List<DynamicResourceDto>? = null
+    chromeClient: AccompanistWebChromeClient = remember { AccompanistWebChromeClient() }
 ) {
     val webView = state.webView
 
     HandleBackPresses(captureBackPresses, navigator, webView)
-    WebViewResumeOrPauseEffect(webView)
+    webView?.let {
+        WebViewResumeOrPauseEffect(it)
+    }
 
     val (permissionLauncher, permissionCallback) = createPermissionLauncher()
 
@@ -204,72 +183,48 @@ fun WebView(
         }
     }
 
-
     webView?.let { wv -> HandleNavigationEvents(wv, navigator, state) }
 
-    client.apply {
-        this.state = state
-        this.navigator = navigator
-
-        (this as? TwsWebViewClient)?.interceptOverrideUrl = interceptOverrideUrl
-        (this as? OkHttpTwsWebViewClient)?.dynamicModifiers = dynamicModifiers ?: emptyList()
-    }
+    client.state = state
+    client.navigator = navigator
     chromeClient.state = state
 
     key(key) {
         AndroidView(
             factory = { context ->
-                val factoryWebView: WebView
-                val rootView: View
-
-                if (isRefreshable) {
-                    val layoutInflater = LayoutInflater.from(context)
-                    rootView = layoutInflater.inflate(R.layout.swipe_refresh_webview, null)
-                    val swipeRefreshLayout = rootView.findViewById<SwipeRefreshLayout>(R.id.swipe_refresh_layout)
-                    factoryWebView = rootView.findViewById(R.id.web_view)
-
-                    swipeRefreshLayout.setOnRefreshListener {
-                        navigator.reload()
-                    }
-                } else {
-                    rootView = WebView(context)
-                    factoryWebView = rootView
-                }
-
                 createWebView(
                     context = context,
-                    webView = factoryWebView,
                     state = state,
-                    layoutParams = layoutParams,
-                    factory = factory,
                     onCreated = { wv ->
                         onCreated(wv)
-                        wv.setDownloadListener(TwsDownloadListener(context, wv) { permission, callback ->
-                            permissionLauncher.launch(permission)
-                            permissionCallback.value = callback
-                        })
+                        wv.layoutParams = layoutParams
+                        wv.setDownloadListener(
+                            TwsDownloadListener(context, wv) { permission, callback ->
+                                permissionLauncher.launch(permission)
+                                permissionCallback.value = callback
+                            }
+                        )
                     },
                     client = client,
                     chromeClient = chromeClient
                 )
-
-                rootView
             },
             modifier = modifier,
             onRelease = {
-                val wv = it as? WebView ?: it.findViewById<WebView>(R.id.web_view)
+                val wv = state.webView ?: return@AndroidView
 
                 state.viewState = Bundle().apply {
                     wv.saveState(this)
-                }.takeIf { !it.isEmpty } ?: state.viewState
+                }.takeIf { bundle ->
+                    !bundle.isEmpty
+                } ?: state.viewState
                 state.webView = null
 
                 onDispose(wv)
             },
             update = {
                 if (isRefreshable) {
-                    val swipeRefreshLayout = it.findViewById<SwipeRefreshLayout>(R.id.swipe_refresh_layout)
-                    swipeRefreshLayout.isRefreshing = state.isLoading
+                    it.isRefreshing = state.isLoading
                 }
             }
         )
@@ -324,9 +279,7 @@ private fun HandleNavigationEvents(wv: WebView, navigator: WebViewNavigator, sta
 }
 
 @Composable
-private fun WebViewResumeOrPauseEffect(webView: WebView?) {
-    if (webView == null) return
-
+private fun WebViewResumeOrPauseEffect(webView: WebView) {
     LifecycleResumeEffect(Unit) {
         webView.onResume()
 
@@ -372,7 +325,6 @@ private fun SetupFileChooserLauncher(chromeClient: TwsWebChromeClient) {
         fileChooserCallback.value = null
     }
 
-
     LaunchedEffect(chromeClient) {
         chromeClient.setupFileChooserRequestCallback { valueCallback, fileChooserParams ->
             fileChooserCallback.value = valueCallback
@@ -388,18 +340,13 @@ private fun SetupFileChooserLauncher(chromeClient: TwsWebChromeClient) {
 
 private fun createWebView(
     context: Context,
-    webView: WebView,
     state: WebViewState,
-    layoutParams: FrameLayout.LayoutParams,
-    factory: ((Context) -> WebView)?,
     onCreated: (WebView) -> Unit,
     client: WebViewClient,
     chromeClient: WebChromeClient
-): WebView {
-    return (factory?.invoke(context) ?: webView).apply {
+): SwipeRefreshLayout {
+    val webView = WebView(context).apply {
         onCreated(this)
-
-        this.layoutParams = layoutParams
 
         webChromeClient = chromeClient
         webViewClient = client
@@ -408,4 +355,7 @@ private fun createWebView(
 
         addJavascriptInterface(JavaScriptDownloadInterface(context), JAVASCRIPT_INTERFACE_NAME)
     }.also { state.webView = it }
+    return SwipeRefreshLayout(context).apply {
+        addView(webView)
+    }
 }

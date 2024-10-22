@@ -47,6 +47,10 @@ open class AccompanistWebChromeClient : WebChromeClient() {
     override fun onProgressChanged(view: WebView, newProgress: Int) {
         super.onProgressChanged(view, newProgress)
         if (state.loadingState is LoadingState.Finished) return
-        state.loadingState = LoadingState.Loading(newProgress / 100.0f)
+        state.loadingState = LoadingState.Loading(newProgress / PERCENTAGE_DIVISOR)
+    }
+
+    companion object {
+        private const val PERCENTAGE_DIVISOR = 100.0f
     }
 }

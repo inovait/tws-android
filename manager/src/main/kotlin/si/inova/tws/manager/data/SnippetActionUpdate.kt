@@ -25,7 +25,11 @@ import si.inova.tws.data.VisibilityDto
 import si.inova.tws.data.WebSnippetDto
 
 /**
- * @property SnippetUpdateAction to be returned on websocket update
+ * Data class representing an action to be returned on a WebSocket update.
+ *
+ * @property type The type of action being performed, represented by [ActionType].
+ * @property data The content of the action, represented by [ActionBody], which contains the relevant information for the update.
+ *
  */
 @Keep
 @JsonClass(generateAdapter = true)
@@ -35,11 +39,12 @@ data class SnippetUpdateAction(
 )
 
 /**
- * @property ActionType how to handle snippet in existing list of snippets
  *
- * [CREATED] new snippet create
- * [UPDATED] existing snippet updated
- * [DELETED] existing snippet removed
+ * Defines the type of action performed on a snippet.
+ *
+ * - [CREATED] indicates that a new snippet has been created.
+ * - [UPDATED] indicates that an existing snippet has been updated.
+ * - [DELETED] indicates that an existing snippet has been removed.
  */
 @Keep
 @JsonClass(generateAdapter = false)
@@ -65,7 +70,8 @@ data class ActionBody(
     val projectId: String? = null,
     val type: SnippetType? = null,
     val visibility: VisibilityDto? = null,
-    val dynamicResources: List<DynamicResourceDto>? = null
+    val dynamicResources: List<DynamicResourceDto>? = null,
+    val props: Map<String, Any>? = null
 )
 
 internal fun List<WebSnippetDto>.updateWith(action: SnippetUpdateAction): List<WebSnippetDto> {
@@ -83,12 +89,12 @@ internal fun List<WebSnippetDto>.insert(data: ActionBody): List<WebSnippetDto> {
                 WebSnippetDto(
                     id = data.id,
                     target = data.target,
-                    headers = data.headers ?: emptyMap(),
+                    headers = data.headers.orEmpty(),
                     organizationId = data.organizationId,
                     projectId = data.projectId,
                     visibility = data.visibility,
-                    type = data.type ?: SnippetType.TAB,
-                    dynamicResources = data.dynamicResources
+                    dynamicResources = data.dynamicResources.orEmpty(),
+                    props = data.props.orEmpty()
                 )
             )
         }
@@ -102,10 +108,9 @@ internal fun List<WebSnippetDto>.update(data: ActionBody): List<WebSnippetDto> {
                 loadIteration = it.loadIteration + 1,
                 target = data.target ?: it.target,
                 headers = data.headers ?: it.headers,
-                html = data.html ?: it.html,
                 visibility = data.visibility ?: it.visibility,
-                type = data.type ?: it.type,
-                dynamicResources = data.dynamicResources ?: it.dynamicResources
+                dynamicResources = data.dynamicResources ?: it.dynamicResources,
+                props = data.props ?: it.props,
             )
         } else {
             it

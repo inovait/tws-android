@@ -27,10 +27,14 @@ certificateTransparency = "2.5.19"
 dispatch = "1.0.0-beta10"
 kotlin-coroutines = "1.7.3"
 mockito = "5.13.0"
+mustache = "1.15"
 turbine = "1.0.0"
 lifecycle = "2.8.5"
 swiperefreshlayout = "1.1.0"
 dokka = "1.9.20"
+detekt = "1.23.7"
+detekt-compilerWarnings = "0.0.4"
+detekt-compose = "0.4.15"
 
 [libraries]
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
@@ -67,9 +71,14 @@ certificateTransparency = { module = "com.appmattus.certificatetransparency:cert
 inject = { module = "jakarta.inject:jakarta.inject-api", version.ref = "inject" }
 dispatch = { module = "com.rickbusarow.dispatch:dispatch-core", version.ref = "dispatch" }
 mockito = { module = "org.mockito:mockito-core", version.ref = "mockito" }
+mustache = { module = "com.samskivert:jmustache", version.ref = "mustache" }
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 androidx-lifecycle-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose-android", version.ref = "lifecycle" }
 androidx-swiperefreshlayout = { group = "androidx.swiperefreshlayout", name = "swiperefreshlayout", version.ref = "swiperefreshlayout" }
+detekt-plugin = { module = "io.gitlab.arturbosch.detekt:detekt-gradle-plugin", version.ref = "detekt" }
+detekt-formatting = { module = "io.gitlab.arturbosch.detekt:detekt-formatting", version.ref = "detekt" }
+detekt-compilerWarnings = { module = "com.braisgabin.detekt:kotlin-compiler-wrapper", version.ref = "detekt-compilerWarnings" }
+detekt-compose = { module = "io.nlopez.compose.rules:detekt", version.ref = "detekt-compose" }
 
 [plugins]
 versions = { id = "com.github.ben-manes.versions", version.ref = "versionsChecker" }
@@ -77,3 +86,4 @@ nexusPublish = { id = "io.codearte.nexus-staging", version.ref = "nexusPublish" 
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
 dokka-base = { id = "org.jetbrains.dokka:dokka-base", version.ref = "dokka" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }

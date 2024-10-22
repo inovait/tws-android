@@ -20,7 +20,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import si.inova.tws.manager.data.SnippetUpdateAction
 import si.inova.tws.manager.data.WebSocketStatus
-import si.inova.tws.manager.web_socket.TwsSocket
+import si.inova.tws.manager.websocket.TwsSocket
 
 class FakeTwsSocket : TwsSocket {
     override var updateActionFlow: MutableSharedFlow<SnippetUpdateAction> = MutableSharedFlow()
