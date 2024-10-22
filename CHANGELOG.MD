@@ -1,3 +1,10 @@
+# 0.12.0
+
+### Features
+
+* [TWS-196](/browse/TWS-196) - **manager, interstitial, data**: removed type and popup flows ([07e3478e](https://github.com/inovait/tws-android-sdk/commit/07e3478e2c84bb287a29aa8389c1569613f2414f))
+* [TWS-208](/browse/TWS-208) - **core**: process mustache templates with props ([86f3ab8d](https://github.com/inovait/tws-android-sdk/commit/86f3ab8df4c1081ed704e55228535e034119e34e))
+
 # 0.11.1
 
 ### Bug Fixes
