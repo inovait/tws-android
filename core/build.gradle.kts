@@ -39,12 +39,17 @@ android {
     buildFeatures {
         compose = true
         androidResources = true
+        buildConfig = true
     }
 
     testOptions {
         unitTests.all {
             it.useJUnit()
         }
+    }
+
+    defaultConfig {
+        buildConfigField("String", "TWS_VERSION", "\"${version}\"")
     }
 }
 

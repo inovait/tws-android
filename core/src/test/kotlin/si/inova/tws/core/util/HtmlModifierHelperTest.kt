@@ -16,9 +16,11 @@
 
 package si.inova.tws.core.util
 
+import android.os.Build
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
+import si.inova.tws.core.BuildConfig
 import si.inova.tws.data.DynamicResourceDto
 
 class HtmlModifierHelperTest {
@@ -303,6 +305,62 @@ class HtmlModifierHelperTest {
             """<script type="text/javascript">var tws_injected = true;</script>""" +
             """<body>Hello World</body>""" +
             """</html>"""
+
+        assertEquals(expected, result)
+    }
+
+    @Test
+    fun `Default system variables should not be overridden in Mustache`() {
+        val html = "<html>" +
+            "<body>" +
+            "Hello {{name}}\n" +
+            "This is {{version}} comparing to {{ device.vendor }}, {{os.version}}" +
+            "</body>" +
+            "</html>"
+
+        val mustacheProps = mapOf("name" to "World", "version" to "1.0.0-override")
+
+        val result = helper.modifyContent(html, emptyList(), mustacheProps)
+
+        val expected = "<html>" +
+            "<script type=\"text/javascript\">var tws_injected = true;</script>" +
+            "<body>" +
+            "Hello World\n" +
+            "This is ${BuildConfig.TWS_VERSION} comparing to ${Build.MANUFACTURER ?: ""}, ${Build.VERSION.RELEASE ?: ""}" +
+            "</body>" +
+            "</html>"
+
+        assertEquals(expected, result)
+    }
+
+    @Test
+    fun `Default system variables for Mustache and CSS & JS injection`() {
+        val html = "<html>" +
+            "{{injectHead}}" +
+            "<body>" +
+            "Hello {{name}}\n" +
+            "This is {{version}} comparing to {{ device.vendor }}, {{os.version}}" +
+            "</body>" +
+            "</html>"
+
+        val mustacheProps = mapOf("injectHead" to "<head></head>", "name" to "World", "version" to "1.0.0-override")
+
+        val cssResource = DynamicResourceDto("https://example.com/style.css", "text/css")
+        val jsResource = DynamicResourceDto("https://example.com/script.js", "text/javascript")
+
+        val result = helper.modifyContent(html, listOf(cssResource, jsResource), mustacheProps)
+
+        val expected = """<html>""" +
+            """<head>""" +
+            """<script type="text/javascript">var tws_injected = true;</script>""" +
+            """<script src="https://example.com/script.js" type="text/javascript"></script>""" +
+            """<link rel="stylesheet" href="https://example.com/style.css">""" +
+            """</head>""" +
+            "<body>" +
+            "Hello World\n" +
+            "This is ${BuildConfig.TWS_VERSION} comparing to ${Build.MANUFACTURER ?: ""}, ${Build.VERSION.RELEASE ?: ""}" +
+            "</body>" +
+            "</html>"
 
         assertEquals(expected, result)
     }
