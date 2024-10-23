@@ -198,9 +198,17 @@ private fun SnippetContentWithLoadingAndError(
     // https://github.com/google/accompanist/issues/1326 - WebView settings does not work in compose preview
     val isPreviewMode = LocalInspectionMode.current
     val client = remember(key1 = key) {
-        OkHttpTwsWebViewClient(dynamicModifiers, mustacheProps, interceptOverrideUrl, popupStateCallback)
+        OkHttpTwsWebViewClient(interceptOverrideUrl, popupStateCallback)
     }
     val chromeClient = remember(key1 = key) { TwsWebChromeClient(popupStateCallback) }
+
+    LaunchedEffect(dynamicModifiers) {
+        client.setDynamicModifiers(dynamicModifiers)
+    }
+
+    LaunchedEffect(mustacheProps) {
+        client.setMustacheProps(mustacheProps)
+    }
 
     Box(modifier = modifier) {
         WebView(

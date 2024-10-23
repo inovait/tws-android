@@ -22,11 +22,12 @@ import si.inova.tws.data.WebSnippetDto
 
 interface WebSnippetManager {
     val snippetsFlow: Flow<Outcome<List<WebSnippetDto>>>
-
     val mainSnippetIdFlow: Flow<String?>
 
-    fun closeWebsocketConnection()
     suspend fun loadWebSnippets(organizationId: String, projectId: String)
     suspend fun loadSharedSnippetData(shareId: String)
+    suspend fun setLocalProps(id: String, localProps: Map<String, Any>)
+
+    fun closeWebsocketConnection()
     fun release()
 }

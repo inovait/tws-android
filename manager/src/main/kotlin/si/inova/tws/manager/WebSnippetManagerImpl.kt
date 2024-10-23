@@ -136,6 +136,18 @@ class WebSnippetManagerImpl(
         }
     }
 
+    override suspend fun setLocalProps(id: String, localProps: Map<String, Any>) {
+        val updatedSnippets = _snippetsFlow.value.data?.map {
+            if (it.id == id) {
+                it.copy(props = it.props + localProps, loadIteration = it.loadIteration + 1)
+            } else {
+                it
+            }
+        } ?: return
+
+        _snippetsFlow.emit(Outcome.Success(updatedSnippets))
+    }
+
     override fun closeWebsocketConnection() {
         twsSocket?.closeWebsocketConnection()
     }
