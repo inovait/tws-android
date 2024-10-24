@@ -22,6 +22,7 @@ import org.junit.Before
 import org.junit.Test
 import si.inova.tws.core.BuildConfig
 import si.inova.tws.data.DynamicResourceDto
+import si.inova.tws.data.EngineType
 
 class HtmlModifierHelperTest {
 
@@ -37,7 +38,12 @@ class HtmlModifierHelperTest {
         val html = "<html><head></head><body>Hello World</body></html>"
         val cssResource = DynamicResourceDto("https://example.com/style.css", "text/css")
 
-        val result = helper.modifyContent(html, listOf(cssResource), emptyMap())
+        val result = helper.modifyContent(
+            htmlContent = html,
+            dynamicModifiers = listOf(cssResource),
+            mustacheProps = emptyMap(),
+            engineType = EngineType.MUSTACHE
+        )
 
         val expected = """<html>""" +
             """<head>""" +
@@ -55,7 +61,12 @@ class HtmlModifierHelperTest {
         val html = "<html><head></head><body>Hello World</body></html>"
         val jsResource = DynamicResourceDto("https://example.com/script.js", "text/javascript")
 
-        val result = helper.modifyContent(html, listOf(jsResource), emptyMap())
+        val result = helper.modifyContent(
+            htmlContent = html,
+            dynamicModifiers = listOf(jsResource),
+            mustacheProps = emptyMap(),
+            engineType = EngineType.MUSTACHE
+        )
 
         val expected = """<html>""" +
             """<head>""" +
@@ -74,7 +85,12 @@ class HtmlModifierHelperTest {
         val cssResource = DynamicResourceDto("https://example.com/style.css", "text/css")
         val jsResource = DynamicResourceDto("https://example.com/script.js", "text/javascript")
 
-        val result = helper.modifyContent(html, listOf(cssResource, jsResource), emptyMap())
+        val result = helper.modifyContent(
+            htmlContent = html,
+            dynamicModifiers = listOf(cssResource, jsResource),
+            mustacheProps = emptyMap(),
+            engineType = EngineType.MUSTACHE
+        )
 
         val expected = """<html>""" +
             """<head>""" +
@@ -93,7 +109,12 @@ class HtmlModifierHelperTest {
         val html = "<html><body>{{greeting}} World</body></html>"
         val mustacheProps = mapOf("greeting" to "Hello")
 
-        val result = helper.modifyContent(html, emptyList(), mustacheProps)
+        val result = helper.modifyContent(
+            htmlContent = html,
+            dynamicModifiers = emptyList(),
+            mustacheProps = mustacheProps,
+            engineType = EngineType.MUSTACHE
+        )
 
         val expected = """<html>""" +
             """<script type="text/javascript">var tws_injected = true;</script>""" +
@@ -110,7 +131,12 @@ class HtmlModifierHelperTest {
         val jsResource = DynamicResourceDto("https://example.com/script.js", "text/javascript")
         val mustacheProps = mapOf("greeting" to "Hello")
 
-        val result = helper.modifyContent(html, listOf(cssResource, jsResource), mustacheProps)
+        val result = helper.modifyContent(
+            htmlContent = html,
+            dynamicModifiers = listOf(cssResource, jsResource),
+            mustacheProps = mustacheProps,
+            engineType = EngineType.MUSTACHE
+        )
 
         val expected = """<html>""" +
             """<head>""" +
@@ -130,7 +156,12 @@ class HtmlModifierHelperTest {
         val cssResource = DynamicResourceDto("https://example.com/style.css", "text/css")
         val jsResource = DynamicResourceDto("https://example.com/script.js", "text/javascript")
 
-        val result = helper.modifyContent(html, listOf(cssResource, jsResource), emptyMap())
+        val result = helper.modifyContent(
+            htmlContent = html,
+            dynamicModifiers = listOf(cssResource, jsResource),
+            mustacheProps = emptyMap(),
+            engineType = EngineType.MUSTACHE
+        )
 
         val expected = """<html>""" +
             """<script type="text/javascript">var tws_injected = true;</script>""" +
@@ -150,7 +181,12 @@ class HtmlModifierHelperTest {
             DynamicResourceDto("https://example.com/style2.css", "text/css")
         )
 
-        val result = helper.modifyContent(html, cssResources, emptyMap())
+        val result = helper.modifyContent(
+            htmlContent = html,
+            dynamicModifiers = cssResources,
+            mustacheProps = emptyMap(),
+            engineType = EngineType.MUSTACHE
+        )
 
         val expected = """<html>""" +
             """<head>""" +
@@ -172,7 +208,12 @@ class HtmlModifierHelperTest {
             DynamicResourceDto("https://example.com/script2.js", "text/javascript")
         )
 
-        val result = helper.modifyContent(html, jsResources, emptyMap())
+        val result = helper.modifyContent(
+            htmlContent = html,
+            dynamicModifiers = jsResources,
+            mustacheProps = emptyMap(),
+            engineType = EngineType.MUSTACHE
+        )
 
         val expected = """<html>""" +
             """<head>""" +
@@ -196,7 +237,12 @@ class HtmlModifierHelperTest {
             DynamicResourceDto("https://example.com/script2.js", "text/javascript")
         )
 
-        val result = helper.modifyContent(html, resources, emptyMap())
+        val result = helper.modifyContent(
+            htmlContent = html,
+            dynamicModifiers = resources,
+            mustacheProps = emptyMap(),
+            engineType = EngineType.MUSTACHE
+        )
 
         val expected = """<html>""" +
             """<head>""" +
@@ -266,7 +312,12 @@ class HtmlModifierHelperTest {
         val jsResource = DynamicResourceDto("https://example.com/script.js", "text/javascript")
         val mustacheProps = mapOf("injectHead" to "<head></head>", "greeting" to "Hello")
 
-        val result = helper.modifyContent(html, listOf(cssResource, jsResource), mustacheProps)
+        val result = helper.modifyContent(
+            htmlContent = html,
+            dynamicModifiers = listOf(cssResource, jsResource),
+            mustacheProps = mustacheProps,
+            engineType = EngineType.MUSTACHE
+        )
 
         val expected = """<html>""" +
             """<head>""" +
@@ -285,7 +336,12 @@ class HtmlModifierHelperTest {
         val html = "<html><body>{{greeting}} World, {{name}}</body></html>"
         val mustacheProps = mapOf("greeting" to "Hello")
 
-        val result = helper.modifyContent(html, emptyList(), mustacheProps)
+        val result = helper.modifyContent(
+            htmlContent = html,
+            dynamicModifiers = emptyList(),
+            mustacheProps = mustacheProps,
+            engineType = EngineType.MUSTACHE
+        )
 
         val expected = """<html>""" +
             """<script type="text/javascript">var tws_injected = true;</script>""" +
@@ -299,7 +355,12 @@ class HtmlModifierHelperTest {
     fun `should ignore unused mustache properties`() {
         val html = "<html><body>{{greeting}} World</body></html>"
         val mustacheProps = mapOf("greeting" to "Hello", "extraProp" to "This should not be used")
-        val result = helper.modifyContent(html, emptyList(), mustacheProps)
+        val result = helper.modifyContent(
+            htmlContent = html,
+            dynamicModifiers = emptyList(),
+            mustacheProps = mustacheProps,
+            engineType = EngineType.MUSTACHE
+        )
 
         val expected = """<html>""" +
             """<script type="text/javascript">var tws_injected = true;</script>""" +
@@ -320,7 +381,12 @@ class HtmlModifierHelperTest {
 
         val mustacheProps = mapOf("name" to "World", "version" to "1.0.0-override")
 
-        val result = helper.modifyContent(html, emptyList(), mustacheProps)
+        val result = helper.modifyContent(
+            htmlContent = html,
+            dynamicModifiers = emptyList(),
+            mustacheProps = mustacheProps,
+            engineType = EngineType.MUSTACHE
+        )
 
         val expected = "<html>" +
             "<script type=\"text/javascript\">var tws_injected = true;</script>" +
@@ -348,7 +414,12 @@ class HtmlModifierHelperTest {
         val cssResource = DynamicResourceDto("https://example.com/style.css", "text/css")
         val jsResource = DynamicResourceDto("https://example.com/script.js", "text/javascript")
 
-        val result = helper.modifyContent(html, listOf(cssResource, jsResource), mustacheProps)
+        val result = helper.modifyContent(
+            htmlContent = html,
+            dynamicModifiers = listOf(cssResource, jsResource),
+            mustacheProps = mustacheProps,
+            engineType = EngineType.MUSTACHE
+        )
 
         val expected = """<html>""" +
             """<head>""" +
@@ -361,6 +432,43 @@ class HtmlModifierHelperTest {
             "This is ${BuildConfig.TWS_VERSION} comparing to ${Build.MANUFACTURER ?: ""}, ${Build.VERSION.RELEASE ?: ""}" +
             "</body>" +
             "</html>"
+
+        assertEquals(expected, result)
+    }
+
+    @Test
+    fun `should ignore mustache due to different engine type`() {
+        val html = "<html><body>{{greeting}} World</body></html>"
+        val mustacheProps = mapOf("greeting" to "Hello")
+        val result = helper.modifyContent(
+            htmlContent = html,
+            dynamicModifiers = emptyList(),
+            mustacheProps = mustacheProps,
+            engineType = null
+        )
+
+        val expected = """<html>""" +
+            """<script type="text/javascript">var tws_injected = true;</script>""" +
+            """<body>{{greeting}} World</body>""" +
+            """</html>"""
+
+        assertEquals(expected, result)
+    }
+
+    @Test
+    fun `do not ignore mustache engine if mustache props are empty`() {
+        val html = "<html><body>{{greeting}} World</body></html>"
+        val result = helper.modifyContent(
+            htmlContent = html,
+            dynamicModifiers = emptyList(),
+            mustacheProps = emptyMap(),
+            engineType = EngineType.MUSTACHE
+        )
+
+        val expected = """<html>""" +
+            """<script type="text/javascript">var tws_injected = true;</script>""" +
+            """<body> World</body>""" +
+            """</html>"""
 
         assertEquals(expected, result)
     }
