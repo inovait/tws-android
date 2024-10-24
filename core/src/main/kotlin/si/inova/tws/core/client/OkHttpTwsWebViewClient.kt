@@ -27,11 +27,12 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
 import okhttp3.ResponseBody
-import si.inova.tws.core.data.WebViewState
 import si.inova.tws.core.client.okhttp.webViewHttpClient
 import si.inova.tws.core.data.LoadingState
+import si.inova.tws.core.data.WebViewState
 import si.inova.tws.core.util.HtmlModifierHelper
 import si.inova.tws.data.DynamicResourceDto
+import si.inova.tws.data.EngineType
 import java.util.concurrent.TimeUnit
 
 /**
@@ -59,9 +60,16 @@ class OkHttpTwsWebViewClient(
 
     private var dynamicModifiers: List<DynamicResourceDto> = emptyList()
     private var mustacheProps: Map<String, Any> = emptyMap()
+    private var targetMustacheProps: Map<String, Any> = emptyMap()
+    private var engineType: EngineType? = null
 
     fun setMustacheProps(props: Map<String, Any>) {
         mustacheProps = props
+    }
+
+    internal fun setMustacheProps(props: Map<String, Any>, engineType: EngineType?) {
+        targetMustacheProps = props
+        this.engineType = engineType
     }
 
     fun setDynamicModifiers(modifiers: List<DynamicResourceDto>) {
@@ -111,7 +119,14 @@ class OkHttpTwsWebViewClient(
 
     private fun Response.modifyResponseAndServe(): WebResourceResponse? {
         val htmlContent = body?.getHtmlContent() ?: return null
-        val modifiedHtmlContent = htmlModifier.modifyContent(htmlContent, dynamicModifiers, mustacheProps)
+        val modifiedHtmlContent =
+            htmlModifier.modifyContent(
+                htmlContent = htmlContent,
+                dynamicModifiers = dynamicModifiers,
+                targetMustacheProps = targetMustacheProps,
+                mustacheProps = mustacheProps,
+                engineType = engineType
+            )
 
         val (mimeType, encoding) = getMimeTypeAndEncoding()
         return WebResourceResponse(

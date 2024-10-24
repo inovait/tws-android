@@ -16,24 +16,13 @@
 
 package si.inova.tws.data
 
-import android.os.Parcelable
 import androidx.annotation.Keep
+import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
-import kotlinx.parcelize.Parcelize
-import kotlinx.parcelize.RawValue
 
-@JsonClass(generateAdapter = true)
 @Keep
-@Parcelize
-data class WebSnippetDto(
-    val id: String,
-    val target: String,
-    val organizationId: String,
-    val projectId: String,
-    val visibility: VisibilityDto? = null,
-    val headers: Map<String, String>? = emptyMap(),
-    val dynamicResources: List<DynamicResourceDto> = emptyList(),
-    val props: Map<String, @RawValue Any> = emptyMap(),
-    val loadIteration: Int = 0,
-    val engine: EngineType? = null
-) : Parcelable
+@JsonClass(generateAdapter = false)
+enum class EngineType {
+    @Json(name = "mustache")
+    MUSTACHE
+}

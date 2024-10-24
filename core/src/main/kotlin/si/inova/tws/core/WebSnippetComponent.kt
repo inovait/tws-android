@@ -63,6 +63,7 @@ import si.inova.tws.core.util.compose.SnippetLoadingView
 import si.inova.tws.core.util.compose.getUserFriendlyMessage
 import si.inova.tws.core.util.initializeSettings
 import si.inova.tws.data.DynamicResourceDto
+import si.inova.tws.data.EngineType
 import si.inova.tws.data.WebSnippetDto
 
 /**
@@ -157,6 +158,7 @@ fun WebSnippetComponent(
         popupStateCallback = popupStateCallback,
         dynamicModifiers = target.dynamicResources.toImmutableList(),
         mustacheProps = target.props.toImmutableMap(),
+        targetEngine = target.engine,
         isRefreshable = isRefreshable
     )
 
@@ -193,7 +195,8 @@ private fun SnippetContentWithLoadingAndError(
     onCreated: (WebView) -> Unit = {},
     popupStateCallback: ((WebViewState, Boolean) -> Unit)? = null,
     dynamicModifiers: ImmutableList<DynamicResourceDto> = persistentListOf(),
-    mustacheProps: ImmutableMap<String, Any> = persistentMapOf()
+    mustacheProps: ImmutableMap<String, Any> = persistentMapOf(),
+    targetEngine: EngineType? = null
 ) {
     // https://github.com/google/accompanist/issues/1326 - WebView settings does not work in compose preview
     val isPreviewMode = LocalInspectionMode.current
@@ -206,8 +209,8 @@ private fun SnippetContentWithLoadingAndError(
         client.setDynamicModifiers(dynamicModifiers)
     }
 
-    LaunchedEffect(mustacheProps) {
-        client.setMustacheProps(mustacheProps)
+    LaunchedEffect(mustacheProps, targetEngine) {
+        client.setMustacheProps(mustacheProps, targetEngine)
     }
 
     Box(modifier = modifier) {
