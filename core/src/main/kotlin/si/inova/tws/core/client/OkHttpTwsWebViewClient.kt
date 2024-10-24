@@ -60,15 +60,10 @@ class OkHttpTwsWebViewClient(
 
     private var dynamicModifiers: List<DynamicResourceDto> = emptyList()
     private var mustacheProps: Map<String, Any> = emptyMap()
-    private var targetMustacheProps: Map<String, Any> = emptyMap()
     private var engineType: EngineType? = null
 
-    fun setMustacheProps(props: Map<String, Any>) {
-        mustacheProps = props
-    }
-
     internal fun setMustacheProps(props: Map<String, Any>, engineType: EngineType?) {
-        targetMustacheProps = props
+        mustacheProps = props
         this.engineType = engineType
     }
 
@@ -123,7 +118,6 @@ class OkHttpTwsWebViewClient(
             htmlModifier.modifyContent(
                 htmlContent = htmlContent,
                 dynamicModifiers = dynamicModifiers,
-                targetMustacheProps = targetMustacheProps,
                 mustacheProps = mustacheProps,
                 engineType = engineType
             )
