@@ -400,6 +400,93 @@ class HtmlModifierHelperTest {
     }
 
     @Test
+    @Suppress("LongMethod") // long because of a long test input and a lot of props
+    fun `Advanced mustache processing`() {
+        val mustacheProps = mapOf(
+            "name" to "Chris",
+            "company" to "<b>GitHub</b>",
+            "user" to mapOf(
+                "first" to "Michael",
+                "last" to "Jackson"
+            ),
+            "age" to "RIP",
+            "person" to false,
+            "stooges" to listOf(
+                mapOf("name" to "Moe"),
+                mapOf("name" to "Larry"),
+                mapOf("name" to "Curly")
+            ),
+            "musketeers" to listOf("Athos", "Aramis", "Porthos", "D'Artagnan"),
+            "beatles" to listOf(
+                mapOf("firstName" to "John", "lastName" to "Lennon"),
+                mapOf("firstName" to "Paul", "lastName" to "McCartney"),
+                mapOf("firstName" to "George", "lastName" to "Harrison"),
+                mapOf("firstName" to "Ringo", "lastName" to "Starr")
+            ),
+            "repos" to listOf(
+                mapOf("name" to "First Repo"),
+                mapOf("name" to "Second Repo"),
+            ),
+            "repos1" to emptyList<Any>()
+        )
+
+        val html = "* {{name}}" +
+            "* {{age}}" +
+            "* {{company}}" +
+            "* {{{company}}}" +
+            "* {{&company}}" +
+            "{{=<% %>=}}" +
+            "* {{name}}" +
+            "* <%name%>" +
+            "<%={{ }}=%>" +
+            "* {{user.first}} {{user.last}}" +
+            "* {{age}}" +
+            "Shown." +
+            "{{#person}}" +
+            "Never shown!" +
+            "{{/person}}" +
+            "{{#stooges}}" +
+            "<b>{{name}}</b>" +
+            "{{/stooges}}" +
+            "{{#musketeers}}" +
+            "* {{.}}" +
+            "{{/musketeers}}" +
+            "{{#repos}}<b>{{name}}</b>{{/repos}}" +
+            "{{^repos1}}No repos :({{/repos1}}" +
+            "<h1>Today{{! ignore me }}.</h1>".trimIndent()
+
+        val result = helper.modifyContent(
+            htmlContent = html,
+            dynamicModifiers = emptyList(),
+            mustacheProps = mustacheProps,
+            engineType = EngineType.MUSTACHE
+        )
+
+        val expected = "<script type=\"text/javascript\">var tws_injected = true;</script>* Chris" +
+            "* RIP" +
+            "* <b>GitHub</b>" +
+            "* <b>GitHub</b>" +
+            "* <b>GitHub</b>" +
+            "* {{name}}" +
+            "* Chris" +
+            "* Michael Jackson" +
+            "* RIP" +
+            "Shown." +
+            "<b>Moe</b>" +
+            "<b>Larry</b>" +
+            "<b>Curly</b>" +
+            "* Athos" +
+            "* Aramis" +
+            "* Porthos" +
+            "* D'Artagnan" +
+            "<b>First Repo</b><b>Second Repo</b>" +
+            "No repos :(" +
+            "<h1>Today.</h1>".trimIndent()
+
+        assertEquals(expected, result)
+    }
+
+    @Test
     fun `Default system variables for Mustache and CSS & JS injection`() {
         val html = "<html>" +
             "{{injectHead}}" +
