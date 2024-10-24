@@ -20,6 +20,7 @@ import android.os.Build
 import com.samskivert.mustache.Mustache
 import si.inova.tws.core.BuildConfig
 import si.inova.tws.data.DynamicResourceDto
+import si.inova.tws.data.EngineType
 import si.inova.tws.data.ModifierInjectionType
 
 class HtmlModifierHelper {
@@ -30,19 +31,21 @@ class HtmlModifierHelper {
      * @param htmlContent The raw HTML content to modify.
      * @param dynamicModifiers A list of [DynamicResourceDto] representing both CSS and JavaScript to inject.
      * @param mustacheProps A map of properties used for Mustache templating.
+     * @param engineType The type of engine used for parsing HTML content.
      * @return The modified HTML content.
      */
     fun modifyContent(
         htmlContent: String,
         dynamicModifiers: List<DynamicResourceDto>,
-        mustacheProps: Map<String, Any>
+        mustacheProps: Map<String, Any>,
+        engineType: EngineType? = null
     ): String {
         // Filter the dynamic modifiers into CSS and JS lists
         val cssModifiers = dynamicModifiers.filter { it.type == ModifierInjectionType.CSS }
         val jsModifiers = dynamicModifiers.filter { it.type == ModifierInjectionType.JAVASCRIPT }
 
         return htmlContent
-            .processAsMustache(mustacheProps)
+            .processAsMustache(mustacheProps, engineType)
             .insertCss(cssModifiers)
             .insertJs(jsModifiers)
     }
@@ -79,7 +82,12 @@ class HtmlModifierHelper {
         }
     }
 
-    private fun String.processAsMustache(mustacheProps: Map<String, Any>): String {
+    private fun String.processAsMustache(
+        mustacheProps: Map<String, Any>,
+        engineType: EngineType?
+    ): String {
+        if (engineType != EngineType.MUSTACHE) return this
+
         return Mustache.compiler()
             .defaultValue("")
             .escapeHTML(false)
