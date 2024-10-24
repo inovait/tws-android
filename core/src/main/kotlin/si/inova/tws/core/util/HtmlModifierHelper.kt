@@ -86,7 +86,7 @@ class HtmlModifierHelper {
         mustacheProps: Map<String, Any>,
         engineType: EngineType?
     ): String {
-        if (engineType != EngineType.MUSTACHE || mustacheProps.isEmpty()) return this
+        if (engineType != EngineType.MUSTACHE) return this
 
         return Mustache.compiler()
             .defaultValue("")
