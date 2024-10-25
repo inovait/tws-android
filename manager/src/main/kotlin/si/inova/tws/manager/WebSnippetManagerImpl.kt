@@ -28,7 +28,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingCommand
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.WhileSubscribed
-import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -36,6 +36,7 @@ import kotlinx.coroutines.withContext
 import si.inova.kotlinova.core.exceptions.UnknownCauseException
 import si.inova.kotlinova.core.outcome.CauseException
 import si.inova.kotlinova.core.outcome.Outcome
+import si.inova.kotlinova.core.outcome.mapData
 import si.inova.kotlinova.retrofit.callfactory.bodyOrThrow
 import si.inova.tws.data.WebSnippetDto
 import si.inova.tws.manager.cache.CacheManager
@@ -68,9 +69,16 @@ class WebSnippetManagerImpl(
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : WebSnippetManager {
     private val _snippetsFlow: MutableStateFlow<Outcome<List<WebSnippetDto>>> = MutableStateFlow(Outcome.Progress())
+    private val _localProps: MutableStateFlow<Map<String, Map<String, Any>>> = MutableStateFlow(emptyMap())
 
     // collect with collectAsStateWithLifecycle so the websocket reconnection will work
-    override val snippetsFlow = _snippetsFlow.filterNotNull()
+    override val snippetsFlow = combine(_snippetsFlow, _localProps) { snippetsOutcome, localProps ->
+        snippetsOutcome.mapData { snippets ->
+            snippets.map {
+                it.copy(props = it.props + (localProps[it.id] ?: emptyMap()))
+            }
+        }
+    }
 
     private var collectingSocket: Boolean = false
     private var collectingLocalHandler: Boolean = false
@@ -137,15 +145,10 @@ class WebSnippetManagerImpl(
     }
 
     override suspend fun setLocalProps(id: String, localProps: Map<String, Any>) {
-        val updatedSnippets = _snippetsFlow.value.data?.map {
-            if (it.id == id) {
-                it.copy(props = it.props + localProps, loadIteration = it.loadIteration + 1)
-            } else {
-                it
-            }
-        } ?: return
+        val currentLocalProps = _localProps.value.toMutableMap()
+        currentLocalProps[id] = (currentLocalProps[id] ?: emptyMap()) + localProps
 
-        _snippetsFlow.emit(Outcome.Success(updatedSnippets))
+        _localProps.emit(currentLocalProps)
     }
 
     override fun closeWebsocketConnection() {
@@ -195,11 +198,15 @@ class WebSnippetManagerImpl(
         if (collectingSocket) return
         collectingSocket = true
 
+        val organizationId = orgId ?: error("Organization id should be available")
+        val projectId = projId ?: error("Project id should be available")
+
         updateActionFlow.onEach {
-            val oldList = _snippetsFlow.value.data.orEmpty()
-            localSnippetHandler?.launchAndCollect(oldList)
-            _snippetsFlow.emit(Outcome.Success(oldList.updateWith(it)))
-            saveToCache(oldList.updateWith(it))
+            val newList = _snippetsFlow.value.data.orEmpty().updateWith(it, organizationId, projectId)
+
+            localSnippetHandler?.launchAndCollect(newList)
+            _snippetsFlow.emit(Outcome.Success(newList))
+            saveToCache(newList)
         }.launchIn(scope).invokeOnCompletion {
             collectingSocket = false
         }
@@ -213,16 +220,20 @@ class WebSnippetManagerImpl(
         if (collectingLocalHandler) return
         collectingLocalHandler = true
 
+        val organizationId = orgId ?: error("Organization id should be available")
+        val projectId = projId ?: error("Project id should be available")
+
         updateActionFlow.onEach {
-            val oldList = _snippetsFlow.value.data.orEmpty()
-            _snippetsFlow.emit(Outcome.Success(oldList.updateWith(it)))
-            saveToCache(oldList.updateWith(it))
+            val newList = _snippetsFlow.value.data.orEmpty().updateWith(it, organizationId, projectId)
+
+            _snippetsFlow.emit(Outcome.Success(newList))
+            saveToCache(newList)
         }.launchIn(scope).invokeOnCompletion {
             collectingLocalHandler = false
         }
     }
 
-    /**
+    /*
      * Close web socket connection when there are no subscribers and reload all data with new socket connection when resubscribed
      */
     private fun socketReconnectionLifecycle() = scope.launch {

@@ -79,12 +79,6 @@ class WebViewState(webContent: WebContent) {
         internal set
 
     /**
-     * the favicon received from the loaded content of the current page
-     */
-    var loadIteration: Int? by mutableStateOf(null)
-        internal set
-
-    /**
      * A list for errors captured in the last load. Reset when a new page is loaded.
      * Errors could be from any resource (iframe, image, etc.), not just for the main page.
      * For more fine grained control use the OnError callback of the WebView.
@@ -124,7 +118,7 @@ fun rememberWebViewState(
     url: String,
     additionalHttpHeaders: ImmutableMap<String, String> = persistentMapOf()
 ): WebViewState =
-// Rather than using .apply {} here we will recreate the state, this prevents
+    // Rather than using .apply {} here we will recreate the state, this prevents
     // a recomposition loop when the webview updates the url itself.
     remember {
         WebViewState(
