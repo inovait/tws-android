@@ -192,21 +192,25 @@ fun WebView(
     key(key) {
         AndroidView(
             factory = { context ->
-                createWebView(
+                createSwipeRefreshLayout(
                     context = context,
-                    state = state,
-                    onCreated = { wv ->
-                        onCreated(wv)
-                        wv.layoutParams = layoutParams
-                        wv.setDownloadListener(
-                            TwsDownloadListener(context, wv) { permission, callback ->
-                                permissionLauncher.launch(permission)
-                                permissionCallback.value = callback
-                            }
-                        )
-                    },
-                    client = client,
-                    chromeClient = chromeClient
+                    navigator = navigator,
+                    webView = createWebView(
+                        context = context,
+                        state = state,
+                        onCreated = { wv ->
+                            onCreated(wv)
+                            wv.layoutParams = layoutParams
+                            wv.setDownloadListener(
+                                TwsDownloadListener(context, wv) { permission, callback ->
+                                    permissionLauncher.launch(permission)
+                                    permissionCallback.value = callback
+                                }
+                            )
+                        },
+                        client = client,
+                        chromeClient = chromeClient
+                    )
                 )
             },
             modifier = modifier,
@@ -343,9 +347,9 @@ private fun createWebView(
     state: WebViewState,
     onCreated: (WebView) -> Unit,
     client: WebViewClient,
-    chromeClient: WebChromeClient
-): SwipeRefreshLayout {
-    val webView = WebView(context).apply {
+    chromeClient: WebChromeClient,
+): WebView {
+    return WebView(context).apply {
         onCreated(this)
 
         webChromeClient = chromeClient
@@ -355,7 +359,15 @@ private fun createWebView(
 
         addJavascriptInterface(JavaScriptDownloadInterface(context), JAVASCRIPT_INTERFACE_NAME)
     }.also { state.webView = it }
+}
+
+private fun createSwipeRefreshLayout(
+    context: Context,
+    webView: WebView,
+    navigator: WebViewNavigator
+): SwipeRefreshLayout {
     return SwipeRefreshLayout(context).apply {
+        setOnRefreshListener { navigator.reload() }
         addView(webView)
     }
 }
