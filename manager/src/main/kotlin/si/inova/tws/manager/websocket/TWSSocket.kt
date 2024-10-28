@@ -18,17 +18,15 @@ package si.inova.tws.manager.websocket
 
 import kotlinx.coroutines.flow.Flow
 import si.inova.tws.manager.data.SnippetUpdateAction
-import si.inova.tws.manager.data.WebSocketStatus
 
 /**
  *
  * Creation of The Web Snippet websocket
  *
  */
-interface TwsSocket {
+interface TWSSocket {
 
     val updateActionFlow: Flow<SnippetUpdateAction>
-    val socketStatus: Flow<WebSocketStatus>
 
     /**
      * Sets the URL target of this request.

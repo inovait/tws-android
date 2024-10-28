@@ -29,7 +29,7 @@ import si.inova.tws.manager.data.SnippetUpdateAction
 import si.inova.tws.manager.data.WebSocketStatus
 import si.inova.tws.manager.singleton.twsMoshi
 
-internal class SnippetWebSocketListener : WebSocketListener() {
+internal class TWSWebSocketListener : WebSocketListener() {
     private val _updateActionFlow: MutableStateFlow<SnippetUpdateAction?> = MutableStateFlow(null)
     val updateActionFlow: Flow<SnippetUpdateAction>
         get() = _updateActionFlow.filterNotNull()

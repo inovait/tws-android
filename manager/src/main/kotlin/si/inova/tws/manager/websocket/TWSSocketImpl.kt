@@ -16,6 +16,7 @@
 
 package si.inova.tws.manager.websocket
 
+import android.content.Context
 import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
@@ -23,16 +24,24 @@ import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.WebSocket
+import si.inova.tws.manager.data.NetworkStatus
 import si.inova.tws.manager.data.WebSocketStatus
-import si.inova.tws.manager.websocket.SnippetWebSocketListener.Companion.CLOSING_CODE_ERROR_CODE
+import si.inova.tws.manager.service.NetworkConnectivityService
+import si.inova.tws.manager.service.NetworkConnectivityServiceImpl
+import si.inova.tws.manager.websocket.TWSWebSocketListener.Companion.CLOSING_CODE_ERROR_CODE
 
 /**
  *
  * Creation of The Web Snippet websocket
  *
  */
-class TwsSocketImpl(scope: CoroutineScope) : TwsSocket {
-    private val listener = SnippetWebSocketListener()
+class TWSSocketImpl(
+    context: Context,
+    scope: CoroutineScope,
+    private val actionErrorUnauthorized: () -> Unit
+) : TWSSocket {
+    private val networkConnectivityService: NetworkConnectivityService = NetworkConnectivityServiceImpl(context)
+    private val listener = TWSWebSocketListener()
 
     private var webSocket: WebSocket? = null
     private var wssUrl: String? = null
@@ -40,31 +49,13 @@ class TwsSocketImpl(scope: CoroutineScope) : TwsSocket {
 
     override val updateActionFlow = listener.updateActionFlow
 
-    override val socketStatus = listener.socketStatus
-
     init {
         scope.launch {
-            listener.socketStatus.collect { status ->
-                when (status) {
-                    is WebSocketStatus.Failed -> {
-                        if (failedSocketRefresh >= MAXIMUM_RETRIES) return@collect
-                        delay(RECONNECT_DELAY)
-                        failedSocketRefresh++
+            socketStateListener()
+        }
 
-                        if (status.response?.code != ERROR_UNAUTHORIZED && status.response?.code != ERROR_FORBIDDEN) {
-                            wssUrl?.let {
-                                setupWebSocketConnection(it)
-                            }
-                        }
-                    }
-
-                    WebSocketStatus.Open -> {
-                        failedSocketRefresh = 0
-                    }
-
-                    else -> {}
-                }
-            }
+        scope.launch {
+            observeNetworkConnectivity()
         }
     }
 
@@ -115,6 +106,45 @@ class TwsSocketImpl(scope: CoroutineScope) : TwsSocket {
     }
 
     override fun connectionExists(): Boolean = webSocket != null
+
+    private suspend fun observeNetworkConnectivity() {
+        networkConnectivityService.networkStatus.collect { status ->
+            when (status) {
+                is NetworkStatus.Connected -> {
+                    reconnect()
+                }
+
+                is NetworkStatus.Disconnected -> {
+                    closeWebsocketConnection()
+                }
+            }
+        }
+    }
+
+    private suspend fun socketStateListener() {
+        listener.socketStatus.collect { status ->
+            when (status) {
+                is WebSocketStatus.Failed -> {
+                    if (failedSocketRefresh >= MAXIMUM_RETRIES) return@collect
+                    delay(RECONNECT_DELAY)
+                    failedSocketRefresh++
+
+                    if (status.response?.code != ERROR_UNAUTHORIZED && status.response?.code != ERROR_FORBIDDEN) {
+                        wssUrl?.let {
+                            setupWebSocketConnection(it)
+                        }
+                    } else if (status.response.code == ERROR_UNAUTHORIZED) {
+                        actionErrorUnauthorized()
+                    }
+                }
+
+                WebSocketStatus.Open,
+                WebSocketStatus.Closed -> {
+                    failedSocketRefresh = 0
+                }
+            }
+        }
+    }
 
     companion object {
         private const val TAG_ERROR_WEBSOCKET = "WebsocketError"
