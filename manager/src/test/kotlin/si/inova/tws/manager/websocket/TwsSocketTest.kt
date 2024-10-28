@@ -31,7 +31,10 @@ import org.mockito.Mockito.mock
 import si.inova.kotlinova.core.test.TestScopeWithDispatcherProvider
 import si.inova.kotlinova.core.test.testMainImmediateBackgroundScope
 import si.inova.tws.manager.data.SnippetUpdateAction
+import si.inova.tws.manager.utils.ADD_FAKE_SNIPPET_SOCKET
 import si.inova.tws.manager.utils.CREATE_SNIPPET
+import si.inova.tws.manager.utils.UPDATED_FAKE_SNIPPET_SOCKET
+import si.inova.tws.manager.utils.UPDATE_SNIPPET_DYNAMIC_RESOURCES
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class TwsSocketTest {
@@ -84,7 +87,30 @@ class TwsSocketTest {
         }
         runCurrent()
 
-        assertTrue(actions.isNotEmpty())
+        assertTrue(actions.contains(ADD_FAKE_SNIPPET_SOCKET))
+
+        job.cancel()
+    }
+
+    @Test
+    fun `update dynamic resources`() = scope.runTest {
+        twsSocket.setupWebSocketConnection("wss://example.com/socket")
+        mockListener.onMessage(mockWebSocket, CREATE_SNIPPET)
+
+        val actions = mutableListOf<SnippetUpdateAction>()
+        val job = launch {
+            mockListener.updateActionFlow.collect { action ->
+                actions.add(action)
+            }
+        }
+        runCurrent()
+
+        assertTrue(actions.contains(ADD_FAKE_SNIPPET_SOCKET))
+
+        mockListener.onMessage(mockWebSocket, UPDATE_SNIPPET_DYNAMIC_RESOURCES)
+        runCurrent()
+
+        assertTrue(actions.contains(UPDATED_FAKE_SNIPPET_SOCKET))
 
         job.cancel()
     }
