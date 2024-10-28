@@ -16,11 +16,14 @@
 
 package si.inova.tws.manager.utils
 
+import si.inova.tws.data.DynamicResourceDto
 import si.inova.tws.data.VisibilityDto
 import si.inova.tws.data.WebSnippetDto
 import si.inova.tws.manager.data.ActionBody
+import si.inova.tws.manager.data.ActionType
 import si.inova.tws.manager.data.ProjectDto
 import si.inova.tws.manager.data.SharedSnippetDto
+import si.inova.tws.manager.data.SnippetUpdateAction
 import java.time.Instant
 
 val FAKE_SNIPPET_ONE = WebSnippetDto(
@@ -80,8 +83,6 @@ val FAKE_SHARED_PROJECT = SharedSnippetDto(snippet = FAKE_SNIPPET_ONE)
 fun WebSnippetDto.toActionBody() = ActionBody(
     id = id,
     target = target,
-    projectId = projectId,
-    organizationId = organizationId,
     headers = headers,
     dynamicResources = dynamicResources,
     props = props
@@ -99,6 +100,31 @@ const val CREATE_SNIPPET = """
     }
 }
 """
+
+const val UPDATE_SNIPPET_DYNAMIC_RESOURCES = """
+{
+    "type": "SNIPPET_UPDATED",
+    "data": {
+        "id": "test",
+        "dynamicResources":[{"contentType":"text/css","url":"https://www.test.css"}]
+    }
+}
+"""
+
+val ADD_FAKE_SNIPPET_SOCKET = SnippetUpdateAction(
+    type = ActionType.CREATED,
+    data = ActionBody(
+        id = "test"
+    )
+)
+
+val UPDATED_FAKE_SNIPPET_SOCKET = SnippetUpdateAction(
+    type = ActionType.UPDATED,
+    data = ActionBody(
+        id = "test",
+        dynamicResources = listOf(DynamicResourceDto(url = "https://www.test.css", contentType = "text/css"))
+    )
+)
 
 const val MILLISECONDS_DATE = 952_077_600_000 // 3.3.2000 10:00
 const val MILLISECONDS_DATE_FUTURE_1 = 952_077_660_000 // 3.3.2000 10:01
