@@ -35,10 +35,14 @@ internal class FileCacheManager(context: Context, tag: String) : CacheManager {
     }
 
     override fun save(key: String, data: List<WebSnippetDto>) {
-        val type = Types.newParameterizedType(List::class.java, WebSnippetDto::class.java)
-        val jsonAdapter = moshi.adapter<List<WebSnippetDto>>(type)
+        try {
+            val type = Types.newParameterizedType(List::class.java, WebSnippetDto::class.java)
+            val jsonAdapter = moshi.adapter<List<WebSnippetDto>>(type)
 
-        File(cacheDir, key).writeText(jsonAdapter.toJson(data))
+            File(cacheDir, key).writeText(jsonAdapter.toJson(data))
+        } catch (e: Exception) {
+            Log.e(TAG_ERROR_SAVE_CACHE, e.message, e)
+        }
     }
 
     override fun load(key: String): List<WebSnippetDto>? {
@@ -64,6 +68,7 @@ internal class FileCacheManager(context: Context, tag: String) : CacheManager {
     }
 
     companion object {
+        private const val TAG_ERROR_SAVE_CACHE = "SaveCache"
         internal const val CACHE_DIR = "tws_cache"
     }
 }

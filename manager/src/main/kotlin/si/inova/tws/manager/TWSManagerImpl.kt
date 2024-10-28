@@ -17,7 +17,6 @@
 package si.inova.tws.manager
 
 import android.content.Context
-import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -64,6 +63,7 @@ class TWSManagerImpl(
     private val localSnippetHandler: LocalSnippetHandler? = LocalSnippetHandlerImpl(scope),
     private val cacheManager: CacheManager? = FileCacheManager(context, tag),
 ) : TWSManager, CoroutineScope by scope {
+
     private val _snippetsFlow: MutableStateFlow<Outcome<List<WebSnippetDto>>> = MutableStateFlow(Outcome.Progress())
     private val _localProps: MutableStateFlow<Map<String, Map<String, Any>>> = MutableStateFlow(emptyMap())
 
@@ -156,12 +156,8 @@ class TWSManagerImpl(
         }
     }
 
-    private fun saveToCache(snippets: List<WebSnippetDto>) = launch() {
-        try {
-            cacheManager?.save(CACHED_SNIPPETS, snippets)
-        } catch (e: Exception) {
-            Log.e(TAG_ERROR_SAVE_CACHE, e.message, e)
-        }
+    private fun saveToCache(snippets: List<WebSnippetDto>) = launch {
+        cacheManager?.save(CACHED_SNIPPETS, snippets)
     }
 
     // Collect remote snippet changes (from web socket)
@@ -184,7 +180,7 @@ class TWSManagerImpl(
             collectingSocket = false
         }
 
-        setupSocketReconnectionLifecycle()
+        setupRefreshOnLifecycleStart()
     }
 
     // Collect local snippet changes (hiding with visibility)
@@ -208,7 +204,7 @@ class TWSManagerImpl(
     }
 
     // Close web socket connection when there are no subscribers and reload all data with new socket connection when resubscribed
-    private fun setupSocketReconnectionLifecycle() = launch {
+    private fun setupRefreshOnLifecycleStart() = launch {
         SharingStarted.WhileSubscribed(5.seconds).command(_snippetsFlow.subscriptionCount).collect {
             when (it) {
                 SharingCommand.START -> {
@@ -256,8 +252,6 @@ class TWSManagerImpl(
 
     companion object {
         internal const val CACHED_SNIPPETS = "CachedSnippets"
-
-        private const val TAG_ERROR_SAVE_CACHE = "SaveCache"
         private const val HEADER_DATE = "date"
     }
 }
