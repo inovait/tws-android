@@ -80,8 +80,6 @@ val FAKE_SHARED_PROJECT = SharedSnippetDto(snippet = FAKE_SNIPPET_ONE)
 fun WebSnippetDto.toActionBody() = ActionBody(
     id = id,
     target = target,
-    projectId = projectId,
-    organizationId = organizationId,
     headers = headers,
     dynamicResources = dynamicResources,
     props = props

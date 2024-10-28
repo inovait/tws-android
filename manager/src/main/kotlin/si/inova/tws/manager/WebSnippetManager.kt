@@ -24,10 +24,7 @@ interface WebSnippetManager {
     val snippetsFlow: Flow<Outcome<List<WebSnippetDto>>>
     val mainSnippetIdFlow: Flow<String?>
 
-    suspend fun loadWebSnippets(organizationId: String, projectId: String)
-    suspend fun loadSharedSnippetData(shareId: String)
-    suspend fun setLocalProps(id: String, localProps: Map<String, Any>)
-
+    fun run()
     fun closeWebsocketConnection()
-    fun release()
+    fun setLocalProps(id: String, localProps: Map<String, Any>)
 }
