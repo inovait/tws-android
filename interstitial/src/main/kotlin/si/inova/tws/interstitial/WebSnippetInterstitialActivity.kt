@@ -44,7 +44,7 @@ import si.inova.tws.interstitial.WebSnippetPopup.Companion.NAVIGATION_BAR_COLOR
 import si.inova.tws.interstitial.WebSnippetPopup.Companion.STATUS_BAR_COLOR
 import si.inova.tws.interstitial.WebSnippetPopup.Companion.WEB_SNIPPET_DATA
 import si.inova.tws.interstitial.WebSnippetPopup.Companion.WEB_SNIPPET_ID
-import si.inova.tws.manager.WebSnippetManagerImpl
+import si.inova.tws.manager.TWSFactory
 
 /**
  * WebSnippetInterstitialActivity is a ComponentActivity responsible for displaying
@@ -77,7 +77,7 @@ class WebSnippetInterstitialActivity : ComponentActivity() {
         val managerTag = intent.getStringExtra(MANAGER_TAG)
 
         val manager = webSnippetId?.let {
-            WebSnippetManagerImpl.getSharedInstance(this, managerTag)
+            TWSFactory.get(managerTag!!)
         }
 
         val webSnippetData = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {

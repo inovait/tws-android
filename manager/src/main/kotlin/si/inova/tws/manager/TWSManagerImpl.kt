@@ -53,7 +53,7 @@ import si.inova.tws.manager.websocket.TwsSocketImpl
 import si.inova.tws.manager.websocket.TwsSocketImpl.Companion.ERROR_UNAUTHORIZED
 import kotlin.time.Duration.Companion.seconds
 
-class WebSnippetManagerImpl(
+class TWSManagerImpl(
     context: Context,
     private val configuration: TWSConfiguration,
     tag: String = "",
@@ -63,7 +63,7 @@ class WebSnippetManagerImpl(
     private val networkConnectivityService: NetworkConnectivityService = NetworkConnectivityServiceImpl(context),
     private val localSnippetHandler: LocalSnippetHandler? = LocalSnippetHandlerImpl(scope),
     private val cacheManager: CacheManager? = FileCacheManager(context, tag),
-) : WebSnippetManager, CoroutineScope by scope {
+) : TWSManager, CoroutineScope by scope {
     private val _snippetsFlow: MutableStateFlow<Outcome<List<WebSnippetDto>>> = MutableStateFlow(Outcome.Progress())
     private val _localProps: MutableStateFlow<Map<String, Map<String, Any>>> = MutableStateFlow(emptyMap())
 
@@ -180,7 +180,7 @@ class WebSnippetManagerImpl(
             localSnippetHandler?.launchAndCollect(newList)
             _snippetsFlow.emit(Outcome.Success(newList))
             saveToCache(newList)
-        }.launchIn(this@WebSnippetManagerImpl).invokeOnCompletion {
+        }.launchIn(this@TWSManagerImpl).invokeOnCompletion {
             collectingSocket = false
         }
 
@@ -202,7 +202,7 @@ class WebSnippetManagerImpl(
 
             _snippetsFlow.emit(Outcome.Success(newList))
             saveToCache(newList)
-        }.launchIn(this@WebSnippetManagerImpl).invokeOnCompletion {
+        }.launchIn(this@TWSManagerImpl).invokeOnCompletion {
             collectingLocalHandler = false
         }
     }

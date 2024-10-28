@@ -22,7 +22,7 @@ import jakarta.inject.Singleton
 
 @Singleton
 object TWSSdk {
-    private var globalManager: WebSnippetManager? = null
+    private var globalManager: TWSManager? = null
 
     fun initialize(context: Context, apiKey: String) {
         if (globalManager != null) {
@@ -35,7 +35,7 @@ object TWSSdk {
         globalManager = TWSFactory.get(context, TWSConfiguration.Basic(organizationId, projectId, apiKey))
     }
 
-    fun get(): WebSnippetManager {
+    fun get(): TWSManager {
         return globalManager ?: error("TWS Sdk has not been initialized yet!")
     }
 

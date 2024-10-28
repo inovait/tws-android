@@ -45,7 +45,7 @@ import si.inova.tws.manager.utils.FakeWebSnippetFunction
 import si.inova.tws.manager.utils.toActionBody
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class WebSnippetManagerImplTest {
+class TWSManagerImplTest {
     private val scope = TestScopeWithDispatcherProvider()
 
     private val functions = FakeWebSnippetFunction()
@@ -54,13 +54,13 @@ class WebSnippetManagerImplTest {
     private val cache = FakeCacheManager()
     private val networkConnectivityService = FakeNetworkConnectivityService()
 
-    private lateinit var webSnippetManager: WebSnippetManagerImpl
+    private lateinit var webSnippetManager: TWSManagerImpl
 
     @Before
     fun setUp() {
-        webSnippetManager = WebSnippetManagerImpl(
+        webSnippetManager = TWSManagerImpl(
             context = mock(),
-            configuration = TWSConfiguration.Basic("organization", "project"),
+            configuration = TWSConfiguration.Basic("organization", "project", "apiKey"),
             tag = "TestManager",
             scope = scope.backgroundScope,
             webSnippetFunction = functions,
@@ -93,9 +93,9 @@ class WebSnippetManagerImplTest {
 
     @Test
     fun `Loading shared snippet with shared id`() = scope.runTest {
-        webSnippetManager = WebSnippetManagerImpl(
+        webSnippetManager = TWSManagerImpl(
             context = mock(),
-            configuration = TWSConfiguration.Shared("shared"),
+            configuration = TWSConfiguration.Shared("shared", "apiKey"),
             tag = "TestManager",
             scope = scope.backgroundScope,
             webSnippetFunction = functions,
@@ -404,7 +404,7 @@ class WebSnippetManagerImplTest {
 
     @Test
     fun `Load content snippets from cache if available and fetch from api`() = scope.runTest {
-        cache.save(WebSnippetManagerImpl.CACHED_SNIPPETS, listOf(FAKE_SNIPPET_ONE))
+        cache.save(TWSManagerImpl.CACHED_SNIPPETS, listOf(FAKE_SNIPPET_ONE))
         functions.returnedProject = FAKE_PROJECT_DTO
 
         webSnippetManager.snippetsFlow.test {

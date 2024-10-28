@@ -23,17 +23,17 @@ import java.util.WeakHashMap
 
 @Singleton
 object TWSFactory {
-    private val instances = WeakHashMap<String, WeakReference<WebSnippetManager>>()
+    private val instances = WeakHashMap<String, WeakReference<TWSManager>>()
 
-    fun get(context: Context, configuration: TWSConfiguration.Basic): WebSnippetManager {
+    fun get(context: Context, configuration: TWSConfiguration.Basic): TWSManager {
         return createOrGet(context, "${configuration.organizationId}/${configuration.projectId}", configuration)
     }
 
-    fun get(context: Context, configuration: TWSConfiguration.Shared): WebSnippetManager {
+    fun get(context: Context, configuration: TWSConfiguration.Shared): TWSManager {
         return createOrGet(context, configuration.sharedId, configuration)
     }
 
-    fun get(tag: String): WebSnippetManager? {
+    fun get(tag: String): TWSManager? {
         return instances[tag]?.get()
     }
 
@@ -41,13 +41,13 @@ object TWSFactory {
         context: Context,
         tag: String,
         configuration: TWSConfiguration
-    ): WebSnippetManager {
+    ): TWSManager {
         val existingInstance = instances[tag]?.get()
 
         return if (existingInstance != null) {
             existingInstance
         } else {
-            val newInstance = WebSnippetManagerImpl(context, configuration, tag)
+            val newInstance = TWSManagerImpl(context, configuration, tag)
             instances[tag] = WeakReference(newInstance)
             newInstance
         }
