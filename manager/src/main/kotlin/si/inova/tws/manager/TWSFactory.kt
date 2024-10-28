@@ -17,17 +17,19 @@
 package si.inova.tws.manager
 
 import android.content.Context
+import jakarta.inject.Singleton
 import java.lang.ref.WeakReference
 import java.util.WeakHashMap
 
-class TWSFactory(private val context: Context) {
+@Singleton
+object TWSFactory {
     private val instances = WeakHashMap<String, WeakReference<WebSnippetManager>>()
 
-    fun get(configuration: TWSConfiguration.Basic): WebSnippetManager {
+    fun get(context: Context, configuration: TWSConfiguration.Basic): WebSnippetManager {
         return createOrGet(context, "${configuration.organizationId}/${configuration.projectId}", configuration)
     }
 
-    fun get(configuration: TWSConfiguration.Shared): WebSnippetManager {
+    fun get(context: Context, configuration: TWSConfiguration.Shared): WebSnippetManager {
         return createOrGet(context, configuration.sharedId, configuration)
     }
 
@@ -45,15 +47,22 @@ class TWSFactory(private val context: Context) {
         return if (existingInstance != null) {
             existingInstance
         } else {
-            val newInstance = WebSnippetManagerImpl(context, configuration = configuration, tag = tag)
+            val newInstance = WebSnippetManagerImpl(context, configuration, tag)
             instances[tag] = WeakReference(newInstance)
             newInstance
         }
     }
 }
 
-sealed class TWSConfiguration {
-    data class Basic(val organizationId: String, val projectId: String) : TWSConfiguration()
+sealed class TWSConfiguration(open val apiKey: String) {
+    data class Basic(
+        val organizationId: String,
+        val projectId: String,
+        override val apiKey: String
+    ) : TWSConfiguration(apiKey)
 
-    data class Shared(val sharedId: String) : TWSConfiguration()
+    data class Shared(
+        val sharedId: String,
+        override val apiKey: String
+    ) : TWSConfiguration(apiKey)
 }
