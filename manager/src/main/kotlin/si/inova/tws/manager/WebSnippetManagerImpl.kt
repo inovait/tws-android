@@ -75,7 +75,7 @@ class WebSnippetManagerImpl(
     override val snippetsFlow = combine(_snippetsFlow, _localProps) { snippetsOutcome, localProps ->
         snippetsOutcome.mapData { snippets ->
             snippets.map {
-                it.copy(props = it.props + (localProps[it.id] ?: emptyMap()))
+                it.copy(props = it.props + (localProps[it.id].orEmpty()))
             }
         }
     }
@@ -146,7 +146,7 @@ class WebSnippetManagerImpl(
 
     override suspend fun setLocalProps(id: String, localProps: Map<String, Any>) {
         val currentLocalProps = _localProps.value.toMutableMap()
-        currentLocalProps[id] = (currentLocalProps[id] ?: emptyMap()) + localProps
+        currentLocalProps[id] = (currentLocalProps[id].orEmpty()) + localProps
 
         _localProps.emit(currentLocalProps)
     }
