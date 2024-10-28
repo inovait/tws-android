@@ -347,7 +347,7 @@ private fun createWebView(
     state: WebViewState,
     onCreated: (WebView) -> Unit,
     client: WebViewClient,
-    chromeClient: WebChromeClient,
+    chromeClient: WebChromeClient
 ): WebView {
     return WebView(context).apply {
         onCreated(this)
