@@ -19,7 +19,10 @@ package si.inova.tws.manager.websocket
 import android.content.Context
 import android.util.Log
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -38,13 +41,14 @@ import si.inova.tws.manager.websocket.SnippetWebSocketListener.Companion.CLOSING
 class TwsSocketImpl(
     context: Context,
     private val scope: CoroutineScope,
-    private val networkConnectivityService: NetworkConnectivityService = NetworkConnectivityServiceImpl(context),
-    private val listener: TWSSocketListener = SnippetWebSocketListener()
+    private val networkConnectivityService: NetworkConnectivityService? = NetworkConnectivityServiceImpl(context),
+    private val listener: TWSSocketListener = SnippetWebSocketListener(),
+    private val client: OkHttpClient = OkHttpClient()
 ) : TwsSocket {
     private var webSocket: WebSocket? = null
     private var wssUrl: String? = null
 
-    private var isNetworkCollectorActive = false
+    private var networkJob: Job? = null
     private var isSocketCollectorActive = false
 
     override val updateActionFlow = listener.updateActionFlow
@@ -56,19 +60,22 @@ class TwsSocketImpl(
      *     exception by calling [HttpUrl.parse]; it returns null for invalid URLs.
      */
     override fun setupWebSocketConnection(setupWssUrl: String, unauthorizedCallback: () -> Unit) {
-        if (wssUrl != null) {
+        if (wssUrl == setupWssUrl && webSocket != null) {
+            // socket already configured
+            return
+        }
+
+        if (wssUrl != null && webSocket != null) {
             // wss url changed, close previous and open new
-            closeWebsocketConnection()
+            disconnect()
         }
 
         wssUrl = setupWssUrl
 
         try {
-            val client = OkHttpClient()
             val request = Request.Builder().url(setupWssUrl).build()
 
             webSocket = client.newWebSocket(request, listener)
-            client.dispatcher.executorService.shutdown()
 
             setupSocketErrorHandling(unauthorizedCallback)
             setupNetworkConnectivityHandling(unauthorizedCallback)
@@ -85,37 +92,34 @@ class TwsSocketImpl(
      *
      */
     override fun closeWebsocketConnection(): Boolean? {
-        return webSocket?.close(CLOSING_CODE_ERROR_CODE, null).apply {
+        networkJob?.cancel()
+        wssUrl = null
+
+        return disconnect()
+    }
+
+    private fun disconnect(): Boolean? {
+        return webSocket?.close(CLOSING_CODE_ERROR_CODE, null).also {
             webSocket = null
         }
     }
 
     private fun reconnect(unauthorizedCallback: () -> Unit) {
-        if (webSocket != null) {
-            wssUrl?.let {
-                setupWebSocketConnection(it, unauthorizedCallback)
-            }
+        wssUrl?.let {
+            setupWebSocketConnection(it, unauthorizedCallback)
         }
     }
 
-    private fun setupNetworkConnectivityHandling(unauthorizedCallback: () -> Unit) = scope.launch {
-        if (isNetworkCollectorActive) return@launch
-        isNetworkCollectorActive = true
+    private fun setupNetworkConnectivityHandling(unauthorizedCallback: () -> Unit) {
+        if (networkJob?.isActive == true || networkConnectivityService == null) return
 
-        try {
-            networkConnectivityService.networkStatus.collect { status ->
-                when (status) {
-                    is NetworkStatus.Connected -> {
-                        reconnect(unauthorizedCallback)
-                    }
-
-                    is NetworkStatus.Disconnected -> {
-                        closeWebsocketConnection()
-                    }
+        networkJob = scope.launch {
+            networkConnectivityService.networkStatus.collect {
+                when (it) {
+                    is NetworkStatus.Connected -> reconnect(unauthorizedCallback)
+                    is NetworkStatus.Disconnected -> disconnect()
                 }
             }
-        } finally {
-            isNetworkCollectorActive = false
         }
     }
 
@@ -125,34 +129,33 @@ class TwsSocketImpl(
 
         var failedSocketReconnect = 0
 
-        try {
-            listener.socketStatus.collect { status ->
-                when {
-                    status is WebSocketStatus.Failed && status.response?.code == ERROR_UNAUTHORIZED -> {
-                        unauthorizedCallback()
-                        return@collect
-                    }
-
-                    status is WebSocketStatus.Failed && failedSocketReconnect < MAXIMUM_RETRIES -> {
-                        if (status.response?.code != ERROR_FORBIDDEN) {
-                            delay(RECONNECT_DELAY)
-                            failedSocketReconnect++
-                            wssUrl?.let { setupWebSocketConnection(it, unauthorizedCallback) }
-                        }
-                    }
-
-                    status is WebSocketStatus.Open -> failedSocketReconnect = 0
+        listener.socketStatus.onEach { status ->
+            when {
+                status is WebSocketStatus.Failed && status.response?.code == ERROR_UNAUTHORIZED -> {
+                    unauthorizedCallback()
                 }
+
+                status is WebSocketStatus.Failed && failedSocketReconnect < MAXIMUM_RETRIES -> {
+                    if (status.response?.code != ERROR_FORBIDDEN) {
+                        delay(RECONNECT_DELAY)
+                        failedSocketReconnect++
+                        wssUrl?.let { setupWebSocketConnection(it, unauthorizedCallback) }
+                    }
+                }
+
+                status is WebSocketStatus.Open -> failedSocketReconnect = 0
             }
-        } finally {
+        }.launchIn(scope).invokeOnCompletion {
             isSocketCollectorActive = false
         }
     }
 
     companion object {
         private const val TAG_ERROR_WEBSOCKET = "WebsocketError"
+
         private const val RECONNECT_DELAY = 5000L
         private const val MAXIMUM_RETRIES = 5
+
         private const val ERROR_UNAUTHORIZED = 401
         private const val ERROR_FORBIDDEN = 403
     }
