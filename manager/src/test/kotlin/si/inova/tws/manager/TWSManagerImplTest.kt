@@ -129,7 +129,7 @@ class TWSManagerImplTest {
     }
 
     @Test
-    fun `Load snippets and delete tab from web socket`() = scope.runTest {
+    fun `Load snippets and delete one from web socket`() = scope.runTest {
         functions.returnedProject = FAKE_PROJECT_DTO
 
         webSnippetManager.run()
@@ -189,7 +189,7 @@ class TWSManagerImplTest {
     }
 
     @Test
-    fun `Load snippets and create tab from web socket`() = scope.runTest {
+    fun `Load snippets and create snippet from web socket`() = scope.runTest {
         functions.returnedProject = FAKE_PROJECT_DTO
 
         webSnippetManager.run()
@@ -296,7 +296,7 @@ class TWSManagerImplTest {
     }
 
     @Test
-    fun `Load snippets and delete tab from local handler`() = scope.runTest {
+    fun `Load snippets and delete snippet from local handler`() = scope.runTest {
         functions.returnedProject = FAKE_PROJECT_DTO
 
         webSnippetManager.run()
@@ -450,9 +450,7 @@ class TWSManagerImplTest {
                     type = ActionType.UPDATED,
                     data = ActionBody(
                         id = FAKE_SNIPPET_ONE.id,
-                        dynamicResources = listOf(
-                            DynamicResourceDto("https://test.cs", "text/css")
-                        )
+                        dynamicResources = listOf(DynamicResourceDto("https://test.cs", "text/css"))
                     )
                 )
             )
@@ -469,6 +467,112 @@ class TWSManagerImplTest {
             )
 
             expectNoEvents()
+        }
+    }
+
+    @Test
+    fun `Setting local props to snippet should insert props to snippet`() = scope.runTest {
+        functions.returnedProject = FAKE_PROJECT_DTO
+
+        webSnippetManager.run()
+
+        webSnippetManager.snippetsFlow.test {
+            runCurrent()
+
+            expectMostRecentItem().shouldBeSuccessWithData(
+                listOf(
+                    FAKE_SNIPPET_ONE,
+                    FAKE_SNIPPET_TWO,
+                    FAKE_SNIPPET_FOUR,
+                    FAKE_SNIPPET_FIVE
+                )
+            )
+
+            webSnippetManager.setLocalProps(FAKE_SNIPPET_ONE.id, mapOf("name" to "Chris"))
+
+            runCurrent()
+
+            expectMostRecentItem().shouldBeSuccessWithData(
+                listOf(
+                    FAKE_SNIPPET_ONE.copy(props = FAKE_SNIPPET_ONE.props + mapOf("name" to "Chris")),
+                    FAKE_SNIPPET_TWO,
+                    FAKE_SNIPPET_FOUR,
+                    FAKE_SNIPPET_FIVE
+                )
+            )
+        }
+    }
+
+    @Test
+    fun `Setting local props multiple times to snippet should insert props to snippet`() = scope.runTest {
+        functions.returnedProject = FAKE_PROJECT_DTO
+
+        webSnippetManager.run()
+
+        webSnippetManager.snippetsFlow.test {
+            runCurrent()
+
+            expectMostRecentItem().shouldBeSuccessWithData(
+                listOf(
+                    FAKE_SNIPPET_ONE,
+                    FAKE_SNIPPET_TWO,
+                    FAKE_SNIPPET_FOUR,
+                    FAKE_SNIPPET_FIVE
+                )
+            )
+
+            webSnippetManager.setLocalProps(
+                FAKE_SNIPPET_ONE.id,
+                mapOf(
+                    "name" to "Chris",
+                    "surname" to "Donovan"
+                )
+            )
+
+            runCurrent()
+
+            expectMostRecentItem().shouldBeSuccessWithData(
+                listOf(
+                    FAKE_SNIPPET_ONE.copy(props = FAKE_SNIPPET_ONE.props + mapOf("name" to "Chris", "surname" to "Donovan")),
+                    FAKE_SNIPPET_TWO,
+                    FAKE_SNIPPET_FOUR,
+                    FAKE_SNIPPET_FIVE
+                )
+            )
+        }
+    }
+
+    @Test
+    fun `Setting local props with multiple values to snippet should override props to snippet`() = scope.runTest {
+        functions.returnedProject = FAKE_PROJECT_DTO
+
+        webSnippetManager.run()
+
+        webSnippetManager.snippetsFlow.test {
+            runCurrent()
+
+            expectMostRecentItem().shouldBeSuccessWithData(
+                listOf(
+                    FAKE_SNIPPET_ONE,
+                    FAKE_SNIPPET_TWO,
+                    FAKE_SNIPPET_FOUR,
+                    FAKE_SNIPPET_FIVE
+                )
+            )
+
+            webSnippetManager.setLocalProps(FAKE_SNIPPET_ONE.id, mapOf("name" to "Chris"))
+            webSnippetManager.setLocalProps(FAKE_SNIPPET_ONE.id, mapOf("surname" to "Donovan"))
+
+            runCurrent()
+
+            expectMostRecentItem().shouldBeSuccessWithData(
+                listOf(
+                    FAKE_SNIPPET_ONE.copy(props = FAKE_SNIPPET_ONE.props + mapOf("surname" to "Donovan")),
+                    FAKE_SNIPPET_TWO,
+                    FAKE_SNIPPET_FOUR,
+                    FAKE_SNIPPET_FIVE
+                )
+            )
         }
     }
 }
