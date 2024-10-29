@@ -24,20 +24,19 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.update
 import okhttp3.Response
 import okhttp3.WebSocket
-import okhttp3.WebSocketListener
 import si.inova.tws.manager.data.SnippetUpdateAction
 import si.inova.tws.manager.data.WebSocketStatus
 import si.inova.tws.manager.singleton.twsMoshi
 
-internal class SnippetWebSocketListener : WebSocketListener() {
+internal class SnippetWebSocketListener : TWSSocketListener() {
     private val _updateActionFlow: MutableStateFlow<SnippetUpdateAction?> = MutableStateFlow(null)
-    val updateActionFlow: Flow<SnippetUpdateAction>
+    override val updateActionFlow: Flow<SnippetUpdateAction>
         get() = _updateActionFlow.filterNotNull()
 
     private val moshi: Moshi by lazy { twsMoshi() }
 
     private val _socketStatus: MutableStateFlow<WebSocketStatus?> = MutableStateFlow(null)
-    val socketStatus: Flow<WebSocketStatus>
+    override val socketStatus: Flow<WebSocketStatus>
         get() = _socketStatus.filterNotNull()
 
     override fun onMessage(webSocket: WebSocket, text: String) {

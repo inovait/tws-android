@@ -31,9 +31,10 @@ import si.inova.tws.manager.websocket.SnippetWebSocketListener.Companion.CLOSING
  * Creation of The Web Snippet websocket
  *
  */
-class TwsSocketImpl(scope: CoroutineScope) : TwsSocket {
-    private val listener = SnippetWebSocketListener()
-
+class TwsSocketImpl(
+    scope: CoroutineScope,
+    private val listener: TWSSocketListener = SnippetWebSocketListener()
+) : TwsSocket {
     private var webSocket: WebSocket? = null
     private var wssUrl: String? = null
     private var failedSocketRefresh = 0
