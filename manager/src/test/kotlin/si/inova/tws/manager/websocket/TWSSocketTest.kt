@@ -16,14 +16,12 @@
 
 package si.inova.tws.manager.websocket
 
-import android.util.Log
-import io.mockk.every
-import io.mockk.mockkStatic
 import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
+import okhttp3.OkHttpClient
 import okhttp3.WebSocket
 import org.junit.Before
 import org.junit.Test
@@ -33,55 +31,43 @@ import si.inova.kotlinova.core.test.testMainImmediateBackgroundScope
 import si.inova.tws.manager.data.SnippetUpdateAction
 import si.inova.tws.manager.utils.ADD_FAKE_SNIPPET_SOCKET
 import si.inova.tws.manager.utils.CREATE_SNIPPET
+import si.inova.tws.manager.utils.FakeNetworkConnectivityService
+import si.inova.tws.manager.utils.FakeTWSSocketListener
 import si.inova.tws.manager.utils.UPDATED_FAKE_SNIPPET_SOCKET
 import si.inova.tws.manager.utils.UPDATE_SNIPPET_DYNAMIC_RESOURCES
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class TwsSocketTest {
+class TWSSocketTest {
     private val scope = TestScopeWithDispatcherProvider()
 
-    private lateinit var twsSocket: TwsSocket
+    private lateinit var twsSocket: TWSSocket
     private lateinit var mockWebSocket: WebSocket
-    private lateinit var mockListener: SnippetWebSocketListener
+    private lateinit var client: OkHttpClient
+    private val socketListener = FakeTWSSocketListener()
+    private val networkConnectivityService = FakeNetworkConnectivityService()
 
     @Before
     fun setUp() {
         mockWebSocket = mock(WebSocket::class.java)
-        mockListener = SnippetWebSocketListener()
-        mockkStatic(Log::class)
-        every { Log.i(any(), any(), any()) } returns 0
+        client = mock()
 
-        twsSocket = TwsSocketImpl(scope = scope.testMainImmediateBackgroundScope)
-    }
-
-    @Test
-    fun `test setupWebSocketConnection opens socket`() = scope.runTest {
-        val testUrl = "wss://example.com/socket"
-
-        twsSocket.setupWebSocketConnection(testUrl)
-
-        assertTrue(twsSocket.connectionExists())
-    }
-
-    @Test
-    fun `test closeWebSocketConnection closes socket`() = scope.runTest {
-        twsSocket.setupWebSocketConnection("wss://example.com/socket")
-
-        assertTrue(twsSocket.connectionExists())
-
-        twsSocket.closeWebsocketConnection()
-
-        assertTrue(twsSocket.connectionExists().not())
+        twsSocket = TWSSocketImpl(
+            context = mock(),
+            scope = scope.testMainImmediateBackgroundScope,
+            networkConnectivityService = networkConnectivityService,
+            listener = socketListener,
+            client = client
+        )
     }
 
     @Test
     fun `test websocket receives message`() = scope.runTest {
-        twsSocket.setupWebSocketConnection("wss://example.com/socket")
-        mockListener.onMessage(mockWebSocket, CREATE_SNIPPET)
+        twsSocket.setupWebSocketConnection("wss://example.com/socket") {}
+        socketListener.onMessage(mockWebSocket, CREATE_SNIPPET)
 
         val actions = mutableListOf<SnippetUpdateAction>()
         val job = launch {
-            mockListener.updateActionFlow.collect { action ->
+            socketListener.updateActionFlow.collect { action ->
                 actions.add(action)
             }
         }
@@ -94,12 +80,12 @@ class TwsSocketTest {
 
     @Test
     fun `update dynamic resources`() = scope.runTest {
-        twsSocket.setupWebSocketConnection("wss://example.com/socket")
-        mockListener.onMessage(mockWebSocket, CREATE_SNIPPET)
+        twsSocket.setupWebSocketConnection("wss://example.com/socket") {}
+        socketListener.onMessage(mockWebSocket, CREATE_SNIPPET)
 
         val actions = mutableListOf<SnippetUpdateAction>()
         val job = launch {
-            mockListener.updateActionFlow.collect { action ->
+            socketListener.updateActionFlow.collect { action ->
                 actions.add(action)
             }
         }
@@ -107,7 +93,7 @@ class TwsSocketTest {
 
         assertTrue(actions.contains(ADD_FAKE_SNIPPET_SOCKET))
 
-        mockListener.onMessage(mockWebSocket, UPDATE_SNIPPET_DYNAMIC_RESOURCES)
+        socketListener.onMessage(mockWebSocket, UPDATE_SNIPPET_DYNAMIC_RESOURCES)
         runCurrent()
 
         assertTrue(actions.contains(UPDATED_FAKE_SNIPPET_SOCKET))

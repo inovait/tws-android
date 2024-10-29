@@ -39,7 +39,6 @@ import si.inova.tws.manager.utils.FAKE_SNIPPET_THREE
 import si.inova.tws.manager.utils.FAKE_SNIPPET_TWO
 import si.inova.tws.manager.utils.FakeCacheManager
 import si.inova.tws.manager.utils.FakeLocalSnippetHandler
-import si.inova.tws.manager.utils.FakeNetworkConnectivityService
 import si.inova.tws.manager.utils.FakeTwsSocket
 import si.inova.tws.manager.utils.FakeWebSnippetFunction
 import si.inova.tws.manager.utils.toActionBody
@@ -52,7 +51,6 @@ class TWSManagerImplTest {
     private val socket = FakeTwsSocket()
     private val handler = FakeLocalSnippetHandler()
     private val cache = FakeCacheManager()
-    private val networkConnectivityService = FakeNetworkConnectivityService()
 
     private lateinit var webSnippetManager: TWSManagerImpl
 
@@ -64,10 +62,9 @@ class TWSManagerImplTest {
             tag = "TestManager",
             scope = scope.backgroundScope,
             webSnippetFunction = functions,
-            twsSocket = socket,
             localSnippetHandler = handler,
             cacheManager = cache,
-            networkConnectivityService = networkConnectivityService
+            twsSocket = socket
         )
         cache.clear()
     }
@@ -101,8 +98,7 @@ class TWSManagerImplTest {
             webSnippetFunction = functions,
             twsSocket = socket,
             localSnippetHandler = handler,
-            cacheManager = cache,
-            networkConnectivityService = networkConnectivityService
+            cacheManager = cache
         )
 
         functions.returnedProject = FAKE_PROJECT_DTO
