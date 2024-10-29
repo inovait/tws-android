@@ -40,6 +40,8 @@ internal class SnippetWebSocketListener : TWSSocketListener() {
         get() = _socketStatus.filterNotNull()
 
     override fun onMessage(webSocket: WebSocket, text: String) {
+        Log.i(TAG_SOCKET_STATUS, "SOCKET MESSAGE $text")
+
         val adapter = moshi.adapter(SnippetUpdateAction::class.java)
         val snippetAction = adapter.fromJson(text)
 
@@ -48,14 +50,14 @@ internal class SnippetWebSocketListener : TWSSocketListener() {
 
     override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
         super.onClosing(webSocket, code, reason)
-        Log.i(TAG_SOCKET_STATUS, "SOCKED CLOSING")
+        Log.i(TAG_SOCKET_STATUS, "SOCKET CLOSING")
 
         webSocket.close(CLOSING_CODE_ERROR_CODE, null)
     }
 
     override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
         super.onFailure(webSocket, t, response)
-        Log.i(TAG_SOCKET_STATUS, "SOCKED FAILED", t)
+        Log.i(TAG_SOCKET_STATUS, "SOCKET FAILED", t)
 
         _socketStatus.tryEmit(WebSocketStatus.Failed(response))
 
@@ -71,7 +73,7 @@ internal class SnippetWebSocketListener : TWSSocketListener() {
 
     override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
         super.onClosed(webSocket, code, reason)
-        Log.i(TAG_SOCKET_STATUS, "SOCKED CLOSED")
+        Log.i(TAG_SOCKET_STATUS, "SOCKET CLOSED")
 
         _socketStatus.tryEmit(WebSocketStatus.Closed)
     }
