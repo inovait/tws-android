@@ -103,7 +103,7 @@ class TWSManagerImpl(
     override fun setLocalProps(id: String, localProps: Map<String, Any>) {
         launch {
             val currentLocalProps = _localProps.value.toMutableMap()
-            currentLocalProps[id] = (currentLocalProps[id].orEmpty()) + localProps
+            currentLocalProps[id] = localProps
             _localProps.emit(currentLocalProps)
         }
     }
