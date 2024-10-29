@@ -25,6 +25,5 @@ interface TWSManager {
     val mainSnippetIdFlow: Flow<String?>
 
     fun run()
-    fun closeWebsocketConnection()
     fun setLocalProps(id: String, localProps: Map<String, Any>)
 }

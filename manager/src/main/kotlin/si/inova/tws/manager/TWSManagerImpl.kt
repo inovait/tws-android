@@ -97,10 +97,6 @@ class TWSManagerImpl(
         }
     }
 
-    override fun closeWebsocketConnection() {
-        twsSocket?.closeWebsocketConnection()
-    }
-
     private suspend fun loadSharedSnippetData(sharedId: String) {
         try {
             val sharedSnippet = webSnippetFunction.getSharedSnippetData(sharedId).snippet
@@ -202,7 +198,7 @@ class TWSManagerImpl(
 
                 SharingCommand.STOP,
                 SharingCommand.STOP_AND_RESET_REPLAY_CACHE -> {
-                    closeWebsocketConnection()
+                    twsSocket?.closeWebsocketConnection()
                 }
             }
         }
