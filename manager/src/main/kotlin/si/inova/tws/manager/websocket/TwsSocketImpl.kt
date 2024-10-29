@@ -44,6 +44,9 @@ class TwsSocketImpl(
     private var webSocket: WebSocket? = null
     private var wssUrl: String? = null
 
+    private var isNetworkCollectorActive = false
+    private var isSocketCollectorActive = false
+
     override val updateActionFlow = listener.updateActionFlow
 
     /**
@@ -96,39 +99,53 @@ class TwsSocketImpl(
     }
 
     private fun setupNetworkConnectivityHandling(unauthorizedCallback: () -> Unit) = scope.launch {
-        networkConnectivityService.networkStatus.collect { status ->
-            when (status) {
-                is NetworkStatus.Connected -> {
-                    reconnect(unauthorizedCallback)
-                }
+        if (isNetworkCollectorActive) return@launch
+        isNetworkCollectorActive = true
 
-                is NetworkStatus.Disconnected -> {
-                    closeWebsocketConnection()
+        try {
+            networkConnectivityService.networkStatus.collect { status ->
+                when (status) {
+                    is NetworkStatus.Connected -> {
+                        reconnect(unauthorizedCallback)
+                    }
+
+                    is NetworkStatus.Disconnected -> {
+                        closeWebsocketConnection()
+                    }
                 }
             }
+        } finally {
+            isNetworkCollectorActive = false
         }
     }
 
     private fun setupSocketErrorHandling(unauthorizedCallback: () -> Unit) = scope.launch {
+        if (isSocketCollectorActive) return@launch
+        isSocketCollectorActive = true
+
         var failedSocketReconnect = 0
 
-        listener.socketStatus.collect { status ->
-            when {
-                status is WebSocketStatus.Failed && status.response?.code == ERROR_UNAUTHORIZED -> {
-                    unauthorizedCallback()
-                    return@collect
-                }
-
-                status is WebSocketStatus.Failed && failedSocketReconnect < MAXIMUM_RETRIES -> {
-                    if (status.response?.code != ERROR_FORBIDDEN) {
-                        delay(RECONNECT_DELAY)
-                        failedSocketReconnect++
-                        wssUrl?.let { setupWebSocketConnection(it, unauthorizedCallback) }
+        try {
+            listener.socketStatus.collect { status ->
+                when {
+                    status is WebSocketStatus.Failed && status.response?.code == ERROR_UNAUTHORIZED -> {
+                        unauthorizedCallback()
+                        return@collect
                     }
-                }
 
-                status is WebSocketStatus.Open -> failedSocketReconnect = 0
+                    status is WebSocketStatus.Failed && failedSocketReconnect < MAXIMUM_RETRIES -> {
+                        if (status.response?.code != ERROR_FORBIDDEN) {
+                            delay(RECONNECT_DELAY)
+                            failedSocketReconnect++
+                            wssUrl?.let { setupWebSocketConnection(it, unauthorizedCallback) }
+                        }
+                    }
+
+                    status is WebSocketStatus.Open -> failedSocketReconnect = 0
+                }
             }
+        } finally {
+            isSocketCollectorActive = false
         }
     }
 
