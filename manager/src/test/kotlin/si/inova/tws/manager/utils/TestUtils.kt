@@ -92,25 +92,6 @@ fun WebSnippetDto.setVisibility(ts: Long) = copy(
     visibility = VisibilityDto(untilUtc = Instant.ofEpochMilli(ts))
 )
 
-const val CREATE_SNIPPET = """
-{
-    "type": "SNIPPET_CREATED",
-    "data": {
-        "id": "test"
-    }
-}
-"""
-
-const val UPDATE_SNIPPET_DYNAMIC_RESOURCES = """
-{
-    "type": "SNIPPET_UPDATED",
-    "data": {
-        "id": "test",
-        "dynamicResources":[{"contentType":"text/css","url":"https://www.test.css"}]
-    }
-}
-"""
-
 val ADD_FAKE_SNIPPET_SOCKET = SnippetUpdateAction(
     type = ActionType.CREATED,
     data = ActionBody(

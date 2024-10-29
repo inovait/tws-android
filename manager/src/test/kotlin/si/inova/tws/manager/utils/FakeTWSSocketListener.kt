@@ -16,20 +16,26 @@
 
 package si.inova.tws.manager.utils
 
-import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.update
 import si.inova.tws.manager.data.SnippetUpdateAction
 import si.inova.tws.manager.data.WebSocketStatus
 import si.inova.tws.manager.websocket.TWSSocketListener
 
 class FakeTWSSocketListener : TWSSocketListener() {
-    override val updateActionFlow: MutableSharedFlow<SnippetUpdateAction> = MutableSharedFlow()
-    override val socketStatus: MutableSharedFlow<WebSocketStatus> = MutableSharedFlow()
+    private val _updateActionFlow: MutableStateFlow<SnippetUpdateAction?> = MutableStateFlow(null)
+    override val updateActionFlow: Flow<SnippetUpdateAction> = _updateActionFlow.filterNotNull()
 
-    suspend fun mockUpdateAction(action: SnippetUpdateAction) {
-        updateActionFlow.emit(action)
+    private val _socketStatus: MutableStateFlow<WebSocketStatus?> = MutableStateFlow(null)
+    override val socketStatus: Flow<WebSocketStatus> = _socketStatus.filterNotNull()
+
+    fun mockUpdateAction(action: SnippetUpdateAction) {
+        _updateActionFlow.update { action }
     }
 
-    suspend fun mockSocketStatus(action: WebSocketStatus) {
-        socketStatus.emit(action)
+    fun mockSocketStatus(action: WebSocketStatus) {
+        _socketStatus.update { action }
     }
 }
