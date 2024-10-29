@@ -31,20 +31,20 @@ import si.inova.tws.manager.data.NetworkStatus
 import si.inova.tws.manager.data.WebSocketStatus
 import si.inova.tws.manager.service.NetworkConnectivityService
 import si.inova.tws.manager.service.NetworkConnectivityServiceImpl
-import si.inova.tws.manager.websocket.SnippetWebSocketListener.Companion.CLOSING_CODE_ERROR_CODE
+import si.inova.tws.manager.websocket.TWSSocketListenerImpl.Companion.CLOSING_CODE_ERROR_CODE
 
 /**
  *
  * Creation of The Web Snippet websocket
  *
  */
-class TwsSocketImpl(
+class TWSSocketImpl(
     context: Context,
     private val scope: CoroutineScope,
     private val networkConnectivityService: NetworkConnectivityService? = NetworkConnectivityServiceImpl(context),
-    private val listener: TWSSocketListener = SnippetWebSocketListener(),
+    private val listener: TWSSocketListener = TWSSocketListenerImpl(),
     private val client: OkHttpClient = OkHttpClient()
-) : TwsSocket {
+) : TWSSocket {
     private var webSocket: WebSocket? = null
     private var wssUrl: String? = null
 
@@ -123,8 +123,8 @@ class TwsSocketImpl(
         }
     }
 
-    private fun setupSocketErrorHandling(unauthorizedCallback: () -> Unit) = scope.launch {
-        if (isSocketCollectorActive) return@launch
+    private fun setupSocketErrorHandling(unauthorizedCallback: () -> Unit) {
+        if (isSocketCollectorActive) return
         isSocketCollectorActive = true
 
         var failedSocketReconnect = 0

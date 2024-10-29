@@ -43,8 +43,8 @@ import si.inova.tws.manager.factory.create
 import si.inova.tws.manager.localhandler.LocalSnippetHandler
 import si.inova.tws.manager.localhandler.LocalSnippetHandlerImpl
 import si.inova.tws.manager.network.WebSnippetFunction
-import si.inova.tws.manager.websocket.TwsSocket
-import si.inova.tws.manager.websocket.TwsSocketImpl
+import si.inova.tws.manager.websocket.TWSSocket
+import si.inova.tws.manager.websocket.TWSSocketImpl
 import kotlin.time.Duration.Companion.seconds
 
 class TWSManagerImpl(
@@ -53,7 +53,7 @@ class TWSManagerImpl(
     tag: String = "",
     private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO),
     private val webSnippetFunction: WebSnippetFunction = BaseServiceFactory().create(),
-    private val twsSocket: TwsSocket? = TwsSocketImpl(context, scope),
+    private val twsSocket: TWSSocket? = TWSSocketImpl(context, scope),
     private val localSnippetHandler: LocalSnippetHandler? = LocalSnippetHandlerImpl(scope),
     private val cacheManager: CacheManager? = FileCacheManager(context, tag),
 ) : TWSManager, CoroutineScope by scope {
@@ -146,7 +146,7 @@ class TWSManagerImpl(
     }
 
     // Collect remote snippet changes (from web socket)
-    private fun TwsSocket.launchAndCollect(wssUrl: String) {
+    private fun TWSSocket.launchAndCollect(wssUrl: String) {
         setupWebSocketConnection(wssUrl, ::refreshProject)
 
         if (collectingSocket) return
