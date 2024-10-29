@@ -16,6 +16,7 @@
 
 package si.inova.tws.manager.websocket
 
+import android.content.Context
 import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
@@ -23,7 +24,10 @@ import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.WebSocket
+import si.inova.tws.manager.data.NetworkStatus
 import si.inova.tws.manager.data.WebSocketStatus
+import si.inova.tws.manager.service.NetworkConnectivityService
+import si.inova.tws.manager.service.NetworkConnectivityServiceImpl
 import si.inova.tws.manager.websocket.SnippetWebSocketListener.Companion.CLOSING_CODE_ERROR_CODE
 
 /**
@@ -32,42 +36,15 @@ import si.inova.tws.manager.websocket.SnippetWebSocketListener.Companion.CLOSING
  *
  */
 class TwsSocketImpl(
-    scope: CoroutineScope,
+    context: Context,
+    private val scope: CoroutineScope,
+    private val networkConnectivityService: NetworkConnectivityService = NetworkConnectivityServiceImpl(context),
     private val listener: TWSSocketListener = SnippetWebSocketListener()
 ) : TwsSocket {
     private var webSocket: WebSocket? = null
     private var wssUrl: String? = null
-    private var failedSocketRefresh = 0
 
     override val updateActionFlow = listener.updateActionFlow
-
-    override val socketStatus = listener.socketStatus
-
-    init {
-        scope.launch {
-            listener.socketStatus.collect { status ->
-                when (status) {
-                    is WebSocketStatus.Failed -> {
-                        if (failedSocketRefresh >= MAXIMUM_RETRIES) return@collect
-                        delay(RECONNECT_DELAY)
-                        failedSocketRefresh++
-
-                        if (status.response?.code != ERROR_UNAUTHORIZED && status.response?.code != ERROR_FORBIDDEN) {
-                            wssUrl?.let {
-                                setupWebSocketConnection(it)
-                            }
-                        }
-                    }
-
-                    WebSocketStatus.Open -> {
-                        failedSocketRefresh = 0
-                    }
-
-                    else -> {}
-                }
-            }
-        }
-    }
 
     /**
      * Sets the URL target of this request.
@@ -75,7 +52,7 @@ class TwsSocketImpl(
      * @throws IllegalArgumentException if [setupWssUrl] is not a valid HTTP or HTTPS URL. Avoid this
      *     exception by calling [HttpUrl.parse]; it returns null for invalid URLs.
      */
-    override fun setupWebSocketConnection(setupWssUrl: String) {
+    override fun setupWebSocketConnection(setupWssUrl: String, unauthorizedCallback: () -> Unit) {
         if (wssUrl != null) {
             // wss url changed, close previous and open new
             closeWebsocketConnection()
@@ -89,16 +66,11 @@ class TwsSocketImpl(
 
             webSocket = client.newWebSocket(request, listener)
             client.dispatcher.executorService.shutdown()
+
+            setupSocketErrorHandling(unauthorizedCallback)
+            setupNetworkConnectivityHandling(unauthorizedCallback)
         } catch (e: Exception) {
             Log.e(TAG_ERROR_WEBSOCKET, e.message, e)
-        }
-    }
-
-    override fun reconnect() {
-        if (!connectionExists()) {
-            wssUrl?.let {
-                setupWebSocketConnection(it)
-            }
         }
     }
 
@@ -115,13 +87,56 @@ class TwsSocketImpl(
         }
     }
 
-    override fun connectionExists(): Boolean = webSocket != null
+    private fun reconnect(unauthorizedCallback: () -> Unit) {
+        if (webSocket != null) {
+            wssUrl?.let {
+                setupWebSocketConnection(it, unauthorizedCallback)
+            }
+        }
+    }
+
+    private fun setupNetworkConnectivityHandling(unauthorizedCallback: () -> Unit) = scope.launch {
+        networkConnectivityService.networkStatus.collect { status ->
+            when (status) {
+                is NetworkStatus.Connected -> {
+                    reconnect(unauthorizedCallback)
+                }
+
+                is NetworkStatus.Disconnected -> {
+                    closeWebsocketConnection()
+                }
+            }
+        }
+    }
+
+    private fun setupSocketErrorHandling(unauthorizedCallback: () -> Unit) = scope.launch {
+        var failedSocketReconnect = 0
+
+        listener.socketStatus.collect { status ->
+            when {
+                status is WebSocketStatus.Failed && status.response?.code == ERROR_UNAUTHORIZED -> {
+                    unauthorizedCallback()
+                    return@collect
+                }
+
+                status is WebSocketStatus.Failed && failedSocketReconnect < MAXIMUM_RETRIES -> {
+                    if (status.response?.code != ERROR_FORBIDDEN) {
+                        delay(RECONNECT_DELAY)
+                        failedSocketReconnect++
+                        wssUrl?.let { setupWebSocketConnection(it, unauthorizedCallback) }
+                    }
+                }
+
+                status is WebSocketStatus.Open -> failedSocketReconnect = 0
+            }
+        }
+    }
 
     companion object {
         private const val TAG_ERROR_WEBSOCKET = "WebsocketError"
         private const val RECONNECT_DELAY = 5000L
         private const val MAXIMUM_RETRIES = 5
-        const val ERROR_UNAUTHORIZED = 401
+        private const val ERROR_UNAUTHORIZED = 401
         private const val ERROR_FORBIDDEN = 403
     }
 }

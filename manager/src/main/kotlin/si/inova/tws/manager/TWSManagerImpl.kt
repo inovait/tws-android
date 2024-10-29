@@ -37,19 +37,14 @@ import si.inova.kotlinova.retrofit.callfactory.bodyOrThrow
 import si.inova.tws.data.WebSnippetDto
 import si.inova.tws.manager.cache.CacheManager
 import si.inova.tws.manager.cache.FileCacheManager
-import si.inova.tws.manager.data.NetworkStatus
-import si.inova.tws.manager.data.WebSocketStatus
 import si.inova.tws.manager.data.updateWith
 import si.inova.tws.manager.factory.BaseServiceFactory
 import si.inova.tws.manager.factory.create
 import si.inova.tws.manager.localhandler.LocalSnippetHandler
 import si.inova.tws.manager.localhandler.LocalSnippetHandlerImpl
 import si.inova.tws.manager.network.WebSnippetFunction
-import si.inova.tws.manager.service.NetworkConnectivityService
-import si.inova.tws.manager.service.NetworkConnectivityServiceImpl
 import si.inova.tws.manager.websocket.TwsSocket
 import si.inova.tws.manager.websocket.TwsSocketImpl
-import si.inova.tws.manager.websocket.TwsSocketImpl.Companion.ERROR_UNAUTHORIZED
 import kotlin.time.Duration.Companion.seconds
 
 class TWSManagerImpl(
@@ -58,8 +53,7 @@ class TWSManagerImpl(
     tag: String = "",
     private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO),
     private val webSnippetFunction: WebSnippetFunction = BaseServiceFactory().create(),
-    private val twsSocket: TwsSocket? = TwsSocketImpl(scope),
-    private val networkConnectivityService: NetworkConnectivityService = NetworkConnectivityServiceImpl(context),
+    private val twsSocket: TwsSocket? = TwsSocketImpl(context, scope),
     private val localSnippetHandler: LocalSnippetHandler? = LocalSnippetHandlerImpl(scope),
     private val cacheManager: CacheManager? = FileCacheManager(context, tag),
 ) : TWSManager, CoroutineScope by scope {
@@ -84,11 +78,6 @@ class TWSManagerImpl(
 
     private var orgId: String? = null
     private var projId: String? = null
-
-    init {
-        observeNetworkConnectivity()
-        observeWebSocketStatus()
-    }
 
     override fun run() {
         launch {
@@ -162,7 +151,7 @@ class TWSManagerImpl(
 
     // Collect remote snippet changes (from web socket)
     private fun TwsSocket.launchAndCollect(wssUrl: String) {
-        setupWebSocketConnection(wssUrl)
+        setupWebSocketConnection(wssUrl, ::refreshProject)
 
         if (collectingSocket) return
         collectingSocket = true
@@ -208,12 +197,7 @@ class TWSManagerImpl(
         SharingStarted.WhileSubscribed(5.seconds).command(_snippetsFlow.subscriptionCount).collect {
             when (it) {
                 SharingCommand.START -> {
-                    val organizationId = orgId
-                    val projectId = projId
-
-                    if (organizationId != null && projectId != null) {
-                        loadProjectAndSetupWss(organizationId, projectId)
-                    }
+                    refreshProject()
                 }
 
                 SharingCommand.STOP,
@@ -224,29 +208,12 @@ class TWSManagerImpl(
         }
     }
 
-    private fun observeNetworkConnectivity() = launch {
-        networkConnectivityService.networkStatus.collect { status ->
-            when (status) {
-                is NetworkStatus.Connected -> {
-                    twsSocket?.reconnect()
-                }
-                is NetworkStatus.Disconnected -> {
-                    closeWebsocketConnection()
-                }
-            }
-        }
-    }
+    private fun refreshProject() = launch {
+        val organizationId = orgId
+        val projectId = projId
 
-    private fun observeWebSocketStatus() = launch {
-        twsSocket?.socketStatus?.collect { status ->
-            if (status is WebSocketStatus.Failed && status.response?.code == ERROR_UNAUTHORIZED) {
-                val organizationId = orgId
-                val projectId = projId
-
-                if (organizationId != null && projectId != null) {
-                    loadProjectAndSetupWss(organizationId, projectId)
-                }
-            }
+        if (organizationId != null && projectId != null) {
+            loadProjectAndSetupWss(organizationId, projectId)
         }
     }
 
