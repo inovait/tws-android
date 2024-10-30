@@ -16,10 +16,8 @@
 
 package si.inova.tws.manager.data
 
-import okhttp3.Response
-
 sealed class WebSocketStatus {
     data object Open : WebSocketStatus()
-    data class Failed(val response: Response?) : WebSocketStatus()
+    data class Failed(val code: Int?) : WebSocketStatus()
     data object Closed : WebSocketStatus()
 }

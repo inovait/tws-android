@@ -59,7 +59,7 @@ internal class SnippetWebSocketListener : TWSSocketListener() {
         super.onFailure(webSocket, t, response)
         Log.i(TAG_SOCKET_STATUS, "SOCKET FAILED", t)
 
-        _socketStatus.tryEmit(WebSocketStatus.Failed(response))
+        _socketStatus.tryEmit(WebSocketStatus.Failed(response?.code))
 
         webSocket.close(CLOSING_CODE_ERROR_CODE, null)
     }

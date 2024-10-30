@@ -130,17 +130,20 @@ class TwsSocketImpl(
         var failedSocketReconnect = 0
 
         listener.socketStatus.onEach { status ->
+            if (status is WebSocketStatus.Failed) {
+                // webSocket has been closed due to failure, we should clear it, to force new setup
+                webSocket = null
+            }
+
             when {
-                status is WebSocketStatus.Failed && status.response?.code == ERROR_UNAUTHORIZED -> {
+                status is WebSocketStatus.Failed && status.code == ERROR_UNAUTHORIZED -> {
                     unauthorizedCallback()
                 }
 
-                status is WebSocketStatus.Failed && failedSocketReconnect < MAXIMUM_RETRIES -> {
-                    if (status.response?.code != ERROR_FORBIDDEN) {
-                        delay(RECONNECT_DELAY)
-                        failedSocketReconnect++
-                        wssUrl?.let { setupWebSocketConnection(it, unauthorizedCallback) }
-                    }
+                status is WebSocketStatus.Failed && status.code != ERROR_FORBIDDEN && failedSocketReconnect < MAXIMUM_RETRIES -> {
+                    delay(RECONNECT_DELAY)
+                    failedSocketReconnect++
+                    wssUrl?.let { setupWebSocketConnection(it, unauthorizedCallback) }
                 }
 
                 status is WebSocketStatus.Open -> failedSocketReconnect = 0
