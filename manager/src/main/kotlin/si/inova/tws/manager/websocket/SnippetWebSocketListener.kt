@@ -48,7 +48,7 @@ internal class SnippetWebSocketListener : TWSSocketListener() {
 
             _updateActionFlow.update { snippetAction }
         } catch (e: Exception) {
-            Log.e(TAG_SOCKET_STATUS, e.message ?: "", e)
+            Log.e(TAG_SOCKET_STATUS, e.message.orEmpty(), e)
         }
     }
 
