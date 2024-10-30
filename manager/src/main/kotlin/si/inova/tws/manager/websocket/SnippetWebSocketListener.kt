@@ -42,10 +42,14 @@ internal class SnippetWebSocketListener : TWSSocketListener() {
     override fun onMessage(webSocket: WebSocket, text: String) {
         Log.i(TAG_SOCKET_STATUS, "SOCKET MESSAGE $text")
 
-        val adapter = moshi.adapter(SnippetUpdateAction::class.java)
-        val snippetAction = adapter.fromJson(text)
+        try {
+            val adapter = moshi.adapter(SnippetUpdateAction::class.java)
+            val snippetAction = adapter.fromJson(text)
 
-        _updateActionFlow.update { snippetAction }
+            _updateActionFlow.update { snippetAction }
+        } catch (e: Exception) {
+            Log.e(TAG_SOCKET_STATUS, e.message ?: "", e)
+        }
     }
 
     override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
