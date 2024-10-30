@@ -14,33 +14,20 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.manager.network
+package si.inova.tws.manager.utils
 
-import jakarta.inject.Singleton
-import retrofit2.Response
-import retrofit2.http.GET
-import retrofit2.http.Headers
-import retrofit2.http.Path
-import retrofit2.http.Query
-import si.inova.tws.manager.data.ProjectDto
-import si.inova.tws.manager.data.SharedSnippetDto
+import kotlinx.coroutines.flow.MutableSharedFlow
+import si.inova.tws.manager.data.SnippetUpdateAction
+import si.inova.tws.manager.websocket.TWSSocket
 
-@Singleton
-interface WebSnippetFunction {
-    @GET("organizations/{organizationId}/projects/{projectId}/register")
-    suspend fun getWebSnippets(
-        @Path("organizationId")
-        organizationId: String,
-        @Path("projectId")
-        projectId: String,
-        @Query("apiKey")
-        apiKey: String? = null
-    ): Response<ProjectDto>
+class FakeTWSSocket : TWSSocket {
+    override var updateActionFlow: MutableSharedFlow<SnippetUpdateAction> = MutableSharedFlow()
 
-    @Headers("Accept: application/json")
-    @GET("shared/{shareId}")
-    suspend fun getSharedSnippetData(
-        @Path("shareId")
-        shareId: String
-    ): SharedSnippetDto
+    override fun closeWebsocketConnection(): Boolean { return true }
+
+    override fun setupWebSocketConnection(setupWssUrl: String, unauthorizedCallback: () -> Unit) { }
+
+    suspend fun mockUpdateAction(action: SnippetUpdateAction) {
+        updateActionFlow.emit(action)
+    }
 }

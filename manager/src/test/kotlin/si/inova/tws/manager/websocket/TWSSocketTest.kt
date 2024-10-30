@@ -39,7 +39,7 @@ import si.inova.tws.manager.utils.FakeTWSSocketListener
 import si.inova.tws.manager.utils.UPDATED_FAKE_SNIPPET_SOCKET
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class TwsSocketTest {
+class TWSSocketTest {
     private val scope = TestScopeWithDispatcherProvider()
 
     private val networkConnectivityService = FakeNetworkConnectivityService()
@@ -48,11 +48,11 @@ class TwsSocketTest {
     private val mockWebSocket = mockk<WebSocket>(relaxed = true)
     private val client = mockk<OkHttpClient>(relaxed = true)
 
-    private lateinit var twsSocket: TwsSocket
+    private lateinit var twsSocket: TWSSocket
 
     @Before
     fun setUp() {
-        twsSocket = TwsSocketImpl(
+        twsSocket = TWSSocketImpl(
             context = mock(),
             scope = scope.testMainImmediateBackgroundScope,
             networkConnectivityService = networkConnectivityService,
@@ -103,7 +103,7 @@ class TwsSocketTest {
         twsSocket.closeWebsocketConnection()
 
         verify(exactly = 1) { client.newWebSocket(any(), any()) }
-        verify(exactly = 1) { mockWebSocket.close(SnippetWebSocketListener.CLOSING_CODE_ERROR_CODE, null) }
+        verify(exactly = 1) { mockWebSocket.close(TWSSocketListenerImpl.CLOSING_CODE_ERROR_CODE, null) }
     }
 
     @Test

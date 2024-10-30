@@ -42,9 +42,9 @@ import si.inova.tws.manager.factory.BaseServiceFactory
 import si.inova.tws.manager.factory.create
 import si.inova.tws.manager.localhandler.LocalSnippetHandler
 import si.inova.tws.manager.localhandler.LocalSnippetHandlerImpl
-import si.inova.tws.manager.network.WebSnippetFunction
-import si.inova.tws.manager.websocket.TwsSocket
-import si.inova.tws.manager.websocket.TwsSocketImpl
+import si.inova.tws.manager.network.TWSFunctions
+import si.inova.tws.manager.websocket.TWSSocket
+import si.inova.tws.manager.websocket.TWSSocketImpl
 import kotlin.time.Duration.Companion.seconds
 
 class TWSManagerImpl(
@@ -52,8 +52,8 @@ class TWSManagerImpl(
     private val configuration: TWSConfiguration,
     tag: String = "",
     private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO),
-    private val webSnippetFunction: WebSnippetFunction = BaseServiceFactory().create(),
-    private val twsSocket: TwsSocket? = TwsSocketImpl(context, scope),
+    private val functions: TWSFunctions = BaseServiceFactory().create(),
+    private val twsSocket: TWSSocket? = TWSSocketImpl(context, scope),
     private val localSnippetHandler: LocalSnippetHandler? = LocalSnippetHandlerImpl(scope),
     private val cacheManager: CacheManager? = FileCacheManager(context, tag),
 ) : TWSManager, CoroutineScope by scope {
@@ -99,7 +99,7 @@ class TWSManagerImpl(
 
     private suspend fun loadSharedSnippetData(sharedId: String) {
         try {
-            val sharedSnippet = webSnippetFunction.getSharedSnippetData(sharedId).snippet
+            val sharedSnippet = functions.getSharedSnippetData(sharedId).snippet
             _mainSnippetIdFlow.emit(sharedSnippet.id)
             loadProjectAndSetupWss(sharedSnippet.organizationId, sharedSnippet.projectId)
         } catch (e: CauseException) {
@@ -119,7 +119,7 @@ class TWSManagerImpl(
         try {
             _snippetsFlow.emit(Outcome.Progress(cacheManager?.load(CACHED_SNIPPETS)))
 
-            val twsProjectResponse = webSnippetFunction.getWebSnippets(organizationId, projectId, "someApiKey")
+            val twsProjectResponse = functions.getWebSnippets(organizationId, projectId, "someApiKey")
             val twsProject = twsProjectResponse.bodyOrThrow()
 
             localSnippetHandler?.calculateDateOffsetAndRerun(
@@ -146,7 +146,7 @@ class TWSManagerImpl(
     }
 
     // Collect remote snippet changes (from web socket)
-    private fun TwsSocket.launchAndCollect(wssUrl: String) {
+    private fun TWSSocket.launchAndCollect(wssUrl: String) {
         setupWebSocketConnection(wssUrl, ::refreshProject)
 
         if (collectingSocket) return

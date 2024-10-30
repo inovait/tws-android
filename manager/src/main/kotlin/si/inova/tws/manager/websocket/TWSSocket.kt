@@ -14,20 +14,34 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.manager.utils
+package si.inova.tws.manager.websocket
 
-import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.Flow
 import si.inova.tws.manager.data.SnippetUpdateAction
-import si.inova.tws.manager.websocket.TwsSocket
 
-class FakeTwsSocket : TwsSocket {
-    override var updateActionFlow: MutableSharedFlow<SnippetUpdateAction> = MutableSharedFlow()
+/**
+ *
+ * Creation of The Web Snippet websocket
+ *
+ */
+interface TWSSocket {
 
-    override fun closeWebsocketConnection(): Boolean { return true }
+    val updateActionFlow: Flow<SnippetUpdateAction>
 
-    override fun setupWebSocketConnection(setupWssUrl: String, unauthorizedCallback: () -> Unit) { }
+    /**
+     * Sets the URL target of this request.
+     *
+     * @throws IllegalArgumentException if [setupWssUrl] is not a valid HTTP or HTTPS URL. Avoid this
+     *     exception by calling [HttpUrl.parse]; it returns null for invalid URLs.
+     */
+    fun setupWebSocketConnection(setupWssUrl: String, unauthorizedCallback: () -> Unit)
 
-    suspend fun mockUpdateAction(action: SnippetUpdateAction) {
-        updateActionFlow.emit(action)
-    }
+    /**
+     * Attempts to initiate a graceful shutdown of this web socket.
+     *
+     * This returns true if a graceful shutdown was initiated by this call. It returns false if
+     * a graceful shutdown was already underway or if the web socket is already closed or canceled.
+     *
+     */
+    fun closeWebsocketConnection(): Boolean?
 }

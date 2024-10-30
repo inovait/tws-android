@@ -41,15 +41,15 @@ import si.inova.tws.manager.utils.UPDATE_SNIPPET_HTML
 import si.inova.tws.manager.utils.UPDATE_SNIPPET_PROPS
 import si.inova.tws.manager.utils.UPDATE_SNIPPET_URL
 
-class SnippetWebSocketListenerTest {
+class TWSSocketListenerImplTest {
     private val mockWebSocket = mockk<WebSocket>(relaxed = true)
     private val mockResponse = mockk<Response>(relaxed = true)
 
-    private lateinit var listener: SnippetWebSocketListener
+    private lateinit var listener: TWSSocketListenerImpl
 
     @Before
     fun setUp() {
-        listener = SnippetWebSocketListener()
+        listener = TWSSocketListenerImpl()
 
         mockkStatic(Log::class)
         every { Log.i(any(), any()) } returns 0
@@ -93,7 +93,7 @@ class SnippetWebSocketListenerTest {
         listener.socketStatus.test {
             listener.onClosing(mockWebSocket, 1000, "Test reason")
 
-            verify { mockWebSocket.close(SnippetWebSocketListener.CLOSING_CODE_ERROR_CODE, null) }
+            verify { mockWebSocket.close(TWSSocketListenerImpl.CLOSING_CODE_ERROR_CODE, null) }
         }
     }
 

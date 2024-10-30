@@ -14,34 +14,30 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.manager.websocket
+package si.inova.tws.manager.utils
 
-import kotlinx.coroutines.flow.Flow
-import si.inova.tws.manager.data.SnippetUpdateAction
+import retrofit2.Response
+import si.inova.kotlinova.retrofit.FakeService
+import si.inova.kotlinova.retrofit.ServiceTestingHelper
+import si.inova.tws.manager.data.ProjectDto
+import si.inova.tws.manager.data.SharedSnippetDto
+import si.inova.tws.manager.network.TWSFunctions
 
-/**
- *
- * Creation of The Web Snippet websocket
- *
- */
-interface TwsSocket {
+class FakeTWSFunctions(
+    private val helper: ServiceTestingHelper = ServiceTestingHelper()
+) : TWSFunctions, FakeService by helper {
+    var returnedProject: ProjectDto? = null
+    var returnedSharedSnippet: SharedSnippetDto? = null
 
-    val updateActionFlow: Flow<SnippetUpdateAction>
+    override suspend fun getWebSnippets(organizationId: String, projectId: String, apiKey: String?): Response<ProjectDto> {
+        helper.intercept()
 
-    /**
-     * Sets the URL target of this request.
-     *
-     * @throws IllegalArgumentException if [setupWssUrl] is not a valid HTTP or HTTPS URL. Avoid this
-     *     exception by calling [HttpUrl.parse]; it returns null for invalid URLs.
-     */
-    fun setupWebSocketConnection(setupWssUrl: String, unauthorizedCallback: () -> Unit)
+        return Response.success(returnedProject) ?: error("Returned project not faked!")
+    }
 
-    /**
-     * Attempts to initiate a graceful shutdown of this web socket.
-     *
-     * This returns true if a graceful shutdown was initiated by this call. It returns false if
-     * a graceful shutdown was already underway or if the web socket is already closed or canceled.
-     *
-     */
-    fun closeWebsocketConnection(): Boolean?
+    override suspend fun getSharedSnippetData(shareId: String): SharedSnippetDto {
+        helper.intercept()
+
+        return returnedSharedSnippet ?: error("Returned shared snippet not faked!")
+    }
 }
