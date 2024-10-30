@@ -16,102 +16,203 @@
 
 package si.inova.tws.manager.websocket
 
-import android.util.Log
+import app.cash.turbine.test
 import io.mockk.every
-import io.mockk.mockkStatic
-import junit.framework.TestCase.assertTrue
+import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
+import okhttp3.OkHttpClient
 import okhttp3.WebSocket
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito.mock
 import si.inova.kotlinova.core.test.TestScopeWithDispatcherProvider
 import si.inova.kotlinova.core.test.testMainImmediateBackgroundScope
-import si.inova.tws.manager.data.SnippetUpdateAction
+import si.inova.tws.manager.data.NetworkStatus
+import si.inova.tws.manager.data.WebSocketStatus
 import si.inova.tws.manager.utils.ADD_FAKE_SNIPPET_SOCKET
-import si.inova.tws.manager.utils.CREATE_SNIPPET
+import si.inova.tws.manager.utils.FakeNetworkConnectivityService
+import si.inova.tws.manager.utils.FakeTWSSocketListener
 import si.inova.tws.manager.utils.UPDATED_FAKE_SNIPPET_SOCKET
-import si.inova.tws.manager.utils.UPDATE_SNIPPET_DYNAMIC_RESOURCES
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class TwsSocketTest {
     private val scope = TestScopeWithDispatcherProvider()
 
+    private val networkConnectivityService = FakeNetworkConnectivityService()
+    private val fakeSocketListener = FakeTWSSocketListener()
+
+    private val mockWebSocket = mockk<WebSocket>(relaxed = true)
+    private val client = mockk<OkHttpClient>(relaxed = true)
+
     private lateinit var twsSocket: TwsSocket
-    private lateinit var mockWebSocket: WebSocket
-    private lateinit var mockListener: SnippetWebSocketListener
 
     @Before
     fun setUp() {
-        mockWebSocket = mock(WebSocket::class.java)
-        mockListener = SnippetWebSocketListener()
-        mockkStatic(Log::class)
-        every { Log.i(any(), any(), any()) } returns 0
+        twsSocket = TwsSocketImpl(
+            context = mock(),
+            scope = scope.testMainImmediateBackgroundScope,
+            networkConnectivityService = networkConnectivityService,
+            listener = fakeSocketListener,
+            client = client
+        )
 
-        twsSocket = TwsSocketImpl(scope = scope.testMainImmediateBackgroundScope)
+        every { client.newWebSocket(any(), fakeSocketListener) } returns mockWebSocket
+        every { mockWebSocket.close(any(), any()) } returns true
     }
 
     @Test
-    fun `test setupWebSocketConnection opens socket`() = scope.runTest {
+    fun `setupWebSocketConnection should open socket`() = scope.runTest {
         val testUrl = "wss://example.com/socket"
 
-        twsSocket.setupWebSocketConnection(testUrl)
+        twsSocket.setupWebSocketConnection(testUrl) { }
 
-        assertTrue(twsSocket.connectionExists())
+        verify { client.newWebSocket(any(), fakeSocketListener) }
     }
 
     @Test
-    fun `test closeWebSocketConnection closes socket`() = scope.runTest {
-        twsSocket.setupWebSocketConnection("wss://example.com/socket")
+    fun `setupWebSocketConnection should not reconnect if URL is same`() = scope.runTest {
+        val testUrl = "wss://example.com/socket"
 
-        assertTrue(twsSocket.connectionExists())
+        twsSocket.setupWebSocketConnection(testUrl) { }
+        twsSocket.setupWebSocketConnection(testUrl) { }
 
+        verify(exactly = 1) { client.newWebSocket(any(), fakeSocketListener) }
+    }
+
+    @Test
+    fun `setupWebSocketConnection should close and reopen connection if new URL`() = scope.runTest {
+        val testUrl = "wss://example.com/socket"
+        val testUrl1 = "wss://example.com/socket1"
+
+        twsSocket.setupWebSocketConnection(testUrl) { }
+        twsSocket.setupWebSocketConnection(testUrl1) { }
+
+        verify(exactly = 1) { mockWebSocket.close(any(), any()) } // Check that the old connection was closed
+        verify(exactly = 2) { client.newWebSocket(any(), any()) } // Check that new connection was opened for each URL
+    }
+
+    @Test
+    fun `closeWebsocketConnection should close socket`() = scope.runTest {
+        val testUrl = "wss://example.com/socket"
+
+        twsSocket.setupWebSocketConnection(testUrl) { }
         twsSocket.closeWebsocketConnection()
 
-        assertTrue(twsSocket.connectionExists().not())
+        verify(exactly = 1) { client.newWebSocket(any(), any()) }
+        verify(exactly = 1) { mockWebSocket.close(SnippetWebSocketListener.CLOSING_CODE_ERROR_CODE, null) }
     }
 
     @Test
-    fun `test websocket receives message`() = scope.runTest {
-        twsSocket.setupWebSocketConnection("wss://example.com/socket")
-        mockListener.onMessage(mockWebSocket, CREATE_SNIPPET)
+    fun `unauthorized error in WebSocketStatus should trigger unauthorizedCallback`() = scope.runTest {
+        val testUrl = "wss://example.com/socket"
+        var callbackCalled = false
 
-        val actions = mutableListOf<SnippetUpdateAction>()
-        val job = launch {
-            mockListener.updateActionFlow.collect { action ->
-                actions.add(action)
-            }
+        twsSocket.setupWebSocketConnection(testUrl) {
+            callbackCalled = true
         }
+
+        fakeSocketListener.mockSocketStatus(WebSocketStatus.Failed(401))
         runCurrent()
 
-        assertTrue(actions.contains(ADD_FAKE_SNIPPET_SOCKET))
-
-        job.cancel()
+        assert(callbackCalled)
     }
 
     @Test
-    fun `update dynamic resources`() = scope.runTest {
-        twsSocket.setupWebSocketConnection("wss://example.com/socket")
-        mockListener.onMessage(mockWebSocket, CREATE_SNIPPET)
+    fun `internal error in WebSocketStatus should not trigger unauthorizedCallback`() = scope.runTest {
+        val testUrl = "wss://example.com/socket"
+        var callbackCalled = false
 
-        val actions = mutableListOf<SnippetUpdateAction>()
-        val job = launch {
-            mockListener.updateActionFlow.collect { action ->
-                actions.add(action)
-            }
+        twsSocket.setupWebSocketConnection(testUrl) {
+            callbackCalled = true
         }
+
+        fakeSocketListener.mockSocketStatus(WebSocketStatus.Failed(500))
         runCurrent()
 
-        assertTrue(actions.contains(ADD_FAKE_SNIPPET_SOCKET))
+        assert(!callbackCalled)
+    }
 
-        mockListener.onMessage(mockWebSocket, UPDATE_SNIPPET_DYNAMIC_RESOURCES)
+    @Test
+    fun `setup new connection after initial has been closed due to failure`() = scope.runTest {
+        val testUrl = "wss://example.com/socket"
+
+        twsSocket.setupWebSocketConnection(testUrl) { }
+
+        verify(exactly = 1) { // first setup
+            client.newWebSocket(any(), fakeSocketListener)
+        }
+
+        fakeSocketListener.mockSocketStatus(WebSocketStatus.Failed(408))
+
+        advanceTimeBy(4_000)
+
+        verify(exactly = 1) { // first setup, retry delay has not passed yet
+            client.newWebSocket(any(), fakeSocketListener)
+        }
+
+        advanceTimeBy(2_000)
+
+        verify(exactly = 2) { // first setup and retry due to failure
+            client.newWebSocket(any(), fakeSocketListener)
+        }
+    }
+
+    @Test
+    fun `forbidden error in WebSocketStatus should prevent reconnect attempts`() = scope.runTest {
+        val testUrl = "wss://example.com/socket"
+
+        twsSocket.setupWebSocketConnection(testUrl) { }
+
+        verify(exactly = 1) { // first setup
+            client.newWebSocket(any(), fakeSocketListener)
+        }
+
+        fakeSocketListener.mockSocketStatus(WebSocketStatus.Failed(403))
+
+        advanceTimeBy(6_000)
+
+        verify(exactly = 1) { // first setup
+            client.newWebSocket(any(), fakeSocketListener)
+        }
+    }
+
+    @Test
+    fun `network connectivity status change should trigger reconnect on connected status`() = scope.runTest {
+        val testUrl = "wss://example.com/socket"
+
+        twsSocket.setupWebSocketConnection(testUrl) { }
+
+        verify(exactly = 1) { client.newWebSocket(any(), fakeSocketListener) } // Initial setup call
+
+        networkConnectivityService.mockNetworkStatus(NetworkStatus.Disconnected)
         runCurrent()
 
-        assertTrue(actions.contains(UPDATED_FAKE_SNIPPET_SOCKET))
+        verify(exactly = 1) { mockWebSocket.close(any(), any()) } // closure due to disconnect
 
-        job.cancel()
+        networkConnectivityService.mockNetworkStatus(NetworkStatus.Connected)
+        runCurrent()
+
+        verify(exactly = 2) { client.newWebSocket(any(), fakeSocketListener) } // Initial setup call and reconnect
+    }
+
+    @Test
+    fun `socket actions should be exposed`() = scope.runTest {
+        val testUrl = "wss://example.com/socket"
+
+        twsSocket.setupWebSocketConnection(testUrl) { }
+
+        twsSocket.updateActionFlow.test {
+            fakeSocketListener.mockUpdateActionFlow(ADD_FAKE_SNIPPET_SOCKET)
+
+            assert(expectMostRecentItem() == ADD_FAKE_SNIPPET_SOCKET)
+
+            fakeSocketListener.mockUpdateActionFlow(UPDATED_FAKE_SNIPPET_SOCKET)
+
+            assert(expectMostRecentItem() == UPDATED_FAKE_SNIPPET_SOCKET)
+        }
     }
 }
