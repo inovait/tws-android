@@ -19,9 +19,9 @@ package si.inova.tws.manager.websocket
 import android.util.Log
 import com.squareup.moshi.Moshi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.update
 import okhttp3.Response
 import okhttp3.WebSocket
 import si.inova.tws.manager.data.SnippetUpdateAction
@@ -29,7 +29,7 @@ import si.inova.tws.manager.data.WebSocketStatus
 import si.inova.tws.manager.singleton.twsMoshi
 
 internal class SnippetWebSocketListener : TWSSocketListener() {
-    private val _updateActionFlow: MutableStateFlow<SnippetUpdateAction?> = MutableStateFlow(null)
+    private val _updateActionFlow: MutableSharedFlow<SnippetUpdateAction> = MutableSharedFlow(replay = 1)
     override val updateActionFlow: Flow<SnippetUpdateAction>
         get() = _updateActionFlow.filterNotNull()
 
@@ -46,7 +46,9 @@ internal class SnippetWebSocketListener : TWSSocketListener() {
             val adapter = moshi.adapter(SnippetUpdateAction::class.java)
             val snippetAction = adapter.fromJson(text)
 
-            _updateActionFlow.update { snippetAction }
+            snippetAction?.let {
+                _updateActionFlow.tryEmit(it)
+            }
         } catch (e: Exception) {
             Log.e(TAG_SOCKET_STATUS, e.message.orEmpty(), e)
         }
