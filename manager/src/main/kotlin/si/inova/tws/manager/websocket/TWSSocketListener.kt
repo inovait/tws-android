@@ -14,10 +14,14 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.manager.data
+package si.inova.tws.manager.websocket
 
-sealed class WebSocketStatus {
-    data object Open : WebSocketStatus()
-    data class Failed(val code: Int?) : WebSocketStatus()
-    data object Closed : WebSocketStatus()
+import kotlinx.coroutines.flow.Flow
+import okhttp3.WebSocketListener
+import si.inova.tws.manager.data.SnippetUpdateAction
+import si.inova.tws.manager.data.WebSocketStatus
+
+abstract class TWSSocketListener : WebSocketListener() {
+    abstract val updateActionFlow: Flow<SnippetUpdateAction>
+    abstract val socketStatus: Flow<WebSocketStatus>
 }

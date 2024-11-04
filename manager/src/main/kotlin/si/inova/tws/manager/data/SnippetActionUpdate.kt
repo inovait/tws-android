@@ -20,7 +20,6 @@ import androidx.annotation.Keep
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 import si.inova.tws.data.DynamicResourceDto
-import si.inova.tws.data.SnippetType
 import si.inova.tws.data.VisibilityDto
 import si.inova.tws.data.WebSnippetDto
 
@@ -64,34 +63,38 @@ enum class ActionType {
 data class ActionBody(
     val id: String,
     val target: String? = null,
-    val html: String? = null,
     val headers: Map<String, String>? = null,
-    val organizationId: String? = null,
-    val projectId: String? = null,
-    val type: SnippetType? = null,
     val visibility: VisibilityDto? = null,
     val dynamicResources: List<DynamicResourceDto>? = null,
     val props: Map<String, Any>? = null
 )
 
-internal fun List<WebSnippetDto>.updateWith(action: SnippetUpdateAction): List<WebSnippetDto> {
+internal fun ActionBody.isEmpty(): Boolean {
+    return target == null && headers == null && visibility == null && dynamicResources == null && props == null
+}
+
+internal fun List<WebSnippetDto>.updateWith(
+    action: SnippetUpdateAction,
+    organizationId: String,
+    projectId: String
+): List<WebSnippetDto> {
     return when (action.type) {
-        ActionType.CREATED -> insert(action.data)
+        ActionType.CREATED -> insert(action.data, organizationId, projectId)
         ActionType.UPDATED -> update(action.data)
         ActionType.DELETED -> remove(action.data)
     }
 }
 
-internal fun List<WebSnippetDto>.insert(data: ActionBody): List<WebSnippetDto> {
+internal fun List<WebSnippetDto>.insert(data: ActionBody, organizationId: String, projectId: String): List<WebSnippetDto> {
     return toMutableList().apply {
-        if (data.target != null && data.organizationId != null && data.projectId != null) {
+        if (data.target != null) {
             add(
                 WebSnippetDto(
                     id = data.id,
                     target = data.target,
                     headers = data.headers.orEmpty(),
-                    organizationId = data.organizationId,
-                    projectId = data.projectId,
+                    organizationId = organizationId,
+                    projectId = projectId,
                     visibility = data.visibility,
                     dynamicResources = data.dynamicResources.orEmpty(),
                     props = data.props.orEmpty()
@@ -104,14 +107,19 @@ internal fun List<WebSnippetDto>.insert(data: ActionBody): List<WebSnippetDto> {
 internal fun List<WebSnippetDto>.update(data: ActionBody): List<WebSnippetDto> {
     return map {
         if (it.id == data.id) {
-            it.copy(
-                loadIteration = it.loadIteration + 1,
-                target = data.target ?: it.target,
-                headers = data.headers ?: it.headers,
-                visibility = data.visibility ?: it.visibility,
-                dynamicResources = data.dynamicResources ?: it.dynamicResources,
-                props = data.props ?: it.props,
-            )
+            if (data.isEmpty()) {
+                // html has changed, increase load iteration
+                it.copy(loadIteration = it.loadIteration + 1)
+            } else {
+                // a property has changed
+                it.copy(
+                    target = data.target ?: it.target,
+                    headers = data.headers ?: it.headers,
+                    visibility = data.visibility ?: it.visibility,
+                    dynamicResources = data.dynamicResources ?: it.dynamicResources,
+                    props = data.props ?: it.props,
+                )
+            }
         } else {
             it
         }

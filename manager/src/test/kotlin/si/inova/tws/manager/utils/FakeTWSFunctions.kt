@@ -14,33 +14,30 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.manager.network
+package si.inova.tws.manager.utils
 
-import jakarta.inject.Singleton
 import retrofit2.Response
-import retrofit2.http.GET
-import retrofit2.http.Headers
-import retrofit2.http.Path
-import retrofit2.http.Query
+import si.inova.kotlinova.retrofit.FakeService
+import si.inova.kotlinova.retrofit.ServiceTestingHelper
 import si.inova.tws.manager.data.ProjectDto
 import si.inova.tws.manager.data.SharedSnippetDto
+import si.inova.tws.manager.network.TWSFunctions
 
-@Singleton
-interface WebSnippetFunction {
-    @GET("organizations/{organizationId}/projects/{projectId}/register")
-    suspend fun getWebSnippets(
-        @Path("organizationId")
-        organizationId: String,
-        @Path("projectId")
-        projectId: String,
-        @Query("apiKey")
-        apiKey: String? = null
-    ): Response<ProjectDto>
+class FakeTWSFunctions(
+    private val helper: ServiceTestingHelper = ServiceTestingHelper()
+) : TWSFunctions, FakeService by helper {
+    var returnedProject: ProjectDto? = null
+    var returnedSharedSnippet: SharedSnippetDto? = null
 
-    @Headers("Accept: application/json")
-    @GET("shared/{shareId}")
-    suspend fun getSharedSnippetData(
-        @Path("shareId")
-        shareId: String
-    ): SharedSnippetDto
+    override suspend fun getWebSnippets(organizationId: String, projectId: String, apiKey: String?): Response<ProjectDto> {
+        helper.intercept()
+
+        return Response.success(returnedProject) ?: error("Returned project not faked!")
+    }
+
+    override suspend fun getSharedSnippetData(shareId: String): SharedSnippetDto {
+        helper.intercept()
+
+        return returnedSharedSnippet ?: error("Returned shared snippet not faked!")
+    }
 }

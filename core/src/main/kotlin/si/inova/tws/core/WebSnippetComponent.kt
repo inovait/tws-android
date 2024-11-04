@@ -108,14 +108,12 @@ fun WebSnippetComponent(
     isRefreshable: Boolean = true
 ) {
     LaunchedEffect(navigator, target.loadIteration) {
-        if (webViewState.viewState == null) {
+        if (webViewState.viewState?.isEmpty != false || target.loadIteration != 0) {
             // This is the first time load, so load the home page, else it will be restored from bundle
             navigator.loadUrl(
                 url = target.target,
                 additionalHttpHeaders = target.headers.orEmpty()
             )
-
-            webViewState.loadIteration = target.loadIteration
         }
     }
 
@@ -201,16 +199,23 @@ private fun SnippetContentWithLoadingAndError(
     // https://github.com/google/accompanist/issues/1326 - WebView settings does not work in compose preview
     val isPreviewMode = LocalInspectionMode.current
     val client = remember(key1 = key) {
-        OkHttpTwsWebViewClient(interceptOverrideUrl, popupStateCallback)
+        OkHttpTwsWebViewClient(interceptOverrideUrl, popupStateCallback).apply {
+            setDynamicModifiers(dynamicModifiers)
+            setMustacheProps(mustacheProps, targetEngine)
+        }
     }
     val chromeClient = remember(key1 = key) { TwsWebChromeClient(popupStateCallback) }
 
     LaunchedEffect(dynamicModifiers) {
-        client.setDynamicModifiers(dynamicModifiers)
+        if (!client.setDynamicModifiers(dynamicModifiers)) {
+            navigator.reload()
+        }
     }
 
     LaunchedEffect(mustacheProps, targetEngine) {
-        client.setMustacheProps(mustacheProps, targetEngine)
+        if (!client.setMustacheProps(mustacheProps, targetEngine)) {
+            navigator.reload()
+        }
     }
 
     Box(modifier = modifier) {
@@ -232,20 +237,29 @@ private fun SnippetContentWithLoadingAndError(
             loadingPlaceholderContent()
         }
 
-        if (displayErrorContent) {
-            val message = webViewState.webViewErrorsForCurrentRequest.firstOrNull()?.error?.description?.toString()
-                ?: stringResource(id = R.string.oops_loading_failed)
+        SnippetErrors(displayErrorContent, webViewState, errorViewContent)
+    }
+}
 
-            errorViewContent(message)
-        }
+@Composable
+private fun SnippetErrors(
+    displayErrorContent: Boolean,
+    webViewState: WebViewState,
+    errorViewContent: @Composable (String) -> Unit,
+) {
+    if (displayErrorContent) {
+        val message = webViewState.webViewErrorsForCurrentRequest.firstOrNull()?.error?.description?.toString()
+            ?: stringResource(id = R.string.oops_loading_failed)
 
-        if (webViewState.customErrorsForCurrentRequest.size > 0 && !displayErrorContent) {
-            val error = webViewState.customErrorsForCurrentRequest.first()
-            if (error is MustacheException) {
-                errorViewContent(error.message ?: error.getUserFriendlyMessage())
-            } else {
-                ErrorBannerWithSwipeToDismiss(error.getUserFriendlyMessage())
-            }
+        errorViewContent(message)
+    }
+
+    if (webViewState.customErrorsForCurrentRequest.size > 0 && !displayErrorContent) {
+        val error = webViewState.customErrorsForCurrentRequest.first()
+        if (error is MustacheException) {
+            errorViewContent(error.message ?: error.getUserFriendlyMessage())
+        } else {
+            ErrorBannerWithSwipeToDismiss(error.getUserFriendlyMessage())
         }
     }
 }
