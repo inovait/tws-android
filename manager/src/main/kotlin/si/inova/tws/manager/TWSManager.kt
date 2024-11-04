@@ -14,33 +14,16 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.manager.network
+package si.inova.tws.manager
 
-import jakarta.inject.Singleton
-import retrofit2.Response
-import retrofit2.http.GET
-import retrofit2.http.Headers
-import retrofit2.http.Path
-import retrofit2.http.Query
-import si.inova.tws.manager.data.ProjectDto
-import si.inova.tws.manager.data.SharedSnippetDto
+import kotlinx.coroutines.flow.Flow
+import si.inova.kotlinova.core.outcome.Outcome
+import si.inova.tws.data.WebSnippetDto
 
-@Singleton
-interface WebSnippetFunction {
-    @GET("organizations/{organizationId}/projects/{projectId}/register")
-    suspend fun getWebSnippets(
-        @Path("organizationId")
-        organizationId: String,
-        @Path("projectId")
-        projectId: String,
-        @Query("apiKey")
-        apiKey: String? = null
-    ): Response<ProjectDto>
+interface TWSManager {
+    val snippetsFlow: Flow<Outcome<List<WebSnippetDto>>>
+    val mainSnippetIdFlow: Flow<String?>
 
-    @Headers("Accept: application/json")
-    @GET("shared/{shareId}")
-    suspend fun getSharedSnippetData(
-        @Path("shareId")
-        shareId: String
-    ): SharedSnippetDto
+    fun run()
+    fun setLocalProps(id: String, localProps: Map<String, Any>)
 }

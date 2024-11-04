@@ -14,10 +14,15 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.manager.data
+package si.inova.tws.data
 
-sealed class WebSocketStatus {
-    data object Open : WebSocketStatus()
-    data class Failed(val code: Int?) : WebSocketStatus()
-    data object Closed : WebSocketStatus()
+import androidx.annotation.Keep
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
+
+@Keep
+@JsonClass(generateAdapter = false)
+enum class EngineType {
+    @Json(name = "mustache")
+    MUSTACHE
 }

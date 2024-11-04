@@ -20,17 +20,19 @@ import android.graphics.Bitmap
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
+import com.samskivert.mustache.MustacheException
 import okhttp3.CacheControl
 import okhttp3.Headers
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
 import okhttp3.ResponseBody
-import si.inova.tws.core.data.WebViewState
 import si.inova.tws.core.client.okhttp.webViewHttpClient
 import si.inova.tws.core.data.LoadingState
+import si.inova.tws.core.data.WebViewState
 import si.inova.tws.core.util.HtmlModifierHelper
 import si.inova.tws.data.DynamicResourceDto
+import si.inova.tws.data.EngineType
 import java.util.concurrent.TimeUnit
 
 /**
@@ -45,20 +47,35 @@ import java.util.concurrent.TimeUnit
  * - Google Authentication Flow: Inherits handling of specific URL redirections from [TwsWebViewClient], including
  *   the ability to open custom tabs for Google authentication.
  *
- * @param dynamicModifiers A list of [DynamicResourceDto] objects representing CSS or JS to be injected into the HTML response.
- * @param mustacheProps A map of properties used to process HTML content via Mustache templating for dynamic content injection.
  * @param interceptOverrideUrl A function to intercept and handle specific URL requests before passing them to OkHttp.
  * @param popupStateCallback An optional callback to manage the visibility of popups or custom tabs in the WebView.
  */
 class OkHttpTwsWebViewClient(
-    private val dynamicModifiers: List<DynamicResourceDto>,
-    private val mustacheProps: Map<String, Any>,
     interceptOverrideUrl: (String) -> Boolean,
     popupStateCallback: ((WebViewState, Boolean) -> Unit)? = null
 ) : TwsWebViewClient(interceptOverrideUrl, popupStateCallback) {
 
     private lateinit var okHttpClient: OkHttpClient
     private val htmlModifier = HtmlModifierHelper()
+
+    private var dynamicModifiers: List<DynamicResourceDto> = emptyList()
+    private var mustacheProps: Map<String, Any> = emptyMap()
+    private var engineType: EngineType? = null
+
+    // Returns whether webview needs to be refreshed because of a change of mustache dependencies
+    fun setMustacheProps(props: Map<String, Any>, engineType: EngineType?): Boolean {
+        return (mustacheProps == props && this.engineType == engineType).also {
+            mustacheProps = props
+            this.engineType = engineType
+        }
+    }
+
+    // Returns whether webview needs to be refreshed because of a change of modifiers
+    fun setDynamicModifiers(modifiers: List<DynamicResourceDto>): Boolean {
+        return (dynamicModifiers == modifiers).also {
+            dynamicModifiers = modifiers
+        }
+    }
 
     override fun onPageStarted(view: WebView, url: String?, favicon: Bitmap?) {
         super.onPageStarted(view, url, favicon)
@@ -84,10 +101,16 @@ class OkHttpTwsWebViewClient(
                     response.modifyResponseAndServe() ?: super.shouldInterceptRequest(view, request)
                 }
             } catch (e: Exception) {
-                // Exception, get stale-if-error header and check if cache is still valid
-                okHttpClient.duplicateAndExecuteCachedRequest(request)?.modifyResponseAndServe()?.also {
+                if (e is MustacheException) {
+                    // Fallback to default behavior in case of mustache exception and expose mustache exception to developer
                     state.customErrorsForCurrentRequest.add(e)
-                } ?: super.shouldInterceptRequest(view, request)
+                    super.shouldInterceptRequest(view, request)
+                } else {
+                    // Exception, get stale-if-error header and check if cache is still valid
+                    okHttpClient.duplicateAndExecuteCachedRequest(request)?.modifyResponseAndServe()?.also {
+                        state.customErrorsForCurrentRequest.add(e)
+                    } ?: super.shouldInterceptRequest(view, request)
+                }
             }
         }
 
@@ -97,7 +120,13 @@ class OkHttpTwsWebViewClient(
 
     private fun Response.modifyResponseAndServe(): WebResourceResponse? {
         val htmlContent = body?.getHtmlContent() ?: return null
-        val modifiedHtmlContent = htmlModifier.modifyContent(htmlContent, dynamicModifiers, mustacheProps)
+        val modifiedHtmlContent =
+            htmlModifier.modifyContent(
+                htmlContent = htmlContent,
+                dynamicModifiers = dynamicModifiers,
+                mustacheProps = mustacheProps,
+                engineType = engineType
+            )
 
         val (mimeType, encoding) = getMimeTypeAndEncoding()
         return WebResourceResponse(

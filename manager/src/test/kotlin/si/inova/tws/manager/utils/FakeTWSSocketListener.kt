@@ -14,19 +14,30 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.manager
+package si.inova.tws.manager.utils
 
 import kotlinx.coroutines.flow.Flow
-import si.inova.kotlinova.core.outcome.Outcome
-import si.inova.tws.data.WebSnippetDto
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import si.inova.tws.manager.data.SnippetUpdateAction
+import si.inova.tws.manager.data.WebSocketStatus
+import si.inova.tws.manager.websocket.TWSSocketListener
 
-interface WebSnippetManager {
-    val snippetsFlow: Flow<Outcome<List<WebSnippetDto>>>
+class FakeTWSSocketListener : TWSSocketListener() {
+    override val updateActionFlow: Flow<SnippetUpdateAction>
+        get() = _updateActionFlow
 
-    val mainSnippetIdFlow: Flow<String?>
+    override val socketStatus: Flow<WebSocketStatus>
+        get() = _socketStatus
 
-    fun closeWebsocketConnection()
-    suspend fun loadWebSnippets(organizationId: String, projectId: String)
-    suspend fun loadSharedSnippetData(shareId: String)
-    fun release()
+    private val _updateActionFlow = MutableSharedFlow<SnippetUpdateAction>()
+    private val _socketStatus = MutableStateFlow<WebSocketStatus>(WebSocketStatus.Closed)
+
+    fun mockSocketStatus(status: WebSocketStatus) {
+        _socketStatus.value = status
+    }
+
+    suspend fun mockUpdateActionFlow(action: SnippetUpdateAction) {
+        _updateActionFlow.emit(action)
+    }
 }

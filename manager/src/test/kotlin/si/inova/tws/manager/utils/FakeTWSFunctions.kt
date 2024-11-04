@@ -14,24 +14,30 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.data
+package si.inova.tws.manager.utils
 
-import androidx.annotation.Keep
-import com.squareup.moshi.Json
-import com.squareup.moshi.JsonClass
+import retrofit2.Response
+import si.inova.kotlinova.retrofit.FakeService
+import si.inova.kotlinova.retrofit.ServiceTestingHelper
+import si.inova.tws.manager.data.ProjectDto
+import si.inova.tws.manager.data.SharedSnippetDto
+import si.inova.tws.manager.network.TWSFunctions
 
-/**
- * [SnippetType] Represents the type of snippet display.
- *
- * - [POPUP] Indicates that the snippet should be displayed in fullscreen.
- * - [TAB] Indicates that the snippet should be displayed in a list.
- */
-@Keep
-@JsonClass(generateAdapter = false)
-enum class SnippetType {
-    @Json(name = "popup")
-    POPUP,
+class FakeTWSFunctions(
+    private val helper: ServiceTestingHelper = ServiceTestingHelper()
+) : TWSFunctions, FakeService by helper {
+    var returnedProject: ProjectDto? = null
+    var returnedSharedSnippet: SharedSnippetDto? = null
 
-    @Json(name = "tab")
-    TAB
+    override suspend fun getWebSnippets(organizationId: String, projectId: String, apiKey: String?): Response<ProjectDto> {
+        helper.intercept()
+
+        return Response.success(returnedProject) ?: error("Returned project not faked!")
+    }
+
+    override suspend fun getSharedSnippetData(shareId: String): SharedSnippetDto {
+        helper.intercept()
+
+        return returnedSharedSnippet ?: error("Returned shared snippet not faked!")
+    }
 }

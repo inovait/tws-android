@@ -35,11 +35,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.util.Consumer
+import com.samskivert.mustache.MustacheException
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.persistentListOf
@@ -61,6 +63,7 @@ import si.inova.tws.core.util.compose.SnippetLoadingView
 import si.inova.tws.core.util.compose.getUserFriendlyMessage
 import si.inova.tws.core.util.initializeSettings
 import si.inova.tws.data.DynamicResourceDto
+import si.inova.tws.data.EngineType
 import si.inova.tws.data.WebSnippetDto
 
 /**
@@ -97,7 +100,7 @@ fun WebSnippetComponent(
     navigator: WebViewNavigator = rememberWebViewNavigator(target.id),
     webViewState: WebViewState = rememberSaveableWebViewState(target.id),
     displayErrorViewOnError: Boolean = false,
-    errorViewContent: @Composable () -> Unit = { SnippetErrorView(false) },
+    errorViewContent: @Composable (String) -> Unit = { SnippetErrorView(it, false) },
     displayPlaceholderWhileLoading: Boolean = false,
     loadingPlaceholderContent: @Composable () -> Unit = { SnippetLoadingView(false) },
     interceptOverrideUrl: (String) -> Boolean = { false },
@@ -105,14 +108,12 @@ fun WebSnippetComponent(
     isRefreshable: Boolean = true
 ) {
     LaunchedEffect(navigator, target.loadIteration) {
-        if (webViewState.viewState == null) {
+        if (webViewState.viewState?.isEmpty != false || target.loadIteration != 0) {
             // This is the first time load, so load the home page, else it will be restored from bundle
             navigator.loadUrl(
                 url = target.target,
                 additionalHttpHeaders = target.headers.orEmpty()
             )
-
-            webViewState.loadIteration = target.loadIteration
         }
     }
 
@@ -155,6 +156,7 @@ fun WebSnippetComponent(
         popupStateCallback = popupStateCallback,
         dynamicModifiers = target.dynamicResources.toImmutableList(),
         mustacheProps = target.props.toImmutableMap(),
+        targetEngine = target.engine,
         isRefreshable = isRefreshable
     )
 
@@ -185,20 +187,36 @@ private fun SnippetContentWithLoadingAndError(
     loadingPlaceholderContent: @Composable () -> Unit,
     displayErrorContent: Boolean,
     isRefreshable: Boolean,
-    errorViewContent: @Composable () -> Unit,
+    errorViewContent: @Composable (String) -> Unit,
     interceptOverrideUrl: (String) -> Boolean,
     modifier: Modifier = Modifier,
     onCreated: (WebView) -> Unit = {},
     popupStateCallback: ((WebViewState, Boolean) -> Unit)? = null,
     dynamicModifiers: ImmutableList<DynamicResourceDto> = persistentListOf(),
-    mustacheProps: ImmutableMap<String, Any> = persistentMapOf()
+    mustacheProps: ImmutableMap<String, Any> = persistentMapOf(),
+    targetEngine: EngineType? = null
 ) {
     // https://github.com/google/accompanist/issues/1326 - WebView settings does not work in compose preview
     val isPreviewMode = LocalInspectionMode.current
     val client = remember(key1 = key) {
-        OkHttpTwsWebViewClient(dynamicModifiers, mustacheProps, interceptOverrideUrl, popupStateCallback)
+        OkHttpTwsWebViewClient(interceptOverrideUrl, popupStateCallback).apply {
+            setDynamicModifiers(dynamicModifiers)
+            setMustacheProps(mustacheProps, targetEngine)
+        }
     }
     val chromeClient = remember(key1 = key) { TwsWebChromeClient(popupStateCallback) }
+
+    LaunchedEffect(dynamicModifiers) {
+        if (!client.setDynamicModifiers(dynamicModifiers)) {
+            navigator.reload()
+        }
+    }
+
+    LaunchedEffect(mustacheProps, targetEngine) {
+        if (!client.setMustacheProps(mustacheProps, targetEngine)) {
+            navigator.reload()
+        }
+    }
 
     Box(modifier = modifier) {
         WebView(
@@ -219,12 +237,29 @@ private fun SnippetContentWithLoadingAndError(
             loadingPlaceholderContent()
         }
 
-        if (displayErrorContent) {
-            errorViewContent()
-        }
+        SnippetErrors(displayErrorContent, webViewState, errorViewContent)
+    }
+}
 
-        if (webViewState.customErrorsForCurrentRequest.size > 0 && !displayErrorContent) {
-            ErrorBannerWithSwipeToDismiss(webViewState.customErrorsForCurrentRequest.first().getUserFriendlyMessage())
+@Composable
+private fun SnippetErrors(
+    displayErrorContent: Boolean,
+    webViewState: WebViewState,
+    errorViewContent: @Composable (String) -> Unit,
+) {
+    if (displayErrorContent) {
+        val message = webViewState.webViewErrorsForCurrentRequest.firstOrNull()?.error?.description?.toString()
+            ?: stringResource(id = R.string.oops_loading_failed)
+
+        errorViewContent(message)
+    }
+
+    if (webViewState.customErrorsForCurrentRequest.size > 0 && !displayErrorContent) {
+        val error = webViewState.customErrorsForCurrentRequest.first()
+        if (error is MustacheException) {
+            errorViewContent(error.message ?: error.getUserFriendlyMessage())
+        } else {
+            ErrorBannerWithSwipeToDismiss(error.getUserFriendlyMessage())
         }
     }
 }
@@ -235,7 +270,7 @@ private fun PopUpWebView(
     displayPlaceholderWhileLoading: Boolean,
     loadingPlaceholderContent: @Composable () -> Unit,
     displayErrorViewOnError: Boolean,
-    errorViewContent: @Composable () -> Unit,
+    errorViewContent: @Composable (String) -> Unit,
     onDismissRequest: () -> Unit,
     interceptOverrideUrl: (String) -> Boolean = { false },
     popupNavigator: WebViewNavigator = rememberWebViewNavigator(),
@@ -247,8 +282,7 @@ private fun PopUpWebView(
     isFullscreen: Boolean = false
 ) {
     val displayErrorContent = displayErrorViewOnError && popupState.hasError
-    val displayLoadingContent =
-        displayPlaceholderWhileLoading && popupState.loadingState is LoadingState.Loading
+    val displayLoadingContent = displayPlaceholderWhileLoading && popupState.loadingState is LoadingState.Loading
 
     googleLoginRedirectUrl?.let {
         NewIntentListener { intent ->
