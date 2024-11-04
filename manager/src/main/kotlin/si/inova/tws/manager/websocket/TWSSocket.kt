@@ -18,17 +18,15 @@ package si.inova.tws.manager.websocket
 
 import kotlinx.coroutines.flow.Flow
 import si.inova.tws.manager.data.SnippetUpdateAction
-import si.inova.tws.manager.data.WebSocketStatus
 
 /**
  *
  * Creation of The Web Snippet websocket
  *
  */
-interface TwsSocket {
+interface TWSSocket {
 
     val updateActionFlow: Flow<SnippetUpdateAction>
-    val socketStatus: Flow<WebSocketStatus>
 
     /**
      * Sets the URL target of this request.
@@ -36,12 +34,7 @@ interface TwsSocket {
      * @throws IllegalArgumentException if [setupWssUrl] is not a valid HTTP or HTTPS URL. Avoid this
      *     exception by calling [HttpUrl.parse]; it returns null for invalid URLs.
      */
-    fun setupWebSocketConnection(setupWssUrl: String)
-
-    /**
-     * try to reconnect on previous connected wss url
-     */
-    fun reconnect()
+    fun setupWebSocketConnection(setupWssUrl: String, unauthorizedCallback: () -> Unit)
 
     /**
      * Attempts to initiate a graceful shutdown of this web socket.
@@ -51,9 +44,4 @@ interface TwsSocket {
      *
      */
     fun closeWebsocketConnection(): Boolean?
-
-    /**
-     * Check if wss connection exists
-     */
-    fun connectionExists(): Boolean
 }

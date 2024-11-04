@@ -14,24 +14,30 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.data
+package si.inova.tws.manager.utils
 
-import androidx.annotation.Keep
-import com.squareup.moshi.Json
-import com.squareup.moshi.JsonClass
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import si.inova.tws.manager.data.SnippetUpdateAction
+import si.inova.tws.manager.data.WebSocketStatus
+import si.inova.tws.manager.websocket.TWSSocketListener
 
-/**
- * [SnippetType] Represents the type of snippet display.
- *
- * - [POPUP] Indicates that the snippet should be displayed in fullscreen.
- * - [TAB] Indicates that the snippet should be displayed in a list.
- */
-@Keep
-@JsonClass(generateAdapter = false)
-enum class SnippetType {
-    @Json(name = "popup")
-    POPUP,
+class FakeTWSSocketListener : TWSSocketListener() {
+    override val updateActionFlow: Flow<SnippetUpdateAction>
+        get() = _updateActionFlow
 
-    @Json(name = "tab")
-    TAB
+    override val socketStatus: Flow<WebSocketStatus>
+        get() = _socketStatus
+
+    private val _updateActionFlow = MutableSharedFlow<SnippetUpdateAction>()
+    private val _socketStatus = MutableStateFlow<WebSocketStatus>(WebSocketStatus.Closed)
+
+    fun mockSocketStatus(status: WebSocketStatus) {
+        _socketStatus.value = status
+    }
+
+    suspend fun mockUpdateActionFlow(action: SnippetUpdateAction) {
+        _updateActionFlow.emit(action)
+    }
 }

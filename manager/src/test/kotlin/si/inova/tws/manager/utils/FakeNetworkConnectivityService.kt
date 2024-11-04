@@ -18,12 +18,15 @@ package si.inova.tws.manager.utils
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.filterNotNull
 import si.inova.tws.manager.data.NetworkStatus
 import si.inova.tws.manager.service.NetworkConnectivityService
 
 class FakeNetworkConnectivityService : NetworkConnectivityService {
     private val _networkStatus = MutableStateFlow<NetworkStatus>(NetworkStatus.Connected)
     override val networkStatus: Flow<NetworkStatus>
-        get() = _networkStatus.filterNotNull()
+        get() = _networkStatus
+
+    fun mockNetworkStatus(status: NetworkStatus) {
+        _networkStatus.value = status
+    }
 }

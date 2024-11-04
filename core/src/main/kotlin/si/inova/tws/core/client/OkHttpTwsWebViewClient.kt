@@ -62,13 +62,19 @@ class OkHttpTwsWebViewClient(
     private var mustacheProps: Map<String, Any> = emptyMap()
     private var engineType: EngineType? = null
 
-    internal fun setMustacheProps(props: Map<String, Any>, engineType: EngineType?) {
-        mustacheProps = props
-        this.engineType = engineType
+    // Returns whether webview needs to be refreshed because of a change of mustache dependencies
+    fun setMustacheProps(props: Map<String, Any>, engineType: EngineType?): Boolean {
+        return (mustacheProps == props && this.engineType == engineType).also {
+            mustacheProps = props
+            this.engineType = engineType
+        }
     }
 
-    fun setDynamicModifiers(modifiers: List<DynamicResourceDto>) {
-        dynamicModifiers = modifiers
+    // Returns whether webview needs to be refreshed because of a change of modifiers
+    fun setDynamicModifiers(modifiers: List<DynamicResourceDto>): Boolean {
+        return (dynamicModifiers == modifiers).also {
+            dynamicModifiers = modifiers
+        }
     }
 
     override fun onPageStarted(view: WebView, url: String?, favicon: Bitmap?) {

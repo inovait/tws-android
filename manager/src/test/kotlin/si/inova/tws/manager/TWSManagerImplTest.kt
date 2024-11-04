@@ -39,34 +39,32 @@ import si.inova.tws.manager.utils.FAKE_SNIPPET_THREE
 import si.inova.tws.manager.utils.FAKE_SNIPPET_TWO
 import si.inova.tws.manager.utils.FakeCacheManager
 import si.inova.tws.manager.utils.FakeLocalSnippetHandler
-import si.inova.tws.manager.utils.FakeNetworkConnectivityService
-import si.inova.tws.manager.utils.FakeTwsSocket
-import si.inova.tws.manager.utils.FakeWebSnippetFunction
+import si.inova.tws.manager.utils.FakeTWSSocket
+import si.inova.tws.manager.utils.FakeTWSFunctions
 import si.inova.tws.manager.utils.toActionBody
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class WebSnippetManagerImplTest {
+class TWSManagerImplTest {
     private val scope = TestScopeWithDispatcherProvider()
 
-    private val functions = FakeWebSnippetFunction()
-    private val socket = FakeTwsSocket()
+    private val functions = FakeTWSFunctions()
+    private val socket = FakeTWSSocket()
     private val handler = FakeLocalSnippetHandler()
     private val cache = FakeCacheManager()
-    private val networkConnectivityService = FakeNetworkConnectivityService()
 
-    private lateinit var webSnippetManager: WebSnippetManagerImpl
+    private lateinit var webSnippetManager: TWSManagerImpl
 
     @Before
     fun setUp() {
-        webSnippetManager = WebSnippetManagerImpl(
+        webSnippetManager = TWSManagerImpl(
             context = mock(),
+            configuration = TWSConfiguration.Basic("organization", "project", "apiKey"),
             tag = "TestManager",
             scope = scope.backgroundScope,
-            webSnippetFunction = functions,
+            functions = functions,
             twsSocket = socket,
             localSnippetHandler = handler,
             cacheManager = cache,
-            networkConnectivityService = networkConnectivityService
         )
         cache.clear()
     }
@@ -75,7 +73,7 @@ class WebSnippetManagerImplTest {
     fun `Loading snippets with project and organization id`() = scope.runTest {
         functions.returnedProject = FAKE_PROJECT_DTO
 
-        webSnippetManager.loadWebSnippets("organization", "project")
+        webSnippetManager.run()
 
         webSnippetManager.snippetsFlow.test {
             runCurrent()
@@ -92,10 +90,21 @@ class WebSnippetManagerImplTest {
 
     @Test
     fun `Loading shared snippet with shared id`() = scope.runTest {
+        webSnippetManager = TWSManagerImpl(
+            context = mock(),
+            configuration = TWSConfiguration.Shared("shared", "apiKey"),
+            tag = "TestManager",
+            scope = scope.backgroundScope,
+            functions = functions,
+            twsSocket = socket,
+            localSnippetHandler = handler,
+            cacheManager = cache
+        )
+
         functions.returnedProject = FAKE_PROJECT_DTO
         functions.returnedSharedSnippet = FAKE_SHARED_PROJECT
 
-        webSnippetManager.loadSharedSnippetData("shared")
+        webSnippetManager.run()
 
         webSnippetManager.snippetsFlow.test {
             runCurrent()
@@ -116,10 +125,10 @@ class WebSnippetManagerImplTest {
     }
 
     @Test
-    fun `Load snippets and delete tab from web socket`() = scope.runTest {
+    fun `Load snippets and delete one from web socket`() = scope.runTest {
         functions.returnedProject = FAKE_PROJECT_DTO
 
-        webSnippetManager.loadWebSnippets("organization", "project")
+        webSnippetManager.run()
 
         webSnippetManager.snippetsFlow.test {
             runCurrent()
@@ -143,7 +152,7 @@ class WebSnippetManagerImplTest {
     fun `Load snippets and update tab target from web socket`() = scope.runTest {
         functions.returnedProject = FAKE_PROJECT_DTO
 
-        webSnippetManager.loadWebSnippets("organization", "project")
+        webSnippetManager.run()
 
         webSnippetManager.snippetsFlow.test {
             runCurrent()
@@ -166,7 +175,7 @@ class WebSnippetManagerImplTest {
 
             expectMostRecentItem().shouldBeSuccessWithData(
                 listOf(
-                    FAKE_SNIPPET_ONE.copy(target = "www.example.com", loadIteration = 1),
+                    FAKE_SNIPPET_ONE.copy(target = "www.example.com"),
                     FAKE_SNIPPET_TWO,
                     FAKE_SNIPPET_FOUR,
                     FAKE_SNIPPET_FIVE
@@ -176,10 +185,10 @@ class WebSnippetManagerImplTest {
     }
 
     @Test
-    fun `Load snippets and create tab from web socket`() = scope.runTest {
+    fun `Load snippets and create snippet from web socket`() = scope.runTest {
         functions.returnedProject = FAKE_PROJECT_DTO
 
-        webSnippetManager.loadWebSnippets("organization", "project")
+        webSnippetManager.run()
 
         webSnippetManager.snippetsFlow.test {
             runCurrent()
@@ -216,7 +225,7 @@ class WebSnippetManagerImplTest {
     fun `Load snippets and create, update and delete from web socket`() = scope.runTest {
         functions.returnedProject = FAKE_PROJECT_DTO
 
-        webSnippetManager.loadWebSnippets("organization", "project")
+        webSnippetManager.run()
 
         webSnippetManager.snippetsFlow.test {
             runCurrent()
@@ -256,7 +265,7 @@ class WebSnippetManagerImplTest {
 
             expectMostRecentItem().shouldBeSuccessWithData(
                 listOf(
-                    FAKE_SNIPPET_ONE.copy(target = "www.updated.com", loadIteration = 1),
+                    FAKE_SNIPPET_ONE.copy(target = "www.updated.com"),
                     FAKE_SNIPPET_TWO,
                     FAKE_SNIPPET_FOUR,
                     FAKE_SNIPPET_FIVE,
@@ -283,10 +292,10 @@ class WebSnippetManagerImplTest {
     }
 
     @Test
-    fun `Load snippets and delete tab from local handler`() = scope.runTest {
+    fun `Load snippets and delete snippet from local handler`() = scope.runTest {
         functions.returnedProject = FAKE_PROJECT_DTO
 
-        webSnippetManager.loadWebSnippets("organization", "project")
+        webSnippetManager.run()
 
         webSnippetManager.snippetsFlow.test {
             runCurrent()
@@ -307,12 +316,43 @@ class WebSnippetManagerImplTest {
     }
 
     @Test
+    fun `Load snippets and and update from socket with html changes`() = scope.runTest {
+        functions.returnedProject = FAKE_PROJECT_DTO
+
+        webSnippetManager.run()
+
+        webSnippetManager.snippetsFlow.test {
+            runCurrent()
+
+            expectMostRecentItem().shouldBeSuccessWithData(
+                listOf(
+                    FAKE_SNIPPET_ONE,
+                    FAKE_SNIPPET_TWO,
+                    FAKE_SNIPPET_FOUR,
+                    FAKE_SNIPPET_FIVE
+                )
+            )
+
+            handler.mockUpdateAction(SnippetUpdateAction(ActionType.UPDATED, ActionBody(id = FAKE_SNIPPET_ONE.id)))
+
+            expectMostRecentItem().shouldBeSuccessWithData(
+                listOf(
+                    FAKE_SNIPPET_ONE.copy(loadIteration = 1),
+                    FAKE_SNIPPET_TWO,
+                    FAKE_SNIPPET_FOUR,
+                    FAKE_SNIPPET_FIVE
+                )
+            )
+        }
+    }
+
+    @Test
     fun `Load snippets and delete from local handler and web socket`() = scope.runTest {
         functions.returnedProject = FAKE_PROJECT_DTO.copy(
             snippets = listOf(FAKE_SNIPPET_ONE, FAKE_SNIPPET_TWO, FAKE_SNIPPET_THREE)
         )
 
-        webSnippetManager.loadWebSnippets("organization", "project")
+        webSnippetManager.run()
 
         webSnippetManager.snippetsFlow.test {
             runCurrent()
@@ -333,7 +373,7 @@ class WebSnippetManagerImplTest {
     fun `Load snippets and delete same snippet from local handler and web socket`() = scope.runTest {
         functions.returnedProject = FAKE_PROJECT_DTO
 
-        webSnippetManager.loadWebSnippets("organization", "project")
+        webSnippetManager.run()
 
         webSnippetManager.snippetsFlow.test {
             runCurrent()
@@ -360,13 +400,13 @@ class WebSnippetManagerImplTest {
 
     @Test
     fun `Load content snippets from cache if available and fetch from api`() = scope.runTest {
-        cache.save(WebSnippetManagerImpl.CACHED_SNIPPETS, listOf(FAKE_SNIPPET_ONE))
+        cache.save(TWSManagerImpl.CACHED_SNIPPETS, listOf(FAKE_SNIPPET_ONE))
         functions.returnedProject = FAKE_PROJECT_DTO
 
         webSnippetManager.snippetsFlow.test {
             awaitItem() // initial empty progress
 
-            webSnippetManager.loadWebSnippets("organization", "project")
+            webSnippetManager.run()
 
             val progress = awaitItem() // progress with cached items
             progress.shouldBeProgressWith(listOf(FAKE_SNIPPET_ONE))
@@ -387,7 +427,7 @@ class WebSnippetManagerImplTest {
     fun `Update dynamic resources with socket`() = scope.runTest {
         functions.returnedProject = FAKE_PROJECT_DTO
 
-        webSnippetManager.loadWebSnippets("organization", "project")
+        webSnippetManager.run()
 
         webSnippetManager.snippetsFlow.test {
             runCurrent()
@@ -406,9 +446,7 @@ class WebSnippetManagerImplTest {
                     type = ActionType.UPDATED,
                     data = ActionBody(
                         id = FAKE_SNIPPET_ONE.id,
-                        dynamicResources = listOf(
-                            DynamicResourceDto("https://test.cs", "text/css")
-                        )
+                        dynamicResources = listOf(DynamicResourceDto("https://test.cs", "text/css"))
                     )
                 )
             )
@@ -416,10 +454,7 @@ class WebSnippetManagerImplTest {
             expectMostRecentItem().shouldBeSuccessWithData(
                 listOf(
                     FAKE_SNIPPET_ONE.copy(
-                        loadIteration = FAKE_SNIPPET_ONE.loadIteration + 1,
-                        dynamicResources = listOf(
-                            DynamicResourceDto("https://test.cs", "text/css")
-                        )
+                        dynamicResources = listOf(DynamicResourceDto("https://test.cs", "text/css"))
                     ),
                     FAKE_SNIPPET_TWO,
                     FAKE_SNIPPET_FOUR,
@@ -428,6 +463,112 @@ class WebSnippetManagerImplTest {
             )
 
             expectNoEvents()
+        }
+    }
+
+    @Test
+    fun `Setting local props to snippet should insert props to snippet`() = scope.runTest {
+        functions.returnedProject = FAKE_PROJECT_DTO
+
+        webSnippetManager.run()
+
+        webSnippetManager.snippetsFlow.test {
+            runCurrent()
+
+            expectMostRecentItem().shouldBeSuccessWithData(
+                listOf(
+                    FAKE_SNIPPET_ONE,
+                    FAKE_SNIPPET_TWO,
+                    FAKE_SNIPPET_FOUR,
+                    FAKE_SNIPPET_FIVE
+                )
+            )
+
+            webSnippetManager.setLocalProps(FAKE_SNIPPET_ONE.id, mapOf("name" to "Chris"))
+
+            runCurrent()
+
+            expectMostRecentItem().shouldBeSuccessWithData(
+                listOf(
+                    FAKE_SNIPPET_ONE.copy(props = FAKE_SNIPPET_ONE.props + mapOf("name" to "Chris")),
+                    FAKE_SNIPPET_TWO,
+                    FAKE_SNIPPET_FOUR,
+                    FAKE_SNIPPET_FIVE
+                )
+            )
+        }
+    }
+
+    @Test
+    fun `Setting local props multiple times to snippet should insert props to snippet`() = scope.runTest {
+        functions.returnedProject = FAKE_PROJECT_DTO
+
+        webSnippetManager.run()
+
+        webSnippetManager.snippetsFlow.test {
+            runCurrent()
+
+            expectMostRecentItem().shouldBeSuccessWithData(
+                listOf(
+                    FAKE_SNIPPET_ONE,
+                    FAKE_SNIPPET_TWO,
+                    FAKE_SNIPPET_FOUR,
+                    FAKE_SNIPPET_FIVE
+                )
+            )
+
+            webSnippetManager.setLocalProps(
+                FAKE_SNIPPET_ONE.id,
+                mapOf(
+                    "name" to "Chris",
+                    "surname" to "Donovan"
+                )
+            )
+
+            runCurrent()
+
+            expectMostRecentItem().shouldBeSuccessWithData(
+                listOf(
+                    FAKE_SNIPPET_ONE.copy(props = FAKE_SNIPPET_ONE.props + mapOf("name" to "Chris", "surname" to "Donovan")),
+                    FAKE_SNIPPET_TWO,
+                    FAKE_SNIPPET_FOUR,
+                    FAKE_SNIPPET_FIVE
+                )
+            )
+        }
+    }
+
+    @Test
+    fun `Setting local props with multiple values to snippet should override props to snippet`() = scope.runTest {
+        functions.returnedProject = FAKE_PROJECT_DTO
+
+        webSnippetManager.run()
+
+        webSnippetManager.snippetsFlow.test {
+            runCurrent()
+
+            expectMostRecentItem().shouldBeSuccessWithData(
+                listOf(
+                    FAKE_SNIPPET_ONE,
+                    FAKE_SNIPPET_TWO,
+                    FAKE_SNIPPET_FOUR,
+                    FAKE_SNIPPET_FIVE
+                )
+            )
+
+            webSnippetManager.setLocalProps(FAKE_SNIPPET_ONE.id, mapOf("name" to "Chris"))
+            webSnippetManager.setLocalProps(FAKE_SNIPPET_ONE.id, mapOf("surname" to "Donovan"))
+
+            runCurrent()
+
+            expectMostRecentItem().shouldBeSuccessWithData(
+                listOf(
+                    FAKE_SNIPPET_ONE.copy(props = FAKE_SNIPPET_ONE.props + mapOf("surname" to "Donovan")),
+                    FAKE_SNIPPET_TWO,
+                    FAKE_SNIPPET_FOUR,
+                    FAKE_SNIPPET_FIVE
+                )
+            )
         }
     }
 }

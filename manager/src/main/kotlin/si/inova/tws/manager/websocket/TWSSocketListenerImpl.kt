@@ -19,46 +19,53 @@ package si.inova.tws.manager.websocket
 import android.util.Log
 import com.squareup.moshi.Moshi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.update
 import okhttp3.Response
 import okhttp3.WebSocket
-import okhttp3.WebSocketListener
 import si.inova.tws.manager.data.SnippetUpdateAction
 import si.inova.tws.manager.data.WebSocketStatus
 import si.inova.tws.manager.singleton.twsMoshi
 
-internal class SnippetWebSocketListener : WebSocketListener() {
-    private val _updateActionFlow: MutableStateFlow<SnippetUpdateAction?> = MutableStateFlow(null)
-    val updateActionFlow: Flow<SnippetUpdateAction>
+internal class TWSSocketListenerImpl : TWSSocketListener() {
+    private val _updateActionFlow: MutableSharedFlow<SnippetUpdateAction> = MutableSharedFlow(replay = 1)
+    override val updateActionFlow: Flow<SnippetUpdateAction>
         get() = _updateActionFlow.filterNotNull()
 
     private val moshi: Moshi by lazy { twsMoshi() }
 
     private val _socketStatus: MutableStateFlow<WebSocketStatus?> = MutableStateFlow(null)
-    val socketStatus: Flow<WebSocketStatus>
+    override val socketStatus: Flow<WebSocketStatus>
         get() = _socketStatus.filterNotNull()
 
     override fun onMessage(webSocket: WebSocket, text: String) {
-        val adapter = moshi.adapter(SnippetUpdateAction::class.java)
-        val snippetAction = adapter.fromJson(text)
+        Log.i(TAG_SOCKET_STATUS, "SOCKET MESSAGE $text")
 
-        _updateActionFlow.update { snippetAction }
+        try {
+            val adapter = moshi.adapter(SnippetUpdateAction::class.java)
+            val snippetAction = adapter.fromJson(text)
+
+            snippetAction?.let {
+                _updateActionFlow.tryEmit(it)
+            }
+        } catch (e: Exception) {
+            Log.e(TAG_SOCKET_STATUS, e.message.orEmpty(), e)
+        }
     }
 
     override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
         super.onClosing(webSocket, code, reason)
-        Log.i(TAG_SOCKET_STATUS, "SOCKED CLOSING")
+        Log.i(TAG_SOCKET_STATUS, "SOCKET CLOSING")
 
         webSocket.close(CLOSING_CODE_ERROR_CODE, null)
     }
 
     override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
         super.onFailure(webSocket, t, response)
-        Log.i(TAG_SOCKET_STATUS, "SOCKED FAILED", t)
+        Log.i(TAG_SOCKET_STATUS, "SOCKET FAILED", t)
 
-        _socketStatus.tryEmit(WebSocketStatus.Failed(response))
+        _socketStatus.tryEmit(WebSocketStatus.Failed(response?.code))
 
         webSocket.close(CLOSING_CODE_ERROR_CODE, null)
     }
@@ -72,7 +79,7 @@ internal class SnippetWebSocketListener : WebSocketListener() {
 
     override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
         super.onClosed(webSocket, code, reason)
-        Log.i(TAG_SOCKET_STATUS, "SOCKED CLOSED")
+        Log.i(TAG_SOCKET_STATUS, "SOCKET CLOSED")
 
         _socketStatus.tryEmit(WebSocketStatus.Closed)
     }
