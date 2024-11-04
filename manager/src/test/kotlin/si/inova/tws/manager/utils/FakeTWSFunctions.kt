@@ -16,25 +16,28 @@
 
 package si.inova.tws.manager.utils
 
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import si.inova.tws.manager.data.SnippetUpdateAction
-import si.inova.tws.manager.data.WebSocketStatus
-import si.inova.tws.manager.websocket.TwsSocket
+import retrofit2.Response
+import si.inova.kotlinova.retrofit.FakeService
+import si.inova.kotlinova.retrofit.ServiceTestingHelper
+import si.inova.tws.manager.data.ProjectDto
+import si.inova.tws.manager.data.SharedSnippetDto
+import si.inova.tws.manager.network.TWSFunctions
 
-class FakeTwsSocket : TwsSocket {
-    override var updateActionFlow: MutableSharedFlow<SnippetUpdateAction> = MutableSharedFlow()
-    override val socketStatus: Flow<WebSocketStatus> = MutableSharedFlow()
+class FakeTWSFunctions(
+    private val helper: ServiceTestingHelper = ServiceTestingHelper()
+) : TWSFunctions, FakeService by helper {
+    var returnedProject: ProjectDto? = null
+    var returnedSharedSnippet: SharedSnippetDto? = null
 
-    override fun setupWebSocketConnection(setupWssUrl: String) { }
+    override suspend fun getWebSnippets(organizationId: String, projectId: String, apiKey: String?): Response<ProjectDto> {
+        helper.intercept()
 
-    override fun reconnect() { }
+        return Response.success(returnedProject) ?: error("Returned project not faked!")
+    }
 
-    override fun closeWebsocketConnection(): Boolean { return true }
+    override suspend fun getSharedSnippetData(shareId: String): SharedSnippetDto {
+        helper.intercept()
 
-    override fun connectionExists(): Boolean = false
-
-    suspend fun mockUpdateAction(action: SnippetUpdateAction) {
-        updateActionFlow.emit(action)
+        return returnedSharedSnippet ?: error("Returned shared snippet not faked!")
     }
 }

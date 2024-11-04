@@ -26,7 +26,7 @@ object TWSFactory {
     private val instances = WeakHashMap<String, WeakReference<TWSManager>>()
 
     fun get(context: Context, configuration: TWSConfiguration.Basic): TWSManager {
-        return createOrGet(context, "${configuration.organizationId}/${configuration.projectId}", configuration)
+        return createOrGet(context, "${configuration.organizationId}_${configuration.projectId}", configuration)
     }
 
     fun get(context: Context, configuration: TWSConfiguration.Shared): TWSManager {

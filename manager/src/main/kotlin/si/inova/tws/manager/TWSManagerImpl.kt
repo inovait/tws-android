@@ -37,19 +37,14 @@ import si.inova.kotlinova.retrofit.callfactory.bodyOrThrow
 import si.inova.tws.data.WebSnippetDto
 import si.inova.tws.manager.cache.CacheManager
 import si.inova.tws.manager.cache.FileCacheManager
-import si.inova.tws.manager.data.NetworkStatus
-import si.inova.tws.manager.data.WebSocketStatus
 import si.inova.tws.manager.data.updateWith
 import si.inova.tws.manager.factory.BaseServiceFactory
 import si.inova.tws.manager.factory.create
 import si.inova.tws.manager.localhandler.LocalSnippetHandler
 import si.inova.tws.manager.localhandler.LocalSnippetHandlerImpl
-import si.inova.tws.manager.network.WebSnippetFunction
-import si.inova.tws.manager.service.NetworkConnectivityService
-import si.inova.tws.manager.service.NetworkConnectivityServiceImpl
-import si.inova.tws.manager.websocket.TwsSocket
-import si.inova.tws.manager.websocket.TwsSocketImpl
-import si.inova.tws.manager.websocket.TwsSocketImpl.Companion.ERROR_UNAUTHORIZED
+import si.inova.tws.manager.network.TWSFunctions
+import si.inova.tws.manager.websocket.TWSSocket
+import si.inova.tws.manager.websocket.TWSSocketImpl
 import kotlin.time.Duration.Companion.seconds
 
 class TWSManagerImpl(
@@ -57,9 +52,8 @@ class TWSManagerImpl(
     private val configuration: TWSConfiguration,
     tag: String = "",
     private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO),
-    private val webSnippetFunction: WebSnippetFunction = BaseServiceFactory().create(),
-    private val twsSocket: TwsSocket? = TwsSocketImpl(scope),
-    private val networkConnectivityService: NetworkConnectivityService = NetworkConnectivityServiceImpl(context),
+    private val functions: TWSFunctions = BaseServiceFactory().create(),
+    private val twsSocket: TWSSocket? = TWSSocketImpl(context, scope),
     private val localSnippetHandler: LocalSnippetHandler? = LocalSnippetHandlerImpl(scope),
     private val cacheManager: CacheManager? = FileCacheManager(context, tag),
 ) : TWSManager, CoroutineScope by scope {
@@ -85,11 +79,6 @@ class TWSManagerImpl(
     private var orgId: String? = null
     private var projId: String? = null
 
-    init {
-        observeNetworkConnectivity()
-        observeWebSocketStatus()
-    }
-
     override fun run() {
         launch {
             if (configuration is TWSConfiguration.Basic) {
@@ -108,13 +97,9 @@ class TWSManagerImpl(
         }
     }
 
-    override fun closeWebsocketConnection() {
-        twsSocket?.closeWebsocketConnection()
-    }
-
     private suspend fun loadSharedSnippetData(sharedId: String) {
         try {
-            val sharedSnippet = webSnippetFunction.getSharedSnippetData(sharedId).snippet
+            val sharedSnippet = functions.getSharedSnippetData(sharedId).snippet
             _mainSnippetIdFlow.emit(sharedSnippet.id)
             loadProjectAndSetupWss(sharedSnippet.organizationId, sharedSnippet.projectId)
         } catch (e: CauseException) {
@@ -134,7 +119,7 @@ class TWSManagerImpl(
         try {
             _snippetsFlow.emit(Outcome.Progress(cacheManager?.load(CACHED_SNIPPETS)))
 
-            val twsProjectResponse = webSnippetFunction.getWebSnippets(organizationId, projectId, "someApiKey")
+            val twsProjectResponse = functions.getWebSnippets(organizationId, projectId, "someApiKey")
             val twsProject = twsProjectResponse.bodyOrThrow()
 
             localSnippetHandler?.calculateDateOffsetAndRerun(
@@ -161,8 +146,8 @@ class TWSManagerImpl(
     }
 
     // Collect remote snippet changes (from web socket)
-    private fun TwsSocket.launchAndCollect(wssUrl: String) {
-        setupWebSocketConnection(wssUrl)
+    private fun TWSSocket.launchAndCollect(wssUrl: String) {
+        setupWebSocketConnection(wssUrl, ::refreshProject)
 
         if (collectingSocket) return
         collectingSocket = true
@@ -208,45 +193,23 @@ class TWSManagerImpl(
         SharingStarted.WhileSubscribed(5.seconds).command(_snippetsFlow.subscriptionCount).collect {
             when (it) {
                 SharingCommand.START -> {
-                    val organizationId = orgId
-                    val projectId = projId
-
-                    if (organizationId != null && projectId != null) {
-                        loadProjectAndSetupWss(organizationId, projectId)
-                    }
+                    refreshProject()
                 }
 
                 SharingCommand.STOP,
                 SharingCommand.STOP_AND_RESET_REPLAY_CACHE -> {
-                    closeWebsocketConnection()
+                    twsSocket?.closeWebsocketConnection()
                 }
             }
         }
     }
 
-    private fun observeNetworkConnectivity() = launch {
-        networkConnectivityService.networkStatus.collect { status ->
-            when (status) {
-                is NetworkStatus.Connected -> {
-                    twsSocket?.reconnect()
-                }
-                is NetworkStatus.Disconnected -> {
-                    closeWebsocketConnection()
-                }
-            }
-        }
-    }
+    private fun refreshProject() = launch {
+        val organizationId = orgId
+        val projectId = projId
 
-    private fun observeWebSocketStatus() = launch {
-        twsSocket?.socketStatus?.collect { status ->
-            if (status is WebSocketStatus.Failed && status.response?.code == ERROR_UNAUTHORIZED) {
-                val organizationId = orgId
-                val projectId = projId
-
-                if (organizationId != null && projectId != null) {
-                    loadProjectAndSetupWss(organizationId, projectId)
-                }
-            }
+        if (organizationId != null && projectId != null) {
+            loadProjectAndSetupWss(organizationId, projectId)
         }
     }
 

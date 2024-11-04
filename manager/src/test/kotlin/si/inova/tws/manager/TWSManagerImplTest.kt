@@ -39,20 +39,18 @@ import si.inova.tws.manager.utils.FAKE_SNIPPET_THREE
 import si.inova.tws.manager.utils.FAKE_SNIPPET_TWO
 import si.inova.tws.manager.utils.FakeCacheManager
 import si.inova.tws.manager.utils.FakeLocalSnippetHandler
-import si.inova.tws.manager.utils.FakeNetworkConnectivityService
-import si.inova.tws.manager.utils.FakeTwsSocket
-import si.inova.tws.manager.utils.FakeWebSnippetFunction
+import si.inova.tws.manager.utils.FakeTWSSocket
+import si.inova.tws.manager.utils.FakeTWSFunctions
 import si.inova.tws.manager.utils.toActionBody
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class TWSManagerImplTest {
     private val scope = TestScopeWithDispatcherProvider()
 
-    private val functions = FakeWebSnippetFunction()
-    private val socket = FakeTwsSocket()
+    private val functions = FakeTWSFunctions()
+    private val socket = FakeTWSSocket()
     private val handler = FakeLocalSnippetHandler()
     private val cache = FakeCacheManager()
-    private val networkConnectivityService = FakeNetworkConnectivityService()
 
     private lateinit var webSnippetManager: TWSManagerImpl
 
@@ -63,11 +61,10 @@ class TWSManagerImplTest {
             configuration = TWSConfiguration.Basic("organization", "project", "apiKey"),
             tag = "TestManager",
             scope = scope.backgroundScope,
-            webSnippetFunction = functions,
+            functions = functions,
             twsSocket = socket,
             localSnippetHandler = handler,
             cacheManager = cache,
-            networkConnectivityService = networkConnectivityService
         )
         cache.clear()
     }
@@ -98,11 +95,10 @@ class TWSManagerImplTest {
             configuration = TWSConfiguration.Shared("shared", "apiKey"),
             tag = "TestManager",
             scope = scope.backgroundScope,
-            webSnippetFunction = functions,
+            functions = functions,
             twsSocket = socket,
             localSnippetHandler = handler,
-            cacheManager = cache,
-            networkConnectivityService = networkConnectivityService
+            cacheManager = cache
         )
 
         functions.returnedProject = FAKE_PROJECT_DTO

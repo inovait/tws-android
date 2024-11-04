@@ -111,11 +111,47 @@ const val UPDATE_SNIPPET_DYNAMIC_RESOURCES = """
 }
 """
 
+const val UPDATE_SNIPPET_PROPS = """
+{
+    "type": "SNIPPET_UPDATED",
+    "data": {
+        "id": "test",
+        "props":{"tabName":"Name of tab"}
+    }
+}
+"""
+
+const val UPDATE_SNIPPET_URL = """
+{
+    "type": "SNIPPET_UPDATED",
+    "data": {
+        "id": "test",
+        "target": "www.newtarget.url"
+    }
+}
+"""
+
+const val UPDATE_SNIPPET_HTML = """
+{
+    "type": "SNIPPET_UPDATED",
+    "data": {
+        "id": "test"
+    }
+}
+"""
+
+const val DELETE_SNIPPET = """
+{
+    "type": "SNIPPET_DELETED",
+    "data": {
+        "id": "test"
+    }
+}
+"""
+
 val ADD_FAKE_SNIPPET_SOCKET = SnippetUpdateAction(
     type = ActionType.CREATED,
-    data = ActionBody(
-        id = "test"
-    )
+    data = ActionBody(id = "test")
 )
 
 val UPDATED_FAKE_SNIPPET_SOCKET = SnippetUpdateAction(
@@ -124,6 +160,26 @@ val UPDATED_FAKE_SNIPPET_SOCKET = SnippetUpdateAction(
         id = "test",
         dynamicResources = listOf(DynamicResourceDto(url = "https://www.test.css", contentType = "text/css"))
     )
+)
+
+val UPDATED_FAKE_SNIPPET_SOCKET_PROPS = SnippetUpdateAction(
+    type = ActionType.UPDATED,
+    data = ActionBody(id = "test", props = mapOf("tabName" to "Name of tab"))
+)
+
+val UPDATED_FAKE_SNIPPET_SOCKET_URL = SnippetUpdateAction(
+    type = ActionType.UPDATED,
+    data = ActionBody(id = "test", target = "www.newtarget.url")
+)
+
+val UPDATED_FAKE_SNIPPET_SOCKET_HTML = SnippetUpdateAction(
+    type = ActionType.UPDATED,
+    data = ActionBody(id = "test")
+)
+
+val DELETE_FAKE_SNIPPET_SOCKET = SnippetUpdateAction(
+    type = ActionType.DELETED,
+    data = ActionBody(id = "test")
 )
 
 const val MILLISECONDS_DATE = 952_077_600_000 // 3.3.2000 10:00

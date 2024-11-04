@@ -14,33 +14,30 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.manager.network
+package si.inova.tws.manager.utils
 
-import jakarta.inject.Singleton
-import retrofit2.Response
-import retrofit2.http.GET
-import retrofit2.http.Headers
-import retrofit2.http.Path
-import retrofit2.http.Query
-import si.inova.tws.manager.data.ProjectDto
-import si.inova.tws.manager.data.SharedSnippetDto
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import si.inova.tws.manager.data.SnippetUpdateAction
+import si.inova.tws.manager.data.WebSocketStatus
+import si.inova.tws.manager.websocket.TWSSocketListener
 
-@Singleton
-interface WebSnippetFunction {
-    @GET("organizations/{organizationId}/projects/{projectId}/register")
-    suspend fun getWebSnippets(
-        @Path("organizationId")
-        organizationId: String,
-        @Path("projectId")
-        projectId: String,
-        @Query("apiKey")
-        apiKey: String? = null
-    ): Response<ProjectDto>
+class FakeTWSSocketListener : TWSSocketListener() {
+    override val updateActionFlow: Flow<SnippetUpdateAction>
+        get() = _updateActionFlow
 
-    @Headers("Accept: application/json")
-    @GET("shared/{shareId}")
-    suspend fun getSharedSnippetData(
-        @Path("shareId")
-        shareId: String
-    ): SharedSnippetDto
+    override val socketStatus: Flow<WebSocketStatus>
+        get() = _socketStatus
+
+    private val _updateActionFlow = MutableSharedFlow<SnippetUpdateAction>()
+    private val _socketStatus = MutableStateFlow<WebSocketStatus>(WebSocketStatus.Closed)
+
+    fun mockSocketStatus(status: WebSocketStatus) {
+        _socketStatus.value = status
+    }
+
+    suspend fun mockUpdateActionFlow(action: SnippetUpdateAction) {
+        _updateActionFlow.emit(action)
+    }
 }

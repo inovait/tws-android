@@ -14,10 +14,33 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.manager.data
+package si.inova.tws.manager.network
 
-sealed class WebSocketStatus {
-    data object Open : WebSocketStatus()
-    data class Failed(val code: Int?) : WebSocketStatus()
-    data object Closed : WebSocketStatus()
+import jakarta.inject.Singleton
+import retrofit2.Response
+import retrofit2.http.GET
+import retrofit2.http.Headers
+import retrofit2.http.Path
+import retrofit2.http.Query
+import si.inova.tws.manager.data.ProjectDto
+import si.inova.tws.manager.data.SharedSnippetDto
+
+@Singleton
+interface TWSFunctions {
+    @GET("organizations/{organizationId}/projects/{projectId}/register")
+    suspend fun getWebSnippets(
+        @Path("organizationId")
+        organizationId: String,
+        @Path("projectId")
+        projectId: String,
+        @Query("apiKey")
+        apiKey: String? = null
+    ): Response<ProjectDto>
+
+    @Headers("Accept: application/json")
+    @GET("shared/{shareId}")
+    suspend fun getSharedSnippetData(
+        @Path("shareId")
+        shareId: String
+    ): SharedSnippetDto
 }
