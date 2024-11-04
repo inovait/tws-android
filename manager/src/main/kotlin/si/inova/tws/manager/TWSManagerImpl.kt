@@ -119,7 +119,7 @@ class TWSManagerImpl(
         try {
             _snippetsFlow.emit(Outcome.Progress(cacheManager?.load(CACHED_SNIPPETS)))
 
-            val twsProjectResponse = functions.getWebSnippets(organizationId, projectId, "someApiKey")
+            val twsProjectResponse = functions.getWebSnippets(organizationId, projectId, configuration.apiKey)
             val twsProject = twsProjectResponse.bodyOrThrow()
 
             localSnippetHandler?.calculateDateOffsetAndRerun(
