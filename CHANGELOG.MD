@@ -1,3 +1,40 @@
+# 0.13.0
+
+### Features
+
+* [TWS-209](/browse/TWS-209) - **core**: add default variables for mustache ([c34b8036](https://github.com/inovait/tws-android-sdk/commit/c34b80361311aaceb20cba021c60be6e3a58a73b))
+* **core**: set mustache from cloud props ([ddd130f7](https://github.com/inovait/tws-android-sdk/commit/ddd130f78a142648cdc20d2c38d6f065927b3143))
+* **manager**: allow developer to create global manager with TWSSdk object ([9551c7f3](https://github.com/inovait/tws-android-sdk/commit/9551c7f374a0e93abaab0deff93162f6b1b6f865))
+
+### Bug Fixes
+
+* **core**: show error instead of raw mustache template if mustache parsing fails because of a mustache syntax error ([335266dd](https://github.com/inovait/tws-android-sdk/commit/335266ddb1960562188655ca33b28eed52c41f14))
+* **core**: mustache props not used if updated after page has already been loaded ([d18b4d5e](https://github.com/inovait/tws-android-sdk/commit/d18b4d5efb24bf87edbeae3ebfcfdc0f62bdcac1))
+* **core**: use only target props for mustache ([a81c06d8](https://github.com/inovait/tws-android-sdk/commit/a81c06d875a4a43fb55709786bd142bc3387b35f))
+* **core**: do not ignore mustache if props are empty ([a439a725](https://github.com/inovait/tws-android-sdk/commit/a439a7257336f240976285f9042f90709c06492a))
+* [TWS-235](/browse/TWS-235) - **core**: Added onRefreshListener on SwipeRefreshLayout that refreshes the webView ([2346baa7](https://github.com/inovait/tws-android-sdk/commit/2346baa784a3c302989f99534cde3d5a5f198794))
+* [TWS-236](/browse/TWS-236) - **manager**: local snippets set to Snippet should be persistent for app session ([b12c8741](https://github.com/inovait/tws-android-sdk/commit/b12c8741f6e6ff51ba23fbfee09b9cb653288d37))
+* **manager**: let the garbage collector collect manager if it is not used anymore ([8c7e9de5](https://github.com/inovait/tws-android-sdk/commit/8c7e9de5cd1555871aa7b2bb099863ec683ac4f6))
+* **manager**: run TWSManager after it was initialized ([4239618f](https://github.com/inovait/tws-android-sdk/commit/4239618ff9f79f49d8675ceb60d94e723f0592af))
+* **manager**: let cache manager handle errors instead of manager ([16d464cd](https://github.com/inovait/tws-android-sdk/commit/16d464cdca77464a8607d2c4d4b84a201292b106))
+* **interstitial**: get manager only if managerTag is present ([e04deec8](https://github.com/inovait/tws-android-sdk/commit/e04deec8005b5e3fe4e07821f01b1ce10b271fa7))
+* **manager**: setting local props for snippet should override previous local props for that snippet ([6bb024a0](https://github.com/inovait/tws-android-sdk/commit/6bb024a0aa3a84be1c22e189383f9ba796914602))
+* **manager**: ensure that only one collector is added to socker status and network status ([1f12a4d7](https://github.com/inovait/tws-android-sdk/commit/1f12a4d7e6b6fde62b8d17f6c4b1226e902d6593))
+* **manager**: ensure tag does not contain /, to avoid cache folder not found issues ([c8aa3386](https://github.com/inovait/tws-android-sdk/commit/c8aa3386e52cc4da3a4c53e8e09915159b190bfb))
+* **manager**: add missing web socket log message ([ef9f9962](https://github.com/inovait/tws-android-sdk/commit/ef9f9962a0c0584625834dbe7848f86999973972))
+* **manager**: remove unnecessary public method on manager ([f940ec54](https://github.com/inovait/tws-android-sdk/commit/f940ec5470c021daf188a4b20d4b5bbc0b70cadd))
+* **manager**: tws socket never stops collecting network status ([6908423d](https://github.com/inovait/tws-android-sdk/commit/6908423d4749a44599db6c050a6cd5304a6efde8))
+* **manager**: webSocket not cleared after closure because of failure ([570eb73e](https://github.com/inovait/tws-android-sdk/commit/570eb73efa96a4d9c77232ef43a52a68e417cdff))
+* **manager**: parsing error not handled if socket message is corrupted ([cb3bccc6](https://github.com/inovait/tws-android-sdk/commit/cb3bccc670e1a739e63d8b967d88f3e7817dc79f))
+* **manager**: use provided apiKey instead of hardcoded one ([5fb48c87](https://github.com/inovait/tws-android-sdk/commit/5fb48c87713d61107e1dd52477aac2252c490ac2))
+
+# 0.12.0
+
+### Features
+
+* [TWS-196](/browse/TWS-196) - **manager, interstitial, data**: removed type and popup flows ([07e3478e](https://github.com/inovait/tws-android-sdk/commit/07e3478e2c84bb287a29aa8389c1569613f2414f))
+* [TWS-208](/browse/TWS-208) - **core**: process mustache templates with props ([86f3ab8d](https://github.com/inovait/tws-android-sdk/commit/86f3ab8df4c1081ed704e55228535e034119e34e))
+
 # 0.11.1
 
 ### Bug Fixes
