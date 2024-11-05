@@ -81,6 +81,7 @@ class TWSManagerImpl(
 
     override fun run() {
         launch {
+            _snippetsFlow.emit(Outcome.Progress(cacheManager?.load(CACHED_SNIPPETS)))
             if (configuration is TWSConfiguration.Basic) {
                 loadProjectAndSetupWss(organizationId = configuration.organizationId, projectId = configuration.projectId)
             } else if (configuration is TWSConfiguration.Shared) {
@@ -117,8 +118,6 @@ class TWSManagerImpl(
         projId = projectId
 
         try {
-            _snippetsFlow.emit(Outcome.Progress(cacheManager?.load(CACHED_SNIPPETS)))
-
             val twsProjectResponse = functions.getWebSnippets(organizationId, projectId, configuration.apiKey)
             val twsProject = twsProjectResponse.bodyOrThrow()
 
