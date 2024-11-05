@@ -19,6 +19,7 @@ import util.publishLibrary
 
 plugins {
     androidLibraryModule
+    alias(libs.plugins.compose.compiler)
 }
 
 android {
