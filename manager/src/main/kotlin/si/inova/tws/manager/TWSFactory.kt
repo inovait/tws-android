@@ -18,9 +18,6 @@ package si.inova.tws.manager
 
 import android.content.Context
 import jakarta.inject.Singleton
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
-import si.inova.tws.data.WebSnippetDto
 import java.lang.ref.WeakReference
 import java.util.WeakHashMap
 
@@ -38,15 +35,6 @@ object TWSFactory {
 
     fun get(tag: String): TWSManager? {
         return instances[tag]?.get()
-    }
-
-    fun getSnippet(tag: String?, name: String): Flow<WebSnippetDto?>? {
-        if (tag == null) return null
-        return get(tag)?.snippetsFlow?.map { outcome ->
-            outcome.data?.find { data ->
-                data.id == name
-            }
-        }
     }
 
     private fun createOrGet(

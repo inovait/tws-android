@@ -19,6 +19,7 @@ package si.inova.tws.extension
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.flow.map
 import si.inova.tws.core.WebSnippetComponent
 import si.inova.tws.core.data.WebViewNavigator
 import si.inova.tws.core.data.WebViewState
@@ -71,9 +72,11 @@ fun WebSnippetComponent(
     googleLoginRedirectUrl: String? = null,
     isRefreshable: Boolean = true
 ) {
-    val target = (
-        TWSFactory.getSnippet(managerTag, name) ?: TWSSdk.getSnippet(name)
-        ).collectAsStateWithLifecycle(null).value ?: return
+    val target = (managerTag?.let { TWSFactory.get(it) } ?: TWSSdk.get()).snippetsFlow.map { outcome ->
+        outcome.data?.find { data ->
+            data.id == name
+        }
+    }.collectAsStateWithLifecycle(null).value ?: return
 
     WebSnippetComponent(
         target = target,

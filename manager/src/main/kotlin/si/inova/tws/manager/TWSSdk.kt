@@ -19,9 +19,6 @@ package si.inova.tws.manager
 import android.content.Context
 import android.content.pm.PackageManager
 import jakarta.inject.Singleton
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
-import si.inova.tws.data.WebSnippetDto
 
 @Singleton
 object TWSSdk {
@@ -40,14 +37,6 @@ object TWSSdk {
 
     fun get(): TWSManager {
         return globalManager ?: error("TWS Sdk has not been initialized yet!")
-    }
-
-    fun getSnippet(name: String): Flow<WebSnippetDto?> {
-        return (globalManager ?: error("TWS Sdk has not been initialized yet!")).snippetsFlow.map { outcome ->
-            outcome.data?.find { data ->
-                data.id == name
-            }
-        }
     }
 
     private fun getMetaData(context: Context, key: String): String {
