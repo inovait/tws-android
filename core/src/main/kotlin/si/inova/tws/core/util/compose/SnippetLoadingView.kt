@@ -14,9 +14,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 @Composable
-internal fun SnippetLoadingView(fullScreen: Boolean) {
+fun SnippetLoadingView(
+    fullScreen: Boolean,
+    modifier: Modifier = Modifier
+) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .background(Color.White)
             .apply {

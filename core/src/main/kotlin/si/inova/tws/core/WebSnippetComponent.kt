@@ -100,9 +100,9 @@ fun WebSnippetComponent(
     navigator: WebViewNavigator = rememberWebViewNavigator(target.id),
     webViewState: WebViewState = rememberSaveableWebViewState(target.id),
     displayErrorViewOnError: Boolean = false,
-    errorViewContent: @Composable (String) -> Unit = { SnippetErrorView(it, false) },
+    errorViewContent: @Composable (String) -> Unit = { SnippetErrorView(errorMessage = it, fullScreen = false) },
     displayPlaceholderWhileLoading: Boolean = false,
-    loadingPlaceholderContent: @Composable () -> Unit = { SnippetLoadingView(false) },
+    loadingPlaceholderContent: @Composable () -> Unit = { SnippetLoadingView(fullScreen = false) },
     interceptOverrideUrl: (String) -> Boolean = { false },
     googleLoginRedirectUrl: String? = null,
     isRefreshable: Boolean = true

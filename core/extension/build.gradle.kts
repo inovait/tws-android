@@ -14,32 +14,44 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-pluginManagement {
-    repositories {
-        google {
-            content {
-                includeGroupByRegex("com\\.android.*")
-                includeGroupByRegex("com\\.google.*")
-                includeGroupByRegex("androidx.*")
-            }
+import org.jetbrains.dokka.gradle.DokkaTaskPartial
+import util.publishLibrary
+
+plugins {
+    androidLibraryModule
+}
+
+android {
+    namespace = "si.inova.tws.extension"
+
+    buildFeatures {
+        compose = true
+    }
+}
+
+publishLibrary(
+    userFriendlyName = "tws-core-extension",
+    description = "An extension of core",
+    githubPath = "core-extension"
+)
+
+// configuration specific to this subproject.
+// notice the use of Partial task
+tasks.withType<DokkaTaskPartial>().configureEach {
+    dokkaSourceSets {
+        configureEach {
+            includes.from("Module.md")
         }
-        mavenCentral()
-        gradlePluginPortal()
-    }
-}
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        google()
-        mavenCentral()
     }
 }
 
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+dependencies {
+    api(projects.core)
+    api(projects.data)
+    api(projects.manager)
 
-rootProject.name = "TheWebSnippetSdk"
-include(":core")
-include(":interstitial")
-include(":manager")
-include(":data")
-include(":core:extension")
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.compose.ui.tooling.preview)
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.lifecycle.compose)
+}

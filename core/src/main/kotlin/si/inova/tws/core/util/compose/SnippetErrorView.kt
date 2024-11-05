@@ -36,12 +36,13 @@ import androidx.compose.ui.unit.dp
 import si.inova.tws.core.R
 
 @Composable
-internal fun SnippetErrorView(
+fun SnippetErrorView(
     errorMessage: String,
-    fullScreen: Boolean
+    fullScreen: Boolean,
+    modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .background(Color.White)
             .apply {
