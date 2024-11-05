@@ -27,5 +27,7 @@ enum class EngineType {
     MUSTACHE,
 
     @Json(name = "none")
-    NONE
+    NONE,
+
+    OTHER
 }

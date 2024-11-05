@@ -38,7 +38,7 @@ internal fun twsMoshi(): Moshi {
 
     return Moshi.Builder()
         .add(InstantJsonAdapter())
-        .add(EngineType::class.java, EnumJsonAdapter.create(EngineType::class.java).withUnknownFallback(EngineType.NONE))
+        .add(EngineType::class.java, EnumJsonAdapter.create(EngineType::class.java).withUnknownFallback(EngineType.OTHER))
         .build()
 }
 
