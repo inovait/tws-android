@@ -34,7 +34,6 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
@@ -64,7 +63,6 @@ import si.inova.tws.core.util.JavaScriptDownloadInterface.Companion.JAVASCRIPT_I
  * The WebView attempts to set the layoutParams based on the Compose modifier passed in. If it
  * is incorrectly sizing, use the layoutParams composable function instead.
  *
- * @param key A property, which allows us to recreate webview when needed.
  * @param state The webview state holder where the Uri to load is defined.
  * @param modifier A compose modifier.
  * @param captureBackPresses Set to true to have this Composable capture back presses and navigate
@@ -82,7 +80,6 @@ import si.inova.tws.core.util.JavaScriptDownloadInterface.Companion.JAVASCRIPT_I
  */
 @Composable
 internal fun WebView(
-    key: Any?,
     state: WebViewState,
     modifier: Modifier = Modifier,
     captureBackPresses: Boolean = true,
@@ -113,7 +110,6 @@ internal fun WebView(
         WebView(
             state,
             layoutParams,
-            key,
             Modifier,
             captureBackPresses,
             isRefreshable,
@@ -138,7 +134,6 @@ internal fun WebView(
  *
  * @param state The webview state holder where the Uri to load is defined.
  * @param layoutParams layout information for WebView
- * @param key A property, which allows us to recreate webview when needed.
  * @param modifier A compose modifier.
  * @param captureBackPresses Set to true to have this Composable capture back presses and navigate
  * the WebView back.
@@ -157,7 +152,6 @@ internal fun WebView(
 fun WebView(
     state: WebViewState,
     layoutParams: FrameLayout.LayoutParams,
-    key: Any?,
     modifier: Modifier = Modifier,
     captureBackPresses: Boolean = true,
     isRefreshable: Boolean = true,
@@ -189,50 +183,48 @@ fun WebView(
     client.navigator = navigator
     chromeClient.state = state
 
-    key(key) {
-        AndroidView(
-            factory = { context ->
-                createSwipeRefreshLayout(
+    AndroidView(
+        factory = { context ->
+            createSwipeRefreshLayout(
+                context = context,
+                navigator = navigator,
+                webView = createWebView(
                     context = context,
-                    navigator = navigator,
-                    webView = createWebView(
-                        context = context,
-                        state = state,
-                        onCreated = { wv ->
-                            onCreated(wv)
-                            wv.layoutParams = layoutParams
-                            wv.setDownloadListener(
-                                TwsDownloadListener(context, wv) { permission, callback ->
-                                    permissionLauncher.launch(permission)
-                                    permissionCallback.value = callback
-                                }
-                            )
-                        },
-                        client = client,
-                        chromeClient = chromeClient
-                    )
+                    state = state,
+                    onCreated = { wv ->
+                        onCreated(wv)
+                        wv.layoutParams = layoutParams
+                        wv.setDownloadListener(
+                            TwsDownloadListener(context, wv) { permission, callback ->
+                                permissionLauncher.launch(permission)
+                                permissionCallback.value = callback
+                            }
+                        )
+                    },
+                    client = client,
+                    chromeClient = chromeClient
                 )
-            },
-            modifier = modifier,
-            onRelease = {
-                val wv = state.webView ?: return@AndroidView
+            )
+        },
+        modifier = modifier,
+        onRelease = {
+            val wv = state.webView ?: return@AndroidView
 
-                state.viewState = Bundle().apply {
-                    wv.saveState(this)
-                }.takeIf { bundle ->
-                    !bundle.isEmpty
-                } ?: state.viewState
-                state.webView = null
+            state.viewState = Bundle().apply {
+                wv.saveState(this)
+            }.takeIf { bundle ->
+                !bundle.isEmpty
+            } ?: state.viewState
+            state.webView = null
 
-                onDispose(wv)
-            },
-            update = {
-                if (isRefreshable) {
-                    it.isRefreshing = state.isLoading
-                }
+            onDispose(wv)
+        },
+        update = {
+            if (isRefreshable) {
+                it.isRefreshing = state.isLoading
             }
-        )
-    }
+        }
+    )
 }
 
 @Composable
