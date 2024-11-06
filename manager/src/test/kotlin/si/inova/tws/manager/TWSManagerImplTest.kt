@@ -25,6 +25,7 @@ import org.junit.Test
 import org.mockito.Mockito.mock
 import si.inova.kotlinova.core.test.TestScopeWithDispatcherProvider
 import si.inova.kotlinova.core.test.outcomes.shouldBeProgressWith
+import si.inova.kotlinova.core.test.outcomes.shouldBeProgressWithData
 import si.inova.kotlinova.core.test.outcomes.shouldBeSuccessWithData
 import si.inova.tws.data.DynamicResourceDto
 import si.inova.tws.manager.data.ActionBody
@@ -564,6 +565,52 @@ class TWSManagerImplTest {
             expectMostRecentItem().shouldBeSuccessWithData(
                 listOf(
                     FAKE_SNIPPET_ONE.copy(props = FAKE_SNIPPET_ONE.props + mapOf("surname" to "Donovan")),
+                    FAKE_SNIPPET_TWO,
+                    FAKE_SNIPPET_FOUR,
+                    FAKE_SNIPPET_FIVE
+                )
+            )
+        }
+    }
+
+    @Test
+    fun `Loading already cached shared snippet with shared id`() = scope.runTest {
+        cache.save(
+            TWSManagerImpl.CACHED_SNIPPETS,
+            listOf(FAKE_SNIPPET_ONE, FAKE_SNIPPET_TWO, FAKE_SNIPPET_FOUR, FAKE_SNIPPET_FIVE)
+        )
+
+        webSnippetManager = TWSManagerImpl(
+            context = mock(),
+            configuration = TWSConfiguration.Shared("shared", "apiKey"),
+            tag = "TestManager",
+            scope = scope.backgroundScope,
+            functions = functions,
+            twsSocket = socket,
+            localSnippetHandler = handler,
+            cacheManager = cache
+        )
+
+        functions.returnedProject = FAKE_PROJECT_DTO
+        functions.returnedSharedSnippet = FAKE_SHARED_PROJECT
+
+        webSnippetManager.run()
+
+        webSnippetManager.snippetsFlow.test {
+            awaitItem().shouldBeProgressWith() // initial emit
+
+            awaitItem().shouldBeProgressWithData(
+                listOf(
+                    FAKE_SNIPPET_ONE,
+                    FAKE_SNIPPET_TWO,
+                    FAKE_SNIPPET_FOUR,
+                    FAKE_SNIPPET_FIVE
+                )
+            )
+            runCurrent()
+            awaitItem().shouldBeSuccessWithData(
+                listOf(
+                    FAKE_SNIPPET_ONE,
                     FAKE_SNIPPET_TWO,
                     FAKE_SNIPPET_FOUR,
                     FAKE_SNIPPET_FIVE
