@@ -24,5 +24,10 @@ import com.squareup.moshi.JsonClass
 @JsonClass(generateAdapter = false)
 enum class EngineType {
     @Json(name = "mustache")
-    MUSTACHE
+    MUSTACHE,
+
+    @Json(name = "none")
+    NONE,
+
+    OTHER
 }
