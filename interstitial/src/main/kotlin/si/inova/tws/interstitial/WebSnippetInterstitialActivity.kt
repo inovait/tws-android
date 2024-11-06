@@ -78,7 +78,9 @@ class WebSnippetInterstitialActivity : ComponentActivity() {
         val managerTag = intent.getStringExtra(MANAGER_TAG)
 
         val manager = webSnippetId?.let {
-            managerTag?.let { TWSFactory.get(it) } ?: TWSSdk.get()
+            managerTag?.let { tag ->
+                TWSFactory.get(tag)
+            } ?: TWSSdk.get()
         }
 
         val webSnippetData = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
