@@ -239,13 +239,13 @@ private fun SnippetContentWithLoadingAndError(
     val chromeClient = remember(key1 = key) { TwsWebChromeClient(popupStateCallback) }
 
     LaunchedEffect(dynamicModifiers) {
-        if (!client.setDynamicModifiers(dynamicModifiers)) {
+        if (client.setDynamicModifiers(dynamicModifiers)) {
             navigator.reload()
         }
     }
 
     LaunchedEffect(mustacheProps, targetEngine) {
-        if (!client.setMustacheProps(mustacheProps, targetEngine)) {
+        if (client.setMustacheProps(mustacheProps, targetEngine)) {
             navigator.reload()
         }
     }
