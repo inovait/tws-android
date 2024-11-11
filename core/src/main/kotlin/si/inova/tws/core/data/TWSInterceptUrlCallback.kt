@@ -34,12 +34,12 @@ import androidx.core.content.ContextCompat.startActivity
  * - Use the `intercept` method to determine if a URL should be opened within the app (e.g., as a deep link)
  *   or in an external browser.
  */
-fun interface UrlLoadingCallback {
+fun interface TWSInterceptUrlCallback {
     fun intercept(url: String): Boolean
 }
 
 /**
- * `DeepLinkUrlLoadingCallback` is an implementation of [UrlLoadingCallback] designed to handle deep link URLs.
+ * `DeepLinkUrlLoadingCallback` is an implementation of [TWSInterceptUrlCallback] designed to handle deep link URLs.
  *
  * This class intercepts URLs and attempts to open them as deep links within the app if they match the
  * app's package name. If a URL can be handled as a deep link, it triggers an intent to start the
@@ -51,7 +51,7 @@ fun interface UrlLoadingCallback {
  *
  * @param context The application context used for launching intents and checking if URLs are supported.
  */
-class DeepLinkUrlLoadingCallback(private val context: Context) : UrlLoadingCallback {
+class TWSDeepLinkInterceptUrlCallback(private val context: Context) : TWSInterceptUrlCallback {
     override fun intercept(url: String): Boolean {
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
 
@@ -71,7 +71,7 @@ class DeepLinkUrlLoadingCallback(private val context: Context) : UrlLoadingCallb
 }
 
 /**
- * `NoOpLoadingCallback` is an implementation of [UrlLoadingCallback] that does not handle any URLs.
+ * `NoOpLoadingCallback` is an implementation of [TWSInterceptUrlCallback] that does not handle any URLs.
  *
  * This class is a "no-operation" implementation, meaning it will always return `false` for any URL
  * passed to its `intercept` method. It effectively instructs the `TwsWebViewClient` to allow all URLs
@@ -81,7 +81,7 @@ class DeepLinkUrlLoadingCallback(private val context: Context) : UrlLoadingCallb
  * - Use this class as a default or placeholder when no URL handling is required, or when WebView should
  *   display all URLs by default.
  */
-class NoOpLoadingCallback : UrlLoadingCallback {
+class TWSNoOpInterceptUrlCallback : TWSInterceptUrlCallback {
     override fun intercept(url: String): Boolean {
         return false
     }

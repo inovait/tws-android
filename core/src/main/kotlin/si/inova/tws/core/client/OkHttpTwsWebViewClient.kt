@@ -29,7 +29,7 @@ import okhttp3.Response
 import okhttp3.ResponseBody
 import si.inova.tws.core.client.okhttp.webViewHttpClient
 import si.inova.tws.core.data.LoadingState
-import si.inova.tws.core.data.UrlLoadingCallback
+import si.inova.tws.core.data.TWSInterceptUrlCallback
 import si.inova.tws.core.data.WebViewState
 import si.inova.tws.core.util.HtmlModifierHelper
 import si.inova.tws.data.DynamicResourceDto
@@ -48,13 +48,13 @@ import java.util.concurrent.TimeUnit
  * - Google Authentication Flow: Inherits handling of specific URL redirections from [TwsWebViewClient], including
  *   the ability to open custom tabs for Google authentication.
  *
- * @param urlLoadingCallback A function to intercept and handle specific URL requests before passing them to OkHttp.
+ * @param interceptUrlCallback A function to intercept and handle specific URL requests before passing them to OkHttp.
  * @param popupStateCallback An optional callback to manage the visibility of popups or custom tabs in the WebView.
  */
 class OkHttpTwsWebViewClient(
-    urlLoadingCallback: UrlLoadingCallback,
+    interceptUrlCallback: TWSInterceptUrlCallback,
     popupStateCallback: ((WebViewState, Boolean) -> Unit)? = null
-) : TwsWebViewClient(urlLoadingCallback, popupStateCallback) {
+) : TwsWebViewClient(interceptUrlCallback, popupStateCallback) {
 
     private lateinit var okHttpClient: OkHttpClient
     private val htmlModifier = HtmlModifierHelper()
