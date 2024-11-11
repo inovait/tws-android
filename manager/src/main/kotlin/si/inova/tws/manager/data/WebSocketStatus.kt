@@ -16,7 +16,7 @@
 
 package si.inova.tws.manager.data
 
-sealed class WebSocketStatus {
+internal sealed class WebSocketStatus {
     data object Open : WebSocketStatus()
     data class Failed(val code: Int?) : WebSocketStatus()
     data object Closed : WebSocketStatus()

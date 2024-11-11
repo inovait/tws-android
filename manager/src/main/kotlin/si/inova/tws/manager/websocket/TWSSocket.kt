@@ -24,7 +24,7 @@ import si.inova.tws.manager.data.SnippetUpdateAction
  * Creation of The Web Snippet websocket
  *
  */
-interface TWSSocket {
+internal interface TWSSocket {
 
     val updateActionFlow: Flow<SnippetUpdateAction>
 

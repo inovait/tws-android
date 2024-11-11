@@ -23,7 +23,7 @@ import si.inova.tws.manager.data.ProjectDto
 import si.inova.tws.manager.data.SharedSnippetDto
 import si.inova.tws.manager.network.TWSFunctions
 
-class FakeTWSFunctions(
+internal class FakeTWSFunctions(
     private val helper: ServiceTestingHelper = ServiceTestingHelper()
 ) : TWSFunctions, FakeService by helper {
     var returnedProject: ProjectDto? = null

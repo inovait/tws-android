@@ -47,7 +47,7 @@ object TWSFactory {
         return if (existingInstance != null) {
             existingInstance
         } else {
-            val newInstance = TWSManagerImpl(context, configuration, tag)
+            val newInstance = TWSManagerImpl(context, tag, configuration)
             instances[tag] = WeakReference(newInstance)
             newInstance
         }

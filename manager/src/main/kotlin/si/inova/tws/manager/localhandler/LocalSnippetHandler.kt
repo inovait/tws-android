@@ -21,7 +21,7 @@ import si.inova.tws.manager.data.SnippetUpdateAction
 import si.inova.tws.manager.data.WebSnippetDto
 import java.time.Instant
 
-interface LocalSnippetHandler {
+internal interface LocalSnippetHandler {
     val updateActionFlow: Flow<SnippetUpdateAction>
 
     suspend fun updateAndScheduleCheck(snippets: List<WebSnippetDto>)

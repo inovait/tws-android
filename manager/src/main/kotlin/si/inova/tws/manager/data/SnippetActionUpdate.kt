@@ -31,7 +31,7 @@ import si.inova.tws.data.VisibilityDto
  */
 @Keep
 @JsonClass(generateAdapter = true)
-data class SnippetUpdateAction(
+internal data class SnippetUpdateAction(
     val type: ActionType,
     val data: ActionBody
 )
@@ -46,7 +46,7 @@ data class SnippetUpdateAction(
  */
 @Keep
 @JsonClass(generateAdapter = false)
-enum class ActionType {
+internal enum class ActionType {
     @Json(name = "SNIPPET_CREATED")
     CREATED,
 
@@ -59,7 +59,7 @@ enum class ActionType {
 
 @Keep
 @JsonClass(generateAdapter = true)
-data class ActionBody(
+internal data class ActionBody(
     val id: String,
     val target: String? = null,
     val headers: Map<String, String>? = null,

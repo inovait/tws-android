@@ -48,10 +48,10 @@ import si.inova.tws.manager.websocket.TWSSocket
 import si.inova.tws.manager.websocket.TWSSocketImpl
 import kotlin.time.Duration.Companion.seconds
 
-class TWSManagerImpl(
+internal class TWSManagerImpl(
     context: Context,
-    private val configuration: TWSConfiguration,
     tag: String = "",
+    private val configuration: TWSConfiguration,
     private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO),
     private val functions: TWSFunctions = BaseServiceFactory().create(),
     private val twsSocket: TWSSocket? = TWSSocketImpl(context, scope),

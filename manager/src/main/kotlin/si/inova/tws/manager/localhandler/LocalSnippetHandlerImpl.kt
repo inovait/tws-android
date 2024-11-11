@@ -30,7 +30,7 @@ import si.inova.tws.manager.data.WebSnippetDto
 import java.time.Duration
 import java.time.Instant
 
-class LocalSnippetHandlerImpl(
+internal class LocalSnippetHandlerImpl(
     private val scope: CoroutineScope,
     private val timeProvider: AndroidTimeProvider = DefaultAndroidTimeProvider
 ) : LocalSnippetHandler {

@@ -21,7 +21,7 @@ import okhttp3.WebSocketListener
 import si.inova.tws.manager.data.SnippetUpdateAction
 import si.inova.tws.manager.data.WebSocketStatus
 
-abstract class TWSSocketListener : WebSocketListener() {
+internal abstract class TWSSocketListener : WebSocketListener() {
     abstract val updateActionFlow: Flow<SnippetUpdateAction>
     abstract val socketStatus: Flow<WebSocketStatus>
 }

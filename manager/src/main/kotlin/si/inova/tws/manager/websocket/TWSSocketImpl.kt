@@ -38,7 +38,7 @@ import si.inova.tws.manager.websocket.TWSSocketListenerImpl.Companion.CLOSING_CO
  * Creation of The Web Snippet websocket
  *
  */
-class TWSSocketImpl(
+internal class TWSSocketImpl(
     context: Context,
     private val scope: CoroutineScope,
     private val networkConnectivityService: NetworkConnectivityService? = NetworkConnectivityServiceImpl(context),

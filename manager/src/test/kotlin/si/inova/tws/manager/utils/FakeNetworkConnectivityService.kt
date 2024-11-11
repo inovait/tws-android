@@ -21,7 +21,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import si.inova.tws.manager.data.NetworkStatus
 import si.inova.tws.manager.service.NetworkConnectivityService
 
-class FakeNetworkConnectivityService : NetworkConnectivityService {
+internal class FakeNetworkConnectivityService : NetworkConnectivityService {
     private val _networkStatus = MutableStateFlow<NetworkStatus>(NetworkStatus.Connected)
     override val networkStatus: Flow<NetworkStatus>
         get() = _networkStatus

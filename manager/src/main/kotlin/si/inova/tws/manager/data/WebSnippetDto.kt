@@ -29,7 +29,7 @@ import si.inova.tws.data.VisibilityDto
 @JsonClass(generateAdapter = true)
 @Keep
 @Parcelize
-data class WebSnippetDto(
+internal data class WebSnippetDto(
     val id: String,
     val target: String,
     val organizationId: String,
@@ -42,7 +42,7 @@ data class WebSnippetDto(
     val loadIteration: Int = 0
 ) : Parcelable
 
-fun WebSnippetDto.toTWSSnippet(localProps: Map<String, Any>) = TWSSnippet(
+internal fun WebSnippetDto.toTWSSnippet(localProps: Map<String, Any>) = TWSSnippet(
     id = this.id,
     target = this.target,
     headers = this.headers,

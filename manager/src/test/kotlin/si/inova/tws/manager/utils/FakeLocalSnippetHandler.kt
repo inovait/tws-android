@@ -22,7 +22,7 @@ import si.inova.tws.manager.data.WebSnippetDto
 import si.inova.tws.manager.localhandler.LocalSnippetHandler
 import java.time.Instant
 
-class FakeLocalSnippetHandler : LocalSnippetHandler {
+internal class FakeLocalSnippetHandler : LocalSnippetHandler {
     override val updateActionFlow: MutableSharedFlow<SnippetUpdateAction> = MutableSharedFlow()
 
     override suspend fun updateAndScheduleCheck(snippets: List<WebSnippetDto>) {}

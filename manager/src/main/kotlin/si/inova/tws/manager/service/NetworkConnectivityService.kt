@@ -19,6 +19,6 @@ package si.inova.tws.manager.service
 import kotlinx.coroutines.flow.Flow
 import si.inova.tws.manager.data.NetworkStatus
 
-interface NetworkConnectivityService {
+internal interface NetworkConnectivityService {
     val networkStatus: Flow<NetworkStatus>
 }
