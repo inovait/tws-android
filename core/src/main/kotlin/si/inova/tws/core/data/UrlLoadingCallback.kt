@@ -22,10 +22,35 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import androidx.core.content.ContextCompat.startActivity
 
+/**
+ * `UrlLoadingCallback` is a functional interface that defines a contract for intercepting URLs within the
+ * `TwsWebViewClient` class.
+ *
+ * This interface provides a single abstract method, `intercept`, which takes a URL as input and returns
+ * a Boolean indicating whether the URL has been handled by the application.
+ *
+ * Typical usage:
+ * - Implement this interface to customize URL interception behavior within a WebView.
+ * - Use the `intercept` method to determine if a URL should be opened within the app (e.g., as a deep link)
+ *   or in an external browser.
+ */
 fun interface UrlLoadingCallback {
     fun intercept(url: String): Boolean
 }
 
+/**
+ * `DeepLinkUrlLoadingCallback` is an implementation of [UrlLoadingCallback] designed to handle deep link URLs.
+ *
+ * This class intercepts URLs and attempts to open them as deep links within the app if they match the
+ * app's package name. If a URL can be handled as a deep link, it triggers an intent to start the
+ * activity associated with that URL.
+ *
+ * Example:
+ * - Pass this implementation to the `TwsWebViewClient` to intercept URLs and launch corresponding
+ *   activities within the app.
+ *
+ * @param context The application context used for launching intents and checking if URLs are supported.
+ */
 class DeepLinkUrlLoadingCallback(private val context: Context) : UrlLoadingCallback {
     override fun intercept(url: String): Boolean {
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
@@ -42,5 +67,22 @@ class DeepLinkUrlLoadingCallback(private val context: Context) : UrlLoadingCallb
             // Mark url as unhandled web view will display it
             false
         }
+    }
+}
+
+/**
+ * `NoOpLoadingCallback` is an implementation of [UrlLoadingCallback] that does not handle any URLs.
+ *
+ * This class is a "no-operation" implementation, meaning it will always return `false` for any URL
+ * passed to its `intercept` method. It effectively instructs the `TwsWebViewClient` to allow all URLs
+ * to be displayed within the WebView without additional handling.
+ *
+ * Usage:
+ * - Use this class as a default or placeholder when no URL handling is required, or when WebView should
+ *   display all URLs by default.
+ */
+class NoOpLoadingCallback : UrlLoadingCallback {
+    override fun intercept(url: String): Boolean {
+        return false
     }
 }
