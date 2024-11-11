@@ -14,16 +14,15 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.manager
+package si.inova.tws.manager.snippet
 
 import kotlinx.coroutines.flow.Flow
 import si.inova.kotlinova.core.outcome.Outcome
 import si.inova.tws.data.WebSnippetDto
 
-interface TWSManager {
+interface TWSSnippetLoader {
     val snippetsFlow: Flow<Outcome<List<WebSnippetDto>>>
     val mainSnippetIdFlow: Flow<String?>
 
     suspend fun forceRefresh()
-    fun setLocalProps(id: String, localProps: Map<String, Any>)
 }

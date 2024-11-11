@@ -16,21 +16,15 @@
 
 package si.inova.tws.manager.websocket
 
-import android.content.Context
 import android.util.Log
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.WebSocket
-import si.inova.tws.manager.data.NetworkStatus
 import si.inova.tws.manager.data.WebSocketStatus
-import si.inova.tws.manager.service.NetworkConnectivityService
-import si.inova.tws.manager.service.NetworkConnectivityServiceImpl
 import si.inova.tws.manager.websocket.TWSSocketListenerImpl.Companion.CLOSING_CODE_ERROR_CODE
 
 /**
@@ -39,16 +33,13 @@ import si.inova.tws.manager.websocket.TWSSocketListenerImpl.Companion.CLOSING_CO
  *
  */
 class TWSSocketImpl(
-    context: Context,
     private val scope: CoroutineScope,
-    private val networkConnectivityService: NetworkConnectivityService? = NetworkConnectivityServiceImpl(context),
     private val listener: TWSSocketListener = TWSSocketListenerImpl(),
     private val client: OkHttpClient = OkHttpClient()
 ) : TWSSocket {
     private var webSocket: WebSocket? = null
     private var wssUrl: String? = null
 
-    private var networkJob: Job? = null
     private var isSocketCollectorActive = false
 
     override val updateActionFlow = listener.updateActionFlow
@@ -59,7 +50,7 @@ class TWSSocketImpl(
      * @throws IllegalArgumentException if [setupWssUrl] is not a valid HTTP or HTTPS URL. Avoid this
      *     exception by calling [HttpUrl.parse]; it returns null for invalid URLs.
      */
-    override fun setupWebSocketConnection(setupWssUrl: String, unauthorizedCallback: () -> Unit) {
+    override fun setupWebSocketConnection(setupWssUrl: String, unauthorizedCallback: suspend () -> Unit) {
         if (wssUrl == setupWssUrl && webSocket != null) {
             // socket already configured
             return
@@ -78,7 +69,6 @@ class TWSSocketImpl(
             webSocket = client.newWebSocket(request, listener)
 
             setupSocketErrorHandling(unauthorizedCallback)
-            setupNetworkConnectivityHandling(unauthorizedCallback)
         } catch (e: Exception) {
             Log.e(TAG_ERROR_WEBSOCKET, e.message, e)
         }
@@ -92,7 +82,6 @@ class TWSSocketImpl(
      *
      */
     override fun closeWebsocketConnection(): Boolean? {
-        networkJob?.cancel()
         wssUrl = null
 
         return disconnect()
@@ -104,27 +93,8 @@ class TWSSocketImpl(
         }
     }
 
-    private fun reconnect(unauthorizedCallback: () -> Unit) {
-        wssUrl?.let {
-            setupWebSocketConnection(it, unauthorizedCallback)
-        }
-    }
-
-    private fun setupNetworkConnectivityHandling(unauthorizedCallback: () -> Unit) {
-        if (networkJob?.isActive == true || networkConnectivityService == null) return
-
-        networkJob = scope.launch {
-            networkConnectivityService.networkStatus.collect {
-                when (it) {
-                    is NetworkStatus.Connected -> reconnect(unauthorizedCallback)
-                    is NetworkStatus.Disconnected -> disconnect()
-                }
-            }
-        }
-    }
-
-    private fun setupSocketErrorHandling(unauthorizedCallback: () -> Unit) = scope.launch {
-        if (isSocketCollectorActive) return@launch
+    private fun setupSocketErrorHandling(unauthorizedCallback: suspend () -> Unit) {
+        if (isSocketCollectorActive) return
         isSocketCollectorActive = true
 
         var failedSocketReconnect = 0

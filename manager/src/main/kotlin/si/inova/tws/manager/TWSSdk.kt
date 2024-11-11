@@ -32,7 +32,7 @@ object TWSSdk {
         val organizationId = getMetaData(context, ORGANIZATION_ID_METADATA)
         val projectId = getMetaData(context, PROJECT_ID_METADATA)
 
-        globalManager = TWSFactory.get(context, TWSConfiguration.Basic(organizationId, projectId, apiKey)).also { it.run() }
+        globalManager = TWSFactory.get(context, TWSConfiguration.Basic(organizationId, projectId, apiKey))
     }
 
     fun get(): TWSManager {
