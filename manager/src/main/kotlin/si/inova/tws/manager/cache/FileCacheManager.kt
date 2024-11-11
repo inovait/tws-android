@@ -20,7 +20,7 @@ import android.content.Context
 import android.util.Log
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
-import si.inova.tws.data.WebSnippetDto
+import si.inova.tws.manager.data.WebSnippetDto
 import si.inova.tws.manager.singleton.twsMoshi
 import java.io.File
 

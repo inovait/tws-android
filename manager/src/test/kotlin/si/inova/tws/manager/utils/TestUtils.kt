@@ -18,12 +18,13 @@ package si.inova.tws.manager.utils
 
 import si.inova.tws.data.DynamicResourceDto
 import si.inova.tws.data.VisibilityDto
-import si.inova.tws.data.WebSnippetDto
+import si.inova.tws.data.TWSSnippet
 import si.inova.tws.manager.data.ActionBody
 import si.inova.tws.manager.data.ActionType
 import si.inova.tws.manager.data.ProjectDto
 import si.inova.tws.manager.data.SharedSnippetDto
 import si.inova.tws.manager.data.SnippetUpdateAction
+import si.inova.tws.manager.data.WebSnippetDto
 import java.time.Instant
 
 val FAKE_SNIPPET_ONE = WebSnippetDto(
@@ -31,6 +32,15 @@ val FAKE_SNIPPET_ONE = WebSnippetDto(
     target = "www.google.com",
     organizationId = "organization",
     projectId = "project",
+    props = mapOf(
+        Pair("tabName", "test1"),
+        Pair("tabIcon", "icon1")
+    )
+)
+
+val FAKE_EXPOSED_SNIPPET_ONE = TWSSnippet(
+    id = "0",
+    target = "www.google.com",
     props = mapOf(
         Pair("tabName", "test1"),
         Pair("tabIcon", "icon1")
@@ -48,11 +58,29 @@ val FAKE_SNIPPET_TWO = WebSnippetDto(
     )
 )
 
+val FAKE_EXPOSED_SNIPPET_TWO = TWSSnippet(
+    id = "1",
+    target = "www.blink.com",
+    props = mapOf(
+        Pair("tabName", "test2"),
+        Pair("tabIcon", "icon2")
+    )
+)
+
 val FAKE_SNIPPET_THREE = WebSnippetDto(
     id = "3",
     target = "www.example.com",
     organizationId = "organization",
     projectId = "project",
+    props = mapOf(
+        Pair("tabName", "test3"),
+        Pair("tabIcon", "icon3")
+    )
+)
+
+val FAKE_EXPOSED_SNIPPET_THREE = TWSSnippet(
+    id = "3",
+    target = "www.example.com",
     props = mapOf(
         Pair("tabName", "test3"),
         Pair("tabIcon", "icon3")
@@ -66,11 +94,21 @@ val FAKE_SNIPPET_FOUR = WebSnippetDto(
     projectId = "project"
 )
 
+val FAKE_EXPOSED_SNIPPET_FOUR = TWSSnippet(
+    id = "4",
+    target = "www.popup1.com"
+)
+
 val FAKE_SNIPPET_FIVE = WebSnippetDto(
     id = "5",
     target = "www.popup2.com",
     organizationId = "organization",
     projectId = "project"
+)
+
+val FAKE_EXPOSED_SNIPPET_FIVE = TWSSnippet(
+    id = "5",
+    target = "www.popup2.com"
 )
 
 val FAKE_PROJECT_DTO = ProjectDto(

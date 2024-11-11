@@ -31,6 +31,11 @@ import si.inova.tws.data.DynamicResourceDto
 import si.inova.tws.manager.data.ActionBody
 import si.inova.tws.manager.data.ActionType
 import si.inova.tws.manager.data.SnippetUpdateAction
+import si.inova.tws.manager.utils.FAKE_EXPOSED_SNIPPET_FIVE
+import si.inova.tws.manager.utils.FAKE_EXPOSED_SNIPPET_FOUR
+import si.inova.tws.manager.utils.FAKE_EXPOSED_SNIPPET_ONE
+import si.inova.tws.manager.utils.FAKE_EXPOSED_SNIPPET_THREE
+import si.inova.tws.manager.utils.FAKE_EXPOSED_SNIPPET_TWO
 import si.inova.tws.manager.utils.FAKE_PROJECT_DTO
 import si.inova.tws.manager.utils.FAKE_SHARED_PROJECT
 import si.inova.tws.manager.utils.FAKE_SNIPPET_FIVE
@@ -80,10 +85,10 @@ class TWSManagerImplTest {
             runCurrent()
             expectMostRecentItem().shouldBeSuccessWithData(
                 listOf(
-                    FAKE_SNIPPET_ONE,
-                    FAKE_SNIPPET_TWO,
-                    FAKE_SNIPPET_FOUR,
-                    FAKE_SNIPPET_FIVE
+                    FAKE_EXPOSED_SNIPPET_ONE,
+                    FAKE_EXPOSED_SNIPPET_TWO,
+                    FAKE_EXPOSED_SNIPPET_FOUR,
+                    FAKE_EXPOSED_SNIPPET_FIVE
                 )
             )
         }
@@ -111,10 +116,10 @@ class TWSManagerImplTest {
             runCurrent()
             expectMostRecentItem().shouldBeSuccessWithData(
                 listOf(
-                    FAKE_SNIPPET_ONE,
-                    FAKE_SNIPPET_TWO,
-                    FAKE_SNIPPET_FOUR,
-                    FAKE_SNIPPET_FIVE
+                    FAKE_EXPOSED_SNIPPET_ONE,
+                    FAKE_EXPOSED_SNIPPET_TWO,
+                    FAKE_EXPOSED_SNIPPET_FOUR,
+                    FAKE_EXPOSED_SNIPPET_FIVE
                 )
             )
         }
@@ -136,16 +141,22 @@ class TWSManagerImplTest {
 
             expectMostRecentItem().shouldBeSuccessWithData(
                 listOf(
-                    FAKE_SNIPPET_ONE,
-                    FAKE_SNIPPET_TWO,
-                    FAKE_SNIPPET_FOUR,
-                    FAKE_SNIPPET_FIVE
+                    FAKE_EXPOSED_SNIPPET_ONE,
+                    FAKE_EXPOSED_SNIPPET_TWO,
+                    FAKE_EXPOSED_SNIPPET_FOUR,
+                    FAKE_EXPOSED_SNIPPET_FIVE
                 )
             )
 
             socket.mockUpdateAction(SnippetUpdateAction(ActionType.DELETED, ActionBody(id = FAKE_SNIPPET_ONE.id)))
 
-            expectMostRecentItem().shouldBeSuccessWithData(listOf(FAKE_SNIPPET_TWO, FAKE_SNIPPET_FOUR, FAKE_SNIPPET_FIVE))
+            expectMostRecentItem().shouldBeSuccessWithData(
+                listOf(
+                    FAKE_EXPOSED_SNIPPET_TWO,
+                    FAKE_EXPOSED_SNIPPET_FOUR,
+                    FAKE_EXPOSED_SNIPPET_FIVE
+                )
+            )
         }
     }
 
@@ -160,10 +171,10 @@ class TWSManagerImplTest {
 
             expectMostRecentItem().shouldBeSuccessWithData(
                 listOf(
-                    FAKE_SNIPPET_ONE,
-                    FAKE_SNIPPET_TWO,
-                    FAKE_SNIPPET_FOUR,
-                    FAKE_SNIPPET_FIVE
+                    FAKE_EXPOSED_SNIPPET_ONE,
+                    FAKE_EXPOSED_SNIPPET_TWO,
+                    FAKE_EXPOSED_SNIPPET_FOUR,
+                    FAKE_EXPOSED_SNIPPET_FIVE
                 )
             )
 
@@ -176,10 +187,10 @@ class TWSManagerImplTest {
 
             expectMostRecentItem().shouldBeSuccessWithData(
                 listOf(
-                    FAKE_SNIPPET_ONE.copy(target = "www.example.com"),
-                    FAKE_SNIPPET_TWO,
-                    FAKE_SNIPPET_FOUR,
-                    FAKE_SNIPPET_FIVE
+                    FAKE_EXPOSED_SNIPPET_ONE.copy(target = "www.example.com"),
+                    FAKE_EXPOSED_SNIPPET_TWO,
+                    FAKE_EXPOSED_SNIPPET_FOUR,
+                    FAKE_EXPOSED_SNIPPET_FIVE
                 )
             )
         }
@@ -196,10 +207,10 @@ class TWSManagerImplTest {
 
             expectMostRecentItem().shouldBeSuccessWithData(
                 listOf(
-                    FAKE_SNIPPET_ONE,
-                    FAKE_SNIPPET_TWO,
-                    FAKE_SNIPPET_FOUR,
-                    FAKE_SNIPPET_FIVE
+                    FAKE_EXPOSED_SNIPPET_ONE,
+                    FAKE_EXPOSED_SNIPPET_TWO,
+                    FAKE_EXPOSED_SNIPPET_FOUR,
+                    FAKE_EXPOSED_SNIPPET_FIVE
                 )
             )
 
@@ -212,11 +223,11 @@ class TWSManagerImplTest {
 
             expectMostRecentItem().shouldBeSuccessWithData(
                 listOf(
-                    FAKE_SNIPPET_ONE,
-                    FAKE_SNIPPET_TWO,
-                    FAKE_SNIPPET_FOUR,
-                    FAKE_SNIPPET_FIVE,
-                    FAKE_SNIPPET_THREE
+                    FAKE_EXPOSED_SNIPPET_ONE,
+                    FAKE_EXPOSED_SNIPPET_TWO,
+                    FAKE_EXPOSED_SNIPPET_FOUR,
+                    FAKE_EXPOSED_SNIPPET_FIVE,
+                    FAKE_EXPOSED_SNIPPET_THREE
                 )
             )
         }
@@ -233,10 +244,10 @@ class TWSManagerImplTest {
 
             expectMostRecentItem().shouldBeSuccessWithData(
                 listOf(
-                    FAKE_SNIPPET_ONE,
-                    FAKE_SNIPPET_TWO,
-                    FAKE_SNIPPET_FOUR,
-                    FAKE_SNIPPET_FIVE
+                    FAKE_EXPOSED_SNIPPET_ONE,
+                    FAKE_EXPOSED_SNIPPET_TWO,
+                    FAKE_EXPOSED_SNIPPET_FOUR,
+                    FAKE_EXPOSED_SNIPPET_FIVE
                 )
             )
 
@@ -249,11 +260,11 @@ class TWSManagerImplTest {
 
             expectMostRecentItem().shouldBeSuccessWithData(
                 listOf(
-                    FAKE_SNIPPET_ONE,
-                    FAKE_SNIPPET_TWO,
-                    FAKE_SNIPPET_FOUR,
-                    FAKE_SNIPPET_FIVE,
-                    FAKE_SNIPPET_THREE
+                    FAKE_EXPOSED_SNIPPET_ONE,
+                    FAKE_EXPOSED_SNIPPET_TWO,
+                    FAKE_EXPOSED_SNIPPET_FOUR,
+                    FAKE_EXPOSED_SNIPPET_FIVE,
+                    FAKE_EXPOSED_SNIPPET_THREE
                 )
             )
 
@@ -266,11 +277,11 @@ class TWSManagerImplTest {
 
             expectMostRecentItem().shouldBeSuccessWithData(
                 listOf(
-                    FAKE_SNIPPET_ONE.copy(target = "www.updated.com"),
-                    FAKE_SNIPPET_TWO,
-                    FAKE_SNIPPET_FOUR,
-                    FAKE_SNIPPET_FIVE,
-                    FAKE_SNIPPET_THREE
+                    FAKE_EXPOSED_SNIPPET_ONE.copy(target = "www.updated.com"),
+                    FAKE_EXPOSED_SNIPPET_TWO,
+                    FAKE_EXPOSED_SNIPPET_FOUR,
+                    FAKE_EXPOSED_SNIPPET_FIVE,
+                    FAKE_EXPOSED_SNIPPET_THREE
                 )
             )
 
@@ -283,10 +294,10 @@ class TWSManagerImplTest {
 
             expectMostRecentItem().shouldBeSuccessWithData(
                 listOf(
-                    FAKE_SNIPPET_TWO,
-                    FAKE_SNIPPET_FOUR,
-                    FAKE_SNIPPET_FIVE,
-                    FAKE_SNIPPET_THREE
+                    FAKE_EXPOSED_SNIPPET_TWO,
+                    FAKE_EXPOSED_SNIPPET_FOUR,
+                    FAKE_EXPOSED_SNIPPET_FIVE,
+                    FAKE_EXPOSED_SNIPPET_THREE
                 )
             )
         }
@@ -303,16 +314,18 @@ class TWSManagerImplTest {
 
             expectMostRecentItem().shouldBeSuccessWithData(
                 listOf(
-                    FAKE_SNIPPET_ONE,
-                    FAKE_SNIPPET_TWO,
-                    FAKE_SNIPPET_FOUR,
-                    FAKE_SNIPPET_FIVE
+                    FAKE_EXPOSED_SNIPPET_ONE,
+                    FAKE_EXPOSED_SNIPPET_TWO,
+                    FAKE_EXPOSED_SNIPPET_FOUR,
+                    FAKE_EXPOSED_SNIPPET_FIVE
                 )
             )
 
             handler.mockUpdateAction(SnippetUpdateAction(ActionType.DELETED, ActionBody(id = FAKE_SNIPPET_ONE.id)))
 
-            expectMostRecentItem().shouldBeSuccessWithData(listOf(FAKE_SNIPPET_TWO, FAKE_SNIPPET_FOUR, FAKE_SNIPPET_FIVE))
+            expectMostRecentItem().shouldBeSuccessWithData(
+                listOf(FAKE_EXPOSED_SNIPPET_TWO, FAKE_EXPOSED_SNIPPET_FOUR, FAKE_EXPOSED_SNIPPET_FIVE)
+            )
         }
     }
 
@@ -327,10 +340,10 @@ class TWSManagerImplTest {
 
             expectMostRecentItem().shouldBeSuccessWithData(
                 listOf(
-                    FAKE_SNIPPET_ONE,
-                    FAKE_SNIPPET_TWO,
-                    FAKE_SNIPPET_FOUR,
-                    FAKE_SNIPPET_FIVE
+                    FAKE_EXPOSED_SNIPPET_ONE,
+                    FAKE_EXPOSED_SNIPPET_TWO,
+                    FAKE_EXPOSED_SNIPPET_FOUR,
+                    FAKE_EXPOSED_SNIPPET_FIVE
                 )
             )
 
@@ -338,10 +351,10 @@ class TWSManagerImplTest {
 
             expectMostRecentItem().shouldBeSuccessWithData(
                 listOf(
-                    FAKE_SNIPPET_ONE.copy(loadIteration = 1),
-                    FAKE_SNIPPET_TWO,
-                    FAKE_SNIPPET_FOUR,
-                    FAKE_SNIPPET_FIVE
+                    FAKE_EXPOSED_SNIPPET_ONE.copy(loadIteration = 1),
+                    FAKE_EXPOSED_SNIPPET_TWO,
+                    FAKE_EXPOSED_SNIPPET_FOUR,
+                    FAKE_EXPOSED_SNIPPET_FIVE
                 )
             )
         }
@@ -358,15 +371,17 @@ class TWSManagerImplTest {
         webSnippetManager.snippetsFlow.test {
             runCurrent()
 
-            expectMostRecentItem().shouldBeSuccessWithData(listOf(FAKE_SNIPPET_ONE, FAKE_SNIPPET_TWO, FAKE_SNIPPET_THREE))
+            expectMostRecentItem().shouldBeSuccessWithData(
+                listOf(FAKE_EXPOSED_SNIPPET_ONE, FAKE_EXPOSED_SNIPPET_TWO, FAKE_EXPOSED_SNIPPET_THREE)
+            )
 
             handler.mockUpdateAction(SnippetUpdateAction(ActionType.DELETED, ActionBody(id = FAKE_SNIPPET_ONE.id)))
 
-            expectMostRecentItem().shouldBeSuccessWithData(listOf(FAKE_SNIPPET_TWO, FAKE_SNIPPET_THREE))
+            expectMostRecentItem().shouldBeSuccessWithData(listOf(FAKE_EXPOSED_SNIPPET_TWO, FAKE_EXPOSED_SNIPPET_THREE))
 
             socket.mockUpdateAction(SnippetUpdateAction(ActionType.DELETED, ActionBody(id = FAKE_SNIPPET_TWO.id)))
 
-            expectMostRecentItem().shouldBeSuccessWithData(listOf(FAKE_SNIPPET_THREE))
+            expectMostRecentItem().shouldBeSuccessWithData(listOf(FAKE_EXPOSED_SNIPPET_THREE))
         }
     }
 
@@ -381,17 +396,19 @@ class TWSManagerImplTest {
 
             expectMostRecentItem().shouldBeSuccessWithData(
                 listOf(
-                    FAKE_SNIPPET_ONE,
-                    FAKE_SNIPPET_TWO,
-                    FAKE_SNIPPET_FOUR,
-                    FAKE_SNIPPET_FIVE
+                    FAKE_EXPOSED_SNIPPET_ONE,
+                    FAKE_EXPOSED_SNIPPET_TWO,
+                    FAKE_EXPOSED_SNIPPET_FOUR,
+                    FAKE_EXPOSED_SNIPPET_FIVE
                 )
             )
 
             handler.mockUpdateAction(SnippetUpdateAction(ActionType.DELETED, ActionBody(id = FAKE_SNIPPET_ONE.id)))
             socket.mockUpdateAction(SnippetUpdateAction(ActionType.DELETED, ActionBody(id = FAKE_SNIPPET_ONE.id)))
 
-            expectMostRecentItem().shouldBeSuccessWithData(listOf(FAKE_SNIPPET_TWO, FAKE_SNIPPET_FOUR, FAKE_SNIPPET_FIVE))
+            expectMostRecentItem().shouldBeSuccessWithData(
+                listOf(FAKE_EXPOSED_SNIPPET_TWO, FAKE_EXPOSED_SNIPPET_FOUR, FAKE_EXPOSED_SNIPPET_FIVE)
+            )
 
             socket.mockUpdateAction(SnippetUpdateAction(ActionType.DELETED, ActionBody(id = FAKE_SNIPPET_ONE.id)))
 
@@ -410,15 +427,15 @@ class TWSManagerImplTest {
             webSnippetManager.run()
 
             val progress = awaitItem() // progress with cached items
-            progress.shouldBeProgressWith(listOf(FAKE_SNIPPET_ONE))
+            progress.shouldBeProgressWith(listOf(FAKE_EXPOSED_SNIPPET_ONE))
 
             val success = awaitItem() // success with network items
             success.shouldBeSuccessWithData(
                 listOf(
-                    FAKE_SNIPPET_ONE,
-                    FAKE_SNIPPET_TWO,
-                    FAKE_SNIPPET_FOUR,
-                    FAKE_SNIPPET_FIVE
+                    FAKE_EXPOSED_SNIPPET_ONE,
+                    FAKE_EXPOSED_SNIPPET_TWO,
+                    FAKE_EXPOSED_SNIPPET_FOUR,
+                    FAKE_EXPOSED_SNIPPET_FIVE
                 )
             )
         }
@@ -435,10 +452,10 @@ class TWSManagerImplTest {
 
             expectMostRecentItem().shouldBeSuccessWithData(
                 listOf(
-                    FAKE_SNIPPET_ONE,
-                    FAKE_SNIPPET_TWO,
-                    FAKE_SNIPPET_FOUR,
-                    FAKE_SNIPPET_FIVE
+                    FAKE_EXPOSED_SNIPPET_ONE,
+                    FAKE_EXPOSED_SNIPPET_TWO,
+                    FAKE_EXPOSED_SNIPPET_FOUR,
+                    FAKE_EXPOSED_SNIPPET_FIVE
                 )
             )
 
@@ -454,12 +471,12 @@ class TWSManagerImplTest {
 
             expectMostRecentItem().shouldBeSuccessWithData(
                 listOf(
-                    FAKE_SNIPPET_ONE.copy(
+                    FAKE_EXPOSED_SNIPPET_ONE.copy(
                         dynamicResources = listOf(DynamicResourceDto("https://test.cs", "text/css"))
                     ),
-                    FAKE_SNIPPET_TWO,
-                    FAKE_SNIPPET_FOUR,
-                    FAKE_SNIPPET_FIVE
+                    FAKE_EXPOSED_SNIPPET_TWO,
+                    FAKE_EXPOSED_SNIPPET_FOUR,
+                    FAKE_EXPOSED_SNIPPET_FIVE
                 )
             )
 
@@ -478,10 +495,10 @@ class TWSManagerImplTest {
 
             expectMostRecentItem().shouldBeSuccessWithData(
                 listOf(
-                    FAKE_SNIPPET_ONE,
-                    FAKE_SNIPPET_TWO,
-                    FAKE_SNIPPET_FOUR,
-                    FAKE_SNIPPET_FIVE
+                    FAKE_EXPOSED_SNIPPET_ONE,
+                    FAKE_EXPOSED_SNIPPET_TWO,
+                    FAKE_EXPOSED_SNIPPET_FOUR,
+                    FAKE_EXPOSED_SNIPPET_FIVE
                 )
             )
 
@@ -491,10 +508,10 @@ class TWSManagerImplTest {
 
             expectMostRecentItem().shouldBeSuccessWithData(
                 listOf(
-                    FAKE_SNIPPET_ONE.copy(props = FAKE_SNIPPET_ONE.props + mapOf("name" to "Chris")),
-                    FAKE_SNIPPET_TWO,
-                    FAKE_SNIPPET_FOUR,
-                    FAKE_SNIPPET_FIVE
+                    FAKE_EXPOSED_SNIPPET_ONE.copy(props = FAKE_SNIPPET_ONE.props + mapOf("name" to "Chris")),
+                    FAKE_EXPOSED_SNIPPET_TWO,
+                    FAKE_EXPOSED_SNIPPET_FOUR,
+                    FAKE_EXPOSED_SNIPPET_FIVE
                 )
             )
         }
@@ -511,10 +528,10 @@ class TWSManagerImplTest {
 
             expectMostRecentItem().shouldBeSuccessWithData(
                 listOf(
-                    FAKE_SNIPPET_ONE,
-                    FAKE_SNIPPET_TWO,
-                    FAKE_SNIPPET_FOUR,
-                    FAKE_SNIPPET_FIVE
+                    FAKE_EXPOSED_SNIPPET_ONE,
+                    FAKE_EXPOSED_SNIPPET_TWO,
+                    FAKE_EXPOSED_SNIPPET_FOUR,
+                    FAKE_EXPOSED_SNIPPET_FIVE
                 )
             )
 
@@ -530,10 +547,12 @@ class TWSManagerImplTest {
 
             expectMostRecentItem().shouldBeSuccessWithData(
                 listOf(
-                    FAKE_SNIPPET_ONE.copy(props = FAKE_SNIPPET_ONE.props + mapOf("name" to "Chris", "surname" to "Donovan")),
-                    FAKE_SNIPPET_TWO,
-                    FAKE_SNIPPET_FOUR,
-                    FAKE_SNIPPET_FIVE
+                    FAKE_EXPOSED_SNIPPET_ONE.copy(
+                        props = FAKE_EXPOSED_SNIPPET_ONE.props + mapOf("name" to "Chris", "surname" to "Donovan")
+                    ),
+                    FAKE_EXPOSED_SNIPPET_TWO,
+                    FAKE_EXPOSED_SNIPPET_FOUR,
+                    FAKE_EXPOSED_SNIPPET_FIVE
                 )
             )
         }
@@ -550,10 +569,10 @@ class TWSManagerImplTest {
 
             expectMostRecentItem().shouldBeSuccessWithData(
                 listOf(
-                    FAKE_SNIPPET_ONE,
-                    FAKE_SNIPPET_TWO,
-                    FAKE_SNIPPET_FOUR,
-                    FAKE_SNIPPET_FIVE
+                    FAKE_EXPOSED_SNIPPET_ONE,
+                    FAKE_EXPOSED_SNIPPET_TWO,
+                    FAKE_EXPOSED_SNIPPET_FOUR,
+                    FAKE_EXPOSED_SNIPPET_FIVE
                 )
             )
 
@@ -564,10 +583,10 @@ class TWSManagerImplTest {
 
             expectMostRecentItem().shouldBeSuccessWithData(
                 listOf(
-                    FAKE_SNIPPET_ONE.copy(props = FAKE_SNIPPET_ONE.props + mapOf("surname" to "Donovan")),
-                    FAKE_SNIPPET_TWO,
-                    FAKE_SNIPPET_FOUR,
-                    FAKE_SNIPPET_FIVE
+                    FAKE_EXPOSED_SNIPPET_ONE.copy(props = FAKE_EXPOSED_SNIPPET_ONE.props + mapOf("surname" to "Donovan")),
+                    FAKE_EXPOSED_SNIPPET_TWO,
+                    FAKE_EXPOSED_SNIPPET_FOUR,
+                    FAKE_EXPOSED_SNIPPET_FIVE
                 )
             )
         }
@@ -601,19 +620,19 @@ class TWSManagerImplTest {
 
             awaitItem().shouldBeProgressWithData(
                 listOf(
-                    FAKE_SNIPPET_ONE,
-                    FAKE_SNIPPET_TWO,
-                    FAKE_SNIPPET_FOUR,
-                    FAKE_SNIPPET_FIVE
+                    FAKE_EXPOSED_SNIPPET_ONE,
+                    FAKE_EXPOSED_SNIPPET_TWO,
+                    FAKE_EXPOSED_SNIPPET_FOUR,
+                    FAKE_EXPOSED_SNIPPET_FIVE
                 )
             )
             runCurrent()
             awaitItem().shouldBeSuccessWithData(
                 listOf(
-                    FAKE_SNIPPET_ONE,
-                    FAKE_SNIPPET_TWO,
-                    FAKE_SNIPPET_FOUR,
-                    FAKE_SNIPPET_FIVE
+                    FAKE_EXPOSED_SNIPPET_ONE,
+                    FAKE_EXPOSED_SNIPPET_TWO,
+                    FAKE_EXPOSED_SNIPPET_FOUR,
+                    FAKE_EXPOSED_SNIPPET_FIVE
                 )
             )
         }

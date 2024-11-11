@@ -64,7 +64,7 @@ import si.inova.tws.core.util.compose.getUserFriendlyMessage
 import si.inova.tws.core.util.initializeSettings
 import si.inova.tws.data.DynamicResourceDto
 import si.inova.tws.data.EngineType
-import si.inova.tws.data.WebSnippetDto
+import si.inova.tws.data.TWSSnippet
 
 /**
  *
@@ -95,7 +95,7 @@ import si.inova.tws.data.WebSnippetDto
  */
 @Composable
 fun WebSnippetComponent(
-    target: WebSnippetDto,
+    target: TWSSnippet,
     modifier: Modifier = Modifier,
     navigator: WebViewNavigator = rememberWebViewNavigator(target.id),
     webViewState: WebViewState = rememberSaveableWebViewState(target.id),
@@ -349,12 +349,7 @@ private const val WEB_VIEW_POPUP_HEIGHT_PERCENTAGE = 0.8f
 @Preview
 private fun WebSnippetComponentPreview() {
     WebSnippetComponent(
-        WebSnippetDto(
-            id = "id",
-            target = "https://www.google.com/",
-            projectId = "projId",
-            organizationId = "orgId"
-        )
+        TWSSnippet(id = "id", target = "https://www.google.com/")
     )
 }
 
@@ -362,11 +357,7 @@ private fun WebSnippetComponentPreview() {
 @Preview
 private fun WebSnippetLoadingPlaceholderComponentPreview() {
     WebSnippetComponent(
-        WebSnippetDto(
-            id = "id", target = "https://www.google.com/",
-            projectId = "projId",
-            organizationId = "orgId"
-        ),
+        TWSSnippet(id = "id", target = "https://www.google.com/"),
         webViewState = webStateLoading,
         displayErrorViewOnError = true,
         displayPlaceholderWhileLoading = true
@@ -377,11 +368,7 @@ private fun WebSnippetLoadingPlaceholderComponentPreview() {
 @Preview
 private fun WebSnippetLoadingPlaceholderInitComponentPreview() {
     WebSnippetComponent(
-        WebSnippetDto(
-            id = "id", target = "https://www.google.com/",
-            projectId = "projId",
-            organizationId = "orgId"
-        ),
+        TWSSnippet(id = "id", target = "https://www.google.com/"),
         webViewState = webStateInitializing,
         displayErrorViewOnError = true,
         displayPlaceholderWhileLoading = true
@@ -392,11 +379,7 @@ private fun WebSnippetLoadingPlaceholderInitComponentPreview() {
 @Preview
 private fun WebSnippetLoadingPlaceholderFinishedComponentPreview() {
     WebSnippetComponent(
-        WebSnippetDto(
-            id = "id", target = "https://www.google.com/",
-            projectId = "projId",
-            organizationId = "orgId"
-        ),
+        TWSSnippet(id = "id", target = "https://www.google.com/"),
         webViewState = webStateLoadingFinished,
         displayErrorViewOnError = true,
         displayPlaceholderWhileLoading = true

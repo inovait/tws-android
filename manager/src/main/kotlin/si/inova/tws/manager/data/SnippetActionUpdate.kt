@@ -21,7 +21,6 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 import si.inova.tws.data.DynamicResourceDto
 import si.inova.tws.data.VisibilityDto
-import si.inova.tws.data.WebSnippetDto
 
 /**
  * Data class representing an action to be returned on a WebSocket update.

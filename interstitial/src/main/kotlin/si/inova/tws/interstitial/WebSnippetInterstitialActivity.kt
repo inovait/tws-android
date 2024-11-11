@@ -38,7 +38,7 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import si.inova.kotlinova.core.outcome.Outcome
 import si.inova.tws.core.WebSnippetComponent
-import si.inova.tws.data.WebSnippetDto
+import si.inova.tws.data.TWSSnippet
 import si.inova.tws.interstitial.WebSnippetPopup.Companion.MANAGER_TAG
 import si.inova.tws.interstitial.WebSnippetPopup.Companion.NAVIGATION_BAR_COLOR
 import si.inova.tws.interstitial.WebSnippetPopup.Companion.STATUS_BAR_COLOR
@@ -78,7 +78,7 @@ class WebSnippetInterstitialActivity : ComponentActivity() {
 
         val manager = managerTag?.let { TWSFactory.get(it) }
         val webSnippetData = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            intent.getParcelableExtra(WEB_SNIPPET_DATA, WebSnippetDto::class.java)
+            intent.getParcelableExtra(WEB_SNIPPET_DATA, TWSSnippet::class.java)
         } else {
             @Suppress("DEPRECATION")
             intent.getParcelableExtra(WEB_SNIPPET_DATA)

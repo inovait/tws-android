@@ -18,7 +18,7 @@ package si.inova.tws.interstitial
 
 import android.content.Context
 import android.content.Intent
-import si.inova.tws.data.WebSnippetDto
+import si.inova.tws.data.TWSSnippet
 
 /**
  * Interface that provides methods for opening web snippet popups in the form of interstitials.
@@ -43,7 +43,7 @@ interface WebSnippetPopup {
          */
         fun open(
             context: Context,
-            popup: WebSnippetDto,
+            popup: TWSSnippet,
             statusBarColor: String? = null,
             navigationBarColor: String? = null
         ) {
@@ -67,7 +67,7 @@ interface WebSnippetPopup {
          */
         fun open(
             context: Context,
-            popups: List<WebSnippetDto>,
+            popups: List<TWSSnippet>,
             statusBarColor: String? = null,
             navigationBarColor: String? = null
         ) {

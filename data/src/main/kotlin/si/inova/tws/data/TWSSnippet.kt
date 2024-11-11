@@ -25,12 +25,9 @@ import kotlinx.parcelize.RawValue
 @JsonClass(generateAdapter = true)
 @Keep
 @Parcelize
-data class WebSnippetDto(
+data class TWSSnippet(
     val id: String,
     val target: String,
-    val organizationId: String,
-    val projectId: String,
-    val visibility: VisibilityDto? = null,
     val headers: Map<String, String>? = emptyMap(),
     val dynamicResources: List<DynamicResourceDto> = emptyList(),
     val props: Map<String, @RawValue Any> = emptyMap(),

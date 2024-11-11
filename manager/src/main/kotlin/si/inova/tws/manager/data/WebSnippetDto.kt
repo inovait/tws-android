@@ -16,11 +16,38 @@
 
 package si.inova.tws.manager.data
 
+import android.os.Parcelable
 import androidx.annotation.Keep
 import com.squareup.moshi.JsonClass
+import kotlinx.parcelize.Parcelize
+import kotlinx.parcelize.RawValue
+import si.inova.tws.data.DynamicResourceDto
+import si.inova.tws.data.EngineType
+import si.inova.tws.data.TWSSnippet
+import si.inova.tws.data.VisibilityDto
 
 @JsonClass(generateAdapter = true)
 @Keep
-data class SharedSnippetDto(
-    val snippet: WebSnippetDto
+@Parcelize
+data class WebSnippetDto(
+    val id: String,
+    val target: String,
+    val organizationId: String,
+    val projectId: String,
+    val visibility: VisibilityDto? = null,
+    val headers: Map<String, String>? = emptyMap(),
+    val dynamicResources: List<DynamicResourceDto> = emptyList(),
+    val props: Map<String, @RawValue Any> = emptyMap(),
+    val engine: EngineType = EngineType.NONE,
+    val loadIteration: Int = 0
+) : Parcelable
+
+fun WebSnippetDto.toTWSSnippet(localProps: Map<String, Any>) = TWSSnippet(
+    id = this.id,
+    target = this.target,
+    headers = this.headers,
+    dynamicResources = this.dynamicResources,
+    props = this.props + localProps,
+    engine = this.engine,
+    loadIteration = this.loadIteration
 )

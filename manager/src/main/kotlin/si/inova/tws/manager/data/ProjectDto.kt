@@ -18,7 +18,6 @@ package si.inova.tws.manager.data
 
 import androidx.annotation.Keep
 import com.squareup.moshi.JsonClass
-import si.inova.tws.data.WebSnippetDto
 
 @JsonClass(generateAdapter = true)
 @Keep

@@ -25,9 +25,9 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import org.mockito.Mockito
-import si.inova.tws.data.WebSnippetDto
 import si.inova.tws.manager.cache.FileCacheManager
 import si.inova.tws.manager.cache.FileCacheManager.Companion.CACHE_DIR
+import si.inova.tws.manager.data.WebSnippetDto
 import si.inova.tws.manager.singleton.twsMoshi
 import si.inova.tws.manager.utils.FAKE_PROJECT_DTO
 import java.io.File

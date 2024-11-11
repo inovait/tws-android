@@ -34,9 +34,10 @@ import si.inova.kotlinova.core.outcome.CauseException
 import si.inova.kotlinova.core.outcome.Outcome
 import si.inova.kotlinova.core.outcome.mapData
 import si.inova.kotlinova.retrofit.callfactory.bodyOrThrow
-import si.inova.tws.data.WebSnippetDto
 import si.inova.tws.manager.cache.CacheManager
 import si.inova.tws.manager.cache.FileCacheManager
+import si.inova.tws.manager.data.WebSnippetDto
+import si.inova.tws.manager.data.toTWSSnippet
 import si.inova.tws.manager.data.updateWith
 import si.inova.tws.manager.factory.BaseServiceFactory
 import si.inova.tws.manager.factory.create
@@ -65,7 +66,7 @@ class TWSManagerImpl(
     override val snippetsFlow = combine(_snippetsFlow, _localProps) { snippetsOutcome, localProps ->
         snippetsOutcome.mapData { snippets ->
             snippets.map {
-                it.copy(props = it.props + (localProps[it.id].orEmpty()))
+                it.toTWSSnippet(localProps[it.id].orEmpty())
             }
         }
     }
