@@ -27,7 +27,7 @@ import si.inova.kotlinova.core.test.TestScopeWithDispatcherProvider
 import si.inova.kotlinova.core.test.outcomes.shouldBeProgressWith
 import si.inova.kotlinova.core.test.outcomes.shouldBeProgressWithData
 import si.inova.kotlinova.core.test.outcomes.shouldBeSuccessWithData
-import si.inova.tws.data.DynamicResourceDto
+import si.inova.tws.data.TWSAttachment
 import si.inova.tws.manager.data.ActionBody
 import si.inova.tws.manager.data.ActionType
 import si.inova.tws.manager.data.SnippetUpdateAction
@@ -464,7 +464,7 @@ class TWSManagerImplTest {
                     type = ActionType.UPDATED,
                     data = ActionBody(
                         id = FAKE_SNIPPET_ONE.id,
-                        dynamicResources = listOf(DynamicResourceDto("https://test.cs", "text/css"))
+                        dynamicResources = listOf(TWSAttachment("https://test.cs", "text/css"))
                     )
                 )
             )
@@ -472,7 +472,7 @@ class TWSManagerImplTest {
             expectMostRecentItem().shouldBeSuccessWithData(
                 listOf(
                     FAKE_EXPOSED_SNIPPET_ONE.copy(
-                        dynamicResources = listOf(DynamicResourceDto("https://test.cs", "text/css"))
+                        dynamicResources = listOf(TWSAttachment("https://test.cs", "text/css"))
                     ),
                     FAKE_EXPOSED_SNIPPET_TWO,
                     FAKE_EXPOSED_SNIPPET_FOUR,

@@ -31,8 +31,8 @@ import si.inova.tws.core.client.okhttp.webViewHttpClient
 import si.inova.tws.core.data.LoadingState
 import si.inova.tws.core.data.WebViewState
 import si.inova.tws.core.util.HtmlModifierHelper
-import si.inova.tws.data.DynamicResourceDto
-import si.inova.tws.data.EngineType
+import si.inova.tws.data.TWSAttachment
+import si.inova.tws.data.TWSEngine
 import java.util.concurrent.TimeUnit
 
 /**
@@ -58,20 +58,20 @@ class OkHttpTwsWebViewClient(
     private lateinit var okHttpClient: OkHttpClient
     private val htmlModifier = HtmlModifierHelper()
 
-    private var dynamicModifiers: List<DynamicResourceDto> = emptyList()
+    private var dynamicModifiers: List<TWSAttachment> = emptyList()
     private var mustacheProps: Map<String, Any> = emptyMap()
-    private var engineType: EngineType? = null
+    private var engine: TWSEngine? = null
 
     // Returns whether webview needs to be refreshed because of a change of mustache dependencies
-    fun setMustacheProps(props: Map<String, Any>, engineType: EngineType?): Boolean {
-        return (mustacheProps == props && this.engineType == engineType).also {
+    fun setMustacheProps(props: Map<String, Any>, engine: TWSEngine?): Boolean {
+        return (mustacheProps == props && this.engine == engine).also {
             mustacheProps = props
-            this.engineType = engineType
+            this.engine = engine
         }
     }
 
     // Returns whether webview needs to be refreshed because of a change of modifiers
-    fun setDynamicModifiers(modifiers: List<DynamicResourceDto>): Boolean {
+    fun setDynamicModifiers(modifiers: List<TWSAttachment>): Boolean {
         return (dynamicModifiers == modifiers).also {
             dynamicModifiers = modifiers
         }
@@ -125,7 +125,7 @@ class OkHttpTwsWebViewClient(
                 htmlContent = htmlContent,
                 dynamicModifiers = dynamicModifiers,
                 mustacheProps = mustacheProps,
-                engineType = engineType
+                engine = engine
             )
 
         val (mimeType, encoding) = getMimeTypeAndEncoding()

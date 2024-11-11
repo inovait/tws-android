@@ -21,8 +21,8 @@ import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import si.inova.tws.core.BuildConfig
-import si.inova.tws.data.DynamicResourceDto
-import si.inova.tws.data.EngineType
+import si.inova.tws.data.TWSAttachment
+import si.inova.tws.data.TWSEngine
 
 class HtmlModifierHelperTest {
 
@@ -36,13 +36,13 @@ class HtmlModifierHelperTest {
     @Test
     fun `should inject CSS into HTML with head tag`() {
         val html = "<html><head></head><body>Hello World</body></html>"
-        val cssResource = DynamicResourceDto("https://example.com/style.css", "text/css")
+        val cssResource = TWSAttachment("https://example.com/style.css", "text/css")
 
         val result = helper.modifyContent(
             htmlContent = html,
             dynamicModifiers = listOf(cssResource),
             mustacheProps = emptyMap(),
-            engineType = EngineType.MUSTACHE
+            engine = TWSEngine.MUSTACHE
         )
 
         val expected = """<html>""" +
@@ -59,13 +59,13 @@ class HtmlModifierHelperTest {
     @Test
     fun `should inject JavaScript into HTML with head tag`() {
         val html = "<html><head></head><body>Hello World</body></html>"
-        val jsResource = DynamicResourceDto("https://example.com/script.js", "text/javascript")
+        val jsResource = TWSAttachment("https://example.com/script.js", "text/javascript")
 
         val result = helper.modifyContent(
             htmlContent = html,
             dynamicModifiers = listOf(jsResource),
             mustacheProps = emptyMap(),
-            engineType = EngineType.MUSTACHE
+            engine = TWSEngine.MUSTACHE
         )
 
         val expected = """<html>""" +
@@ -82,14 +82,14 @@ class HtmlModifierHelperTest {
     @Test
     fun `should inject both CSS and JavaScript into HTML with head tag`() {
         val html = "<html><head></head><body>Hello World</body></html>"
-        val cssResource = DynamicResourceDto("https://example.com/style.css", "text/css")
-        val jsResource = DynamicResourceDto("https://example.com/script.js", "text/javascript")
+        val cssResource = TWSAttachment("https://example.com/style.css", "text/css")
+        val jsResource = TWSAttachment("https://example.com/script.js", "text/javascript")
 
         val result = helper.modifyContent(
             htmlContent = html,
             dynamicModifiers = listOf(cssResource, jsResource),
             mustacheProps = emptyMap(),
-            engineType = EngineType.MUSTACHE
+            engine = TWSEngine.MUSTACHE
         )
 
         val expected = """<html>""" +
@@ -113,7 +113,7 @@ class HtmlModifierHelperTest {
             htmlContent = html,
             dynamicModifiers = emptyList(),
             mustacheProps = mustacheProps,
-            engineType = EngineType.MUSTACHE
+            engine = TWSEngine.MUSTACHE
         )
 
         val expected = """<html>""" +
@@ -127,15 +127,15 @@ class HtmlModifierHelperTest {
     @Test
     fun `should inject CSS, JavaScript, and Mustache content`() {
         val html = "<html><head></head><body>{{greeting}} World</body></html>"
-        val cssResource = DynamicResourceDto("https://example.com/style.css", "text/css")
-        val jsResource = DynamicResourceDto("https://example.com/script.js", "text/javascript")
+        val cssResource = TWSAttachment("https://example.com/style.css", "text/css")
+        val jsResource = TWSAttachment("https://example.com/script.js", "text/javascript")
         val mustacheProps = mapOf("greeting" to "Hello")
 
         val result = helper.modifyContent(
             htmlContent = html,
             dynamicModifiers = listOf(cssResource, jsResource),
             mustacheProps = mustacheProps,
-            engineType = EngineType.MUSTACHE
+            engine = TWSEngine.MUSTACHE
         )
 
         val expected = """<html>""" +
@@ -153,14 +153,14 @@ class HtmlModifierHelperTest {
     @Test
     fun `should inject CSS and JavaScript into HTML without head tag`() {
         val html = "<html><body>Hello World</body></html>"
-        val cssResource = DynamicResourceDto("https://example.com/style.css", "text/css")
-        val jsResource = DynamicResourceDto("https://example.com/script.js", "text/javascript")
+        val cssResource = TWSAttachment("https://example.com/style.css", "text/css")
+        val jsResource = TWSAttachment("https://example.com/script.js", "text/javascript")
 
         val result = helper.modifyContent(
             htmlContent = html,
             dynamicModifiers = listOf(cssResource, jsResource),
             mustacheProps = emptyMap(),
-            engineType = EngineType.MUSTACHE
+            engine = TWSEngine.MUSTACHE
         )
 
         val expected = """<html>""" +
@@ -177,15 +177,15 @@ class HtmlModifierHelperTest {
     fun `should inject multiple CSS resources`() {
         val html = "<html><head></head><body>Hello World</body></html>"
         val cssResources = listOf(
-            DynamicResourceDto("https://example.com/style1.css", "text/css"),
-            DynamicResourceDto("https://example.com/style2.css", "text/css")
+            TWSAttachment("https://example.com/style1.css", "text/css"),
+            TWSAttachment("https://example.com/style2.css", "text/css")
         )
 
         val result = helper.modifyContent(
             htmlContent = html,
             dynamicModifiers = cssResources,
             mustacheProps = emptyMap(),
-            engineType = EngineType.MUSTACHE
+            engine = TWSEngine.MUSTACHE
         )
 
         val expected = """<html>""" +
@@ -204,15 +204,15 @@ class HtmlModifierHelperTest {
     fun `should inject multiple JavaScript resources`() {
         val html = "<html><head></head><body>Hello World</body></html>"
         val jsResources = listOf(
-            DynamicResourceDto("https://example.com/script1.js", "text/javascript"),
-            DynamicResourceDto("https://example.com/script2.js", "text/javascript")
+            TWSAttachment("https://example.com/script1.js", "text/javascript"),
+            TWSAttachment("https://example.com/script2.js", "text/javascript")
         )
 
         val result = helper.modifyContent(
             htmlContent = html,
             dynamicModifiers = jsResources,
             mustacheProps = emptyMap(),
-            engineType = EngineType.MUSTACHE
+            engine = TWSEngine.MUSTACHE
         )
 
         val expected = """<html>""" +
@@ -231,17 +231,17 @@ class HtmlModifierHelperTest {
     fun `should inject multiple CSS and JavaScript resources`() {
         val html = "<html><head></head><body>Hello World</body></html>"
         val resources = listOf(
-            DynamicResourceDto("https://example.com/style1.css", "text/css"),
-            DynamicResourceDto("https://example.com/style2.css", "text/css"),
-            DynamicResourceDto("https://example.com/script1.js", "text/javascript"),
-            DynamicResourceDto("https://example.com/script2.js", "text/javascript")
+            TWSAttachment("https://example.com/style1.css", "text/css"),
+            TWSAttachment("https://example.com/style2.css", "text/css"),
+            TWSAttachment("https://example.com/script1.js", "text/javascript"),
+            TWSAttachment("https://example.com/script2.js", "text/javascript")
         )
 
         val result = helper.modifyContent(
             htmlContent = html,
             dynamicModifiers = resources,
             mustacheProps = emptyMap(),
-            engineType = EngineType.MUSTACHE
+            engine = TWSEngine.MUSTACHE
         )
 
         val expected = """<html>""" +
@@ -276,7 +276,7 @@ class HtmlModifierHelperTest {
     @Test
     fun `should inject CSS into HTML without head tag`() {
         val html = "<html><body>Hello World</body></html>"
-        val cssResource = DynamicResourceDto("https://example.com/style.css", "text/css")
+        val cssResource = TWSAttachment("https://example.com/style.css", "text/css")
 
         val result = helper.modifyContent(html, listOf(cssResource), emptyMap())
 
@@ -292,7 +292,7 @@ class HtmlModifierHelperTest {
     @Test
     fun `should inject JavaScript into HTML without head tag`() {
         val html = "<html><body>Hello World</body></html>"
-        val jsResource = DynamicResourceDto("https://example.com/script.js", "text/javascript")
+        val jsResource = TWSAttachment("https://example.com/script.js", "text/javascript")
 
         val result = helper.modifyContent(html, listOf(jsResource), emptyMap())
 
@@ -308,15 +308,15 @@ class HtmlModifierHelperTest {
     @Test
     fun `should inject head with mustache and then inject CSS and JavaScript`() {
         val html = "<html>{{injectHead}}<body>{{greeting}} World</body></html>"
-        val cssResource = DynamicResourceDto("https://example.com/style.css", "text/css")
-        val jsResource = DynamicResourceDto("https://example.com/script.js", "text/javascript")
+        val cssResource = TWSAttachment("https://example.com/style.css", "text/css")
+        val jsResource = TWSAttachment("https://example.com/script.js", "text/javascript")
         val mustacheProps = mapOf("injectHead" to "<head></head>", "greeting" to "Hello")
 
         val result = helper.modifyContent(
             htmlContent = html,
             dynamicModifiers = listOf(cssResource, jsResource),
             mustacheProps = mustacheProps,
-            engineType = EngineType.MUSTACHE
+            engine = TWSEngine.MUSTACHE
         )
 
         val expected = """<html>""" +
@@ -340,7 +340,7 @@ class HtmlModifierHelperTest {
             htmlContent = html,
             dynamicModifiers = emptyList(),
             mustacheProps = mustacheProps,
-            engineType = EngineType.MUSTACHE
+            engine = TWSEngine.MUSTACHE
         )
 
         val expected = """<html>""" +
@@ -359,7 +359,7 @@ class HtmlModifierHelperTest {
             htmlContent = html,
             dynamicModifiers = emptyList(),
             mustacheProps = mustacheProps,
-            engineType = EngineType.MUSTACHE
+            engine = TWSEngine.MUSTACHE
         )
 
         val expected = """<html>""" +
@@ -385,7 +385,7 @@ class HtmlModifierHelperTest {
             htmlContent = html,
             dynamicModifiers = emptyList(),
             mustacheProps = mustacheProps,
-            engineType = EngineType.MUSTACHE
+            engine = TWSEngine.MUSTACHE
         )
 
         val expected = "<html>" +
@@ -459,7 +459,7 @@ class HtmlModifierHelperTest {
             htmlContent = html,
             dynamicModifiers = emptyList(),
             mustacheProps = mustacheProps,
-            engineType = EngineType.MUSTACHE
+            engine = TWSEngine.MUSTACHE
         )
 
         val expected = "<script type=\"text/javascript\">var tws_injected = true;</script>* Chris" +
@@ -498,14 +498,14 @@ class HtmlModifierHelperTest {
 
         val mustacheProps = mapOf("injectHead" to "<head></head>", "name" to "World", "version" to "1.0.0-override")
 
-        val cssResource = DynamicResourceDto("https://example.com/style.css", "text/css")
-        val jsResource = DynamicResourceDto("https://example.com/script.js", "text/javascript")
+        val cssResource = TWSAttachment("https://example.com/style.css", "text/css")
+        val jsResource = TWSAttachment("https://example.com/script.js", "text/javascript")
 
         val result = helper.modifyContent(
             htmlContent = html,
             dynamicModifiers = listOf(cssResource, jsResource),
             mustacheProps = mustacheProps,
-            engineType = EngineType.MUSTACHE
+            engine = TWSEngine.MUSTACHE
         )
 
         val expected = """<html>""" +
@@ -531,7 +531,7 @@ class HtmlModifierHelperTest {
             htmlContent = html,
             dynamicModifiers = emptyList(),
             mustacheProps = mustacheProps,
-            engineType = null
+            engine = null
         )
 
         val expected = """<html>""" +
@@ -549,7 +549,7 @@ class HtmlModifierHelperTest {
             htmlContent = html,
             dynamicModifiers = emptyList(),
             mustacheProps = emptyMap(),
-            engineType = EngineType.MUSTACHE
+            engine = TWSEngine.MUSTACHE
         )
 
         val expected = """<html>""" +

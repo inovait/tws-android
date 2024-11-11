@@ -19,8 +19,7 @@ package si.inova.tws.manager.data
 import androidx.annotation.Keep
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
-import si.inova.tws.data.DynamicResourceDto
-import si.inova.tws.data.VisibilityDto
+import si.inova.tws.data.TWSAttachment
 
 /**
  * Data class representing an action to be returned on a WebSocket update.
@@ -64,7 +63,7 @@ internal data class ActionBody(
     val target: String? = null,
     val headers: Map<String, String>? = null,
     val visibility: VisibilityDto? = null,
-    val dynamicResources: List<DynamicResourceDto>? = null,
+    val dynamicResources: List<TWSAttachment>? = null,
     val props: Map<String, Any>? = null
 )
 

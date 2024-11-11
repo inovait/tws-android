@@ -21,10 +21,9 @@ import androidx.annotation.Keep
 import com.squareup.moshi.JsonClass
 import kotlinx.parcelize.Parcelize
 import kotlinx.parcelize.RawValue
-import si.inova.tws.data.DynamicResourceDto
-import si.inova.tws.data.EngineType
+import si.inova.tws.data.TWSAttachment
+import si.inova.tws.data.TWSEngine
 import si.inova.tws.data.TWSSnippet
-import si.inova.tws.data.VisibilityDto
 
 @JsonClass(generateAdapter = true)
 @Keep
@@ -36,9 +35,9 @@ internal data class WebSnippetDto(
     val projectId: String,
     val visibility: VisibilityDto? = null,
     val headers: Map<String, String>? = emptyMap(),
-    val dynamicResources: List<DynamicResourceDto> = emptyList(),
+    val dynamicResources: List<TWSAttachment> = emptyList(),
     val props: Map<String, @RawValue Any> = emptyMap(),
-    val engine: EngineType = EngineType.NONE,
+    val engine: TWSEngine = TWSEngine.NONE,
     val loadIteration: Int = 0
 ) : Parcelable
 

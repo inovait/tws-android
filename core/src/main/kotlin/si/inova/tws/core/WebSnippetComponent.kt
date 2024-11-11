@@ -62,8 +62,8 @@ import si.inova.tws.core.util.compose.SnippetErrorView
 import si.inova.tws.core.util.compose.SnippetLoadingView
 import si.inova.tws.core.util.compose.getUserFriendlyMessage
 import si.inova.tws.core.util.initializeSettings
-import si.inova.tws.data.DynamicResourceDto
-import si.inova.tws.data.EngineType
+import si.inova.tws.data.TWSAttachment
+import si.inova.tws.data.TWSEngine
 import si.inova.tws.data.TWSSnippet
 
 /**
@@ -192,9 +192,9 @@ private fun SnippetContentWithLoadingAndError(
     modifier: Modifier = Modifier,
     onCreated: (WebView) -> Unit = {},
     popupStateCallback: ((WebViewState, Boolean) -> Unit)? = null,
-    dynamicModifiers: ImmutableList<DynamicResourceDto> = persistentListOf(),
+    dynamicModifiers: ImmutableList<TWSAttachment> = persistentListOf(),
     mustacheProps: ImmutableMap<String, Any> = persistentMapOf(),
-    targetEngine: EngineType? = null
+    targetEngine: TWSEngine? = null
 ) {
     // https://github.com/google/accompanist/issues/1326 - WebView settings does not work in compose preview
     val isPreviewMode = LocalInspectionMode.current
@@ -276,7 +276,7 @@ private fun PopUpWebView(
     popupNavigator: WebViewNavigator = rememberWebViewNavigator(),
     popupStateCallback: ((WebViewState, Boolean) -> Unit)? = null,
     googleLoginRedirectUrl: String? = null,
-    dynamicModifiers: ImmutableList<DynamicResourceDto> = persistentListOf(),
+    dynamicModifiers: ImmutableList<TWSAttachment> = persistentListOf(),
     mustacheProps: ImmutableMap<String, Any> = persistentMapOf(),
     isRefreshable: Boolean = false,
     isFullscreen: Boolean = false

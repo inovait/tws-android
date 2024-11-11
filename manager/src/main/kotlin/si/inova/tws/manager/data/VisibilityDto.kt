@@ -14,7 +14,7 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.data
+package si.inova.tws.manager.data
 
 import android.os.Parcelable
 import androidx.annotation.Keep
@@ -30,6 +30,6 @@ import java.time.Instant
 @JsonClass(generateAdapter = true)
 @Parcelize
 @Keep
-data class VisibilityDto(
+internal data class VisibilityDto(
     val untilUtc: Instant? = null
 ) : Parcelable
