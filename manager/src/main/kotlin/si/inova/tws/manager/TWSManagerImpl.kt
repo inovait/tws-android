@@ -36,6 +36,7 @@ import si.inova.kotlinova.core.outcome.mapData
 import si.inova.kotlinova.retrofit.callfactory.bodyOrThrow
 import si.inova.tws.manager.cache.CacheManager
 import si.inova.tws.manager.cache.FileCacheManager
+import si.inova.tws.manager.data.NetworkStatus
 import si.inova.tws.manager.data.WebSnippetDto
 import si.inova.tws.manager.data.toTWSSnippet
 import si.inova.tws.manager.data.updateWith
@@ -43,7 +44,8 @@ import si.inova.tws.manager.factory.BaseServiceFactory
 import si.inova.tws.manager.factory.create
 import si.inova.tws.manager.localhandler.LocalSnippetHandler
 import si.inova.tws.manager.localhandler.LocalSnippetHandlerImpl
-import si.inova.tws.manager.network.TWSFunctions
+import si.inova.tws.manager.service.NetworkConnectivityService
+import si.inova.tws.manager.service.NetworkConnectivityServiceImpl
 import si.inova.tws.manager.websocket.TWSSocket
 import si.inova.tws.manager.websocket.TWSSocketImpl
 import kotlin.time.Duration.Companion.seconds
@@ -57,18 +59,34 @@ internal class TWSManagerImpl(
     private val twsSocket: TWSSocket? = TWSSocketImpl(context, scope),
     private val localSnippetHandler: LocalSnippetHandler? = LocalSnippetHandlerImpl(scope),
     private val cacheManager: CacheManager? = FileCacheManager(context, tag),
+    private val networkConnectivityService: NetworkConnectivityService? = NetworkConnectivityServiceImpl(context)
 ) : TWSManager, CoroutineScope by scope {
 
     private val _snippetsFlow: MutableStateFlow<Outcome<List<WebSnippetDto>>> = MutableStateFlow(Outcome.Progress())
     private val _localProps: MutableStateFlow<Map<String, Map<String, Any>>> = MutableStateFlow(emptyMap())
 
-    // collect with collectAsStateWithLifecycle so the websocket reconnection will work
+    /**
+     * collect [snippetsFlow] using `collectAsStateWithLifecycle`
+     * to ensure the WebSocket disconnects when not needed and reconnects appropriately.
+     */
     override val snippetsFlow = combine(_snippetsFlow, _localProps) { snippetsOutcome, localProps ->
         snippetsOutcome.mapData { snippets ->
             snippets.map {
                 it.toTWSSnippet(localProps[it.id].orEmpty())
             }
         }
+    }.onStart {
+        forceRefresh()
+    }.onCompletion {
+        twsSocket?.closeWebsocketConnection()
+    }.stateIn(
+        scope,
+        SharingStarted.WhileSubscribed(5.seconds),
+        Outcome.Progress()
+    )
+
+    init {
+        setupNetworkConnectivityHandling()
     }
 
     private val _mainSnippetIdFlow: MutableStateFlow<String?> = MutableStateFlow(null)
@@ -164,8 +182,6 @@ internal class TWSManagerImpl(
         }.launchIn(this@TWSManagerImpl).invokeOnCompletion {
             collectingSocket = false
         }
-
-        setupRefreshOnLifecycleStart()
     }
 
     // Collect local snippet changes (hiding with visibility)
@@ -188,17 +204,14 @@ internal class TWSManagerImpl(
         }
     }
 
-    // Close web socket connection when there are no subscribers and reload all data with new socket connection when resubscribed
-    private fun setupRefreshOnLifecycleStart() = launch {
-        SharingStarted.WhileSubscribed(5.seconds).command(_snippetsFlow.subscriptionCount).collect {
-            when (it) {
-                SharingCommand.START -> {
-                    refreshProject()
-                }
+    private fun setupNetworkConnectivityHandling() {
+        if (networkConnectivityService == null) return
 
-                SharingCommand.STOP,
-                SharingCommand.STOP_AND_RESET_REPLAY_CACHE -> {
-                    twsSocket?.closeWebsocketConnection()
+        launch {
+            networkConnectivityService.networkStatus.collect {
+                when (it) {
+                    is NetworkStatus.Connected -> forceRefresh()
+                    is NetworkStatus.Disconnected -> twsSocket?.closeWebsocketConnection()
                 }
             }
         }
