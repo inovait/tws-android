@@ -129,7 +129,7 @@ fun WebSnippetComponent(
 
 @Composable
 private fun SnippetContentWithPopup(
-    target: WebSnippetDto,
+    target: TWSSnippet,
     navigator: WebViewNavigator,
     webViewState: WebViewState,
     displayErrorViewOnError: Boolean,
