@@ -23,8 +23,8 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import si.inova.tws.core.data.LoadingState
 import si.inova.tws.core.data.WebViewError
-import si.inova.tws.core.data.WebViewNavigator
-import si.inova.tws.core.data.WebViewState
+import si.inova.tws.core.data.TWSViewNavigator
+import si.inova.tws.core.data.TWSViewState
 
 /**
  * A custom implementation of [WebViewClient] designed to manage the state and navigation of a WebView.
@@ -35,9 +35,9 @@ import si.inova.tws.core.data.WebViewState
  * The `AccompanistWebViewClient` class must be extended to customize its behavior for specific use cases.
  */
 open class AccompanistWebViewClient : WebViewClient() {
-    open lateinit var state: WebViewState
+    open lateinit var state: TWSViewState
         internal set
-    open lateinit var navigator: WebViewNavigator
+    open lateinit var navigator: TWSViewNavigator
         internal set
 
     override fun onPageStarted(view: WebView, url: String?, favicon: Bitmap?) {

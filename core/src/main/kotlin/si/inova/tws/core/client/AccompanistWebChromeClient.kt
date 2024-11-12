@@ -20,7 +20,7 @@ import android.graphics.Bitmap
 import android.webkit.WebChromeClient
 import android.webkit.WebView
 import si.inova.tws.core.data.LoadingState
-import si.inova.tws.core.data.WebViewState
+import si.inova.tws.core.data.TWSViewState
 
 /**
  * AccompanistWebChromeClient is a subclass of [WebChromeClient] designed to manage
@@ -31,7 +31,7 @@ import si.inova.tws.core.data.WebViewState
  * updates for the loading state of the WebView.
  */
 open class AccompanistWebChromeClient : WebChromeClient() {
-    open lateinit var state: WebViewState
+    open lateinit var state: TWSViewState
         internal set
 
     override fun onReceivedTitle(view: WebView, title: String?) {

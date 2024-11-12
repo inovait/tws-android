@@ -34,11 +34,10 @@ import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.persistentMapOf
 
 /**
- * A state holder to hold the state for the WebView. In most cases this will be remembered
- * using the rememberWebViewState(uri) function.
+ * A state holder to hold the state for the WebView.
  */
 @Stable
-class WebViewState(webContent: WebContent) {
+class TWSViewState(webContent: WebContent) {
     var lastLoadedUrl: String? by mutableStateOf(null)
         internal set
 
@@ -46,25 +45,6 @@ class WebViewState(webContent: WebContent) {
      *  The content being loaded by the WebView
      */
     var content: WebContent by mutableStateOf(webContent)
-
-    /**
-     * Whether the WebView is currently [LoadingState.Loading] data in its main frame (along with
-     * progress) or the data loading has [LoadingState.Finished]. See [LoadingState]
-     */
-    var loadingState: LoadingState by mutableStateOf(LoadingState.Initializing)
-
-    /**
-     * Whether the webview is currently loading data in its main frame
-     */
-    val isLoading: Boolean
-        get() = loadingState !is LoadingState.Finished
-
-    /**
-     * Whether the webviews main frame request has any errors
-     */
-    val hasError: Boolean
-        get() = webViewErrorsForCurrentRequest.any { it.request?.isForMainFrame == true } ||
-            customErrorsForCurrentRequest.size > 0
 
     /**
      * The title received from the loaded content of the current page
@@ -77,6 +57,18 @@ class WebViewState(webContent: WebContent) {
      */
     var pageIcon: Bitmap? by mutableStateOf(null)
         internal set
+
+    /**
+     * Whether the WebView is currently [LoadingState.Loading] data in its main frame (along with
+     * progress) or the data loading has [LoadingState.Finished]. See [LoadingState]
+     */
+    var loadingState: LoadingState by mutableStateOf(LoadingState.Initializing)
+
+    /**
+     * Whether the webview is currently loading data in its main frame
+     */
+    val isLoading: Boolean
+        get() = loadingState !is LoadingState.Finished
 
     /**
      * A list for errors captured in the last load. Reset when a new page is loaded.
@@ -95,7 +87,6 @@ class WebViewState(webContent: WebContent) {
     /**
      * The saved view state from when the view was destroyed last. To restore state,
      * use the navigator and only call loadUrl if the bundle is null.
-     * See WebViewSaveStateSample.
      */
     var viewState: Bundle? = null
         internal set
@@ -111,17 +102,17 @@ class WebViewState(webContent: WebContent) {
  *
  * @param url The url to load in the WebView
  * @param additionalHttpHeaders Optional, additional HTTP headers that are passed to [WebView.loadUrl].
- *                              Note that these headers are used for all subsequent requests of the WebView.
+ *
  */
 @Composable
-fun rememberWebViewState(
+fun rememberTWSViewState(
     url: String,
     additionalHttpHeaders: ImmutableMap<String, String> = persistentMapOf()
-): WebViewState =
+): TWSViewState =
     // Rather than using .apply {} here we will recreate the state, this prevents
     // a recomposition loop when the webview updates the url itself.
     remember {
-        WebViewState(
+        TWSViewState(
             WebContent.Url(
                 url = url,
                 additionalHttpHeaders = additionalHttpHeaders
@@ -138,45 +129,18 @@ fun rememberWebViewState(
  * Creates a WebView state that is remembered across Compositions.
  */
 @Composable
-fun rememberWebViewStateWithHTMLData(
+fun rememberTWSViewStateWithHTMLData(
     data: String,
     baseUrl: String? = null,
     encoding: String = "utf-8",
     mimeType: String? = null,
     historyUrl: String? = null
-): WebViewState =
+): TWSViewState =
     remember {
-        WebViewState(WebContent.Data(data, baseUrl, encoding, mimeType, historyUrl))
+        TWSViewState(WebContent.Data(data, baseUrl, encoding, mimeType, historyUrl))
     }.apply {
         this.content = WebContent.Data(
             data, baseUrl, encoding, mimeType, historyUrl
-        )
-    }
-
-/**
- * Creates a WebView state that is remembered across Compositions.
- *
- * @param url The url to load in the WebView
- * @param postData The data to be posted to the WebView with the url
- */
-@Composable
-fun rememberWebViewState(
-    url: String,
-    postData: ByteArray
-): WebViewState =
-// Rather than using .apply {} here we will recreate the state, this prevents
-    // a recomposition loop when the webview updates the url itself.
-    remember {
-        WebViewState(
-            WebContent.Post(
-                url = url,
-                postData = postData
-            )
-        )
-    }.apply {
-        this.content = WebContent.Post(
-            url = url,
-            postData = postData
         )
     }
 
@@ -187,15 +151,18 @@ fun rememberWebViewState(
  * a URL is via a WebViewNavigator.
  *
  * @param inputs A set of inputs such that, when any of them have changed, will cause the state to reset
- * @param key Additional key, which will be used to distinguish between different states while saving and retrieving from Bundle
+ * @param key An optional key to be used as a key for the saved value. If not provided we use the
+ * automatically generated by the Compose runtime which is unique for the every exact code location
+ * in the composition tree
+ *
  */
 @Composable
-fun rememberSaveableWebViewState(vararg inputs: Any?, key: String = ""): WebViewState =
-    rememberSaveable(saver = createWebStateSaver(key), key = key.takeIf { it.isNotEmpty() }, inputs = inputs) {
-        WebViewState(WebContent.NavigatorOnly)
+fun rememberSaveableTWSViewState(vararg inputs: Any?, key: String = ""): TWSViewState =
+    rememberSaveable(saver = createTWSViewStateSaver(key), key = key.takeIf { it.isNotEmpty() }, inputs = inputs) {
+        TWSViewState(WebContent.NavigatorOnly)
     }
 
-fun createWebStateSaver(key: String): Saver<WebViewState, Any> {
+private fun createTWSViewStateSaver(key: String): Saver<TWSViewState, Any> {
     val pageTitleKey = "$key:pagetitle"
     val lastLoadedUrlKey = "$key:lastloaded"
     val stateBundle = "$key:bundle"
@@ -213,7 +180,7 @@ fun createWebStateSaver(key: String): Saver<WebViewState, Any> {
             )
         },
         restore = {
-            WebViewState(WebContent.NavigatorOnly).apply {
+            TWSViewState(WebContent.NavigatorOnly).apply {
                 this.pageTitle = it[pageTitleKey] as String?
                 this.lastLoadedUrl = it[lastLoadedUrlKey] as String?
                 this.viewState = it[stateBundle] as Bundle?

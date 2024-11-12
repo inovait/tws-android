@@ -30,14 +30,14 @@ import okhttp3.ResponseBody
 import si.inova.tws.core.client.okhttp.webViewHttpClient
 import si.inova.tws.core.data.LoadingState
 import si.inova.tws.core.data.TWSInterceptUrlCallback
-import si.inova.tws.core.data.WebViewState
+import si.inova.tws.core.data.TWSViewState
 import si.inova.tws.core.util.HtmlModifierHelper
 import si.inova.tws.data.TWSAttachment
 import si.inova.tws.data.TWSEngine
 import java.util.concurrent.TimeUnit
 
 /**
- * [OkHttpTwsWebViewClient] is a specialized subclass of [TwsWebViewClient] that integrates OkHttp for
+ * [OkHttpTWSWebViewClient] is a specialized subclass of [TWSWebViewClient] that integrates OkHttp for
  * efficient network request handling and response modification. This client overrides the default
  * WebViewClient behavior by using OkHttp for executing network requests and offers advanced features such as:
  *
@@ -45,16 +45,16 @@ import java.util.concurrent.TimeUnit
  *   `dynamicModifiers`. Mustache templating is also supported to modify HTML content based on dynamic properties.
  * - Caching Management: Utilizes OkHttp's caching capabilities to enhance performance, including support for
  *   handling stale content with `stale-if-error` directives.
- * - Google Authentication Flow: Inherits handling of specific URL redirections from [TwsWebViewClient], including
+ * - Google Authentication Flow: Inherits handling of specific URL redirections from [TWSWebViewClient], including
  *   the ability to open custom tabs for Google authentication.
  *
  * @param interceptUrlCallback A function to intercept and handle specific URL requests before passing them to OkHttp.
  * @param popupStateCallback An optional callback to manage the visibility of popups or custom tabs in the WebView.
  */
-class OkHttpTwsWebViewClient(
+class OkHttpTWSWebViewClient(
     interceptUrlCallback: TWSInterceptUrlCallback,
-    popupStateCallback: ((WebViewState, Boolean) -> Unit)? = null
-) : TwsWebViewClient(interceptUrlCallback, popupStateCallback) {
+    popupStateCallback: ((TWSViewState, Boolean) -> Unit)? = null
+) : TWSWebViewClient(interceptUrlCallback, popupStateCallback) {
 
     private lateinit var okHttpClient: OkHttpClient
     private val htmlModifier = HtmlModifierHelper()
