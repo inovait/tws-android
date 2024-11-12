@@ -44,7 +44,7 @@ open class AccompanistWebViewClient : WebViewClient() {
         super.onPageStarted(view, url, favicon)
 
         if (state.loadingState !is LoadingState.Loading) {
-            state.loadingState = LoadingState.Loading(0.0f)
+            state.loadingState = LoadingState.Loading(0.0f, state.loadingState is LoadingState.ForceRefreshInitiated)
             state.webViewErrorsForCurrentRequest.clear()
         }
 

@@ -20,7 +20,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
@@ -42,13 +43,9 @@ internal fun SnippetErrorView(
 ) {
     Column(
         modifier = Modifier
-            .fillMaxSize()
+            .fillMaxWidth()
+            .then(if (fullScreen) Modifier.fillMaxHeight() else Modifier.height(200.dp))
             .background(Color.White)
-            .apply {
-                if (!fullScreen) {
-                    height(200.dp)
-                }
-            }
     ) {
         Spacer(modifier = Modifier.weight(1f))
 

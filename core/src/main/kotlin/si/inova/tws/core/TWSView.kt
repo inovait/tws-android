@@ -95,8 +95,8 @@ fun TWSView(
     modifier: Modifier = Modifier,
     navigator: TWSViewNavigator = rememberTWSViewNavigator("${snippet.id}:${snippet.target}"),
     viewState: TWSViewState = rememberTWSViewState(snippet, "${snippet.id}:${snippet.target}"),
-    errorViewContent: @Composable (String) -> Unit = { SnippetErrorView(it, false) },
-    loadingPlaceholderContent: @Composable () -> Unit = { SnippetLoadingView(false) },
+    errorViewContent: @Composable (String) -> Unit = { SnippetErrorView(it, true) },
+    loadingPlaceholderContent: @Composable () -> Unit = { SnippetLoadingView(true) },
     interceptUrlCallback: TWSInterceptUrlCallback = TWSDeepLinkInterceptUrlCallback(LocalContext.current),
     googleLoginRedirectUrl: String? = null,
     isRefreshable: Boolean = true
@@ -270,7 +270,8 @@ private fun SnippetLoading(
     viewState: TWSViewState,
     loadingPlaceholderContent: @Composable () -> Unit
 ) {
-    if (viewState.isLoading) {
+    val state = viewState.loadingState
+    if (state is LoadingState.Loading && !state.isUserForceRefresh) {
         loadingPlaceholderContent()
     }
 }
@@ -353,18 +354,19 @@ private const val WEB_VIEW_POPUP_HEIGHT_PERCENTAGE = 0.8f
 
 @Composable
 @Preview
-private fun WebSnippetComponentPreview() {
+private fun WebSnippetLoadingPlaceholderComponentPreview() {
     TWSView(
-        TWSSnippet(id = "id", target = "https://www.google.com/")
+        TWSSnippet(id = "id", target = "https://www.google.com/"),
+        viewState = webStateLoading
     )
 }
 
 @Composable
 @Preview
-private fun WebSnippetLoadingPlaceholderComponentPreview() {
+private fun WebSnippetLoadingForceRefreshComponentPreview() {
     TWSView(
         TWSSnippet(id = "id", target = "https://www.google.com/"),
-        viewState = webStateLoading
+        viewState = webStateLoadingForceRefresh
     )
 }
 
@@ -387,5 +389,10 @@ private fun WebSnippetLoadingPlaceholderFinishedComponentPreview() {
 }
 
 private val webStateInitializing = TWSViewState(WebContent.NavigatorOnly).apply { loadingState = LoadingState.Initializing }
-private val webStateLoading = TWSViewState(WebContent.NavigatorOnly).apply { loadingState = LoadingState.Loading(0.5f) }
+private val webStateLoading = TWSViewState(WebContent.NavigatorOnly).apply {
+    loadingState = LoadingState.Loading(0.5f, false)
+}
+private val webStateLoadingForceRefresh = TWSViewState(WebContent.NavigatorOnly).apply {
+    loadingState = LoadingState.Loading(0.5f, true)
+}
 private val webStateLoadingFinished = TWSViewState(WebContent.NavigatorOnly).apply { loadingState = LoadingState.Finished }

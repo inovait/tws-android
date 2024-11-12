@@ -45,6 +45,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import si.inova.tws.core.client.AccompanistWebChromeClient
 import si.inova.tws.core.client.AccompanistWebViewClient
 import si.inova.tws.core.client.TWSWebChromeClient
+import si.inova.tws.core.data.LoadingState
 import si.inova.tws.core.data.TWSDownloadListener
 import si.inova.tws.core.data.WebContent
 import si.inova.tws.core.data.TWSViewNavigator
@@ -188,6 +189,7 @@ internal fun WebView(
             createSwipeRefreshLayout(
                 context = context,
                 navigator = navigator,
+                state = state,
                 webView = createWebView(
                     context = context,
                     state = state,
@@ -221,7 +223,7 @@ internal fun WebView(
         },
         update = {
             if (isRefreshable) {
-                it.isRefreshing = state.isLoading
+                it.isRefreshing = (state.loadingState as? LoadingState.Loading)?.isUserForceRefresh == true
             }
         }
     )
@@ -349,10 +351,14 @@ private fun createWebView(
 private fun createSwipeRefreshLayout(
     context: Context,
     webView: WebView,
-    navigator: TWSViewNavigator
+    navigator: TWSViewNavigator,
+    state: TWSViewState
 ): SwipeRefreshLayout {
     return SwipeRefreshLayout(context).apply {
-        setOnRefreshListener { navigator.reload() }
+        setOnRefreshListener {
+            state.loadingState = LoadingState.ForceRefreshInitiated
+            navigator.reload()
+        }
         addView(webView)
     }
 }

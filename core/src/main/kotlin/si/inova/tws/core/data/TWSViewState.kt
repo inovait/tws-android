@@ -64,12 +64,6 @@ class TWSViewState(webContent: WebContent) {
     var loadingState: LoadingState by mutableStateOf(LoadingState.Initializing)
 
     /**
-     * Whether the webview is currently loading data in its main frame
-     */
-    val isLoading: Boolean
-        get() = loadingState !is LoadingState.Finished
-
-    /**
      * A list for errors captured in the last load. Reset when a new page is loaded.
      * Errors could be from any resource (iframe, image, etc.), not just for the main page.
      * For more fine grained control use the OnError callback of the WebView.
