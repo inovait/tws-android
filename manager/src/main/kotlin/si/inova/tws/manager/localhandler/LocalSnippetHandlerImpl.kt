@@ -26,7 +26,7 @@ import si.inova.kotlinova.core.time.DefaultAndroidTimeProvider
 import si.inova.tws.manager.data.ActionBody
 import si.inova.tws.manager.data.ActionType
 import si.inova.tws.manager.data.SnippetUpdateAction
-import si.inova.tws.manager.data.WebSnippetDto
+import si.inova.tws.manager.data.TWSSnippetDto
 import java.time.Duration
 import java.time.Instant
 
@@ -36,17 +36,17 @@ internal class LocalSnippetHandlerImpl(
 ) : LocalSnippetHandler {
     override val updateActionFlow: MutableSharedFlow<SnippetUpdateAction> = MutableSharedFlow(replay = 0, extraBufferCapacity = 1)
 
-    private var snippets: List<WebSnippetDto> = emptyList()
+    private var snippets: List<TWSSnippetDto> = emptyList()
     private var scheduledJob: Job? = null // Reference to the currently scheduled job
 
     private var dateDifference: Long? = null
 
-    override suspend fun calculateDateOffsetAndRerun(serverDate: Instant?, snippets: List<WebSnippetDto>) {
+    override suspend fun calculateDateOffsetAndRerun(serverDate: Instant?, snippets: List<TWSSnippetDto>) {
         dateDifference = timeProvider.currentInstant().minusMillis(serverDate?.toEpochMilli() ?: 0).toEpochMilli()
         updateAndScheduleCheck(snippets)
     }
 
-    override suspend fun updateAndScheduleCheck(snippets: List<WebSnippetDto>) {
+    override suspend fun updateAndScheduleCheck(snippets: List<TWSSnippetDto>) {
         // Cancel any previously scheduled check to avoid duplicate checks
         scheduledJob?.cancel()
 
@@ -85,7 +85,7 @@ internal class LocalSnippetHandlerImpl(
         }
     }
 
-    private suspend fun checkAndDeleteSnippets(snippets: List<WebSnippetDto>, now: Instant) {
+    private suspend fun checkAndDeleteSnippets(snippets: List<TWSSnippetDto>, now: Instant) {
         // emit all delete events for snippets that should already be hidden
         snippets.forEach { snippet ->
             snippet.visibility?.untilUtc?.let { hideAfter ->

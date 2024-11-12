@@ -73,11 +73,11 @@ internal fun ActionBody.isEmpty(): Boolean {
     return target == null && headers == null && visibility == null && dynamicResources == null && props == null && engine == null
 }
 
-internal fun List<WebSnippetDto>.updateWith(
+internal fun List<TWSSnippetDto>.updateWith(
     action: SnippetUpdateAction,
     organizationId: String,
     projectId: String
-): List<WebSnippetDto> {
+): List<TWSSnippetDto> {
     return when (action.type) {
         ActionType.CREATED -> insert(action.data, organizationId, projectId)
         ActionType.UPDATED -> update(action.data)
@@ -85,11 +85,11 @@ internal fun List<WebSnippetDto>.updateWith(
     }
 }
 
-internal fun List<WebSnippetDto>.insert(data: ActionBody, organizationId: String, projectId: String): List<WebSnippetDto> {
+internal fun List<TWSSnippetDto>.insert(data: ActionBody, organizationId: String, projectId: String): List<TWSSnippetDto> {
     return toMutableList().apply {
         if (data.target != null) {
             add(
-                WebSnippetDto(
+                TWSSnippetDto(
                     id = data.id,
                     target = data.target,
                     headers = data.headers.orEmpty(),
@@ -104,7 +104,7 @@ internal fun List<WebSnippetDto>.insert(data: ActionBody, organizationId: String
     }
 }
 
-internal fun List<WebSnippetDto>.update(data: ActionBody): List<WebSnippetDto> {
+internal fun List<TWSSnippetDto>.update(data: ActionBody): List<TWSSnippetDto> {
     return map {
         if (it.id == data.id) {
             if (data.isEmpty()) {
@@ -127,6 +127,6 @@ internal fun List<WebSnippetDto>.update(data: ActionBody): List<WebSnippetDto> {
     }
 }
 
-internal fun List<WebSnippetDto>.remove(data: ActionBody): List<WebSnippetDto> {
+internal fun List<TWSSnippetDto>.remove(data: ActionBody): List<TWSSnippetDto> {
     return filter { it.id != data.id }
 }

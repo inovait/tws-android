@@ -36,7 +36,7 @@ import si.inova.kotlinova.core.outcome.mapData
 import si.inova.kotlinova.retrofit.callfactory.bodyOrThrow
 import si.inova.tws.manager.cache.CacheManager
 import si.inova.tws.manager.cache.FileCacheManager
-import si.inova.tws.manager.data.WebSnippetDto
+import si.inova.tws.manager.data.TWSSnippetDto
 import si.inova.tws.manager.data.toTWSSnippet
 import si.inova.tws.manager.data.updateWith
 import si.inova.tws.manager.factory.BaseServiceFactory
@@ -59,7 +59,7 @@ internal class TWSManagerImpl(
     private val cacheManager: CacheManager? = FileCacheManager(context, tag),
 ) : TWSManager, CoroutineScope by scope {
 
-    private val _snippetsFlow: MutableStateFlow<Outcome<List<WebSnippetDto>>> = MutableStateFlow(Outcome.Progress())
+    private val _snippetsFlow: MutableStateFlow<Outcome<List<TWSSnippetDto>>> = MutableStateFlow(Outcome.Progress())
     private val _localProps: MutableStateFlow<Map<String, Map<String, Any>>> = MutableStateFlow(emptyMap())
 
     // collect with collectAsStateWithLifecycle so the websocket reconnection will work
@@ -141,7 +141,7 @@ internal class TWSManagerImpl(
         }
     }
 
-    private fun saveToCache(snippets: List<WebSnippetDto>) = launch {
+    private fun saveToCache(snippets: List<TWSSnippetDto>) = launch {
         cacheManager?.save(CACHED_SNIPPETS, snippets)
     }
 
@@ -169,7 +169,7 @@ internal class TWSManagerImpl(
     }
 
     // Collect local snippet changes (hiding with visibility)
-    private suspend fun LocalSnippetHandler.launchAndCollect(snippets: List<WebSnippetDto>) {
+    private suspend fun LocalSnippetHandler.launchAndCollect(snippets: List<TWSSnippetDto>) {
         updateAndScheduleCheck(snippets)
 
         if (collectingLocalHandler) return

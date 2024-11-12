@@ -22,5 +22,5 @@ import com.squareup.moshi.JsonClass
 @JsonClass(generateAdapter = true)
 @Keep
 internal data class SharedSnippetDto(
-    val snippet: WebSnippetDto
+    val snippet: TWSSnippetDto
 )
