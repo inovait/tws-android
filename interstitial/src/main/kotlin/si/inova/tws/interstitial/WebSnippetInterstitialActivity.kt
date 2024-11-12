@@ -110,7 +110,7 @@ class WebSnippetInterstitialActivity : ComponentActivity() {
                 snippet?.let {
                     TWSView(
                         modifier = Modifier.fillMaxSize(),
-                        target = it
+                        snippet = it
                     )
 
                     FilledIconButton(

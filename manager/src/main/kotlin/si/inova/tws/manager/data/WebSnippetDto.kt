@@ -44,7 +44,7 @@ internal data class WebSnippetDto(
 internal fun WebSnippetDto.toTWSSnippet(localProps: Map<String, Any>) = TWSSnippet(
     id = this.id,
     target = this.target,
-    headers = this.headers,
+    headers = this.headers.orEmpty(),
     dynamicResources = this.dynamicResources,
     props = this.props + localProps,
     engine = this.engine,
