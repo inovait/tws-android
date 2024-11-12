@@ -25,6 +25,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
@@ -46,9 +47,9 @@ import si.inova.tws.manager.localhandler.LocalSnippetHandler
 import si.inova.tws.manager.localhandler.LocalSnippetHandlerImpl
 import si.inova.tws.manager.service.NetworkConnectivityService
 import si.inova.tws.manager.service.NetworkConnectivityServiceImpl
-import si.inova.tws.manager.websocket.TWSSocket
 import si.inova.tws.manager.snippet.SnippetLoadingManager
 import si.inova.tws.manager.snippet.SnippetLoadingManagerImpl
+import si.inova.tws.manager.websocket.TWSSocket
 import si.inova.tws.manager.websocket.TWSSocketImpl
 import kotlin.time.Duration.Companion.seconds
 
@@ -92,7 +93,7 @@ internal class TWSManagerImpl(
     }
 
     private val _mainSnippetIdFlow: MutableStateFlow<String?> = MutableStateFlow(null)
-    override val mainSnippetIdFlow: Flow<String?> = _mainSnippetIdFlow
+    override val mainSnippetIdFlow: Flow<String?> = _mainSnippetIdFlow.filterNotNull()
 
     private var collectingSocket: Boolean = false
     private var collectingLocalHandler: Boolean = false
@@ -110,6 +111,8 @@ internal class TWSManagerImpl(
 
                 val response = loader.load()
                 val project = response.project
+
+                _mainSnippetIdFlow.emit(response.mainSnippet)
 
                 _snippetsFlow.emit(Outcome.Success(project.snippets))
 
