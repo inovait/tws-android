@@ -16,7 +16,9 @@
 
 package si.inova.tws.manager
 
+import android.content.Context
 import app.cash.turbine.test
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
@@ -28,9 +30,15 @@ import si.inova.kotlinova.core.test.outcomes.shouldBeProgressWith
 import si.inova.kotlinova.core.test.outcomes.shouldBeProgressWithData
 import si.inova.kotlinova.core.test.outcomes.shouldBeSuccessWithData
 import si.inova.tws.data.TWSAttachment
+import si.inova.tws.manager.cache.CacheManager
 import si.inova.tws.manager.data.ActionBody
 import si.inova.tws.manager.data.ActionType
+import si.inova.tws.manager.data.ProjectDto
 import si.inova.tws.manager.data.SnippetUpdateAction
+import si.inova.tws.manager.localhandler.LocalSnippetHandler
+import si.inova.tws.manager.service.NetworkConnectivityService
+import si.inova.tws.manager.snippet.ProjectResponse
+import si.inova.tws.manager.snippet.SnippetLoadingManager
 import si.inova.tws.manager.utils.FAKE_EXPOSED_SNIPPET_FIVE
 import si.inova.tws.manager.utils.FAKE_EXPOSED_SNIPPET_FOUR
 import si.inova.tws.manager.utils.FAKE_EXPOSED_SNIPPET_ONE
@@ -45,45 +53,42 @@ import si.inova.tws.manager.utils.FAKE_SNIPPET_THREE
 import si.inova.tws.manager.utils.FAKE_SNIPPET_TWO
 import si.inova.tws.manager.utils.FakeCacheManager
 import si.inova.tws.manager.utils.FakeLocalSnippetHandler
+import si.inova.tws.manager.utils.FakeNetworkConnectivityService
+import si.inova.tws.manager.utils.FakeSnippetLoadingManager
 import si.inova.tws.manager.utils.FakeTWSSocket
-import si.inova.tws.manager.utils.FakeTWSFunctions
 import si.inova.tws.manager.utils.toActionBody
+import si.inova.tws.manager.websocket.TWSSocket
+import java.time.Instant
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class TWSManagerImplTest {
-    private val scope = TestScopeWithDispatcherProvider()
+    private val fakeScope = TestScopeWithDispatcherProvider()
 
-    private val functions = FakeTWSFunctions()
-    private val socket = FakeTWSSocket()
-    private val handler = FakeLocalSnippetHandler()
-    private val cache = FakeCacheManager()
+    private val fakeSocket = FakeTWSSocket()
+    private val fakeHandler = FakeLocalSnippetHandler()
+    private val fakeCache = FakeCacheManager()
+    private val fakeLoader = FakeSnippetLoadingManager()
+    private val fakeNetworkConnectivityService = FakeNetworkConnectivityService()
 
-    private lateinit var webSnippetManager: TWSManagerImpl
+    private lateinit var webSnippetManager: TWSManager
 
     @Before
     fun setUp() {
-        webSnippetManager = TWSManagerImpl(
-            context = mock(),
-            configuration = TWSConfiguration.Basic("organization", "project", "apiKey"),
-            tag = "TestManager",
-            scope = scope.backgroundScope,
-            functions = functions,
-            twsSocket = socket,
-            localSnippetHandler = handler,
-            cacheManager = cache,
-        )
-        cache.clear()
+        webSnippetManager = copyTWSManagerImpl()
+        fakeCache.clear()
     }
 
     @Test
-    fun `Loading snippets with project and organization id`() = scope.runTest {
-        functions.returnedProject = FAKE_PROJECT_DTO
-
-        webSnippetManager.run()
+    fun `Loading snippets with project and organization id`() = fakeScope.runTest {
+        fakeLoader.setProjectLoader = ProjectResponse(
+            FAKE_PROJECT_DTO,
+            Instant.MIN
+        )
 
         webSnippetManager.snippetsFlow.test {
-            runCurrent()
-            expectMostRecentItem().shouldBeSuccessWithData(
+            awaitItem().shouldBeProgressWith()
+
+            awaitItem().shouldBeSuccessWithData(
                 listOf(
                     FAKE_EXPOSED_SNIPPET_ONE,
                     FAKE_EXPOSED_SNIPPET_TWO,
@@ -95,26 +100,19 @@ class TWSManagerImplTest {
     }
 
     @Test
-    fun `Loading shared snippet with shared id`() = scope.runTest {
-        webSnippetManager = TWSManagerImpl(
-            context = mock(),
-            configuration = TWSConfiguration.Shared("shared", "apiKey"),
-            tag = "TestManager",
-            scope = scope.backgroundScope,
-            functions = functions,
-            twsSocket = socket,
-            localSnippetHandler = handler,
-            cacheManager = cache
+    fun `Loading shared snippet with shared id`() = fakeScope.runTest {
+        webSnippetManager = copyTWSManagerImpl(configuration = TWSConfiguration.Shared("shared", "apiKey"))
+
+        fakeLoader.setProjectLoader = ProjectResponse(
+            FAKE_PROJECT_DTO,
+            Instant.MIN,
+            FAKE_SHARED_PROJECT.snippet.id
         )
 
-        functions.returnedProject = FAKE_PROJECT_DTO
-        functions.returnedSharedSnippet = FAKE_SHARED_PROJECT
-
-        webSnippetManager.run()
-
         webSnippetManager.snippetsFlow.test {
-            runCurrent()
-            expectMostRecentItem().shouldBeSuccessWithData(
+            awaitItem().shouldBeProgressWith()
+
+            awaitItem().shouldBeSuccessWithData(
                 listOf(
                     FAKE_EXPOSED_SNIPPET_ONE,
                     FAKE_EXPOSED_SNIPPET_TWO,
@@ -126,20 +124,21 @@ class TWSManagerImplTest {
 
         webSnippetManager.mainSnippetIdFlow.test {
             runCurrent()
-            assert(expectMostRecentItem() == FAKE_SNIPPET_ONE.id)
+            assert(expectMostRecentItem() == FAKE_SHARED_PROJECT.snippet.id)
         }
     }
 
     @Test
-    fun `Load snippets and delete one from web socket`() = scope.runTest {
-        functions.returnedProject = FAKE_PROJECT_DTO
-
-        webSnippetManager.run()
+    fun `Load snippets and delete one from web socket`() = fakeScope.runTest {
+        fakeLoader.setProjectLoader = ProjectResponse(
+            FAKE_PROJECT_DTO,
+            Instant.MIN
+        )
 
         webSnippetManager.snippetsFlow.test {
-            runCurrent()
+            awaitItem().shouldBeProgressWith()
 
-            expectMostRecentItem().shouldBeSuccessWithData(
+            awaitItem().shouldBeSuccessWithData(
                 listOf(
                     FAKE_EXPOSED_SNIPPET_ONE,
                     FAKE_EXPOSED_SNIPPET_TWO,
@@ -148,7 +147,8 @@ class TWSManagerImplTest {
                 )
             )
 
-            socket.mockUpdateAction(SnippetUpdateAction(ActionType.DELETED, ActionBody(id = FAKE_SNIPPET_ONE.id)))
+            fakeSocket.mockUpdateAction(SnippetUpdateAction(ActionType.DELETED, ActionBody(id = FAKE_SNIPPET_ONE.id)))
+            runCurrent()
 
             expectMostRecentItem().shouldBeSuccessWithData(
                 listOf(
@@ -161,15 +161,16 @@ class TWSManagerImplTest {
     }
 
     @Test
-    fun `Load snippets and update tab target from web socket`() = scope.runTest {
-        functions.returnedProject = FAKE_PROJECT_DTO
-
-        webSnippetManager.run()
+    fun `Load snippets and update tab target from web socket`() = fakeScope.runTest {
+        fakeLoader.setProjectLoader = ProjectResponse(
+            FAKE_PROJECT_DTO,
+            Instant.MIN
+        )
 
         webSnippetManager.snippetsFlow.test {
-            runCurrent()
+            awaitItem().shouldBeProgressWith()
 
-            expectMostRecentItem().shouldBeSuccessWithData(
+            awaitItem().shouldBeSuccessWithData(
                 listOf(
                     FAKE_EXPOSED_SNIPPET_ONE,
                     FAKE_EXPOSED_SNIPPET_TWO,
@@ -178,12 +179,13 @@ class TWSManagerImplTest {
                 )
             )
 
-            socket.mockUpdateAction(
+            fakeSocket.mockUpdateAction(
                 SnippetUpdateAction(
                     ActionType.UPDATED,
                     ActionBody(id = FAKE_SNIPPET_ONE.id, target = "www.example.com")
                 )
             )
+            runCurrent()
 
             expectMostRecentItem().shouldBeSuccessWithData(
                 listOf(
@@ -197,15 +199,16 @@ class TWSManagerImplTest {
     }
 
     @Test
-    fun `Load snippets and create snippet from web socket`() = scope.runTest {
-        functions.returnedProject = FAKE_PROJECT_DTO
-
-        webSnippetManager.run()
+    fun `Load snippets and create snippet from web socket`() = fakeScope.runTest {
+        fakeLoader.setProjectLoader = ProjectResponse(
+            FAKE_PROJECT_DTO,
+            Instant.MIN
+        )
 
         webSnippetManager.snippetsFlow.test {
-            runCurrent()
+            awaitItem().shouldBeProgressWith()
 
-            expectMostRecentItem().shouldBeSuccessWithData(
+            awaitItem().shouldBeSuccessWithData(
                 listOf(
                     FAKE_EXPOSED_SNIPPET_ONE,
                     FAKE_EXPOSED_SNIPPET_TWO,
@@ -214,12 +217,13 @@ class TWSManagerImplTest {
                 )
             )
 
-            socket.mockUpdateAction(
+            fakeSocket.mockUpdateAction(
                 SnippetUpdateAction(
                     ActionType.CREATED,
                     FAKE_SNIPPET_THREE.toActionBody()
                 )
             )
+            runCurrent()
 
             expectMostRecentItem().shouldBeSuccessWithData(
                 listOf(
@@ -234,15 +238,13 @@ class TWSManagerImplTest {
     }
 
     @Test
-    fun `Load snippets and create, update and delete from web socket`() = scope.runTest {
-        functions.returnedProject = FAKE_PROJECT_DTO
-
-        webSnippetManager.run()
+    fun `Load snippets and create, update and delete from web socket`() = fakeScope.runTest {
+        fakeLoader.setProjectLoader = ProjectResponse(FAKE_PROJECT_DTO, Instant.MIN)
 
         webSnippetManager.snippetsFlow.test {
-            runCurrent()
+            awaitItem().shouldBeProgressWith()
 
-            expectMostRecentItem().shouldBeSuccessWithData(
+            awaitItem().shouldBeSuccessWithData(
                 listOf(
                     FAKE_EXPOSED_SNIPPET_ONE,
                     FAKE_EXPOSED_SNIPPET_TWO,
@@ -251,12 +253,8 @@ class TWSManagerImplTest {
                 )
             )
 
-            socket.mockUpdateAction(
-                SnippetUpdateAction(
-                    ActionType.CREATED,
-                    FAKE_SNIPPET_THREE.toActionBody()
-                )
-            )
+            fakeSocket.mockUpdateAction(SnippetUpdateAction(ActionType.CREATED, FAKE_SNIPPET_THREE.toActionBody()))
+            runCurrent()
 
             expectMostRecentItem().shouldBeSuccessWithData(
                 listOf(
@@ -268,12 +266,13 @@ class TWSManagerImplTest {
                 )
             )
 
-            socket.mockUpdateAction(
+            fakeSocket.mockUpdateAction(
                 SnippetUpdateAction(
                     ActionType.UPDATED,
                     ActionBody(id = FAKE_SNIPPET_ONE.id, target = "www.updated.com")
                 )
             )
+            runCurrent()
 
             expectMostRecentItem().shouldBeSuccessWithData(
                 listOf(
@@ -285,12 +284,8 @@ class TWSManagerImplTest {
                 )
             )
 
-            socket.mockUpdateAction(
-                SnippetUpdateAction(
-                    ActionType.DELETED,
-                    ActionBody(id = FAKE_SNIPPET_ONE.id)
-                )
-            )
+            fakeSocket.mockUpdateAction(SnippetUpdateAction(ActionType.DELETED, ActionBody(id = FAKE_SNIPPET_ONE.id)))
+            runCurrent()
 
             expectMostRecentItem().shouldBeSuccessWithData(
                 listOf(
@@ -304,15 +299,16 @@ class TWSManagerImplTest {
     }
 
     @Test
-    fun `Load snippets and delete snippet from local handler`() = scope.runTest {
-        functions.returnedProject = FAKE_PROJECT_DTO
-
-        webSnippetManager.run()
+    fun `Load snippets and delete snippet from local handler`() = fakeScope.runTest {
+        fakeLoader.setProjectLoader = ProjectResponse(
+            FAKE_PROJECT_DTO,
+            Instant.MIN
+        )
 
         webSnippetManager.snippetsFlow.test {
-            runCurrent()
+            awaitItem().shouldBeProgressWith()
 
-            expectMostRecentItem().shouldBeSuccessWithData(
+            awaitItem().shouldBeSuccessWithData(
                 listOf(
                     FAKE_EXPOSED_SNIPPET_ONE,
                     FAKE_EXPOSED_SNIPPET_TWO,
@@ -321,7 +317,8 @@ class TWSManagerImplTest {
                 )
             )
 
-            handler.mockUpdateAction(SnippetUpdateAction(ActionType.DELETED, ActionBody(id = FAKE_SNIPPET_ONE.id)))
+            fakeHandler.mockUpdateAction(SnippetUpdateAction(ActionType.DELETED, ActionBody(id = FAKE_SNIPPET_ONE.id)))
+            runCurrent()
 
             expectMostRecentItem().shouldBeSuccessWithData(
                 listOf(FAKE_EXPOSED_SNIPPET_TWO, FAKE_EXPOSED_SNIPPET_FOUR, FAKE_EXPOSED_SNIPPET_FIVE)
@@ -330,15 +327,16 @@ class TWSManagerImplTest {
     }
 
     @Test
-    fun `Load snippets and and update from socket with html changes`() = scope.runTest {
-        functions.returnedProject = FAKE_PROJECT_DTO
-
-        webSnippetManager.run()
+    fun `Load snippets and and update from socket with html changes`() = fakeScope.runTest {
+        fakeLoader.setProjectLoader = ProjectResponse(
+            FAKE_PROJECT_DTO,
+            Instant.MIN
+        )
 
         webSnippetManager.snippetsFlow.test {
-            runCurrent()
+            awaitItem().shouldBeProgressWith()
 
-            expectMostRecentItem().shouldBeSuccessWithData(
+            awaitItem().shouldBeSuccessWithData(
                 listOf(
                     FAKE_EXPOSED_SNIPPET_ONE,
                     FAKE_EXPOSED_SNIPPET_TWO,
@@ -347,7 +345,8 @@ class TWSManagerImplTest {
                 )
             )
 
-            handler.mockUpdateAction(SnippetUpdateAction(ActionType.UPDATED, ActionBody(id = FAKE_SNIPPET_ONE.id)))
+            fakeHandler.mockUpdateAction(SnippetUpdateAction(ActionType.UPDATED, ActionBody(id = FAKE_SNIPPET_ONE.id)))
+            runCurrent()
 
             expectMostRecentItem().shouldBeSuccessWithData(
                 listOf(
@@ -361,40 +360,42 @@ class TWSManagerImplTest {
     }
 
     @Test
-    fun `Load snippets and delete from local handler and web socket`() = scope.runTest {
-        functions.returnedProject = FAKE_PROJECT_DTO.copy(
-            snippets = listOf(FAKE_SNIPPET_ONE, FAKE_SNIPPET_TWO, FAKE_SNIPPET_THREE)
+    fun `Load snippets and delete from local handler and web socket`() = fakeScope.runTest {
+        fakeLoader.setProjectLoader = ProjectResponse(
+            FAKE_PROJECT_DTO.copy(
+                snippets = listOf(FAKE_SNIPPET_ONE, FAKE_SNIPPET_TWO, FAKE_SNIPPET_THREE)
+            ),
+            Instant.MIN
         )
 
-        webSnippetManager.run()
-
         webSnippetManager.snippetsFlow.test {
-            runCurrent()
+            awaitItem().shouldBeProgressWith()
 
-            expectMostRecentItem().shouldBeSuccessWithData(
+            awaitItem().shouldBeSuccessWithData(
                 listOf(FAKE_EXPOSED_SNIPPET_ONE, FAKE_EXPOSED_SNIPPET_TWO, FAKE_EXPOSED_SNIPPET_THREE)
             )
 
-            handler.mockUpdateAction(SnippetUpdateAction(ActionType.DELETED, ActionBody(id = FAKE_SNIPPET_ONE.id)))
-
+            fakeHandler.mockUpdateAction(SnippetUpdateAction(ActionType.DELETED, ActionBody(id = FAKE_SNIPPET_ONE.id)))
+            runCurrent()
             expectMostRecentItem().shouldBeSuccessWithData(listOf(FAKE_EXPOSED_SNIPPET_TWO, FAKE_EXPOSED_SNIPPET_THREE))
 
-            socket.mockUpdateAction(SnippetUpdateAction(ActionType.DELETED, ActionBody(id = FAKE_SNIPPET_TWO.id)))
-
+            fakeSocket.mockUpdateAction(SnippetUpdateAction(ActionType.DELETED, ActionBody(id = FAKE_SNIPPET_TWO.id)))
+            runCurrent()
             expectMostRecentItem().shouldBeSuccessWithData(listOf(FAKE_EXPOSED_SNIPPET_THREE))
         }
     }
 
     @Test
-    fun `Load snippets and delete same snippet from local handler and web socket`() = scope.runTest {
-        functions.returnedProject = FAKE_PROJECT_DTO
-
-        webSnippetManager.run()
+    fun `Load snippets and delete same snippet from local handler and web socket`() = fakeScope.runTest {
+        fakeLoader.setProjectLoader = ProjectResponse(
+            FAKE_PROJECT_DTO,
+            Instant.MIN
+        )
 
         webSnippetManager.snippetsFlow.test {
-            runCurrent()
+            awaitItem().shouldBeProgressWith()
 
-            expectMostRecentItem().shouldBeSuccessWithData(
+            awaitItem().shouldBeSuccessWithData(
                 listOf(
                     FAKE_EXPOSED_SNIPPET_ONE,
                     FAKE_EXPOSED_SNIPPET_TWO,
@@ -403,28 +404,32 @@ class TWSManagerImplTest {
                 )
             )
 
-            handler.mockUpdateAction(SnippetUpdateAction(ActionType.DELETED, ActionBody(id = FAKE_SNIPPET_ONE.id)))
-            socket.mockUpdateAction(SnippetUpdateAction(ActionType.DELETED, ActionBody(id = FAKE_SNIPPET_ONE.id)))
+            fakeHandler.mockUpdateAction(SnippetUpdateAction(ActionType.DELETED, ActionBody(id = FAKE_SNIPPET_ONE.id)))
+            fakeSocket.mockUpdateAction(SnippetUpdateAction(ActionType.DELETED, ActionBody(id = FAKE_SNIPPET_ONE.id)))
+            runCurrent()
 
             expectMostRecentItem().shouldBeSuccessWithData(
                 listOf(FAKE_EXPOSED_SNIPPET_TWO, FAKE_EXPOSED_SNIPPET_FOUR, FAKE_EXPOSED_SNIPPET_FIVE)
             )
 
-            socket.mockUpdateAction(SnippetUpdateAction(ActionType.DELETED, ActionBody(id = FAKE_SNIPPET_ONE.id)))
+            fakeSocket.mockUpdateAction(SnippetUpdateAction(ActionType.DELETED, ActionBody(id = FAKE_SNIPPET_ONE.id)))
+            runCurrent()
 
             expectNoEvents() // There should be no changes, since deleted snippet was already deleted
         }
     }
 
     @Test
-    fun `Load content snippets from cache if available and fetch from api`() = scope.runTest {
-        cache.save(TWSManagerImpl.CACHED_SNIPPETS, listOf(FAKE_SNIPPET_ONE))
-        functions.returnedProject = FAKE_PROJECT_DTO
+    fun `Load content snippets from cache if available and fetch from api`() = fakeScope.runTest {
+        fakeCache.save(TWSManagerImpl.CACHED_SNIPPETS, listOf(FAKE_SNIPPET_ONE))
+
+        fakeLoader.setProjectLoader = ProjectResponse(
+            FAKE_PROJECT_DTO,
+            Instant.MIN
+        )
 
         webSnippetManager.snippetsFlow.test {
-            awaitItem() // initial empty progress
-
-            webSnippetManager.run()
+            awaitItem().shouldBeProgressWith()
 
             val progress = awaitItem() // progress with cached items
             progress.shouldBeProgressWith(listOf(FAKE_EXPOSED_SNIPPET_ONE))
@@ -438,19 +443,18 @@ class TWSManagerImplTest {
                     FAKE_EXPOSED_SNIPPET_FIVE
                 )
             )
-        }
-    }
 
-    @Test
-    fun `Update dynamic resources with socket`() = scope.runTest {
-        functions.returnedProject = FAKE_PROJECT_DTO
+            fakeLoader.setProjectLoader = ProjectResponse(
+                ProjectDto(
+                    snippets = listOf(FAKE_SNIPPET_ONE),
+                    listenOn = "wss:someUrl.com"
+                ),
+                Instant.MIN
+            )
 
-        webSnippetManager.run()
+            webSnippetManager.forceRefresh()
 
-        webSnippetManager.snippetsFlow.test {
-            runCurrent()
-
-            expectMostRecentItem().shouldBeSuccessWithData(
+            awaitItem().shouldBeProgressWith(
                 listOf(
                     FAKE_EXPOSED_SNIPPET_ONE,
                     FAKE_EXPOSED_SNIPPET_TWO,
@@ -459,7 +463,30 @@ class TWSManagerImplTest {
                 )
             )
 
-            socket.mockUpdateAction(
+            awaitItem().shouldBeSuccessWithData(listOf(FAKE_EXPOSED_SNIPPET_ONE))
+        }
+    }
+
+    @Test
+    fun `Update dynamic resources with socket`() = fakeScope.runTest {
+        fakeLoader.setProjectLoader = ProjectResponse(
+            FAKE_PROJECT_DTO,
+            Instant.MIN
+        )
+
+        webSnippetManager.snippetsFlow.test {
+            awaitItem().shouldBeProgressWith()
+
+            awaitItem().shouldBeSuccessWithData(
+                listOf(
+                    FAKE_EXPOSED_SNIPPET_ONE,
+                    FAKE_EXPOSED_SNIPPET_TWO,
+                    FAKE_EXPOSED_SNIPPET_FOUR,
+                    FAKE_EXPOSED_SNIPPET_FIVE
+                )
+            )
+
+            fakeSocket.mockUpdateAction(
                 SnippetUpdateAction(
                     type = ActionType.UPDATED,
                     data = ActionBody(
@@ -468,8 +495,9 @@ class TWSManagerImplTest {
                     )
                 )
             )
+            runCurrent()
 
-            expectMostRecentItem().shouldBeSuccessWithData(
+            awaitItem().shouldBeSuccessWithData(
                 listOf(
                     FAKE_EXPOSED_SNIPPET_ONE.copy(
                         dynamicResources = listOf(TWSAttachment("https://test.cs", "text/css"))
@@ -485,15 +513,16 @@ class TWSManagerImplTest {
     }
 
     @Test
-    fun `Setting local props to snippet should insert props to snippet`() = scope.runTest {
-        functions.returnedProject = FAKE_PROJECT_DTO
-
-        webSnippetManager.run()
+    fun `Setting local props to snippet should insert props to snippet`() = fakeScope.runTest {
+        fakeLoader.setProjectLoader = ProjectResponse(
+            FAKE_PROJECT_DTO,
+            Instant.MIN
+        )
 
         webSnippetManager.snippetsFlow.test {
-            runCurrent()
+            awaitItem().shouldBeProgressWith()
 
-            expectMostRecentItem().shouldBeSuccessWithData(
+            awaitItem().shouldBeSuccessWithData(
                 listOf(
                     FAKE_EXPOSED_SNIPPET_ONE,
                     FAKE_EXPOSED_SNIPPET_TWO,
@@ -518,15 +547,16 @@ class TWSManagerImplTest {
     }
 
     @Test
-    fun `Setting local props multiple times to snippet should insert props to snippet`() = scope.runTest {
-        functions.returnedProject = FAKE_PROJECT_DTO
-
-        webSnippetManager.run()
+    fun `Setting local props multiple times to snippet should insert props to snippet`() = fakeScope.runTest {
+        fakeLoader.setProjectLoader = ProjectResponse(
+            FAKE_PROJECT_DTO,
+            Instant.MIN
+        )
 
         webSnippetManager.snippetsFlow.test {
-            runCurrent()
+            awaitItem().shouldBeProgressWith()
 
-            expectMostRecentItem().shouldBeSuccessWithData(
+            awaitItem().shouldBeSuccessWithData(
                 listOf(
                     FAKE_EXPOSED_SNIPPET_ONE,
                     FAKE_EXPOSED_SNIPPET_TWO,
@@ -559,15 +589,16 @@ class TWSManagerImplTest {
     }
 
     @Test
-    fun `Setting local props with multiple values to snippet should override props to snippet`() = scope.runTest {
-        functions.returnedProject = FAKE_PROJECT_DTO
-
-        webSnippetManager.run()
+    fun `Setting local props with multiple values to snippet should override props to snippet`() = fakeScope.runTest {
+        fakeLoader.setProjectLoader = ProjectResponse(
+            FAKE_PROJECT_DTO,
+            Instant.MIN
+        )
 
         webSnippetManager.snippetsFlow.test {
-            runCurrent()
+            awaitItem().shouldBeProgressWith()
 
-            expectMostRecentItem().shouldBeSuccessWithData(
+            awaitItem().shouldBeSuccessWithData(
                 listOf(
                     FAKE_EXPOSED_SNIPPET_ONE,
                     FAKE_EXPOSED_SNIPPET_TWO,
@@ -593,27 +624,21 @@ class TWSManagerImplTest {
     }
 
     @Test
-    fun `Loading already cached shared snippet with shared id`() = scope.runTest {
-        cache.save(
+    fun `Loading already cached shared snippet with shared id`() = fakeScope.runTest {
+        fakeCache.save(
             TWSManagerImpl.CACHED_SNIPPETS,
             listOf(FAKE_SNIPPET_ONE, FAKE_SNIPPET_TWO, FAKE_SNIPPET_FOUR, FAKE_SNIPPET_FIVE)
         )
 
-        webSnippetManager = TWSManagerImpl(
-            context = mock(),
-            configuration = TWSConfiguration.Shared("shared", "apiKey"),
-            tag = "TestManager",
-            scope = scope.backgroundScope,
-            functions = functions,
-            twsSocket = socket,
-            localSnippetHandler = handler,
-            cacheManager = cache
+        webSnippetManager = copyTWSManagerImpl(configuration = TWSConfiguration.Shared("shared", "apiKey"))
+
+        fakeLoader.setProjectLoader = ProjectResponse(
+            FAKE_PROJECT_DTO,
+            Instant.MIN,
+            FAKE_SHARED_PROJECT.snippet.id
         )
 
-        functions.returnedProject = FAKE_PROJECT_DTO
-        functions.returnedSharedSnippet = FAKE_SHARED_PROJECT
-
-        webSnippetManager.run()
+        webSnippetManager.forceRefresh()
 
         webSnippetManager.snippetsFlow.test {
             awaitItem().shouldBeProgressWith() // initial emit
@@ -636,5 +661,29 @@ class TWSManagerImplTest {
                 )
             )
         }
+    }
+
+    private fun copyTWSManagerImpl(
+        context: Context? = null,
+        tag: String? = null,
+        configuration: TWSConfiguration? = null,
+        loader: SnippetLoadingManager? = null,
+        scope: CoroutineScope? = null,
+        twsSocket: TWSSocket? = null,
+        localSnippetHandler: LocalSnippetHandler? = null,
+        cacheManager: CacheManager? = null,
+        networkConnectivityService: NetworkConnectivityService? = null,
+    ): TWSManagerImpl {
+        return TWSManagerImpl(
+            context = context ?: mock(),
+            tag = tag ?: "TestManager",
+            configuration = configuration ?: TWSConfiguration.Basic("organization", "project", "apiKey"),
+            loader = loader ?: fakeLoader,
+            scope = scope ?: fakeScope.backgroundScope,
+            twsSocket = twsSocket ?: fakeSocket,
+            localSnippetHandler = localSnippetHandler ?: fakeHandler,
+            cacheManager = cacheManager ?: fakeCache,
+            networkConnectivityService = networkConnectivityService ?: fakeNetworkConnectivityService
+        )
     }
 }

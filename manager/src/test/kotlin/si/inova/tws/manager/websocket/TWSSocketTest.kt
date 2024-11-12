@@ -28,13 +28,10 @@ import okhttp3.OkHttpClient
 import okhttp3.WebSocket
 import org.junit.Before
 import org.junit.Test
-import org.mockito.Mockito.mock
 import si.inova.kotlinova.core.test.TestScopeWithDispatcherProvider
 import si.inova.kotlinova.core.test.testMainImmediateBackgroundScope
-import si.inova.tws.manager.data.NetworkStatus
 import si.inova.tws.manager.data.WebSocketStatus
 import si.inova.tws.manager.utils.ADD_FAKE_SNIPPET_SOCKET
-import si.inova.tws.manager.utils.FakeNetworkConnectivityService
 import si.inova.tws.manager.utils.FakeTWSSocketListener
 import si.inova.tws.manager.utils.UPDATED_FAKE_SNIPPET_SOCKET
 
@@ -42,7 +39,6 @@ import si.inova.tws.manager.utils.UPDATED_FAKE_SNIPPET_SOCKET
 class TWSSocketTest {
     private val scope = TestScopeWithDispatcherProvider()
 
-    private val networkConnectivityService = FakeNetworkConnectivityService()
     private val fakeSocketListener = FakeTWSSocketListener()
 
     private val mockWebSocket = mockk<WebSocket>(relaxed = true)
@@ -53,9 +49,7 @@ class TWSSocketTest {
     @Before
     fun setUp() {
         twsSocket = TWSSocketImpl(
-            context = mock(),
             scope = scope.testMainImmediateBackgroundScope,
-            networkConnectivityService = networkConnectivityService,
             listener = fakeSocketListener,
             client = client
         )
@@ -178,25 +172,6 @@ class TWSSocketTest {
         verify(exactly = 1) { // first setup
             client.newWebSocket(any(), fakeSocketListener)
         }
-    }
-
-    @Test
-    fun `network connectivity status change should trigger reconnect on connected status`() = scope.runTest {
-        val testUrl = "wss://example.com/socket"
-
-        twsSocket.setupWebSocketConnection(testUrl) { }
-
-        verify(exactly = 1) { client.newWebSocket(any(), fakeSocketListener) } // Initial setup call
-
-        networkConnectivityService.mockNetworkStatus(NetworkStatus.Disconnected)
-        runCurrent()
-
-        verify(exactly = 1) { mockWebSocket.close(any(), any()) } // closure due to disconnect
-
-        networkConnectivityService.mockNetworkStatus(NetworkStatus.Connected)
-        runCurrent()
-
-        verify(exactly = 2) { client.newWebSocket(any(), fakeSocketListener) } // Initial setup call and reconnect
     }
 
     @Test
