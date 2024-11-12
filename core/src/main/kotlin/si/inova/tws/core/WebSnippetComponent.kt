@@ -28,6 +28,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -97,8 +98,8 @@ import si.inova.tws.data.WebSnippetDto
 fun WebSnippetComponent(
     target: WebSnippetDto,
     modifier: Modifier = Modifier,
-    navigator: WebViewNavigator = rememberWebViewNavigator(target.id),
-    webViewState: WebViewState = rememberSaveableWebViewState(target.id),
+    navigator: WebViewNavigator = rememberWebViewNavigator("${target.id}:${target.target}"),
+    webViewState: WebViewState = rememberSaveableWebViewState(inputs = arrayOf(target.target), key = target.id),
     displayErrorViewOnError: Boolean = false,
     errorViewContent: @Composable (String) -> Unit = { SnippetErrorView(it, false) },
     displayPlaceholderWhileLoading: Boolean = false,
@@ -106,6 +107,37 @@ fun WebSnippetComponent(
     interceptOverrideUrl: (String) -> Boolean = { false },
     googleLoginRedirectUrl: String? = null,
     isRefreshable: Boolean = true
+) {
+    key(target.target) {
+        SnippetContentWithPopup(
+            target,
+            navigator,
+            webViewState,
+            displayErrorViewOnError,
+            errorViewContent,
+            displayPlaceholderWhileLoading,
+            loadingPlaceholderContent,
+            interceptOverrideUrl,
+            googleLoginRedirectUrl,
+            isRefreshable,
+            modifier
+        )
+    }
+}
+
+@Composable
+private fun SnippetContentWithPopup(
+    target: WebSnippetDto,
+    navigator: WebViewNavigator,
+    webViewState: WebViewState,
+    displayErrorViewOnError: Boolean,
+    errorViewContent: @Composable (String) -> Unit,
+    displayPlaceholderWhileLoading: Boolean,
+    loadingPlaceholderContent: @Composable () -> Unit,
+    interceptOverrideUrl: (String) -> Boolean,
+    googleLoginRedirectUrl: String?,
+    isRefreshable: Boolean,
+    modifier: Modifier = Modifier
 ) {
     LaunchedEffect(navigator, target.loadIteration) {
         if (webViewState.viewState?.isEmpty != false || target.loadIteration != 0) {
@@ -145,7 +177,7 @@ fun WebSnippetComponent(
 
     SnippetContentWithLoadingAndError(
         modifier = modifier,
-        key = target.id,
+        key = "${target.id}-${target.target}",
         navigator = navigator,
         webViewState = webViewState,
         displayLoadingContent = displayLoadingContent,
@@ -207,20 +239,19 @@ private fun SnippetContentWithLoadingAndError(
     val chromeClient = remember(key1 = key) { TwsWebChromeClient(popupStateCallback) }
 
     LaunchedEffect(dynamicModifiers) {
-        if (!client.setDynamicModifiers(dynamicModifiers)) {
+        if (client.setDynamicModifiers(dynamicModifiers)) {
             navigator.reload()
         }
     }
 
     LaunchedEffect(mustacheProps, targetEngine) {
-        if (!client.setMustacheProps(mustacheProps, targetEngine)) {
+        if (client.setMustacheProps(mustacheProps, targetEngine)) {
             navigator.reload()
         }
     }
 
     Box(modifier = modifier) {
         WebView(
-            key = key,
             modifier = Modifier.fillMaxSize(),
             state = webViewState,
             navigator = navigator,

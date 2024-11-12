@@ -64,7 +64,7 @@ class OkHttpTwsWebViewClient(
 
     // Returns whether webview needs to be refreshed because of a change of mustache dependencies
     fun setMustacheProps(props: Map<String, Any>, engineType: EngineType?): Boolean {
-        return (mustacheProps == props && this.engineType == engineType).also {
+        return (mustacheProps != props || this.engineType != engineType).also {
             mustacheProps = props
             this.engineType = engineType
         }
@@ -72,7 +72,7 @@ class OkHttpTwsWebViewClient(
 
     // Returns whether webview needs to be refreshed because of a change of modifiers
     fun setDynamicModifiers(modifiers: List<DynamicResourceDto>): Boolean {
-        return (dynamicModifiers == modifiers).also {
+        return (dynamicModifiers != modifiers).also {
             dynamicModifiers = modifiers
         }
     }

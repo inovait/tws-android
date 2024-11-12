@@ -45,6 +45,7 @@ import si.inova.tws.interstitial.WebSnippetPopup.Companion.STATUS_BAR_COLOR
 import si.inova.tws.interstitial.WebSnippetPopup.Companion.WEB_SNIPPET_DATA
 import si.inova.tws.interstitial.WebSnippetPopup.Companion.WEB_SNIPPET_ID
 import si.inova.tws.manager.TWSFactory
+import si.inova.tws.manager.TWSSdk
 
 /**
  * WebSnippetInterstitialActivity is a ComponentActivity responsible for displaying
@@ -76,7 +77,12 @@ class WebSnippetInterstitialActivity : ComponentActivity() {
         val webSnippetId = intent.getStringExtra(WEB_SNIPPET_ID)
         val managerTag = intent.getStringExtra(MANAGER_TAG)
 
-        val manager = managerTag?.let { TWSFactory.get(it) }
+        val manager = webSnippetId?.let {
+            managerTag?.let { tag ->
+                TWSFactory.get(tag)
+            } ?: TWSSdk.get()
+        }
+
         val webSnippetData = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             intent.getParcelableExtra(WEB_SNIPPET_DATA, WebSnippetDto::class.java)
         } else {
@@ -105,8 +111,7 @@ class WebSnippetInterstitialActivity : ComponentActivity() {
                 snippet?.let {
                     WebSnippetComponent(
                         modifier = Modifier.fillMaxSize(),
-                        target = it,
-                        displayPlaceholderWhileLoading = true
+                        target = it
                     )
 
                     FilledIconButton(

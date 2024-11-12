@@ -186,11 +186,12 @@ fun rememberWebViewState(
  * When using saved state, you cannot change the URL via recomposition. The only way to load
  * a URL is via a WebViewNavigator.
  *
+ * @param inputs A set of inputs such that, when any of them have changed, will cause the state to reset
  * @param key Additional key, which will be used to distinguish between different states while saving and retrieving from Bundle
  */
 @Composable
-fun rememberSaveableWebViewState(key: String = ""): WebViewState =
-    rememberSaveable(saver = createWebStateSaver(key), key = key.takeIf { it.isNotEmpty() }) {
+fun rememberSaveableWebViewState(vararg inputs: Any?, key: String = ""): WebViewState =
+    rememberSaveable(saver = createWebStateSaver(key), key = key.takeIf { it.isNotEmpty() }, inputs = inputs) {
         WebViewState(WebContent.NavigatorOnly)
     }
 
