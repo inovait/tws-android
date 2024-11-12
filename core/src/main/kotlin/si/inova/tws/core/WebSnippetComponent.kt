@@ -51,7 +51,9 @@ import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toImmutableMap
 import si.inova.tws.core.client.OkHttpTwsWebViewClient
 import si.inova.tws.core.client.TwsWebChromeClient
+import si.inova.tws.core.data.TWSDeepLinkInterceptUrlCallback
 import si.inova.tws.core.data.LoadingState
+import si.inova.tws.core.data.TWSInterceptUrlCallback
 import si.inova.tws.core.data.WebContent
 import si.inova.tws.core.data.WebViewNavigator
 import si.inova.tws.core.data.WebViewState
@@ -87,7 +89,7 @@ import si.inova.tws.data.WebSnippetDto
  *  * shown while the WebView content is loading.
  * @param loadingPlaceholderContent A custom composable that defines the UI content to show while the WebView content is loading.
  *  Used only if [displayPlaceholderWhileLoading] is set to true.
- * @param interceptOverrideUrl A lambda function that is invoked when a URL in WebView will be loaded.
+ * @param interceptUrlCallback A lambda function that is invoked when a URL in WebView will be loaded.
  * Returning true prevents navigation to the new URL (and allowing you to define custom behavior for specific urls),
  * while returning false allows it to proceed.
  * @param googleLoginRedirectUrl A URL to which user is redirected after successful Google login. This will allow us to redirect
@@ -104,7 +106,7 @@ fun WebSnippetComponent(
     errorViewContent: @Composable (String) -> Unit = { SnippetErrorView(it, false) },
     displayPlaceholderWhileLoading: Boolean = false,
     loadingPlaceholderContent: @Composable () -> Unit = { SnippetLoadingView(false) },
-    interceptOverrideUrl: (String) -> Boolean = { false },
+    interceptUrlCallback: TWSInterceptUrlCallback = TWSDeepLinkInterceptUrlCallback(LocalContext.current),
     googleLoginRedirectUrl: String? = null,
     isRefreshable: Boolean = true
 ) {
@@ -183,7 +185,7 @@ private fun SnippetContentWithPopup(
         displayLoadingContent = displayLoadingContent,
         loadingPlaceholderContent = loadingPlaceholderContent,
         displayErrorContent = displayErrorContent,
-        interceptOverrideUrl = interceptOverrideUrl,
+        interceptUrlCallback = interceptUrlCallback,
         errorViewContent = errorViewContent,
         popupStateCallback = popupStateCallback,
         dynamicModifiers = target.dynamicResources.toImmutableList(),
@@ -202,7 +204,7 @@ private fun SnippetContentWithPopup(
             errorViewContent = errorViewContent,
             onDismissRequest = { popupStates.value = popupStates.value.filter { it != state } },
             popupStateCallback = popupStateCallback,
-            interceptOverrideUrl = interceptOverrideUrl,
+            interceptUrlCallback = interceptUrlCallback,
             googleLoginRedirectUrl = googleLoginRedirectUrl,
             dynamicModifiers = target.dynamicResources.toImmutableList(),
             isFullscreen = !msgState.isDialog
@@ -220,7 +222,7 @@ private fun SnippetContentWithLoadingAndError(
     displayErrorContent: Boolean,
     isRefreshable: Boolean,
     errorViewContent: @Composable (String) -> Unit,
-    interceptOverrideUrl: (String) -> Boolean,
+    interceptUrlCallback: TWSInterceptUrlCallback,
     modifier: Modifier = Modifier,
     onCreated: (WebView) -> Unit = {},
     popupStateCallback: ((WebViewState, Boolean) -> Unit)? = null,
@@ -231,7 +233,7 @@ private fun SnippetContentWithLoadingAndError(
     // https://github.com/google/accompanist/issues/1326 - WebView settings does not work in compose preview
     val isPreviewMode = LocalInspectionMode.current
     val client = remember(key1 = key) {
-        OkHttpTwsWebViewClient(interceptOverrideUrl, popupStateCallback).apply {
+        OkHttpTwsWebViewClient(interceptUrlCallback, popupStateCallback).apply {
             setDynamicModifiers(dynamicModifiers)
             setMustacheProps(mustacheProps, targetEngine)
         }
@@ -303,7 +305,7 @@ private fun PopUpWebView(
     displayErrorViewOnError: Boolean,
     errorViewContent: @Composable (String) -> Unit,
     onDismissRequest: () -> Unit,
-    interceptOverrideUrl: (String) -> Boolean = { false },
+    interceptUrlCallback: TWSInterceptUrlCallback,
     popupNavigator: WebViewNavigator = rememberWebViewNavigator(),
     popupStateCallback: ((WebViewState, Boolean) -> Unit)? = null,
     googleLoginRedirectUrl: String? = null,
@@ -348,7 +350,7 @@ private fun PopUpWebView(
                 errorViewContent = errorViewContent,
                 onCreated = (popupState.content as WebContent.MessageOnly)::onCreateWindowStatus,
                 popupStateCallback = popupStateCallback,
-                interceptOverrideUrl = interceptOverrideUrl,
+                interceptUrlCallback = interceptUrlCallback,
                 dynamicModifiers = dynamicModifiers,
                 mustacheProps = mustacheProps,
                 isRefreshable = isRefreshable
