@@ -20,6 +20,7 @@ import androidx.annotation.Keep
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 import si.inova.tws.data.TWSAttachment
+import si.inova.tws.data.TWSEngine
 
 /**
  * Data class representing an action to be returned on a WebSocket update.
@@ -64,11 +65,12 @@ internal data class ActionBody(
     val headers: Map<String, String>? = null,
     val visibility: VisibilityDto? = null,
     val dynamicResources: List<TWSAttachment>? = null,
-    val props: Map<String, Any>? = null
+    val props: Map<String, Any>? = null,
+    val engine: TWSEngine? = null
 )
 
 internal fun ActionBody.isEmpty(): Boolean {
-    return target == null && headers == null && visibility == null && dynamicResources == null && props == null
+    return target == null && headers == null && visibility == null && dynamicResources == null && props == null && engine == null
 }
 
 internal fun List<WebSnippetDto>.updateWith(
@@ -116,6 +118,7 @@ internal fun List<WebSnippetDto>.update(data: ActionBody): List<WebSnippetDto> {
                     visibility = data.visibility ?: it.visibility,
                     dynamicResources = data.dynamicResources ?: it.dynamicResources,
                     props = data.props ?: it.props,
+                    engine = data.engine ?: it.engine
                 )
             }
         } else {

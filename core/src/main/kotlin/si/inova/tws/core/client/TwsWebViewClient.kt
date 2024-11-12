@@ -27,6 +27,7 @@ import androidx.browser.customtabs.CustomTabsCallback
 import androidx.browser.customtabs.CustomTabsClient
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.browser.customtabs.CustomTabsServiceConnection
+import si.inova.tws.core.data.TWSInterceptUrlCallback
 import si.inova.tws.core.data.WebViewState
 
 /**
@@ -39,14 +40,14 @@ import si.inova.tws.core.data.WebViewState
  * - Opening Google authentication URLs in Custom Chrome Tabs.
  * - Providing an optional mechanism to track the state of popups or custom tabs.
  *
- * @param interceptOverrideUrl A function that intercepts URLs. It takes a URL string as input and returns a
+ * @param interceptUrlCallback A function that intercepts URLs. It takes a URL string as input and returns a
  * Boolean indicating whether the URL has been handled by the application.
  * @param popupStateCallback An optional callback function to manage the visibility state of popups or custom tabs.
  * The callback takes two parameters: a [WebViewState] and a Boolean. The Boolean indicates whether the
  * custom tab is open (true) or closed (false).
  */
 open class TwsWebViewClient(
-    private val interceptOverrideUrl: (String) -> Boolean,
+    private val interceptUrlCallback: TWSInterceptUrlCallback,
     private val popupStateCallback: ((WebViewState, Boolean) -> Unit)? = null
 ) : AccompanistWebViewClient() {
 
@@ -61,7 +62,7 @@ open class TwsWebViewClient(
         }
 
         return request?.url?.let {
-            interceptOverrideUrl(it.toString())
+            interceptUrlCallback.intercept(it.toString())
         } == true
     }
 
