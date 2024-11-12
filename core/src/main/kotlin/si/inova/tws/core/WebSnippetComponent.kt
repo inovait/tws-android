@@ -119,7 +119,7 @@ fun WebSnippetComponent(
             errorViewContent,
             displayPlaceholderWhileLoading,
             loadingPlaceholderContent,
-            interceptOverrideUrl,
+            interceptUrlCallback,
             googleLoginRedirectUrl,
             isRefreshable,
             modifier
@@ -136,7 +136,7 @@ private fun SnippetContentWithPopup(
     errorViewContent: @Composable (String) -> Unit,
     displayPlaceholderWhileLoading: Boolean,
     loadingPlaceholderContent: @Composable () -> Unit,
-    interceptOverrideUrl: (String) -> Boolean,
+    interceptUrlCallback: TWSInterceptUrlCallback,
     googleLoginRedirectUrl: String?,
     isRefreshable: Boolean,
     modifier: Modifier = Modifier
