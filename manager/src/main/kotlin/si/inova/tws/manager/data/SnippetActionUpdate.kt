@@ -60,6 +60,8 @@ internal enum class ActionType {
 @JsonClass(generateAdapter = true)
 internal data class ActionBody(
     val id: String,
+    val organizationId: String? = null,
+    val projectId: String? = null,
     val target: String? = null,
     val headers: Map<String, String>? = null,
     val visibility: VisibilityDto? = null,
@@ -71,19 +73,15 @@ internal fun ActionBody.isEmpty(): Boolean {
     return target == null && headers == null && visibility == null && dynamicResources == null && props == null
 }
 
-internal fun List<WebSnippetDto>.updateWith(
-    action: SnippetUpdateAction,
-    organizationId: String,
-    projectId: String
-): List<WebSnippetDto> {
+internal fun List<WebSnippetDto>.updateWith(action: SnippetUpdateAction): List<WebSnippetDto> {
     return when (action.type) {
-        ActionType.CREATED -> insert(action.data, organizationId, projectId)
+        ActionType.CREATED -> insert(action.data)
         ActionType.UPDATED -> update(action.data)
         ActionType.DELETED -> remove(action.data)
     }
 }
 
-internal fun List<WebSnippetDto>.insert(data: ActionBody, organizationId: String, projectId: String): List<WebSnippetDto> {
+internal fun List<WebSnippetDto>.insert(data: ActionBody): List<WebSnippetDto> {
     return toMutableList().apply {
         if (data.target != null) {
             add(
@@ -91,8 +89,8 @@ internal fun List<WebSnippetDto>.insert(data: ActionBody, organizationId: String
                     id = data.id,
                     target = data.target,
                     headers = data.headers.orEmpty(),
-                    organizationId = organizationId,
-                    projectId = projectId,
+                    organizationId = data.organizationId ?: "",
+                    projectId = data.projectId ?: "",
                     visibility = data.visibility,
                     dynamicResources = data.dynamicResources.orEmpty(),
                     props = data.props.orEmpty()
