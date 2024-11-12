@@ -53,7 +53,7 @@ open class AccompanistWebChromeClient : WebChromeClient() {
         state.loadingState = LoadingState.Loading(
             progress = newProgress / PERCENTAGE_DIVISOR,
             isUserForceRefresh = loadingState is LoadingState.ForceRefreshInitiated ||
-                (loadingState as? LoadingState.Loading)?.isUserForceRefresh ?: false
+                (loadingState as? LoadingState.Loading)?.isUserForceRefresh == true
         )
     }
 

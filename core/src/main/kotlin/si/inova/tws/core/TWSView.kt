@@ -133,7 +133,7 @@ private fun SnippetContentWithPopup(
             // Handle first time load for navigator only state, other loads will be handled with state restoration
             navigator.loadUrl(
                 url = target.target,
-                additionalHttpHeaders = target.headers.orEmpty()
+                additionalHttpHeaders = target.headers
             )
         }
     }
