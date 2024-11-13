@@ -49,9 +49,9 @@ import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toImmutableMap
 import si.inova.tws.core.client.OkHttpTWSWebViewClient
 import si.inova.tws.core.client.TWSWebChromeClient
-import si.inova.tws.core.data.TWSDeepLinkInterceptUrlCallback
+import si.inova.tws.core.data.TWSViewDeepLinkInterceptor
 import si.inova.tws.core.data.LoadingState
-import si.inova.tws.core.data.TWSInterceptUrlCallback
+import si.inova.tws.core.data.TWSViewInterceptor
 import si.inova.tws.core.data.WebContent
 import si.inova.tws.core.data.TWSViewNavigator
 import si.inova.tws.core.data.TWSViewState
@@ -97,7 +97,7 @@ fun TWSView(
     viewState: TWSViewState = rememberTWSViewState(snippet, "${snippet.id}:${snippet.target}"),
     errorViewContent: @Composable (String) -> Unit = { SnippetErrorView(it, true) },
     loadingPlaceholderContent: @Composable () -> Unit = { SnippetLoadingView(true) },
-    interceptUrlCallback: TWSInterceptUrlCallback = TWSDeepLinkInterceptUrlCallback(LocalContext.current),
+    interceptUrlCallback: TWSViewInterceptor = TWSViewDeepLinkInterceptor(LocalContext.current),
     googleLoginRedirectUrl: String? = null,
     isRefreshable: Boolean = true
 ) {
@@ -123,7 +123,7 @@ private fun SnippetContentWithPopup(
     viewState: TWSViewState,
     errorViewContent: @Composable (String) -> Unit,
     loadingPlaceholderContent: @Composable () -> Unit,
-    interceptUrlCallback: TWSInterceptUrlCallback,
+    interceptUrlCallback: TWSViewInterceptor,
     googleLoginRedirectUrl: String?,
     isRefreshable: Boolean,
     modifier: Modifier = Modifier
@@ -201,7 +201,7 @@ private fun SnippetContentWithLoadingAndError(
     viewState: TWSViewState,
     loadingPlaceholderContent: @Composable () -> Unit,
     errorViewContent: @Composable (String) -> Unit,
-    interceptUrlCallback: TWSInterceptUrlCallback,
+    interceptUrlCallback: TWSViewInterceptor,
     popupStateCallback: ((TWSViewState, Boolean) -> Unit)?,
     dynamicModifiers: ImmutableList<TWSAttachment>,
     mustacheProps: ImmutableMap<String, Any>,
@@ -282,7 +282,7 @@ private fun PopUpWebView(
     loadingPlaceholderContent: @Composable () -> Unit,
     errorViewContent: @Composable (String) -> Unit,
     onDismissRequest: () -> Unit,
-    interceptUrlCallback: TWSInterceptUrlCallback,
+    interceptUrlCallback: TWSViewInterceptor,
     dynamicModifiers: ImmutableList<TWSAttachment>,
     mustacheProps: ImmutableMap<String, Any>,
     engine: TWSEngine,
