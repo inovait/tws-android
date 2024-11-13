@@ -26,13 +26,13 @@ import si.inova.tws.manager.network.TWSFunctions
 internal class FakeTWSFunctions(
     private val helper: ServiceTestingHelper = ServiceTestingHelper()
 ) : TWSFunctions, FakeService by helper {
-    var returnedProject: ProjectDto? = null
+    var returnedProject: Response<ProjectDto>? = null
     var returnedSharedSnippet: SharedSnippetDto? = null
 
     override suspend fun getWebSnippets(organizationId: String, projectId: String, apiKey: String?): Response<ProjectDto> {
         helper.intercept()
 
-        return Response.success(returnedProject) ?: error("Returned project not faked!")
+        return returnedProject ?: error("Returned project not faked!")
     }
 
     override suspend fun getSharedSnippetData(shareId: String): SharedSnippetDto {
