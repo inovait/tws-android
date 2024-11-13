@@ -34,7 +34,7 @@ internal interface TWSSocket {
      * @throws IllegalArgumentException if [setupWssUrl] is not a valid HTTP or HTTPS URL. Avoid this
      *     exception by calling [HttpUrl.parse]; it returns null for invalid URLs.
      */
-    fun setupWebSocketConnection(setupWssUrl: String, unauthorizedCallback: () -> Unit)
+    fun setupWebSocketConnection(setupWssUrl: String, unauthorizedCallback: suspend () -> Unit)
 
     /**
      * Attempts to initiate a graceful shutdown of this web socket.

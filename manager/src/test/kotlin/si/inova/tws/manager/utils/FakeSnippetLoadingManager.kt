@@ -16,25 +16,15 @@
 
 package si.inova.tws.manager.utils
 
-import kotlinx.coroutines.flow.MutableSharedFlow
-import si.inova.tws.manager.data.SnippetUpdateAction
-import si.inova.tws.manager.websocket.TWSSocket
+import kotlinx.coroutines.delay
+import si.inova.tws.manager.snippet.ProjectResponse
+import si.inova.tws.manager.snippet.SnippetLoadingManager
 
-internal class FakeTWSSocket : TWSSocket {
-    override var updateActionFlow: MutableSharedFlow<SnippetUpdateAction> = MutableSharedFlow()
+internal class FakeSnippetLoadingManager : SnippetLoadingManager {
+    var loaderResponse: ProjectResponse? = null
 
-    override fun closeWebsocketConnection(): Boolean {
-        isConnectionOpen = false
-        return true
+    override suspend fun load(): ProjectResponse {
+        delay(1000)
+        return loaderResponse ?: error("Unknown configuration")
     }
-
-    override fun setupWebSocketConnection(setupWssUrl: String, unauthorizedCallback: suspend () -> Unit) {
-        isConnectionOpen = true
-    }
-
-    suspend fun mockUpdateAction(action: SnippetUpdateAction) {
-        updateActionFlow.emit(action)
-    }
-
-    var isConnectionOpen = false
 }

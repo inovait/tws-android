@@ -14,27 +14,17 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.manager.utils
+package si.inova.tws.manager.snippet
 
-import kotlinx.coroutines.flow.MutableSharedFlow
-import si.inova.tws.manager.data.SnippetUpdateAction
-import si.inova.tws.manager.websocket.TWSSocket
+import si.inova.tws.manager.data.ProjectDto
+import java.time.Instant
 
-internal class FakeTWSSocket : TWSSocket {
-    override var updateActionFlow: MutableSharedFlow<SnippetUpdateAction> = MutableSharedFlow()
-
-    override fun closeWebsocketConnection(): Boolean {
-        isConnectionOpen = false
-        return true
-    }
-
-    override fun setupWebSocketConnection(setupWssUrl: String, unauthorizedCallback: suspend () -> Unit) {
-        isConnectionOpen = true
-    }
-
-    suspend fun mockUpdateAction(action: SnippetUpdateAction) {
-        updateActionFlow.emit(action)
-    }
-
-    var isConnectionOpen = false
+internal interface SnippetLoadingManager {
+    suspend fun load(): ProjectResponse
 }
+
+internal data class ProjectResponse(
+    val project: ProjectDto,
+    val responseDate: Instant,
+    val mainSnippet: String? = null
+)

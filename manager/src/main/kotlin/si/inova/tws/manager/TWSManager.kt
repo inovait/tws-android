@@ -24,6 +24,6 @@ interface TWSManager {
     val snippetsFlow: Flow<Outcome<List<TWSSnippet>>>
     val mainSnippetIdFlow: Flow<String?>
 
-    fun run()
+    fun forceRefresh()
     fun setLocalProps(id: String, localProps: Map<String, Any>)
 }
