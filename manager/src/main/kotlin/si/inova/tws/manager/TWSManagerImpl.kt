@@ -171,8 +171,15 @@ internal class TWSManagerImpl(
     private fun setupNetworkConnectivityHandling() {
         if (networkConnectivityService == null) return
 
+        var ignoreFirst = true
+
         launch {
             networkConnectivityService.networkStatus.collect {
+                if (ignoreFirst) {
+                    ignoreFirst = false
+                    return@collect
+                }
+
                 when (it) {
                     is NetworkStatus.Connected -> forceRefresh()
                     is NetworkStatus.Disconnected -> twsSocket?.closeWebsocketConnection()

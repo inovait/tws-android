@@ -33,6 +33,7 @@ import si.inova.tws.data.TWSAttachment
 import si.inova.tws.manager.cache.CacheManager
 import si.inova.tws.manager.data.ActionBody
 import si.inova.tws.manager.data.ActionType
+import si.inova.tws.manager.data.NetworkStatus
 import si.inova.tws.manager.data.ProjectDto
 import si.inova.tws.manager.data.SnippetUpdateAction
 import si.inova.tws.manager.localhandler.LocalSnippetHandler
@@ -45,6 +46,7 @@ import si.inova.tws.manager.utils.FAKE_EXPOSED_SNIPPET_ONE
 import si.inova.tws.manager.utils.FAKE_EXPOSED_SNIPPET_THREE
 import si.inova.tws.manager.utils.FAKE_EXPOSED_SNIPPET_TWO
 import si.inova.tws.manager.utils.FAKE_PROJECT_DTO
+import si.inova.tws.manager.utils.FAKE_PROJECT_DTO_2
 import si.inova.tws.manager.utils.FAKE_SHARED_PROJECT
 import si.inova.tws.manager.utils.FAKE_SNIPPET_FIVE
 import si.inova.tws.manager.utils.FAKE_SNIPPET_FOUR
@@ -80,7 +82,7 @@ class TWSManagerImplTest {
 
     @Test
     fun `Loading snippets with project and organization id`() = fakeScope.runTest {
-        fakeLoader.setProjectLoader = ProjectResponse(
+        fakeLoader.loaderResponse = ProjectResponse(
             FAKE_PROJECT_DTO,
             Instant.MIN
         )
@@ -103,7 +105,7 @@ class TWSManagerImplTest {
     fun `Loading shared snippet with shared id`() = fakeScope.runTest {
         webSnippetManager = copyTWSManagerImpl(configuration = TWSConfiguration.Shared("shared", "apiKey"))
 
-        fakeLoader.setProjectLoader = ProjectResponse(
+        fakeLoader.loaderResponse = ProjectResponse(
             FAKE_PROJECT_DTO,
             Instant.MIN,
             FAKE_SHARED_PROJECT.snippet.id
@@ -130,7 +132,7 @@ class TWSManagerImplTest {
 
     @Test
     fun `Load snippets and delete one from web socket`() = fakeScope.runTest {
-        fakeLoader.setProjectLoader = ProjectResponse(
+        fakeLoader.loaderResponse = ProjectResponse(
             FAKE_PROJECT_DTO,
             Instant.MIN
         )
@@ -162,7 +164,7 @@ class TWSManagerImplTest {
 
     @Test
     fun `Load snippets and update tab target from web socket`() = fakeScope.runTest {
-        fakeLoader.setProjectLoader = ProjectResponse(
+        fakeLoader.loaderResponse = ProjectResponse(
             FAKE_PROJECT_DTO,
             Instant.MIN
         )
@@ -200,7 +202,7 @@ class TWSManagerImplTest {
 
     @Test
     fun `Load snippets and create snippet from web socket`() = fakeScope.runTest {
-        fakeLoader.setProjectLoader = ProjectResponse(
+        fakeLoader.loaderResponse = ProjectResponse(
             FAKE_PROJECT_DTO,
             Instant.MIN
         )
@@ -239,7 +241,7 @@ class TWSManagerImplTest {
 
     @Test
     fun `Load snippets and create, update and delete from web socket`() = fakeScope.runTest {
-        fakeLoader.setProjectLoader = ProjectResponse(FAKE_PROJECT_DTO, Instant.MIN)
+        fakeLoader.loaderResponse = ProjectResponse(FAKE_PROJECT_DTO, Instant.MIN)
 
         webSnippetManager.snippetsFlow.test {
             awaitItem().shouldBeProgressWith()
@@ -300,7 +302,7 @@ class TWSManagerImplTest {
 
     @Test
     fun `Load snippets and delete snippet from local handler`() = fakeScope.runTest {
-        fakeLoader.setProjectLoader = ProjectResponse(
+        fakeLoader.loaderResponse = ProjectResponse(
             FAKE_PROJECT_DTO,
             Instant.MIN
         )
@@ -328,7 +330,7 @@ class TWSManagerImplTest {
 
     @Test
     fun `Load snippets and and update from socket with html changes`() = fakeScope.runTest {
-        fakeLoader.setProjectLoader = ProjectResponse(
+        fakeLoader.loaderResponse = ProjectResponse(
             FAKE_PROJECT_DTO,
             Instant.MIN
         )
@@ -361,7 +363,7 @@ class TWSManagerImplTest {
 
     @Test
     fun `Load snippets and delete from local handler and web socket`() = fakeScope.runTest {
-        fakeLoader.setProjectLoader = ProjectResponse(
+        fakeLoader.loaderResponse = ProjectResponse(
             FAKE_PROJECT_DTO.copy(
                 snippets = listOf(FAKE_SNIPPET_ONE, FAKE_SNIPPET_TWO, FAKE_SNIPPET_THREE)
             ),
@@ -387,7 +389,7 @@ class TWSManagerImplTest {
 
     @Test
     fun `Load snippets and delete same snippet from local handler and web socket`() = fakeScope.runTest {
-        fakeLoader.setProjectLoader = ProjectResponse(
+        fakeLoader.loaderResponse = ProjectResponse(
             FAKE_PROJECT_DTO,
             Instant.MIN
         )
@@ -423,7 +425,7 @@ class TWSManagerImplTest {
     fun `Load content snippets from cache if available and fetch from api`() = fakeScope.runTest {
         fakeCache.save(TWSManagerImpl.CACHED_SNIPPETS, listOf(FAKE_SNIPPET_ONE))
 
-        fakeLoader.setProjectLoader = ProjectResponse(
+        fakeLoader.loaderResponse = ProjectResponse(
             FAKE_PROJECT_DTO,
             Instant.MIN
         )
@@ -444,7 +446,7 @@ class TWSManagerImplTest {
                 )
             )
 
-            fakeLoader.setProjectLoader = ProjectResponse(
+            fakeLoader.loaderResponse = ProjectResponse(
                 ProjectDto(
                     snippets = listOf(FAKE_SNIPPET_ONE),
                     listenOn = "wss:someUrl.com"
@@ -469,7 +471,7 @@ class TWSManagerImplTest {
 
     @Test
     fun `Update dynamic resources with socket`() = fakeScope.runTest {
-        fakeLoader.setProjectLoader = ProjectResponse(
+        fakeLoader.loaderResponse = ProjectResponse(
             FAKE_PROJECT_DTO,
             Instant.MIN
         )
@@ -514,7 +516,7 @@ class TWSManagerImplTest {
 
     @Test
     fun `Setting local props to snippet should insert props to snippet`() = fakeScope.runTest {
-        fakeLoader.setProjectLoader = ProjectResponse(
+        fakeLoader.loaderResponse = ProjectResponse(
             FAKE_PROJECT_DTO,
             Instant.MIN
         )
@@ -548,7 +550,7 @@ class TWSManagerImplTest {
 
     @Test
     fun `Setting local props multiple times to snippet should insert props to snippet`() = fakeScope.runTest {
-        fakeLoader.setProjectLoader = ProjectResponse(
+        fakeLoader.loaderResponse = ProjectResponse(
             FAKE_PROJECT_DTO,
             Instant.MIN
         )
@@ -590,7 +592,7 @@ class TWSManagerImplTest {
 
     @Test
     fun `Setting local props with multiple values to snippet should override props to snippet`() = fakeScope.runTest {
-        fakeLoader.setProjectLoader = ProjectResponse(
+        fakeLoader.loaderResponse = ProjectResponse(
             FAKE_PROJECT_DTO,
             Instant.MIN
         )
@@ -632,7 +634,7 @@ class TWSManagerImplTest {
 
         webSnippetManager = copyTWSManagerImpl(configuration = TWSConfiguration.Shared("shared", "apiKey"))
 
-        fakeLoader.setProjectLoader = ProjectResponse(
+        fakeLoader.loaderResponse = ProjectResponse(
             FAKE_PROJECT_DTO,
             Instant.MIN,
             FAKE_SHARED_PROJECT.snippet.id
@@ -660,6 +662,55 @@ class TWSManagerImplTest {
                     FAKE_EXPOSED_SNIPPET_FIVE
                 )
             )
+        }
+    }
+
+    @Test
+    fun `Reload snippets if network connection lost and reestablished`() = fakeScope.runTest {
+        fakeLoader.loaderResponse = ProjectResponse(
+            FAKE_PROJECT_DTO,
+            Instant.MIN
+        )
+
+        webSnippetManager.snippetsFlow.test {
+            runCurrent()
+
+            awaitItem().shouldBeProgressWith() // initial emit
+
+            // api response
+            awaitItem().shouldBeSuccessWithData(
+                listOf(
+                    FAKE_EXPOSED_SNIPPET_ONE,
+                    FAKE_EXPOSED_SNIPPET_TWO,
+                    FAKE_EXPOSED_SNIPPET_FOUR,
+                    FAKE_EXPOSED_SNIPPET_FIVE
+                )
+            )
+
+            assert(fakeSocket.isConnectionOpen)
+
+            fakeNetworkConnectivityService.mockNetworkStatus(NetworkStatus.Disconnected)
+            runCurrent()
+
+            assert(!fakeSocket.isConnectionOpen)
+
+            fakeLoader.loaderResponse = ProjectResponse(FAKE_PROJECT_DTO_2, Instant.MIN)
+            fakeNetworkConnectivityService.mockNetworkStatus(NetworkStatus.Connected)
+            runCurrent()
+
+            // cached
+            awaitItem().shouldBeProgressWithData(
+                listOf(
+                    FAKE_EXPOSED_SNIPPET_ONE,
+                    FAKE_EXPOSED_SNIPPET_TWO,
+                    FAKE_EXPOSED_SNIPPET_FOUR,
+                    FAKE_EXPOSED_SNIPPET_FIVE
+                )
+            )
+
+            // api response
+            awaitItem().shouldBeSuccessWithData(listOf(FAKE_EXPOSED_SNIPPET_ONE, FAKE_EXPOSED_SNIPPET_TWO))
+            assert(fakeSocket.isConnectionOpen)
         }
     }
 

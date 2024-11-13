@@ -116,6 +116,11 @@ internal val FAKE_PROJECT_DTO = ProjectDto(
     listenOn = "wss:someUrl.com"
 )
 
+internal val FAKE_PROJECT_DTO_2 = ProjectDto(
+    snippets = listOf(FAKE_SNIPPET_ONE, FAKE_SNIPPET_TWO),
+    listenOn = "wss:someUrl2.com"
+)
+
 internal val FAKE_SHARED_PROJECT = SharedSnippetDto(snippet = FAKE_SNIPPET_ONE)
 
 internal fun WebSnippetDto.toActionBody() = ActionBody(

@@ -21,10 +21,10 @@ import si.inova.tws.manager.snippet.ProjectResponse
 import si.inova.tws.manager.snippet.SnippetLoadingManager
 
 internal class FakeSnippetLoadingManager : SnippetLoadingManager {
-    var setProjectLoader: ProjectResponse? = null
+    var loaderResponse: ProjectResponse? = null
 
     override suspend fun load(): ProjectResponse {
-        delay(1000) // delay 1 second to mock API call
-        return setProjectLoader ?: error("Unknown configuration")
+        delay(1000)
+        return loaderResponse ?: error("Unknown configuration")
     }
 }
