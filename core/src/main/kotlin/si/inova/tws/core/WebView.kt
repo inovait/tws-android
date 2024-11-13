@@ -34,7 +34,6 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
@@ -45,12 +44,13 @@ import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import si.inova.tws.core.client.AccompanistWebChromeClient
 import si.inova.tws.core.client.AccompanistWebViewClient
-import si.inova.tws.core.client.TwsWebChromeClient
-import si.inova.tws.core.data.TwsDownloadListener
+import si.inova.tws.core.client.TWSWebChromeClient
+import si.inova.tws.core.data.LoadingState
+import si.inova.tws.core.data.TWSDownloadListener
 import si.inova.tws.core.data.WebContent
-import si.inova.tws.core.data.WebViewNavigator
-import si.inova.tws.core.data.WebViewState
-import si.inova.tws.core.data.rememberWebViewNavigator
+import si.inova.tws.core.data.TWSViewNavigator
+import si.inova.tws.core.data.TWSViewState
+import si.inova.tws.core.data.rememberTWSViewNavigator
 import si.inova.tws.core.util.JavaScriptDownloadInterface
 import si.inova.tws.core.util.JavaScriptDownloadInterface.Companion.JAVASCRIPT_INTERFACE_NAME
 
@@ -64,7 +64,6 @@ import si.inova.tws.core.util.JavaScriptDownloadInterface.Companion.JAVASCRIPT_I
  * The WebView attempts to set the layoutParams based on the Compose modifier passed in. If it
  * is incorrectly sizing, use the layoutParams composable function instead.
  *
- * @param key A property, which allows us to recreate webview when needed.
  * @param state The webview state holder where the Uri to load is defined.
  * @param modifier A compose modifier.
  * @param captureBackPresses Set to true to have this Composable capture back presses and navigate
@@ -82,12 +81,11 @@ import si.inova.tws.core.util.JavaScriptDownloadInterface.Companion.JAVASCRIPT_I
  */
 @Composable
 internal fun WebView(
-    key: Any?,
-    state: WebViewState,
+    state: TWSViewState,
     modifier: Modifier = Modifier,
     captureBackPresses: Boolean = true,
     isRefreshable: Boolean = true,
-    navigator: WebViewNavigator = rememberWebViewNavigator(),
+    navigator: TWSViewNavigator = rememberTWSViewNavigator(),
     onCreated: (WebView) -> Unit = {},
     onDispose: (WebView) -> Unit = {},
     client: AccompanistWebViewClient = remember { AccompanistWebViewClient() },
@@ -113,7 +111,6 @@ internal fun WebView(
         WebView(
             state,
             layoutParams,
-            key,
             Modifier,
             captureBackPresses,
             isRefreshable,
@@ -138,7 +135,6 @@ internal fun WebView(
  *
  * @param state The webview state holder where the Uri to load is defined.
  * @param layoutParams layout information for WebView
- * @param key A property, which allows us to recreate webview when needed.
  * @param modifier A compose modifier.
  * @param captureBackPresses Set to true to have this Composable capture back presses and navigate
  * the WebView back.
@@ -154,14 +150,13 @@ internal fun WebView(
  * @param chromeClient Provides access to WebChromeClient via subclassing.
  */
 @Composable
-fun WebView(
-    state: WebViewState,
+internal fun WebView(
+    state: TWSViewState,
     layoutParams: FrameLayout.LayoutParams,
-    key: Any?,
     modifier: Modifier = Modifier,
     captureBackPresses: Boolean = true,
     isRefreshable: Boolean = true,
-    navigator: WebViewNavigator = rememberWebViewNavigator(),
+    navigator: TWSViewNavigator = rememberTWSViewNavigator(),
     onCreated: (WebView) -> Unit = {},
     onDispose: (WebView) -> Unit = {},
     client: AccompanistWebViewClient = remember { AccompanistWebViewClient() },
@@ -176,7 +171,7 @@ fun WebView(
 
     val (permissionLauncher, permissionCallback) = createPermissionLauncher()
 
-    if (chromeClient is TwsWebChromeClient) {
+    if (chromeClient is TWSWebChromeClient) {
         SetupFileChooserLauncher(chromeClient)
         SetupPermissionHandling(chromeClient, permissionLauncher) { callback ->
             permissionCallback.value = callback
@@ -189,61 +184,60 @@ fun WebView(
     client.navigator = navigator
     chromeClient.state = state
 
-    key(key) {
-        AndroidView(
-            factory = { context ->
-                createSwipeRefreshLayout(
+    AndroidView(
+        factory = { context ->
+            createSwipeRefreshLayout(
+                context = context,
+                navigator = navigator,
+                state = state,
+                webView = createWebView(
                     context = context,
-                    navigator = navigator,
-                    webView = createWebView(
-                        context = context,
-                        state = state,
-                        onCreated = { wv ->
-                            onCreated(wv)
-                            wv.layoutParams = layoutParams
-                            wv.setDownloadListener(
-                                TwsDownloadListener(context, wv) { permission, callback ->
-                                    permissionLauncher.launch(permission)
-                                    permissionCallback.value = callback
-                                }
-                            )
-                        },
-                        client = client,
-                        chromeClient = chromeClient
-                    )
+                    state = state,
+                    onCreated = { wv ->
+                        onCreated(wv)
+                        wv.layoutParams = layoutParams
+                        wv.setDownloadListener(
+                            TWSDownloadListener(context, wv) { permission, callback ->
+                                permissionLauncher.launch(permission)
+                                permissionCallback.value = callback
+                            }
+                        )
+                    },
+                    client = client,
+                    chromeClient = chromeClient
                 )
-            },
-            modifier = modifier,
-            onRelease = {
-                val wv = state.webView ?: return@AndroidView
+            )
+        },
+        modifier = modifier,
+        onRelease = {
+            val wv = state.webView ?: return@AndroidView
 
-                state.viewState = Bundle().apply {
-                    wv.saveState(this)
-                }.takeIf { bundle ->
-                    !bundle.isEmpty
-                } ?: state.viewState
-                state.webView = null
+            state.viewState = Bundle().apply {
+                wv.saveState(this)
+            }.takeIf { bundle ->
+                !bundle.isEmpty
+            } ?: state.viewState
+            state.webView = null
 
-                onDispose(wv)
-            },
-            update = {
-                if (isRefreshable) {
-                    it.isRefreshing = state.isLoading
-                }
+            onDispose(wv)
+        },
+        update = {
+            if (isRefreshable) {
+                it.isRefreshing = (state.loadingState as? LoadingState.Loading)?.isUserForceRefresh == true
             }
-        )
-    }
+        }
+    )
 }
 
 @Composable
-private fun HandleBackPresses(captureBackPresses: Boolean, navigator: WebViewNavigator, webView: WebView?) {
+private fun HandleBackPresses(captureBackPresses: Boolean, navigator: TWSViewNavigator, webView: WebView?) {
     BackHandler(captureBackPresses && navigator.canGoBack) {
         webView?.goBack()
     }
 }
 
 @Composable
-private fun HandleNavigationEvents(wv: WebView, navigator: WebViewNavigator, state: WebViewState) {
+private fun HandleNavigationEvents(wv: WebView, navigator: TWSViewNavigator, state: TWSViewState) {
     LaunchedEffect(wv, navigator) {
         with(navigator) {
             wv.handleNavigationEvents()
@@ -264,13 +258,6 @@ private fun HandleNavigationEvents(wv: WebView, navigator: WebViewNavigator, sta
                         content.mimeType,
                         content.encoding,
                         content.historyUrl
-                    )
-                }
-
-                is WebContent.Post -> {
-                    wv.postUrl(
-                        content.url,
-                        content.postData
                     )
                 }
 
@@ -295,7 +282,7 @@ private fun WebViewResumeOrPauseEffect(webView: WebView) {
 
 @Composable
 private fun SetupPermissionHandling(
-    chromeClient: TwsWebChromeClient,
+    chromeClient: TWSWebChromeClient,
     permissionLauncher: ActivityResultLauncher<String>,
     setupCallback: ((Boolean) -> Unit) -> Unit
 ) {
@@ -317,7 +304,7 @@ private fun createPermissionLauncher(): Pair<ActivityResultLauncher<String>, Mut
 }
 
 @Composable
-private fun SetupFileChooserLauncher(chromeClient: TwsWebChromeClient) {
+private fun SetupFileChooserLauncher(chromeClient: TWSWebChromeClient) {
     val context = LocalContext.current
 
     val fileChooserCallback = remember { mutableStateOf<ValueCallback<Array<Uri>>?>(null) }
@@ -344,7 +331,7 @@ private fun SetupFileChooserLauncher(chromeClient: TwsWebChromeClient) {
 
 private fun createWebView(
     context: Context,
-    state: WebViewState,
+    state: TWSViewState,
     onCreated: (WebView) -> Unit,
     client: WebViewClient,
     chromeClient: WebChromeClient
@@ -364,10 +351,14 @@ private fun createWebView(
 private fun createSwipeRefreshLayout(
     context: Context,
     webView: WebView,
-    navigator: WebViewNavigator
+    navigator: TWSViewNavigator,
+    state: TWSViewState
 ): SwipeRefreshLayout {
     return SwipeRefreshLayout(context).apply {
-        setOnRefreshListener { navigator.reload() }
+        setOnRefreshListener {
+            state.loadingState = LoadingState.ForceRefreshInitiated
+            navigator.reload()
+        }
         addView(webView)
     }
 }

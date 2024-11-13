@@ -22,6 +22,6 @@ import com.squareup.moshi.JsonClass
 @JsonClass(generateAdapter = true)
 @Keep
 internal data class ProjectDto(
-    val snippets: List<WebSnippetDto>,
+    val snippets: List<TWSSnippetDto>,
     val listenOn: String
 )

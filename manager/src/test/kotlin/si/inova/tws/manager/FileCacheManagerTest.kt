@@ -27,7 +27,7 @@ import org.junit.rules.TemporaryFolder
 import org.mockito.Mockito
 import si.inova.tws.manager.cache.FileCacheManager
 import si.inova.tws.manager.cache.FileCacheManager.Companion.CACHE_DIR
-import si.inova.tws.manager.data.WebSnippetDto
+import si.inova.tws.manager.data.TWSSnippetDto
 import si.inova.tws.manager.singleton.twsMoshi
 import si.inova.tws.manager.utils.FAKE_PROJECT_DTO
 import java.io.File
@@ -62,8 +62,8 @@ class FileCacheManagerTest {
 
         assert(savedFile.exists())
 
-        val type = Types.newParameterizedType(List::class.java, WebSnippetDto::class.java)
-        val jsonAdapter = moshi.adapter<List<WebSnippetDto>>(type)
+        val type = Types.newParameterizedType(List::class.java, TWSSnippetDto::class.java)
+        val jsonAdapter = moshi.adapter<List<TWSSnippetDto>>(type)
         val savedData = jsonAdapter.fromJson(savedFile.resolve(CACHED_SNIPPETS_KEY).readText())
 
         assert(savedData == FAKE_PROJECT_DTO.snippets)

@@ -37,7 +37,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import si.inova.kotlinova.core.outcome.Outcome
-import si.inova.tws.core.WebSnippetComponent
+import si.inova.tws.core.TWSView
 import si.inova.tws.data.TWSSnippet
 import si.inova.tws.interstitial.WebSnippetPopup.Companion.MANAGER_TAG
 import si.inova.tws.interstitial.WebSnippetPopup.Companion.NAVIGATION_BAR_COLOR
@@ -76,7 +76,12 @@ class WebSnippetInterstitialActivity : ComponentActivity() {
         val webSnippetId = intent.getStringExtra(WEB_SNIPPET_ID)
         val managerTag = intent.getStringExtra(MANAGER_TAG)
 
-        val manager = managerTag?.let { TWSFactory.get(it) }
+        val manager = webSnippetId?.let {
+            managerTag?.let { tag ->
+                TWSFactory.get(tag)
+            }
+        }
+
         val webSnippetData = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             intent.getParcelableExtra(WEB_SNIPPET_DATA, TWSSnippet::class.java)
         } else {
@@ -103,10 +108,9 @@ class WebSnippetInterstitialActivity : ComponentActivity() {
 
             Box(modifier = Modifier.fillMaxSize()) {
                 snippet?.let {
-                    WebSnippetComponent(
+                    TWSView(
                         modifier = Modifier.fillMaxSize(),
-                        target = it,
-                        displayPlaceholderWhileLoading = true
+                        snippet = it
                     )
 
                     FilledIconButton(

@@ -23,7 +23,7 @@ import si.inova.tws.data.TWSAttachment
 import si.inova.tws.data.TWSEngine
 import si.inova.tws.data.TWSAttachmentType
 
-class HtmlModifierHelper {
+internal class HtmlModifierHelper {
 
     /**
      * Modify the HTML content by injecting CSS, JavaScript, and applying Mustache templates.

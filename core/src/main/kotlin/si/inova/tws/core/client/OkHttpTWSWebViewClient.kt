@@ -29,53 +29,44 @@ import okhttp3.Response
 import okhttp3.ResponseBody
 import si.inova.tws.core.client.okhttp.webViewHttpClient
 import si.inova.tws.core.data.LoadingState
-import si.inova.tws.core.data.WebViewState
+import si.inova.tws.core.data.TWSInterceptUrlCallback
+import si.inova.tws.core.data.TWSViewState
 import si.inova.tws.core.util.HtmlModifierHelper
 import si.inova.tws.data.TWSAttachment
 import si.inova.tws.data.TWSEngine
 import java.util.concurrent.TimeUnit
 
 /**
- * [OkHttpTwsWebViewClient] is a specialized subclass of [TwsWebViewClient] that integrates OkHttp for
- * efficient network request handling and response modification. This client overrides the default
- * WebViewClient behavior by using OkHttp for executing network requests and offers advanced features such as:
+ * [OkHttpTWSWebViewClient] is a specialized subclass of [TWSWebViewClient] that integrates OkHttp for
+ * handling network requests efficiently and allows modification of HTML responses.
  *
- * - Dynamic Content Injection: Allows injection of custom CSS and JavaScript into HTML responses using
- *   `dynamicModifiers`. Mustache templating is also supported to modify HTML content based on dynamic properties.
- * - Caching Management: Utilizes OkHttp's caching capabilities to enhance performance, including support for
- *   handling stale content with `stale-if-error` directives.
- * - Google Authentication Flow: Inherits handling of specific URL redirections from [TwsWebViewClient], including
- *   the ability to open custom tabs for Google authentication.
+ * This client overrides the default WebViewClient behavior by using OkHttp to execute network requests,
+ * enabling advanced features such as:
  *
- * @param interceptOverrideUrl A function to intercept and handle specific URL requests before passing them to OkHttp.
- * @param popupStateCallback An optional callback to manage the visibility of popups or custom tabs in the WebView.
+ * - **Dynamic Content Injection**: Enables injection of custom CSS and JavaScript into HTML responses via
+ *   `dynamicModifiers`. Supports Mustache templating to adjust HTML content based on dynamic properties.
+ * - **Caching Management**: Utilizes OkHttp's caching capabilities to improve performance, including support
+ *   for handling stale content through `stale-if-error` directives.
+ * - **Google Authentication Flow**: Inherits handling of specific URL redirections from [TWSWebViewClient],
+ *   including the ability to open custom tabs for Google authentication flows.
+ *
+ * @param dynamicModifiers A list of [TWSAttachment] items used to modify the HTML content dynamically.
+ * @param mustacheProps A map of properties passed to Mustache templates for HTML modification.
+ * @param engine A [TWSEngine], which allows developers to skip mustache processing
+ * @param interceptUrlCallback A function for intercepting and handling specific URL requests before
+ * they are passed to OkHttp.
+ * @param popupStateCallback An optional callback to manage visibility of popups or custom tabs within the WebView.
  */
-class OkHttpTwsWebViewClient(
-    interceptOverrideUrl: (String) -> Boolean,
-    popupStateCallback: ((WebViewState, Boolean) -> Unit)? = null
-) : TwsWebViewClient(interceptOverrideUrl, popupStateCallback) {
+class OkHttpTWSWebViewClient(
+    private val dynamicModifiers: List<TWSAttachment>,
+    private val mustacheProps: Map<String, Any>,
+    private val engine: TWSEngine,
+    interceptUrlCallback: TWSInterceptUrlCallback,
+    popupStateCallback: ((TWSViewState, Boolean) -> Unit)? = null
+) : TWSWebViewClient(interceptUrlCallback, popupStateCallback) {
 
     private lateinit var okHttpClient: OkHttpClient
     private val htmlModifier = HtmlModifierHelper()
-
-    private var dynamicModifiers: List<TWSAttachment> = emptyList()
-    private var mustacheProps: Map<String, Any> = emptyMap()
-    private var engine: TWSEngine? = null
-
-    // Returns whether webview needs to be refreshed because of a change of mustache dependencies
-    fun setMustacheProps(props: Map<String, Any>, engine: TWSEngine?): Boolean {
-        return (mustacheProps == props && this.engine == engine).also {
-            mustacheProps = props
-            this.engine = engine
-        }
-    }
-
-    // Returns whether webview needs to be refreshed because of a change of modifiers
-    fun setDynamicModifiers(modifiers: List<TWSAttachment>): Boolean {
-        return (dynamicModifiers == modifiers).also {
-            dynamicModifiers = modifiers
-        }
-    }
 
     override fun onPageStarted(view: WebView, url: String?, favicon: Bitmap?) {
         super.onPageStarted(view, url, favicon)

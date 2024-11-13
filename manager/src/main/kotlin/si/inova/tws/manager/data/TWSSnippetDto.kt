@@ -28,7 +28,7 @@ import si.inova.tws.data.TWSSnippet
 @JsonClass(generateAdapter = true)
 @Keep
 @Parcelize
-internal data class WebSnippetDto(
+internal data class TWSSnippetDto(
     val id: String,
     val target: String,
     val organizationId: String,
@@ -41,10 +41,10 @@ internal data class WebSnippetDto(
     val loadIteration: Int = 0
 ) : Parcelable
 
-internal fun WebSnippetDto.toTWSSnippet(localProps: Map<String, Any>) = TWSSnippet(
+internal fun TWSSnippetDto.toTWSSnippet(localProps: Map<String, Any>) = TWSSnippet(
     id = this.id,
     target = this.target,
-    headers = this.headers,
+    headers = this.headers.orEmpty(),
     dynamicResources = this.dynamicResources,
     props = this.props + localProps,
     engine = this.engine,

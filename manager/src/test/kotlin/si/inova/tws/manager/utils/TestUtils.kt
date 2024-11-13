@@ -24,10 +24,10 @@ import si.inova.tws.manager.data.ProjectDto
 import si.inova.tws.manager.data.SharedSnippetDto
 import si.inova.tws.manager.data.SnippetUpdateAction
 import si.inova.tws.manager.data.VisibilityDto
-import si.inova.tws.manager.data.WebSnippetDto
+import si.inova.tws.manager.data.TWSSnippetDto
 import java.time.Instant
 
-internal val FAKE_SNIPPET_ONE = WebSnippetDto(
+internal val FAKE_SNIPPET_ONE = TWSSnippetDto(
     id = "0",
     target = "www.google.com",
     organizationId = "organization",
@@ -47,7 +47,7 @@ internal val FAKE_EXPOSED_SNIPPET_ONE = TWSSnippet(
     )
 )
 
-internal val FAKE_SNIPPET_TWO = WebSnippetDto(
+internal val FAKE_SNIPPET_TWO = TWSSnippetDto(
     id = "1",
     target = "www.blink.com",
     organizationId = "organization",
@@ -67,7 +67,7 @@ internal val FAKE_EXPOSED_SNIPPET_TWO = TWSSnippet(
     )
 )
 
-internal val FAKE_SNIPPET_THREE = WebSnippetDto(
+internal val FAKE_SNIPPET_THREE = TWSSnippetDto(
     id = "3",
     target = "www.example.com",
     organizationId = "organization",
@@ -87,7 +87,7 @@ internal val FAKE_EXPOSED_SNIPPET_THREE = TWSSnippet(
     )
 )
 
-internal val FAKE_SNIPPET_FOUR = WebSnippetDto(
+internal val FAKE_SNIPPET_FOUR = TWSSnippetDto(
     id = "4",
     target = "www.popup1.com",
     organizationId = "organization",
@@ -99,7 +99,7 @@ internal val FAKE_EXPOSED_SNIPPET_FOUR = TWSSnippet(
     target = "www.popup1.com"
 )
 
-internal val FAKE_SNIPPET_FIVE = WebSnippetDto(
+internal val FAKE_SNIPPET_FIVE = TWSSnippetDto(
     id = "5",
     target = "www.popup2.com",
     organizationId = "organization",
@@ -123,7 +123,7 @@ internal val FAKE_PROJECT_DTO_2 = ProjectDto(
 
 internal val FAKE_SHARED_PROJECT = SharedSnippetDto(snippet = FAKE_SNIPPET_ONE)
 
-internal fun WebSnippetDto.toActionBody() = ActionBody(
+internal fun TWSSnippetDto.toActionBody() = ActionBody(
     id = id,
     target = target,
     headers = headers,
@@ -131,7 +131,7 @@ internal fun WebSnippetDto.toActionBody() = ActionBody(
     props = props
 )
 
-internal fun WebSnippetDto.setVisibility(ts: Long) = copy(
+internal fun TWSSnippetDto.setVisibility(ts: Long) = copy(
     visibility = VisibilityDto(untilUtc = Instant.ofEpochMilli(ts))
 )
 

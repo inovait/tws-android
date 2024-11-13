@@ -17,6 +17,7 @@
 package si.inova.tws.manager
 
 import android.content.Context
+import android.content.pm.PackageManager
 import jakarta.inject.Singleton
 import java.lang.ref.WeakReference
 import java.util.WeakHashMap
@@ -24,6 +25,16 @@ import java.util.WeakHashMap
 @Singleton
 object TWSFactory {
     private val instances = WeakHashMap<String, WeakReference<TWSManager>>()
+
+    fun get(context: Context): TWSManager {
+        val configuration = TWSConfiguration.Basic(
+            getMetaData(context, ORGANIZATION_ID_METADATA),
+            getMetaData(context, PROJECT_ID_METADATA),
+            "apiKey"
+        )
+
+        return createOrGet(context, "${configuration.organizationId}_${configuration.projectId}", configuration)
+    }
 
     fun get(context: Context, configuration: TWSConfiguration.Basic): TWSManager {
         return createOrGet(context, "${configuration.organizationId}_${configuration.projectId}", configuration)
@@ -52,6 +63,12 @@ object TWSFactory {
             newInstance
         }
     }
+
+    private fun getMetaData(context: Context, key: String): String {
+        val appInfo = context.packageManager.getApplicationInfo(context.packageName, PackageManager.GET_META_DATA)
+        return appInfo.metaData?.getString(key)
+            ?: error("Missing metadata in Android Manifest. Please check if $key is provided.")
+    }
 }
 
 sealed class TWSConfiguration(open val apiKey: String) {
@@ -66,3 +83,6 @@ sealed class TWSConfiguration(open val apiKey: String) {
         override val apiKey: String
     ) : TWSConfiguration(apiKey)
 }
+
+private const val ORGANIZATION_ID_METADATA = "si.inova.tws.ORGANIZATION_ID"
+private const val PROJECT_ID_METADATA = "si.inova.tws.PROJECT_ID"

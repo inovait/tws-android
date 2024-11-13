@@ -25,7 +25,7 @@ import android.webkit.PermissionRequest
 import android.webkit.ValueCallback
 import android.webkit.WebView
 import si.inova.tws.core.data.WebContent
-import si.inova.tws.core.data.WebViewState
+import si.inova.tws.core.data.TWSViewState
 import si.inova.tws.core.util.hasPermissionInManifest
 
 /**
@@ -40,8 +40,8 @@ import si.inova.tws.core.util.hasPermissionInManifest
  * @param popupStateCallback An optional callback that provides updates regarding the
  * state of popup windows within the WebView.
  */
-open class TwsWebChromeClient(
-    private val popupStateCallback: ((WebViewState, Boolean) -> Unit)? = null,
+open class TWSWebChromeClient(
+    private val popupStateCallback: ((TWSViewState, Boolean) -> Unit)? = null,
 ) : AccompanistWebChromeClient() {
     private lateinit var showPermissionRequest: (String, (Boolean) -> Unit) -> Unit
     private lateinit var showFileChooser: (ValueCallback<Array<Uri>>, FileChooserParams) -> Unit
@@ -56,7 +56,7 @@ open class TwsWebChromeClient(
 
     override fun onCreateWindow(view: WebView, isDialog: Boolean, isUserGesture: Boolean, resultMsg: Message): Boolean {
         popupStateCallback?.invoke(
-            WebViewState(WebContent.MessageOnly(msg = resultMsg, isDialog = isDialog)),
+            TWSViewState(WebContent.MessageOnly(msg = resultMsg, isDialog = isDialog)),
             true
         )
 

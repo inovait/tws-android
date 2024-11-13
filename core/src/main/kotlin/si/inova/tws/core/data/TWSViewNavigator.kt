@@ -35,84 +35,11 @@ import kotlinx.coroutines.withContext
  * Allows control over the navigation of a WebView from outside the composable. E.g. for performing
  * a back navigation in response to the user clicking the "up" button in a TopAppBar.
  *
- * @see [rememberWebViewNavigator]
+ * @see [rememberTWSViewNavigator]
  */
 @Stable
-class WebViewNavigator(private val coroutineScope: CoroutineScope) {
-    private sealed interface NavigationEvent {
-        data object Back : NavigationEvent
-        data object Forward : NavigationEvent
-        data object Reload : NavigationEvent
-        data object StopLoading : NavigationEvent
-
-        data class LoadUrl(
-            val url: String,
-            val additionalHttpHeaders: Map<String, String> = emptyMap()
-        ) : NavigationEvent
-
-        data class LoadHtml(
-            val html: String,
-            val baseUrl: String? = null,
-            val mimeType: String? = null,
-            val encoding: String? = "utf-8",
-            val historyUrl: String? = null
-        ) : NavigationEvent
-
-        data class PostUrl(
-            val url: String,
-            val postData: ByteArray
-        ) : NavigationEvent {
-            override fun equals(other: Any?): Boolean {
-                if (this === other) return true
-                if (javaClass != other?.javaClass) return false
-
-                other as PostUrl
-
-                if (url != other.url) return false
-                if (!postData.contentEquals(other.postData)) return false
-
-                return true
-            }
-
-            override fun hashCode(): Int {
-                var result = url.hashCode()
-                result = 31 * result + postData.contentHashCode()
-                return result
-            }
-        }
-    }
-
+class TWSViewNavigator(private val coroutineScope: CoroutineScope) {
     private val navigationEvents: MutableSharedFlow<NavigationEvent> = MutableSharedFlow(replay = 1)
-
-    // Use Dispatchers.Main to ensure that the webview methods are called on UI thread
-    @OptIn(ExperimentalCoroutinesApi::class)
-    internal suspend fun WebView.handleNavigationEvents(): Nothing = withContext(Dispatchers.Main) {
-        navigationEvents.collect { event ->
-            when (event) {
-                is NavigationEvent.Back -> goBack()
-                is NavigationEvent.Forward -> goForward()
-                is NavigationEvent.Reload -> reload()
-                is NavigationEvent.StopLoading -> stopLoading()
-                is NavigationEvent.LoadHtml -> loadDataWithBaseURL(
-                    event.baseUrl,
-                    event.html,
-                    event.mimeType,
-                    event.encoding,
-                    event.historyUrl
-                )
-
-                is NavigationEvent.LoadUrl -> {
-                    loadUrl(event.url, event.additionalHttpHeaders)
-                }
-
-                is NavigationEvent.PostUrl -> {
-                    postUrl(event.url, event.postData)
-                }
-            }
-
-            navigationEvents.resetReplayCache()
-        }
-    }
 
     /**
      * True when the web view is able to navigate backwards, false otherwise.
@@ -155,20 +82,6 @@ class WebViewNavigator(private val coroutineScope: CoroutineScope) {
         }
     }
 
-    fun postUrl(
-        url: String,
-        postData: ByteArray
-    ) {
-        coroutineScope.launch {
-            navigationEvents.emit(
-                NavigationEvent.PostUrl(
-                    url,
-                    postData
-                )
-            )
-        }
-    }
-
     /**
      * Navigates the webview back to the previous page.
      */
@@ -190,29 +103,66 @@ class WebViewNavigator(private val coroutineScope: CoroutineScope) {
         coroutineScope.launch { navigationEvents.emit(NavigationEvent.Reload) }
     }
 
-    /**
-     * Stops the current page load (if one is loading).
-     */
-    fun stopLoading() {
-        coroutineScope.launch { navigationEvents.emit(NavigationEvent.StopLoading) }
+    // Use Dispatchers.Main to ensure that the webview methods are called on UI thread
+    @OptIn(ExperimentalCoroutinesApi::class)
+    internal suspend fun WebView.handleNavigationEvents(): Nothing = withContext(Dispatchers.Main) {
+        navigationEvents.collect { event ->
+            when (event) {
+                is NavigationEvent.Back -> goBack()
+                is NavigationEvent.Forward -> goForward()
+                is NavigationEvent.Reload -> reload()
+                is NavigationEvent.LoadHtml -> loadDataWithBaseURL(
+                    event.baseUrl,
+                    event.html,
+                    event.mimeType,
+                    event.encoding,
+                    event.historyUrl
+                )
+
+                is NavigationEvent.LoadUrl -> {
+                    loadUrl(event.url, event.additionalHttpHeaders)
+                }
+            }
+
+            navigationEvents.resetReplayCache()
+        }
+    }
+
+    private sealed interface NavigationEvent {
+        data object Back : NavigationEvent
+        data object Forward : NavigationEvent
+        data object Reload : NavigationEvent
+
+        data class LoadUrl(
+            val url: String,
+            val additionalHttpHeaders: Map<String, String> = emptyMap()
+        ) : NavigationEvent
+
+        data class LoadHtml(
+            val html: String,
+            val baseUrl: String? = null,
+            val mimeType: String? = null,
+            val encoding: String? = "utf-8",
+            val historyUrl: String? = null
+        ) : NavigationEvent
     }
 }
 
 /**
- * Creates and remembers a [WebViewNavigator] using the default [CoroutineScope] or a provided
+ * Creates and remembers a [TWSViewNavigator] using the default [CoroutineScope] or a provided
  * override.
  */
 @Composable
-fun rememberWebViewNavigator(
+fun rememberTWSViewNavigator(
     coroutineScope: CoroutineScope = rememberCoroutineScope()
-): WebViewNavigator = remember(coroutineScope) { WebViewNavigator(coroutineScope) }
+): TWSViewNavigator = remember(coroutineScope) { TWSViewNavigator(coroutineScope) }
 
 /**
- * Creates and remembers a [WebViewNavigator] using the default [CoroutineScope] or a provided
+ * Creates and remembers a [TWSViewNavigator] using the default [CoroutineScope] or a provided
  * override.
  */
 @Composable
-fun rememberWebViewNavigator(
+fun rememberTWSViewNavigator(
     key1: Any?,
     coroutineScope: CoroutineScope = rememberCoroutineScope()
-): WebViewNavigator = remember(key1) { WebViewNavigator(coroutineScope) }
+): TWSViewNavigator = remember(key1) { TWSViewNavigator(coroutineScope) }

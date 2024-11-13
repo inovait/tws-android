@@ -18,15 +18,15 @@ package si.inova.tws.manager.localhandler
 
 import kotlinx.coroutines.flow.Flow
 import si.inova.tws.manager.data.SnippetUpdateAction
-import si.inova.tws.manager.data.WebSnippetDto
+import si.inova.tws.manager.data.TWSSnippetDto
 import java.time.Instant
 
 internal interface LocalSnippetHandler {
     val updateActionFlow: Flow<SnippetUpdateAction>
 
-    suspend fun updateAndScheduleCheck(snippets: List<WebSnippetDto>)
+    suspend fun updateAndScheduleCheck(snippets: List<TWSSnippetDto>)
 
-    suspend fun calculateDateOffsetAndRerun(serverDate: Instant?, snippets: List<WebSnippetDto>)
+    suspend fun calculateDateOffsetAndRerun(serverDate: Instant?, snippets: List<TWSSnippetDto>)
 
     fun release()
 }

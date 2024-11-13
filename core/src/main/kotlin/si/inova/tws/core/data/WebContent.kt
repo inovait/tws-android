@@ -33,29 +33,6 @@ sealed class WebContent {
         val historyUrl: String? = null
     ) : WebContent()
 
-    data class Post(
-        val url: String,
-        val postData: ByteArray
-    ) : WebContent() {
-        override fun equals(other: Any?): Boolean {
-            if (this === other) return true
-            if (javaClass != other?.javaClass) return false
-
-            other as Post
-
-            if (url != other.url) return false
-            if (!postData.contentEquals(other.postData)) return false
-
-            return true
-        }
-
-        override fun hashCode(): Int {
-            var result = url.hashCode()
-            result = 31 * result + postData.contentHashCode()
-            return result
-        }
-    }
-
     data object NavigatorOnly : WebContent()
 
     data class MessageOnly(val msg: Message, val isDialog: Boolean) : WebContent()

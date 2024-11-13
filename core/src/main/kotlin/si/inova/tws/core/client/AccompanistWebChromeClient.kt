@@ -20,7 +20,7 @@ import android.graphics.Bitmap
 import android.webkit.WebChromeClient
 import android.webkit.WebView
 import si.inova.tws.core.data.LoadingState
-import si.inova.tws.core.data.WebViewState
+import si.inova.tws.core.data.TWSViewState
 
 /**
  * AccompanistWebChromeClient is a subclass of [WebChromeClient] designed to manage
@@ -31,7 +31,7 @@ import si.inova.tws.core.data.WebViewState
  * updates for the loading state of the WebView.
  */
 open class AccompanistWebChromeClient : WebChromeClient() {
-    open lateinit var state: WebViewState
+    open lateinit var state: TWSViewState
         internal set
 
     override fun onReceivedTitle(view: WebView, title: String?) {
@@ -46,8 +46,15 @@ open class AccompanistWebChromeClient : WebChromeClient() {
 
     override fun onProgressChanged(view: WebView, newProgress: Int) {
         super.onProgressChanged(view, newProgress)
-        if (state.loadingState is LoadingState.Finished) return
-        state.loadingState = LoadingState.Loading(newProgress / PERCENTAGE_DIVISOR)
+        val loadingState = state.loadingState
+
+        if (loadingState is LoadingState.Finished) return
+
+        state.loadingState = LoadingState.Loading(
+            progress = newProgress / PERCENTAGE_DIVISOR,
+            isUserForceRefresh = loadingState is LoadingState.ForceRefreshInitiated ||
+                (loadingState as? LoadingState.Loading)?.isUserForceRefresh == true
+        )
     }
 
     companion object {

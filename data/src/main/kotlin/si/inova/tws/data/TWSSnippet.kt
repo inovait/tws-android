@@ -28,7 +28,7 @@ import kotlinx.parcelize.RawValue
 data class TWSSnippet(
     val id: String,
     val target: String,
-    val headers: Map<String, String>? = emptyMap(),
+    val headers: Map<String, String> = emptyMap(),
     val dynamicResources: List<TWSAttachment> = emptyList(),
     val props: Map<String, @RawValue Any> = emptyMap(),
     val engine: TWSEngine = TWSEngine.NONE,
