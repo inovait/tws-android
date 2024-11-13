@@ -27,7 +27,7 @@ import androidx.browser.customtabs.CustomTabsCallback
 import androidx.browser.customtabs.CustomTabsClient
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.browser.customtabs.CustomTabsServiceConnection
-import si.inova.tws.core.data.TWSInterceptUrlCallback
+import si.inova.tws.core.data.TWSViewInterceptor
 import si.inova.tws.core.data.TWSViewState
 
 /**
@@ -47,7 +47,7 @@ import si.inova.tws.core.data.TWSViewState
  * custom tab is open (true) or closed (false).
  */
 open class TWSWebViewClient(
-    private val interceptUrlCallback: TWSInterceptUrlCallback,
+    private val interceptUrlCallback: TWSViewInterceptor,
     private val popupStateCallback: ((TWSViewState, Boolean) -> Unit)? = null
 ) : AccompanistWebViewClient() {
 

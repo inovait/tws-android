@@ -29,7 +29,7 @@ import okhttp3.Response
 import okhttp3.ResponseBody
 import si.inova.tws.core.client.okhttp.webViewHttpClient
 import si.inova.tws.core.data.LoadingState
-import si.inova.tws.core.data.TWSInterceptUrlCallback
+import si.inova.tws.core.data.TWSViewInterceptor
 import si.inova.tws.core.data.TWSViewState
 import si.inova.tws.core.util.HtmlModifierHelper
 import si.inova.tws.data.TWSAttachment
@@ -61,7 +61,7 @@ class OkHttpTWSWebViewClient(
     private val dynamicModifiers: List<TWSAttachment>,
     private val mustacheProps: Map<String, Any>,
     private val engine: TWSEngine,
-    interceptUrlCallback: TWSInterceptUrlCallback,
+    interceptUrlCallback: TWSViewInterceptor,
     popupStateCallback: ((TWSViewState, Boolean) -> Unit)? = null
 ) : TWSWebViewClient(interceptUrlCallback, popupStateCallback) {
 
