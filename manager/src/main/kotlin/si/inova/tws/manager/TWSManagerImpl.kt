@@ -19,6 +19,7 @@ package si.inova.tws.manager
 import android.content.Context
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -80,8 +81,10 @@ internal class TWSManagerImpl(
             }
         }
     }.onStart {
+        networkConnectivityService?.launchAndCollect()
         forceRefresh()
     }.onCompletion {
+        stopNetworkStatusObserving()
         twsSocket?.closeWebsocketConnection()
     }.stateIn(
         scope,
@@ -89,15 +92,12 @@ internal class TWSManagerImpl(
         Outcome.Progress()
     )
 
-    init {
-        setupNetworkConnectivityHandling()
-    }
-
     private val _mainSnippetIdFlow: MutableStateFlow<String?> = MutableStateFlow(null)
     override val mainSnippetIdFlow: Flow<String?> = _mainSnippetIdFlow.filterNotNull()
 
     private var collectingSocket: Boolean = false
     private var collectingLocalHandler: Boolean = false
+    private var networkStatusJob: Job? = null
 
     override fun setLocalProps(id: String, localProps: Map<String, Any>) {
         val currentLocalProps = _localProps.value.toMutableMap()
@@ -168,13 +168,13 @@ internal class TWSManagerImpl(
         }
     }
 
-    private fun setupNetworkConnectivityHandling() {
-        if (networkConnectivityService == null) return
+    // Ensure snippets are refreshed and socket reestablished after connection is reestablished
+    private fun NetworkConnectivityService.launchAndCollect() {
+        if (networkStatusJob?.isActive == true) return
 
         var ignoreFirst = true
-
-        launch {
-            networkConnectivityService.networkStatus.collect {
+        networkStatusJob = launch {
+            networkStatus.collect {
                 if (ignoreFirst) {
                     ignoreFirst = false
                     return@collect
@@ -186,6 +186,11 @@ internal class TWSManagerImpl(
                 }
             }
         }
+    }
+
+    private fun stopNetworkStatusObserving() {
+        networkStatusJob?.cancel()
+        networkStatusJob = null
     }
 
     companion object {
