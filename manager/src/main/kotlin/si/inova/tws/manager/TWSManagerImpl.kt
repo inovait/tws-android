@@ -81,11 +81,9 @@ internal class TWSManagerImpl(
             }
         }
     }.onStart {
-        networkConnectivityService?.launchAndCollect()
-        forceRefresh()
+        setupCollectingAndLoad()
     }.onCompletion {
-        stopNetworkStatusObserving()
-        twsSocket?.closeWebsocketConnection()
+        cancelCollecting()
     }.stateIn(
         scope,
         SharingStarted.WhileSubscribed(5.seconds),
@@ -131,6 +129,23 @@ internal class TWSManagerImpl(
 
     private fun saveToCache(snippets: List<TWSSnippetDto>) = launch {
         cacheManager?.save(CACHED_SNIPPETS, snippets)
+    }
+
+    private fun setupCollectingAndLoad() {
+        // web socket and local handler will be launched in here
+        forceRefresh()
+
+        // start collecting network status, will enable us to disconnect/reconnect
+        networkConnectivityService?.launchAndCollect()
+    }
+
+    private fun cancelCollecting() {
+        localSnippetHandler?.release()
+        twsSocket?.closeWebsocketConnection()
+
+        // stop collecting network status
+        networkStatusJob?.cancel()
+        networkStatusJob = null
     }
 
     // Process remote snippet changes (from web socket)
@@ -186,11 +201,6 @@ internal class TWSManagerImpl(
                 }
             }
         }
-    }
-
-    private fun stopNetworkStatusObserving() {
-        networkStatusJob?.cancel()
-        networkStatusJob = null
     }
 
     companion object {
