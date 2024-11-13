@@ -51,6 +51,7 @@ import si.inova.tws.manager.snippet.SnippetLoadingManager
 import si.inova.tws.manager.snippet.SnippetLoadingManagerImpl
 import si.inova.tws.manager.websocket.TWSSocket
 import si.inova.tws.manager.websocket.TWSSocketImpl
+import java.time.Instant
 import kotlin.time.Duration.Companion.seconds
 
 internal class TWSManagerImpl(
@@ -118,9 +119,8 @@ internal class TWSManagerImpl(
 
                 saveToCache(project.snippets)
 
-                localSnippetHandler?.calculateDateOffsetAndRerun(response.responseDate, project.snippets)
                 twsSocket?.launchAndCollect(project.listenOn)
-                localSnippetHandler?.launchAndCollect(project.snippets)
+                localSnippetHandler?.launchAndCollect(response.responseDate, project.snippets)
             } catch (e: CauseException) {
                 _snippetsFlow.emit(Outcome.Error(e, _snippetsFlow.value.data))
             } catch (e: Exception) {
@@ -143,7 +143,7 @@ internal class TWSManagerImpl(
         updateActionFlow.onEach {
             val newList = _snippetsFlow.value.data.orEmpty().updateWith(it)
 
-            localSnippetHandler?.launchAndCollect(newList)
+            localSnippetHandler?.updateAndScheduleCheck(newList)
             _snippetsFlow.emit(Outcome.Success(newList))
             saveToCache(newList)
         }.launchIn(this@TWSManagerImpl).invokeOnCompletion {
@@ -152,8 +152,8 @@ internal class TWSManagerImpl(
     }
 
     // Process local snippet changes (hiding with visibility)
-    private suspend fun LocalSnippetHandler.launchAndCollect(snippets: List<TWSSnippetDto>) {
-        updateAndScheduleCheck(snippets)
+    private suspend fun LocalSnippetHandler.launchAndCollect(serverDate: Instant, snippets: List<TWSSnippetDto>) {
+        calculateDateOffsetAndRerun(serverDate, snippets)
 
         if (collectingLocalHandler) return
         collectingLocalHandler = true

@@ -18,7 +18,6 @@ package si.inova.tws.manager.websocket
 
 import android.util.Log
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -41,7 +40,6 @@ internal class TWSSocketImpl(
     private var webSocket: WebSocket? = null
     private var wssUrl: String? = null
 
-    private var networkJob: Job? = null
     private var isSocketCollectorActive = false
 
     override val updateActionFlow = listener.updateActionFlow
@@ -84,7 +82,6 @@ internal class TWSSocketImpl(
      *
      */
     override fun closeWebsocketConnection(): Boolean? {
-        networkJob?.cancel()
         wssUrl = null
 
         return disconnect()
