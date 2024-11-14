@@ -180,7 +180,7 @@ internal class TWSManagerImpl(
     private fun NetworkConnectivityService.launchAndCollect() {
         if (networkStatusJob?.isActive == true) return
 
-        var ignoreFirst = true
+        var ignoreFirst = networkConnectivityService?.isConnected == true
         networkStatusJob = launch {
             networkStatus.collect {
                 if (ignoreFirst) {

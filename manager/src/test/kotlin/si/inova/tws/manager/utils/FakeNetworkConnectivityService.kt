@@ -26,6 +26,9 @@ internal class FakeNetworkConnectivityService : NetworkConnectivityService {
     override val networkStatus: Flow<NetworkStatus>
         get() = _networkStatus
 
+    override val isConnected: Boolean
+        get() = _networkStatus.value == NetworkStatus.Connected
+
     fun mockNetworkStatus(status: NetworkStatus) {
         _networkStatus.value = status
     }

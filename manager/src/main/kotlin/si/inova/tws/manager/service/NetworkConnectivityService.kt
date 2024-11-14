@@ -21,4 +21,5 @@ import si.inova.tws.manager.data.NetworkStatus
 
 internal interface NetworkConnectivityService {
     val networkStatus: Flow<NetworkStatus>
+    val isConnected: Boolean
 }
