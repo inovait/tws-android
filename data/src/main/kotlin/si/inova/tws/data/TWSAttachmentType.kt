@@ -32,5 +32,5 @@ enum class TWSAttachmentType {
     @Json(name = "text/javascript")
     JAVASCRIPT,
 
-    UNKNOWN
+    OTHER
 }

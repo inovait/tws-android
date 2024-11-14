@@ -28,7 +28,7 @@ import kotlinx.parcelize.Parcelize
  * @param url The path to the file to inject into the WebView.
  * @param contentType The type of file to inject,
  * either [TWSAttachmentType.CSS] for CSS files or [TWSAttachmentType.JAVASCRIPT] for JavaScript files
- * or [TWSAttachmentType.UNKNOWN] for other type.
+ * or [TWSAttachmentType.OTHER] for other type.
  *
  * @constructor Creates a [TWSAttachment] with the provided [url] and [contentType].
  * Depending on the [contentType], the corresponding injection code for CSS or JavaScript is generated.
@@ -46,7 +46,7 @@ data class TWSAttachment(
     val inject = when (contentType) {
         TWSAttachmentType.CSS -> injectUrlCss()
         TWSAttachmentType.JAVASCRIPT -> injectUrlJs()
-        TWSAttachmentType.UNKNOWN -> null
+        TWSAttachmentType.OTHER -> null
     }
 }
 

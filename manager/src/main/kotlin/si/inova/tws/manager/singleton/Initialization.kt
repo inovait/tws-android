@@ -42,7 +42,7 @@ internal fun twsMoshi(): Moshi {
         .add(TWSEngine::class.java, EnumJsonAdapter.create(TWSEngine::class.java).withUnknownFallback(TWSEngine.OTHER))
         .add(
             TWSAttachmentType::class.java,
-            EnumJsonAdapter.create(TWSAttachmentType::class.java).withUnknownFallback(TWSAttachmentType.UNKNOWN)
+            EnumJsonAdapter.create(TWSAttachmentType::class.java).withUnknownFallback(TWSAttachmentType.OTHER)
         )
         .build()
 }
