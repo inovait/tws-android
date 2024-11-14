@@ -21,9 +21,10 @@ import si.inova.kotlinova.core.outcome.Outcome
 import si.inova.tws.data.TWSSnippet
 
 interface TWSManager {
-    val snippetsFlow: Flow<Outcome<List<TWSSnippet>>>
+    val snippets: Flow<Outcome<List<TWSSnippet>>>
     val mainSnippetIdFlow: Flow<String?>
 
+    fun snippets(): Flow<List<TWSSnippet>?>
     fun forceRefresh()
     fun setLocalProps(id: String, localProps: Map<String, Any>)
 }

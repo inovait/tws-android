@@ -28,6 +28,7 @@ import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
@@ -42,7 +43,7 @@ import si.inova.tws.manager.cache.CacheManager
 import si.inova.tws.manager.cache.FileCacheManager
 import si.inova.tws.manager.data.NetworkStatus
 import si.inova.tws.manager.data.TWSSnippetDto
-import si.inova.tws.manager.data.toTWSSnippet
+import si.inova.tws.manager.data.toTWSSnippetList
 import si.inova.tws.manager.data.updateWith
 import si.inova.tws.manager.localhandler.LocalSnippetHandler
 import si.inova.tws.manager.localhandler.LocalSnippetHandlerImpl
@@ -59,49 +60,35 @@ internal class TWSManagerImpl(
     context: Context,
     tag: String = "",
     private val configuration: TWSConfiguration,
-    private val loader: SnippetLoadingManager = SnippetLoadingManagerImpl(configuration),
     scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO),
+    private val loader: SnippetLoadingManager = SnippetLoadingManagerImpl(configuration),
     private val twsSocket: TWSSocket? = TWSSocketImpl(scope),
     private val localSnippetHandler: LocalSnippetHandler? = LocalSnippetHandlerImpl(scope),
     private val cacheManager: CacheManager? = FileCacheManager(context, tag),
     private val networkConnectivityService: NetworkConnectivityService? = NetworkConnectivityServiceImpl(context)
 ) : TWSManager, CoroutineScope by scope {
 
-    private val _snippetsFlow: MutableStateFlow<Outcome<List<TWSSnippetDto>>> = MutableStateFlow(Outcome.Progress())
-    private val _localProps: MutableStateFlow<Map<String, Map<String, Any>>> = MutableStateFlow(emptyMap())
-
-    /**
-     * collect [snippetsFlow] using `collectAsStateWithLifecycle`
-     * to ensure the WebSocket disconnects when not needed and reconnects appropriately.
-     */
-    override val snippetsFlow = combine(_snippetsFlow, _localProps) { snippetsOutcome, localProps ->
-        snippetsOutcome.mapData { snippets ->
-            snippets.map {
-                it.toTWSSnippet(localProps[it.id].orEmpty())
-            }
-        }
-    }.onStart {
-        setupCollectingAndLoad()
-    }.onCompletion {
-        cancelCollecting()
-    }.stateIn(
-        scope,
-        SharingStarted.WhileSubscribed(5.seconds),
-        Outcome.Progress()
-    )
-
-    private val _mainSnippetIdFlow: MutableStateFlow<String?> = MutableStateFlow(null)
-    override val mainSnippetIdFlow: Flow<String?> = _mainSnippetIdFlow.filterNotNull()
-
     private var collectingSocket: Boolean = false
     private var collectingLocalHandler: Boolean = false
     private var networkStatusJob: Job? = null
 
-    override fun setLocalProps(id: String, localProps: Map<String, Any>) {
-        val currentLocalProps = _localProps.value.toMutableMap()
-        currentLocalProps[id] = localProps
-        _localProps.update { currentLocalProps }
-    }
+    private val _snippetsFlow: MutableStateFlow<Outcome<List<TWSSnippetDto>>> = MutableStateFlow(Outcome.Progress())
+    private val _localProps: MutableStateFlow<Map<String, Map<String, Any>>> = MutableStateFlow(emptyMap())
+
+    /**
+     * collect [snippets] using `collectAsStateWithLifecycle`
+     * to ensure the WebSocket disconnects when not needed and reconnects appropriately.
+     */
+    override val snippets = combine(_snippetsFlow, _localProps) { outcome, localProps ->
+        outcome.mapData { it.toTWSSnippetList(localProps) }
+    }.onStart { setupCollectingAndLoad() }
+        .onCompletion { cancelCollecting() }
+        .stateIn(scope, SharingStarted.WhileSubscribed(5.seconds), Outcome.Progress())
+
+    private val _mainSnippetIdFlow: MutableStateFlow<String?> = MutableStateFlow(null)
+    override val mainSnippetIdFlow: Flow<String?> = _mainSnippetIdFlow.filterNotNull()
+
+    override fun snippets() = snippets.map { it.data }
 
     override fun forceRefresh() {
         launch {
@@ -125,6 +112,12 @@ internal class TWSManagerImpl(
                 _snippetsFlow.emit(Outcome.Error(UnknownCauseException("", e), _snippetsFlow.value.data))
             }
         }
+    }
+
+    override fun setLocalProps(id: String, localProps: Map<String, Any>) {
+        val currentLocalProps = _localProps.value.toMutableMap()
+        currentLocalProps[id] = localProps
+        _localProps.update { currentLocalProps }
     }
 
     private fun saveToCache(snippets: List<TWSSnippetDto>) = launch {

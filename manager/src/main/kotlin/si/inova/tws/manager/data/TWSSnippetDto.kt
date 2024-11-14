@@ -50,3 +50,7 @@ internal fun TWSSnippetDto.toTWSSnippet(localProps: Map<String, Any>) = TWSSnipp
     engine = this.engine,
     loadIteration = this.loadIteration
 )
+
+internal fun List<TWSSnippetDto>.toTWSSnippetList(localProps: Map<String, Map<String, Any>>) = map {
+    it.toTWSSnippet(localProps[it.id].orEmpty())
+}

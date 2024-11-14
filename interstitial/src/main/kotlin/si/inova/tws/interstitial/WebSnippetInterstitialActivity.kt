@@ -90,13 +90,13 @@ class WebSnippetInterstitialActivity : ComponentActivity() {
         }
 
         setContent {
-            val shouldCloseFlow = manager?.snippetsFlow?.map { outcome ->
+            val shouldCloseFlow = manager?.snippets?.map { outcome ->
                 outcome is Outcome.Success && !outcome.data.any {
                     it.id == webSnippetId
                 }
             }?.collectAsState(false)?.value
 
-            val snippet = manager?.snippetsFlow?.map { outcome ->
+            val snippet = manager?.snippets?.map { outcome ->
                 outcome.data?.find { it.id == webSnippetId }
             }?.filterNotNull()?.collectAsState(null)?.value ?: webSnippetData
 

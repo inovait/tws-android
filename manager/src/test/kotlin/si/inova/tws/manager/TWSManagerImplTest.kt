@@ -87,7 +87,7 @@ class TWSManagerImplTest {
             Instant.MIN
         )
 
-        webSnippetManager.snippetsFlow.test {
+        webSnippetManager.snippets.test {
             awaitItem().shouldBeProgressWith()
 
             awaitItem().shouldBeSuccessWithData(
@@ -111,7 +111,7 @@ class TWSManagerImplTest {
             FAKE_SHARED_PROJECT.snippet.id
         )
 
-        webSnippetManager.snippetsFlow.test {
+        webSnippetManager.snippets.test {
             awaitItem().shouldBeProgressWith()
 
             awaitItem().shouldBeSuccessWithData(
@@ -137,7 +137,7 @@ class TWSManagerImplTest {
             Instant.MIN
         )
 
-        webSnippetManager.snippetsFlow.test {
+        webSnippetManager.snippets.test {
             awaitItem().shouldBeProgressWith()
 
             awaitItem().shouldBeSuccessWithData(
@@ -169,7 +169,7 @@ class TWSManagerImplTest {
             Instant.MIN
         )
 
-        webSnippetManager.snippetsFlow.test {
+        webSnippetManager.snippets.test {
             awaitItem().shouldBeProgressWith()
 
             awaitItem().shouldBeSuccessWithData(
@@ -207,7 +207,7 @@ class TWSManagerImplTest {
             Instant.MIN
         )
 
-        webSnippetManager.snippetsFlow.test {
+        webSnippetManager.snippets.test {
             awaitItem().shouldBeProgressWith()
 
             awaitItem().shouldBeSuccessWithData(
@@ -243,7 +243,7 @@ class TWSManagerImplTest {
     fun `Load snippets and create, update and delete from web socket`() = fakeScope.runTest {
         fakeLoader.loaderResponse = ProjectResponse(FAKE_PROJECT_DTO, Instant.MIN)
 
-        webSnippetManager.snippetsFlow.test {
+        webSnippetManager.snippets.test {
             awaitItem().shouldBeProgressWith()
 
             awaitItem().shouldBeSuccessWithData(
@@ -307,7 +307,7 @@ class TWSManagerImplTest {
             Instant.MIN
         )
 
-        webSnippetManager.snippetsFlow.test {
+        webSnippetManager.snippets.test {
             awaitItem().shouldBeProgressWith()
 
             awaitItem().shouldBeSuccessWithData(
@@ -335,7 +335,7 @@ class TWSManagerImplTest {
             Instant.MIN
         )
 
-        webSnippetManager.snippetsFlow.test {
+        webSnippetManager.snippets.test {
             awaitItem().shouldBeProgressWith()
 
             awaitItem().shouldBeSuccessWithData(
@@ -370,7 +370,7 @@ class TWSManagerImplTest {
             Instant.MIN
         )
 
-        webSnippetManager.snippetsFlow.test {
+        webSnippetManager.snippets.test {
             awaitItem().shouldBeProgressWith()
 
             awaitItem().shouldBeSuccessWithData(
@@ -394,7 +394,7 @@ class TWSManagerImplTest {
             Instant.MIN
         )
 
-        webSnippetManager.snippetsFlow.test {
+        webSnippetManager.snippets.test {
             awaitItem().shouldBeProgressWith()
 
             awaitItem().shouldBeSuccessWithData(
@@ -430,7 +430,7 @@ class TWSManagerImplTest {
             Instant.MIN
         )
 
-        webSnippetManager.snippetsFlow.test {
+        webSnippetManager.snippets.test {
             awaitItem().shouldBeProgressWith()
 
             val progress = awaitItem() // progress with cached items
@@ -476,7 +476,7 @@ class TWSManagerImplTest {
             Instant.MIN
         )
 
-        webSnippetManager.snippetsFlow.test {
+        webSnippetManager.snippets.test {
             awaitItem().shouldBeProgressWith()
 
             awaitItem().shouldBeSuccessWithData(
@@ -521,7 +521,7 @@ class TWSManagerImplTest {
             Instant.MIN
         )
 
-        webSnippetManager.snippetsFlow.test {
+        webSnippetManager.snippets.test {
             awaitItem().shouldBeProgressWith()
 
             awaitItem().shouldBeSuccessWithData(
@@ -555,7 +555,7 @@ class TWSManagerImplTest {
             Instant.MIN
         )
 
-        webSnippetManager.snippetsFlow.test {
+        webSnippetManager.snippets.test {
             awaitItem().shouldBeProgressWith()
 
             awaitItem().shouldBeSuccessWithData(
@@ -597,7 +597,7 @@ class TWSManagerImplTest {
             Instant.MIN
         )
 
-        webSnippetManager.snippetsFlow.test {
+        webSnippetManager.snippets.test {
             awaitItem().shouldBeProgressWith()
 
             awaitItem().shouldBeSuccessWithData(
@@ -642,7 +642,7 @@ class TWSManagerImplTest {
 
         webSnippetManager.forceRefresh()
 
-        webSnippetManager.snippetsFlow.test {
+        webSnippetManager.snippets.test {
             awaitItem().shouldBeProgressWith() // initial emit
 
             awaitItem().shouldBeProgressWithData(
@@ -672,7 +672,7 @@ class TWSManagerImplTest {
             Instant.MIN
         )
 
-        webSnippetManager.snippetsFlow.test {
+        webSnippetManager.snippets.test {
             runCurrent()
 
             awaitItem().shouldBeProgressWith() // initial emit
@@ -711,6 +711,54 @@ class TWSManagerImplTest {
             // api response
             awaitItem().shouldBeSuccessWithData(listOf(FAKE_EXPOSED_SNIPPET_ONE, FAKE_EXPOSED_SNIPPET_TWO))
             assert(fakeSocket.isConnectionOpen)
+        }
+    }
+
+    @Test
+    fun `Loading snippets with project and organization id and collect as function`() = fakeScope.runTest {
+        fakeLoader.loaderResponse = ProjectResponse(
+            FAKE_PROJECT_DTO,
+            Instant.MIN
+        )
+
+        webSnippetManager.snippets().test {
+            assert(awaitItem() == null) // initial progress
+
+            assert(
+                awaitItem() == listOf(
+                    FAKE_EXPOSED_SNIPPET_ONE,
+                    FAKE_EXPOSED_SNIPPET_TWO,
+                    FAKE_EXPOSED_SNIPPET_FOUR,
+                    FAKE_EXPOSED_SNIPPET_FIVE
+                )
+            ) // success after api call
+        }
+    }
+
+    @Test
+    fun `Load content snippets from cache, fetch from api and collect as function`() = fakeScope.runTest {
+        fakeCache.save(TWSManagerImpl.CACHED_SNIPPETS, listOf(FAKE_SNIPPET_ONE))
+
+        fakeLoader.loaderResponse = ProjectResponse(
+            FAKE_PROJECT_DTO,
+            Instant.MIN
+        )
+
+        webSnippetManager.snippets().test {
+            assert(awaitItem() == null) // initial
+
+            val progress = awaitItem() // progress with cached items
+            assert(progress == listOf(FAKE_EXPOSED_SNIPPET_ONE))
+
+            val success = awaitItem() // success with network items
+            assert(
+                success == listOf(
+                    FAKE_EXPOSED_SNIPPET_ONE,
+                    FAKE_EXPOSED_SNIPPET_TWO,
+                    FAKE_EXPOSED_SNIPPET_FOUR,
+                    FAKE_EXPOSED_SNIPPET_FIVE
+                )
+            )
         }
     }
 
