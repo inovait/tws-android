@@ -30,6 +30,7 @@ import si.inova.kotlinova.core.test.outcomes.shouldBeProgressWith
 import si.inova.kotlinova.core.test.outcomes.shouldBeProgressWithData
 import si.inova.kotlinova.core.test.outcomes.shouldBeSuccessWithData
 import si.inova.tws.data.TWSAttachment
+import si.inova.tws.data.TWSAttachmentType
 import si.inova.tws.manager.cache.CacheManager
 import si.inova.tws.manager.data.ActionBody
 import si.inova.tws.manager.data.ActionType
@@ -493,7 +494,7 @@ class TWSManagerImplTest {
                     type = ActionType.UPDATED,
                     data = ActionBody(
                         id = FAKE_SNIPPET_ONE.id,
-                        dynamicResources = listOf(TWSAttachment("https://test.cs", "text/css"))
+                        dynamicResources = listOf(TWSAttachment("https://test.cs", TWSAttachmentType.CSS))
                     )
                 )
             )
@@ -502,7 +503,7 @@ class TWSManagerImplTest {
             awaitItem().shouldBeSuccessWithData(
                 listOf(
                     FAKE_EXPOSED_SNIPPET_ONE.copy(
-                        dynamicResources = listOf(TWSAttachment("https://test.cs", "text/css"))
+                        dynamicResources = listOf(TWSAttachment("https://test.cs", TWSAttachmentType.CSS))
                     ),
                     FAKE_EXPOSED_SNIPPET_TWO,
                     FAKE_EXPOSED_SNIPPET_FOUR,

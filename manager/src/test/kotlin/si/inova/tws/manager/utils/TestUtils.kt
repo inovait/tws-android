@@ -17,14 +17,15 @@
 package si.inova.tws.manager.utils
 
 import si.inova.tws.data.TWSAttachment
+import si.inova.tws.data.TWSAttachmentType
 import si.inova.tws.data.TWSSnippet
 import si.inova.tws.manager.data.ActionBody
 import si.inova.tws.manager.data.ActionType
 import si.inova.tws.manager.data.ProjectDto
 import si.inova.tws.manager.data.SharedSnippetDto
 import si.inova.tws.manager.data.SnippetUpdateAction
-import si.inova.tws.manager.data.VisibilityDto
 import si.inova.tws.manager.data.TWSSnippetDto
+import si.inova.tws.manager.data.VisibilityDto
 import java.time.Instant
 
 internal val FAKE_SNIPPET_ONE = TWSSnippetDto(
@@ -201,7 +202,7 @@ internal val UPDATED_FAKE_SNIPPET_SOCKET = SnippetUpdateAction(
     type = ActionType.UPDATED,
     data = ActionBody(
         id = "test",
-        dynamicResources = listOf(TWSAttachment(url = "https://www.test.css", contentType = "text/css"))
+        dynamicResources = listOf(TWSAttachment(url = "https://www.test.css", contentType = TWSAttachmentType.CSS))
     )
 )
 

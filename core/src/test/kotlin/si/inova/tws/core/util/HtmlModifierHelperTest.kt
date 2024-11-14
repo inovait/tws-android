@@ -22,6 +22,7 @@ import org.junit.Before
 import org.junit.Test
 import si.inova.tws.core.BuildConfig
 import si.inova.tws.data.TWSAttachment
+import si.inova.tws.data.TWSAttachmentType
 import si.inova.tws.data.TWSEngine
 
 class HtmlModifierHelperTest {
@@ -36,7 +37,7 @@ class HtmlModifierHelperTest {
     @Test
     fun `should inject CSS into HTML with head tag`() {
         val html = "<html><head></head><body>Hello World</body></html>"
-        val cssResource = TWSAttachment("https://example.com/style.css", "text/css")
+        val cssResource = TWSAttachment("https://example.com/style.css", TWSAttachmentType.CSS)
 
         val result = helper.modifyContent(
             htmlContent = html,
@@ -59,7 +60,7 @@ class HtmlModifierHelperTest {
     @Test
     fun `should inject JavaScript into HTML with head tag`() {
         val html = "<html><head></head><body>Hello World</body></html>"
-        val jsResource = TWSAttachment("https://example.com/script.js", "text/javascript")
+        val jsResource = TWSAttachment("https://example.com/script.js", TWSAttachmentType.JAVASCRIPT)
 
         val result = helper.modifyContent(
             htmlContent = html,
@@ -82,8 +83,8 @@ class HtmlModifierHelperTest {
     @Test
     fun `should inject both CSS and JavaScript into HTML with head tag`() {
         val html = "<html><head></head><body>Hello World</body></html>"
-        val cssResource = TWSAttachment("https://example.com/style.css", "text/css")
-        val jsResource = TWSAttachment("https://example.com/script.js", "text/javascript")
+        val cssResource = TWSAttachment("https://example.com/style.css", TWSAttachmentType.CSS)
+        val jsResource = TWSAttachment("https://example.com/script.js", TWSAttachmentType.JAVASCRIPT)
 
         val result = helper.modifyContent(
             htmlContent = html,
@@ -127,8 +128,8 @@ class HtmlModifierHelperTest {
     @Test
     fun `should inject CSS, JavaScript, and Mustache content`() {
         val html = "<html><head></head><body>{{greeting}} World</body></html>"
-        val cssResource = TWSAttachment("https://example.com/style.css", "text/css")
-        val jsResource = TWSAttachment("https://example.com/script.js", "text/javascript")
+        val cssResource = TWSAttachment("https://example.com/style.css", TWSAttachmentType.CSS)
+        val jsResource = TWSAttachment("https://example.com/script.js", TWSAttachmentType.JAVASCRIPT)
         val mustacheProps = mapOf("greeting" to "Hello")
 
         val result = helper.modifyContent(
@@ -153,8 +154,8 @@ class HtmlModifierHelperTest {
     @Test
     fun `should inject CSS and JavaScript into HTML without head tag`() {
         val html = "<html><body>Hello World</body></html>"
-        val cssResource = TWSAttachment("https://example.com/style.css", "text/css")
-        val jsResource = TWSAttachment("https://example.com/script.js", "text/javascript")
+        val cssResource = TWSAttachment("https://example.com/style.css", TWSAttachmentType.CSS)
+        val jsResource = TWSAttachment("https://example.com/script.js", TWSAttachmentType.JAVASCRIPT)
 
         val result = helper.modifyContent(
             htmlContent = html,
@@ -177,8 +178,8 @@ class HtmlModifierHelperTest {
     fun `should inject multiple CSS resources`() {
         val html = "<html><head></head><body>Hello World</body></html>"
         val cssResources = listOf(
-            TWSAttachment("https://example.com/style1.css", "text/css"),
-            TWSAttachment("https://example.com/style2.css", "text/css")
+            TWSAttachment("https://example.com/style1.css", TWSAttachmentType.CSS),
+            TWSAttachment("https://example.com/style2.css", TWSAttachmentType.CSS)
         )
 
         val result = helper.modifyContent(
@@ -204,8 +205,8 @@ class HtmlModifierHelperTest {
     fun `should inject multiple JavaScript resources`() {
         val html = "<html><head></head><body>Hello World</body></html>"
         val jsResources = listOf(
-            TWSAttachment("https://example.com/script1.js", "text/javascript"),
-            TWSAttachment("https://example.com/script2.js", "text/javascript")
+            TWSAttachment("https://example.com/script1.js", TWSAttachmentType.JAVASCRIPT),
+            TWSAttachment("https://example.com/script2.js", TWSAttachmentType.JAVASCRIPT)
         )
 
         val result = helper.modifyContent(
@@ -231,10 +232,10 @@ class HtmlModifierHelperTest {
     fun `should inject multiple CSS and JavaScript resources`() {
         val html = "<html><head></head><body>Hello World</body></html>"
         val resources = listOf(
-            TWSAttachment("https://example.com/style1.css", "text/css"),
-            TWSAttachment("https://example.com/style2.css", "text/css"),
-            TWSAttachment("https://example.com/script1.js", "text/javascript"),
-            TWSAttachment("https://example.com/script2.js", "text/javascript")
+            TWSAttachment("https://example.com/style1.css", TWSAttachmentType.CSS),
+            TWSAttachment("https://example.com/style2.css", TWSAttachmentType.CSS),
+            TWSAttachment("https://example.com/script1.js", TWSAttachmentType.JAVASCRIPT),
+            TWSAttachment("https://example.com/script2.js", TWSAttachmentType.JAVASCRIPT)
         )
 
         val result = helper.modifyContent(
@@ -276,7 +277,7 @@ class HtmlModifierHelperTest {
     @Test
     fun `should inject CSS into HTML without head tag`() {
         val html = "<html><body>Hello World</body></html>"
-        val cssResource = TWSAttachment("https://example.com/style.css", "text/css")
+        val cssResource = TWSAttachment("https://example.com/style.css", TWSAttachmentType.CSS)
 
         val result = helper.modifyContent(html, listOf(cssResource), emptyMap())
 
@@ -292,7 +293,7 @@ class HtmlModifierHelperTest {
     @Test
     fun `should inject JavaScript into HTML without head tag`() {
         val html = "<html><body>Hello World</body></html>"
-        val jsResource = TWSAttachment("https://example.com/script.js", "text/javascript")
+        val jsResource = TWSAttachment("https://example.com/script.js", TWSAttachmentType.JAVASCRIPT)
 
         val result = helper.modifyContent(html, listOf(jsResource), emptyMap())
 
@@ -308,8 +309,8 @@ class HtmlModifierHelperTest {
     @Test
     fun `should inject head with mustache and then inject CSS and JavaScript`() {
         val html = "<html>{{injectHead}}<body>{{greeting}} World</body></html>"
-        val cssResource = TWSAttachment("https://example.com/style.css", "text/css")
-        val jsResource = TWSAttachment("https://example.com/script.js", "text/javascript")
+        val cssResource = TWSAttachment("https://example.com/style.css", TWSAttachmentType.CSS)
+        val jsResource = TWSAttachment("https://example.com/script.js", TWSAttachmentType.JAVASCRIPT)
         val mustacheProps = mapOf("injectHead" to "<head></head>", "greeting" to "Hello")
 
         val result = helper.modifyContent(
@@ -498,8 +499,8 @@ class HtmlModifierHelperTest {
 
         val mustacheProps = mapOf("injectHead" to "<head></head>", "name" to "World", "version" to "1.0.0-override")
 
-        val cssResource = TWSAttachment("https://example.com/style.css", "text/css")
-        val jsResource = TWSAttachment("https://example.com/script.js", "text/javascript")
+        val cssResource = TWSAttachment("https://example.com/style.css", TWSAttachmentType.CSS)
+        val jsResource = TWSAttachment("https://example.com/script.js", TWSAttachmentType.JAVASCRIPT)
 
         val result = helper.modifyContent(
             htmlContent = html,
