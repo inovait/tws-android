@@ -138,7 +138,7 @@ internal fun TWSSnippetDto.setVisibility(ts: Long) = copy(
 
 internal const val CREATE_SNIPPET = """
 {
-    "type": "SNIPPET_CREATED",
+    "type": "snippetCreated",
     "data": {
         "id": "test"
     }
@@ -147,7 +147,7 @@ internal const val CREATE_SNIPPET = """
 
 internal const val UPDATE_SNIPPET_DYNAMIC_RESOURCES = """
 {
-    "type": "SNIPPET_UPDATED",
+    "type": "snippetUpdated",
     "data": {
         "id": "test",
         "dynamicResources":[{"contentType":"text/css","url":"https://www.test.css"}]
@@ -157,7 +157,7 @@ internal const val UPDATE_SNIPPET_DYNAMIC_RESOURCES = """
 
 internal const val UPDATE_SNIPPET_PROPS = """
 {
-    "type": "SNIPPET_UPDATED",
+    "type": "snippetUpdated",
     "data": {
         "id": "test",
         "props":{"tabName":"Name of tab"}
@@ -167,7 +167,7 @@ internal const val UPDATE_SNIPPET_PROPS = """
 
 internal const val UPDATE_SNIPPET_URL = """
 {
-    "type": "SNIPPET_UPDATED",
+    "type": "snippetUpdated",
     "data": {
         "id": "test",
         "target": "www.newtarget.url"
@@ -177,7 +177,7 @@ internal const val UPDATE_SNIPPET_URL = """
 
 internal const val UPDATE_SNIPPET_HTML = """
 {
-    "type": "SNIPPET_UPDATED",
+    "type": "snippetUpdated",
     "data": {
         "id": "test"
     }
@@ -186,7 +186,7 @@ internal const val UPDATE_SNIPPET_HTML = """
 
 internal const val DELETE_SNIPPET = """
 {
-    "type": "SNIPPET_DELETED",
+    "type": "snippetDeleted",
     "data": {
         "id": "test"
     }
