@@ -53,7 +53,7 @@ class TWSViewNavigator(private val coroutineScope: CoroutineScope) {
     var canGoForward: Boolean by mutableStateOf(false)
         internal set
 
-    fun loadUrl(
+    internal fun loadUrl(
         url: String,
         additionalHttpHeaders: Map<String, String> = emptyMap()
     ) {
@@ -62,7 +62,7 @@ class TWSViewNavigator(private val coroutineScope: CoroutineScope) {
         }
     }
 
-    fun loadHtml(
+    internal fun loadHtml(
         html: String,
         baseUrl: String? = null,
         mimeType: String? = null,
