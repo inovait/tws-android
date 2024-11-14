@@ -53,6 +53,27 @@ class TWSViewNavigator(private val coroutineScope: CoroutineScope) {
     var canGoForward: Boolean by mutableStateOf(false)
         internal set
 
+    /**
+     * Navigates the webview back to the previous page.
+     */
+    fun navigateBack() {
+        coroutineScope.launch { navigationEvents.emit(NavigationEvent.Back) }
+    }
+
+    /**
+     * Navigates the webview forward after going back from a page.
+     */
+    fun navigateForward() {
+        coroutineScope.launch { navigationEvents.emit(NavigationEvent.Forward) }
+    }
+
+    /**
+     * Reloads the current page in the webview.
+     */
+    fun reload() {
+        coroutineScope.launch { navigationEvents.emit(NavigationEvent.Reload) }
+    }
+
     internal fun loadUrl(
         url: String,
         additionalHttpHeaders: Map<String, String> = emptyMap()
@@ -80,27 +101,6 @@ class TWSViewNavigator(private val coroutineScope: CoroutineScope) {
                 )
             )
         }
-    }
-
-    /**
-     * Navigates the webview back to the previous page.
-     */
-    fun navigateBack() {
-        coroutineScope.launch { navigationEvents.emit(NavigationEvent.Back) }
-    }
-
-    /**
-     * Navigates the webview forward after going back from a page.
-     */
-    fun navigateForward() {
-        coroutineScope.launch { navigationEvents.emit(NavigationEvent.Forward) }
-    }
-
-    /**
-     * Reloads the current page in the webview.
-     */
-    fun reload() {
-        coroutineScope.launch { navigationEvents.emit(NavigationEvent.Reload) }
     }
 
     // Use Dispatchers.Main to ensure that the webview methods are called on UI thread
