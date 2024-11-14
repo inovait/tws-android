@@ -24,6 +24,7 @@ import com.squareup.moshi.adapters.EnumJsonAdapter
 import jakarta.inject.Singleton
 import okhttp3.OkHttpClient
 import si.inova.kotlinova.retrofit.interceptors.BypassCacheInterceptor
+import si.inova.tws.data.TWSAttachmentType
 import si.inova.tws.data.TWSEngine
 import java.time.Instant
 import java.time.ZoneOffset
@@ -39,6 +40,10 @@ internal fun twsMoshi(): Moshi {
     return Moshi.Builder()
         .add(InstantJsonAdapter())
         .add(TWSEngine::class.java, EnumJsonAdapter.create(TWSEngine::class.java).withUnknownFallback(TWSEngine.OTHER))
+        .add(
+            TWSAttachmentType::class.java,
+            EnumJsonAdapter.create(TWSAttachmentType::class.java).withUnknownFallback(TWSAttachmentType.OTHER)
+        )
         .build()
 }
 

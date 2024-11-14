@@ -21,6 +21,9 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 import si.inova.tws.data.TWSAttachment
 import si.inova.tws.data.TWSEngine
+import si.inova.tws.manager.data.ActionType.CREATED
+import si.inova.tws.manager.data.ActionType.DELETED
+import si.inova.tws.manager.data.ActionType.UPDATED
 
 /**
  * Data class representing an action to be returned on a WebSocket update.
@@ -47,13 +50,13 @@ internal data class SnippetUpdateAction(
 @Keep
 @JsonClass(generateAdapter = false)
 internal enum class ActionType {
-    @Json(name = "SNIPPET_CREATED")
+    @Json(name = "snippetCreated")
     CREATED,
 
-    @Json(name = "SNIPPET_UPDATED")
+    @Json(name = "snippetUpdated")
     UPDATED,
 
-    @Json(name = "SNIPPET_DELETED")
+    @Json(name = "snippetDeleted")
     DELETED
 }
 
@@ -77,9 +80,9 @@ internal fun ActionBody.isEmpty(): Boolean {
 
 internal fun List<TWSSnippetDto>.updateWith(action: SnippetUpdateAction): List<TWSSnippetDto> {
     return when (action.type) {
-        ActionType.CREATED -> insert(action.data)
-        ActionType.UPDATED -> update(action.data)
-        ActionType.DELETED -> remove(action.data)
+        CREATED -> insert(action.data)
+        UPDATED -> update(action.data)
+        DELETED -> remove(action.data)
     }
 }
 

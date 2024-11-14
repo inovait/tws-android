@@ -18,42 +18,35 @@ package si.inova.tws.data
 
 import android.os.Parcelable
 import androidx.annotation.Keep
-import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
-import si.inova.tws.data.TWSAttachmentType.Companion.fromContentType
-import java.util.Locale
 
 /**
  * Data class representing a dynamic resource that can be injected into a WebView before the page is loaded.
  *
  * @param url The path to the file to inject into the WebView.
  * @param contentType The type of file to inject,
- * either "text/css" for CSS files or "text/javascript" for JavaScript files or other.
+ * either [TWSAttachmentType.CSS] for CSS files or [TWSAttachmentType.JAVASCRIPT] for JavaScript files
+ * or [TWSAttachmentType.OTHER] for other type.
  *
  * @constructor Creates a [TWSAttachment] with the provided [url] and [contentType].
- * The [type] is automatically inferred from [contentType] using [TWSAttachmentType].
- * Depending on the [type], the corresponding injection code for CSS or JavaScript is generated.
+ * Depending on the [contentType], the corresponding injection code for CSS or JavaScript is generated.
  *
- * - [type] The type of the resource, inferred from [contentType], which can be CSS, JavaScript, or UNKNOWN.
- * - [inject] The generated HTML code snippet for injecting the resource into a WebView, depending on the [type].
+ * - [inject] The generated HTML code snippet for injecting the resource into a WebView, depending on the [contentType].
  */
 @JsonClass(generateAdapter = true)
 @Parcelize
 @Keep
 data class TWSAttachment(
     val url: String,
-    val contentType: String
+    val contentType: TWSAttachmentType
 ) : Parcelable {
     @IgnoredOnParcel
-    val type: TWSAttachmentType = contentType.fromContentType()
-
-    @IgnoredOnParcel
-    val inject = when (type) {
+    val inject = when (contentType) {
         TWSAttachmentType.CSS -> injectUrlCss()
         TWSAttachmentType.JAVASCRIPT -> injectUrlJs()
-        TWSAttachmentType.UNKNOWN -> null
+        TWSAttachmentType.OTHER -> null
     }
 }
 
@@ -63,33 +56,4 @@ private fun TWSAttachment.injectUrlCss(): String {
 
 private fun TWSAttachment.injectUrlJs(): String {
     return """<script src="$url" type="text/javascript"></script>"""
-}
-
-/**
- * Enum class representing the types of content injections that can be performed.
- */
-enum class TWSAttachmentType {
-    @Json(name = "text/css")
-    CSS,
-
-    @Json(name = "text/javascript")
-    JAVASCRIPT,
-
-    UNKNOWN;
-
-    companion object {
-        /**
-         * Converts a string content type to a corresponding ModifierInjectionType.
-         *
-         * [this] The string content type (e.g., "text/css" or "text/javascript").
-         * @return The corresponding ModifierInjectionType.
-         */
-        internal fun String.fromContentType(): TWSAttachmentType {
-            return when (lowercase(Locale.getDefault())) {
-                "text/css" -> CSS
-                "text/javascript" -> JAVASCRIPT
-                else -> UNKNOWN
-            }
-        }
-    }
 }

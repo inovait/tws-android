@@ -17,14 +17,15 @@
 package si.inova.tws.manager.utils
 
 import si.inova.tws.data.TWSAttachment
+import si.inova.tws.data.TWSAttachmentType
 import si.inova.tws.data.TWSSnippet
 import si.inova.tws.manager.data.ActionBody
 import si.inova.tws.manager.data.ActionType
 import si.inova.tws.manager.data.ProjectDto
 import si.inova.tws.manager.data.SharedSnippetDto
 import si.inova.tws.manager.data.SnippetUpdateAction
-import si.inova.tws.manager.data.VisibilityDto
 import si.inova.tws.manager.data.TWSSnippetDto
+import si.inova.tws.manager.data.VisibilityDto
 import java.time.Instant
 
 internal val FAKE_SNIPPET_ONE = TWSSnippetDto(
@@ -137,7 +138,7 @@ internal fun TWSSnippetDto.setVisibility(ts: Long) = copy(
 
 internal const val CREATE_SNIPPET = """
 {
-    "type": "SNIPPET_CREATED",
+    "type": "snippetCreated",
     "data": {
         "id": "test"
     }
@@ -146,7 +147,7 @@ internal const val CREATE_SNIPPET = """
 
 internal const val UPDATE_SNIPPET_DYNAMIC_RESOURCES = """
 {
-    "type": "SNIPPET_UPDATED",
+    "type": "snippetUpdated",
     "data": {
         "id": "test",
         "dynamicResources":[{"contentType":"text/css","url":"https://www.test.css"}]
@@ -156,7 +157,7 @@ internal const val UPDATE_SNIPPET_DYNAMIC_RESOURCES = """
 
 internal const val UPDATE_SNIPPET_PROPS = """
 {
-    "type": "SNIPPET_UPDATED",
+    "type": "snippetUpdated",
     "data": {
         "id": "test",
         "props":{"tabName":"Name of tab"}
@@ -166,7 +167,7 @@ internal const val UPDATE_SNIPPET_PROPS = """
 
 internal const val UPDATE_SNIPPET_URL = """
 {
-    "type": "SNIPPET_UPDATED",
+    "type": "snippetUpdated",
     "data": {
         "id": "test",
         "target": "www.newtarget.url"
@@ -176,7 +177,7 @@ internal const val UPDATE_SNIPPET_URL = """
 
 internal const val UPDATE_SNIPPET_HTML = """
 {
-    "type": "SNIPPET_UPDATED",
+    "type": "snippetUpdated",
     "data": {
         "id": "test"
     }
@@ -185,7 +186,7 @@ internal const val UPDATE_SNIPPET_HTML = """
 
 internal const val DELETE_SNIPPET = """
 {
-    "type": "SNIPPET_DELETED",
+    "type": "snippetDeleted",
     "data": {
         "id": "test"
     }
@@ -201,7 +202,7 @@ internal val UPDATED_FAKE_SNIPPET_SOCKET = SnippetUpdateAction(
     type = ActionType.UPDATED,
     data = ActionBody(
         id = "test",
-        dynamicResources = listOf(TWSAttachment(url = "https://www.test.css", contentType = "text/css"))
+        dynamicResources = listOf(TWSAttachment(url = "https://www.test.css", contentType = TWSAttachmentType.CSS))
     )
 )
 

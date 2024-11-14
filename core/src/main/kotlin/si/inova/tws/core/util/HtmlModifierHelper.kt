@@ -20,8 +20,8 @@ import android.os.Build
 import com.samskivert.mustache.Mustache
 import si.inova.tws.core.BuildConfig
 import si.inova.tws.data.TWSAttachment
-import si.inova.tws.data.TWSEngine
 import si.inova.tws.data.TWSAttachmentType
+import si.inova.tws.data.TWSEngine
 
 internal class HtmlModifierHelper {
 
@@ -41,8 +41,8 @@ internal class HtmlModifierHelper {
         engine: TWSEngine? = null
     ): String {
         // Filter the dynamic modifiers into CSS and JS lists
-        val cssModifiers = dynamicModifiers.filter { it.type == TWSAttachmentType.CSS }
-        val jsModifiers = dynamicModifiers.filter { it.type == TWSAttachmentType.JAVASCRIPT }
+        val cssModifiers = dynamicModifiers.filter { it.contentType == TWSAttachmentType.CSS }
+        val jsModifiers = dynamicModifiers.filter { it.contentType == TWSAttachmentType.JAVASCRIPT }
 
         return htmlContent
             .processAsMustache(mustacheProps, engine)
