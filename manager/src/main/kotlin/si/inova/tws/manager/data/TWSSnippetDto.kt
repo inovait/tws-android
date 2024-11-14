@@ -14,26 +14,43 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.data
+package si.inova.tws.manager.data
 
 import android.os.Parcelable
 import androidx.annotation.Keep
 import com.squareup.moshi.JsonClass
 import kotlinx.parcelize.Parcelize
 import kotlinx.parcelize.RawValue
+import si.inova.tws.data.TWSAttachment
+import si.inova.tws.data.TWSEngine
+import si.inova.tws.data.TWSSnippet
 
 @JsonClass(generateAdapter = true)
 @Keep
 @Parcelize
-data class WebSnippetDto(
+internal data class TWSSnippetDto(
     val id: String,
     val target: String,
     val organizationId: String,
     val projectId: String,
     val visibility: VisibilityDto? = null,
     val headers: Map<String, String>? = emptyMap(),
-    val dynamicResources: List<DynamicResourceDto> = emptyList(),
+    val dynamicResources: List<TWSAttachment> = emptyList(),
     val props: Map<String, @RawValue Any> = emptyMap(),
-    val engine: EngineType = EngineType.NONE,
+    val engine: TWSEngine = TWSEngine.NONE,
     val loadIteration: Int = 0
 ) : Parcelable
+
+internal fun TWSSnippetDto.toTWSSnippet(localProps: Map<String, Any>) = TWSSnippet(
+    id = this.id,
+    target = this.target,
+    headers = this.headers.orEmpty(),
+    dynamicResources = this.dynamicResources,
+    props = this.props + localProps,
+    engine = this.engine,
+    loadIteration = this.loadIteration
+)
+
+internal fun List<TWSSnippetDto>.toTWSSnippetList(localProps: Map<String, Map<String, Any>>) = map {
+    it.toTWSSnippet(localProps[it.id].orEmpty())
+}

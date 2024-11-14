@@ -34,12 +34,12 @@ import androidx.core.content.ContextCompat.startActivity
  * - Use the `intercept` method to determine if a URL should be opened within the app (e.g., as a deep link)
  *   or in an external browser.
  */
-fun interface TWSInterceptUrlCallback {
+fun interface TWSViewInterceptor {
     fun intercept(url: String): Boolean
 }
 
 /**
- * `DeepLinkUrlLoadingCallback` is an implementation of [TWSInterceptUrlCallback] designed to handle deep link URLs.
+ * `DeepLinkUrlLoadingCallback` is an implementation of [TWSViewInterceptor] designed to handle deep link URLs.
  *
  * This class intercepts URLs and attempts to open them as deep links within the app if they match the
  * app's package name. If a URL can be handled as a deep link, it triggers an intent to start the
@@ -51,7 +51,7 @@ fun interface TWSInterceptUrlCallback {
  *
  * @param context The application context used for launching intents and checking if URLs are supported.
  */
-class TWSDeepLinkInterceptUrlCallback(private val context: Context) : TWSInterceptUrlCallback {
+class TWSViewDeepLinkInterceptor(private val context: Context) : TWSViewInterceptor {
     override fun intercept(url: String): Boolean {
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
 
@@ -71,7 +71,7 @@ class TWSDeepLinkInterceptUrlCallback(private val context: Context) : TWSInterce
 }
 
 /**
- * `NoOpLoadingCallback` is an implementation of [TWSInterceptUrlCallback] that does not handle any URLs.
+ * `NoOpLoadingCallback` is an implementation of [TWSViewInterceptor] that does not handle any URLs.
  *
  * This class is a "no-operation" implementation, meaning it will always return `false` for any URL
  * passed to its `intercept` method. It effectively instructs the `TwsWebViewClient` to allow all URLs
@@ -81,7 +81,7 @@ class TWSDeepLinkInterceptUrlCallback(private val context: Context) : TWSInterce
  * - Use this class as a default or placeholder when no URL handling is required, or when WebView should
  *   display all URLs by default.
  */
-class TWSNoOpInterceptUrlCallback : TWSInterceptUrlCallback {
+class TWSViewNoOpInterceptor : TWSViewInterceptor {
     override fun intercept(url: String): Boolean {
         return false
     }

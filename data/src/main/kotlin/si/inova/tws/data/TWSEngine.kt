@@ -16,20 +16,18 @@
 
 package si.inova.tws.data
 
-import android.os.Parcelable
 import androidx.annotation.Keep
+import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
-import kotlinx.parcelize.Parcelize
-import java.time.Instant
 
-/**
- *
- * @param untilUtc till what time should snippet be visible
- *
- */
-@JsonClass(generateAdapter = true)
-@Parcelize
 @Keep
-data class VisibilityDto(
-    val untilUtc: Instant? = null
-) : Parcelable
+@JsonClass(generateAdapter = false)
+enum class TWSEngine {
+    @Json(name = "mustache")
+    MUSTACHE,
+
+    @Json(name = "none")
+    NONE,
+
+    OTHER
+}

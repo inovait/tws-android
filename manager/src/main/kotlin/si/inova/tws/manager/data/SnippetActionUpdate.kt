@@ -19,10 +19,8 @@ package si.inova.tws.manager.data
 import androidx.annotation.Keep
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
-import si.inova.tws.data.DynamicResourceDto
-import si.inova.tws.data.EngineType
-import si.inova.tws.data.VisibilityDto
-import si.inova.tws.data.WebSnippetDto
+import si.inova.tws.data.TWSAttachment
+import si.inova.tws.data.TWSEngine
 
 /**
  * Data class representing an action to be returned on a WebSocket update.
@@ -33,7 +31,7 @@ import si.inova.tws.data.WebSnippetDto
  */
 @Keep
 @JsonClass(generateAdapter = true)
-data class SnippetUpdateAction(
+internal data class SnippetUpdateAction(
     val type: ActionType,
     val data: ActionBody
 )
@@ -48,7 +46,7 @@ data class SnippetUpdateAction(
  */
 @Keep
 @JsonClass(generateAdapter = false)
-enum class ActionType {
+internal enum class ActionType {
     @Json(name = "SNIPPET_CREATED")
     CREATED,
 
@@ -61,42 +59,40 @@ enum class ActionType {
 
 @Keep
 @JsonClass(generateAdapter = true)
-data class ActionBody(
+internal data class ActionBody(
     val id: String,
+    val organizationId: String? = null,
+    val projectId: String? = null,
     val target: String? = null,
     val headers: Map<String, String>? = null,
     val visibility: VisibilityDto? = null,
-    val dynamicResources: List<DynamicResourceDto>? = null,
+    val dynamicResources: List<TWSAttachment>? = null,
     val props: Map<String, Any>? = null,
-    val engine: EngineType? = null
+    val engine: TWSEngine? = null
 )
 
 internal fun ActionBody.isEmpty(): Boolean {
     return target == null && headers == null && visibility == null && dynamicResources == null && props == null && engine == null
 }
 
-internal fun List<WebSnippetDto>.updateWith(
-    action: SnippetUpdateAction,
-    organizationId: String,
-    projectId: String
-): List<WebSnippetDto> {
+internal fun List<TWSSnippetDto>.updateWith(action: SnippetUpdateAction): List<TWSSnippetDto> {
     return when (action.type) {
-        ActionType.CREATED -> insert(action.data, organizationId, projectId)
+        ActionType.CREATED -> insert(action.data)
         ActionType.UPDATED -> update(action.data)
         ActionType.DELETED -> remove(action.data)
     }
 }
 
-internal fun List<WebSnippetDto>.insert(data: ActionBody, organizationId: String, projectId: String): List<WebSnippetDto> {
+internal fun List<TWSSnippetDto>.insert(data: ActionBody): List<TWSSnippetDto> {
     return toMutableList().apply {
         if (data.target != null) {
             add(
-                WebSnippetDto(
+                TWSSnippetDto(
                     id = data.id,
                     target = data.target,
                     headers = data.headers.orEmpty(),
-                    organizationId = organizationId,
-                    projectId = projectId,
+                    organizationId = data.organizationId.orEmpty(),
+                    projectId = data.projectId.orEmpty(),
                     visibility = data.visibility,
                     dynamicResources = data.dynamicResources.orEmpty(),
                     props = data.props.orEmpty()
@@ -106,7 +102,7 @@ internal fun List<WebSnippetDto>.insert(data: ActionBody, organizationId: String
     }
 }
 
-internal fun List<WebSnippetDto>.update(data: ActionBody): List<WebSnippetDto> {
+internal fun List<TWSSnippetDto>.update(data: ActionBody): List<TWSSnippetDto> {
     return map {
         if (it.id == data.id) {
             if (data.isEmpty()) {
@@ -129,6 +125,6 @@ internal fun List<WebSnippetDto>.update(data: ActionBody): List<WebSnippetDto> {
     }
 }
 
-internal fun List<WebSnippetDto>.remove(data: ActionBody): List<WebSnippetDto> {
+internal fun List<TWSSnippetDto>.remove(data: ActionBody): List<TWSSnippetDto> {
     return filter { it.id != data.id }
 }

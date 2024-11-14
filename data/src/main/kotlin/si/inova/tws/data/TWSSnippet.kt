@@ -14,19 +14,23 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.manager.localhandler
+package si.inova.tws.data
 
-import kotlinx.coroutines.flow.Flow
-import si.inova.tws.manager.data.SnippetUpdateAction
-import si.inova.tws.manager.data.TWSSnippetDto
-import java.time.Instant
+import android.os.Parcelable
+import androidx.annotation.Keep
+import com.squareup.moshi.JsonClass
+import kotlinx.parcelize.Parcelize
+import kotlinx.parcelize.RawValue
 
-internal interface LocalSnippetHandler {
-    val updateActionFlow: Flow<SnippetUpdateAction>
-
-    suspend fun updateAndScheduleCheck(snippets: List<TWSSnippetDto>)
-
-    suspend fun calculateDateOffsetAndRerun(serverDate: Instant?, snippets: List<TWSSnippetDto>)
-
-    fun release()
-}
+@JsonClass(generateAdapter = true)
+@Keep
+@Parcelize
+data class TWSSnippet(
+    val id: String,
+    val target: String,
+    val headers: Map<String, String> = emptyMap(),
+    val dynamicResources: List<TWSAttachment> = emptyList(),
+    val props: Map<String, @RawValue Any> = emptyMap(),
+    val engine: TWSEngine = TWSEngine.NONE,
+    val loadIteration: Int = 0
+) : Parcelable

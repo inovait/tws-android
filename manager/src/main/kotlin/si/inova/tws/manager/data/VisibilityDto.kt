@@ -14,19 +14,22 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.manager.localhandler
+package si.inova.tws.manager.data
 
-import kotlinx.coroutines.flow.Flow
-import si.inova.tws.manager.data.SnippetUpdateAction
-import si.inova.tws.manager.data.TWSSnippetDto
+import android.os.Parcelable
+import androidx.annotation.Keep
+import com.squareup.moshi.JsonClass
+import kotlinx.parcelize.Parcelize
 import java.time.Instant
 
-internal interface LocalSnippetHandler {
-    val updateActionFlow: Flow<SnippetUpdateAction>
-
-    suspend fun updateAndScheduleCheck(snippets: List<TWSSnippetDto>)
-
-    suspend fun calculateDateOffsetAndRerun(serverDate: Instant?, snippets: List<TWSSnippetDto>)
-
-    fun release()
-}
+/**
+ *
+ * @param untilUtc till what time should snippet be visible
+ *
+ */
+@JsonClass(generateAdapter = true)
+@Parcelize
+@Keep
+internal data class VisibilityDto(
+    val untilUtc: Instant? = null
+) : Parcelable

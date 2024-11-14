@@ -27,10 +27,16 @@ sealed class LoadingState {
     data object Initializing : LoadingState()
 
     /**
-     * Describes a webview between `onPageStarted` and `onPageFinished` events, contains a
-     * [progress] property which is updated by the webview.
+     * Describes a WebView that will be reloaded as a result of a users pull to refresh action.
      */
-    data class Loading(val progress: Float) : LoadingState()
+    data object ForceRefreshInitiated : LoadingState()
+
+    /**
+     * Describes a webview between `onPageStarted` and `onPageFinished` events, contains a
+     * [progress] property which is updated by the webview and [isUserForceRefresh] property
+     * which marks if page is refreshed because of the user action.
+     */
+    data class Loading(val progress: Float, val isUserForceRefresh: Boolean) : LoadingState()
 
     /**
      * Describes a webview that has finished loading content.

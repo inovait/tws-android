@@ -19,38 +19,38 @@ package si.inova.tws.core.util
 import android.os.Build
 import com.samskivert.mustache.Mustache
 import si.inova.tws.core.BuildConfig
-import si.inova.tws.data.DynamicResourceDto
-import si.inova.tws.data.EngineType
-import si.inova.tws.data.ModifierInjectionType
+import si.inova.tws.data.TWSAttachment
+import si.inova.tws.data.TWSEngine
+import si.inova.tws.data.TWSAttachmentType
 
-class HtmlModifierHelper {
+internal class HtmlModifierHelper {
 
     /**
      * Modify the HTML content by injecting CSS, JavaScript, and applying Mustache templates.
      *
      * @param htmlContent The raw HTML content to modify.
-     * @param dynamicModifiers A list of [DynamicResourceDto] representing both CSS and JavaScript to inject.
+     * @param dynamicModifiers A list of [TWSAttachment] representing both CSS and JavaScript to inject.
      * @param mustacheProps A map of properties used for Mustache templating.
-     * @param engineType The type of engine used for parsing HTML content.
+     * @param engine The type of engine used for parsing HTML content.
      * @return The modified HTML content.
      */
     fun modifyContent(
         htmlContent: String,
-        dynamicModifiers: List<DynamicResourceDto>,
+        dynamicModifiers: List<TWSAttachment>,
         mustacheProps: Map<String, Any>,
-        engineType: EngineType? = null
+        engine: TWSEngine? = null
     ): String {
         // Filter the dynamic modifiers into CSS and JS lists
-        val cssModifiers = dynamicModifiers.filter { it.type == ModifierInjectionType.CSS }
-        val jsModifiers = dynamicModifiers.filter { it.type == ModifierInjectionType.JAVASCRIPT }
+        val cssModifiers = dynamicModifiers.filter { it.type == TWSAttachmentType.CSS }
+        val jsModifiers = dynamicModifiers.filter { it.type == TWSAttachmentType.JAVASCRIPT }
 
         return htmlContent
-            .processAsMustache(mustacheProps, engineType)
+            .processAsMustache(mustacheProps, engine)
             .insertCss(cssModifiers)
             .insertJs(jsModifiers)
     }
 
-    private fun String.insertCss(cssModifiers: List<DynamicResourceDto>): String {
+    private fun String.insertCss(cssModifiers: List<TWSAttachment>): String {
         val combinedCssInjection = cssModifiers.joinToString(separator = "") { it.inject.orEmpty() }.trimIndent()
 
         return if (contains("</head>")) {
@@ -65,7 +65,7 @@ class HtmlModifierHelper {
         }
     }
 
-    private fun String.insertJs(jsModifiers: List<DynamicResourceDto>): String {
+    private fun String.insertJs(jsModifiers: List<TWSAttachment>): String {
         val combinedJsInjection = STATIC_INJECT_DATA + jsModifiers.joinToString(separator = "") {
             it.inject.orEmpty()
         }.trimIndent()
@@ -84,9 +84,9 @@ class HtmlModifierHelper {
 
     private fun String.processAsMustache(
         mustacheProps: Map<String, Any>,
-        engineType: EngineType?
+        engine: TWSEngine?
     ): String {
-        if (engineType != EngineType.MUSTACHE) return this
+        if (engine != TWSEngine.MUSTACHE) return this
 
         return Mustache.compiler()
             .defaultValue("")

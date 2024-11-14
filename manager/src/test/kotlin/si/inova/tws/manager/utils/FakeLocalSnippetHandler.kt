@@ -17,21 +17,21 @@
 package si.inova.tws.manager.utils
 
 import kotlinx.coroutines.flow.MutableSharedFlow
-import si.inova.tws.data.WebSnippetDto
 import si.inova.tws.manager.data.SnippetUpdateAction
+import si.inova.tws.manager.data.TWSSnippetDto
 import si.inova.tws.manager.localhandler.LocalSnippetHandler
 import java.time.Instant
 
-class FakeLocalSnippetHandler : LocalSnippetHandler {
+internal class FakeLocalSnippetHandler : LocalSnippetHandler {
     override val updateActionFlow: MutableSharedFlow<SnippetUpdateAction> = MutableSharedFlow()
 
-    override suspend fun updateAndScheduleCheck(snippets: List<WebSnippetDto>) {}
+    override suspend fun updateAndScheduleCheck(snippets: List<TWSSnippetDto>) {}
 
     suspend fun mockUpdateAction(action: SnippetUpdateAction) {
         updateActionFlow.emit(action)
     }
 
-    override suspend fun calculateDateOffsetAndRerun(serverDate: Instant?, snippets: List<WebSnippetDto>) {}
+    override suspend fun calculateDateOffsetAndRerun(serverDate: Instant?, snippets: List<TWSSnippetDto>) {}
 
     override fun release() {}
 }

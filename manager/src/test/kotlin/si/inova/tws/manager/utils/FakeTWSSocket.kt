@@ -20,14 +20,21 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import si.inova.tws.manager.data.SnippetUpdateAction
 import si.inova.tws.manager.websocket.TWSSocket
 
-class FakeTWSSocket : TWSSocket {
+internal class FakeTWSSocket : TWSSocket {
     override var updateActionFlow: MutableSharedFlow<SnippetUpdateAction> = MutableSharedFlow()
 
-    override fun closeWebsocketConnection(): Boolean { return true }
+    override fun closeWebsocketConnection(): Boolean {
+        isConnectionOpen = false
+        return true
+    }
 
-    override fun setupWebSocketConnection(setupWssUrl: String, unauthorizedCallback: () -> Unit) { }
+    override fun setupWebSocketConnection(setupWssUrl: String, unauthorizedCallback: suspend () -> Unit) {
+        isConnectionOpen = true
+    }
 
     suspend fun mockUpdateAction(action: SnippetUpdateAction) {
         updateActionFlow.emit(action)
     }
+
+    var isConnectionOpen = false
 }

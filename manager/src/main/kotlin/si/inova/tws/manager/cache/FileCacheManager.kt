@@ -20,7 +20,7 @@ import android.content.Context
 import android.util.Log
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
-import si.inova.tws.data.WebSnippetDto
+import si.inova.tws.manager.data.TWSSnippetDto
 import si.inova.tws.manager.singleton.twsMoshi
 import java.io.File
 
@@ -34,10 +34,10 @@ internal class FileCacheManager(context: Context, tag: String) : CacheManager {
         }
     }
 
-    override fun save(key: String, data: List<WebSnippetDto>) {
+    override fun save(key: String, data: List<TWSSnippetDto>) {
         try {
-            val type = Types.newParameterizedType(List::class.java, WebSnippetDto::class.java)
-            val jsonAdapter = moshi.adapter<List<WebSnippetDto>>(type)
+            val type = Types.newParameterizedType(List::class.java, TWSSnippetDto::class.java)
+            val jsonAdapter = moshi.adapter<List<TWSSnippetDto>>(type)
 
             File(cacheDir, key).writeText(jsonAdapter.toJson(data))
         } catch (e: Exception) {
@@ -45,9 +45,9 @@ internal class FileCacheManager(context: Context, tag: String) : CacheManager {
         }
     }
 
-    override fun load(key: String): List<WebSnippetDto>? {
-        val type = Types.newParameterizedType(List::class.java, WebSnippetDto::class.java)
-        val jsonAdapter = moshi.adapter<List<WebSnippetDto>>(type)
+    override fun load(key: String): List<TWSSnippetDto>? {
+        val type = Types.newParameterizedType(List::class.java, TWSSnippetDto::class.java)
+        val jsonAdapter = moshi.adapter<List<TWSSnippetDto>>(type)
 
         val file = File(cacheDir, key)
         return try {

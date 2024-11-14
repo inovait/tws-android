@@ -16,10 +16,10 @@
 
 package si.inova.tws.manager.cache
 
-import si.inova.tws.data.WebSnippetDto
+import si.inova.tws.manager.data.TWSSnippetDto
 
-interface CacheManager {
-    fun save(key: String, data: List<WebSnippetDto>)
-    fun load(key: String): List<WebSnippetDto>?
+internal interface CacheManager {
+    fun save(key: String, data: List<TWSSnippetDto>)
+    fun load(key: String): List<TWSSnippetDto>?
     fun clear()
 }

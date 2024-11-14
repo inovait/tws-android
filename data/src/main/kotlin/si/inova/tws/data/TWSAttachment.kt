@@ -22,7 +22,7 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
-import si.inova.tws.data.ModifierInjectionType.Companion.fromContentType
+import si.inova.tws.data.TWSAttachmentType.Companion.fromContentType
 import java.util.Locale
 
 /**
@@ -32,8 +32,8 @@ import java.util.Locale
  * @param contentType The type of file to inject,
  * either "text/css" for CSS files or "text/javascript" for JavaScript files or other.
  *
- * @constructor Creates a [DynamicResourceDto] with the provided [url] and [contentType].
- * The [type] is automatically inferred from [contentType] using [ModifierInjectionType].
+ * @constructor Creates a [TWSAttachment] with the provided [url] and [contentType].
+ * The [type] is automatically inferred from [contentType] using [TWSAttachmentType].
  * Depending on the [type], the corresponding injection code for CSS or JavaScript is generated.
  *
  * - [type] The type of the resource, inferred from [contentType], which can be CSS, JavaScript, or UNKNOWN.
@@ -42,33 +42,33 @@ import java.util.Locale
 @JsonClass(generateAdapter = true)
 @Parcelize
 @Keep
-data class DynamicResourceDto(
+data class TWSAttachment(
     val url: String,
     val contentType: String
 ) : Parcelable {
     @IgnoredOnParcel
-    val type: ModifierInjectionType = contentType.fromContentType()
+    val type: TWSAttachmentType = contentType.fromContentType()
 
     @IgnoredOnParcel
     val inject = when (type) {
-        ModifierInjectionType.CSS -> injectUrlCss()
-        ModifierInjectionType.JAVASCRIPT -> injectUrlJs()
-        ModifierInjectionType.UNKNOWN -> null
+        TWSAttachmentType.CSS -> injectUrlCss()
+        TWSAttachmentType.JAVASCRIPT -> injectUrlJs()
+        TWSAttachmentType.UNKNOWN -> null
     }
 }
 
-private fun DynamicResourceDto.injectUrlCss(): String {
+private fun TWSAttachment.injectUrlCss(): String {
     return """<link rel="stylesheet" href="$url">""".trimIndent()
 }
 
-private fun DynamicResourceDto.injectUrlJs(): String {
+private fun TWSAttachment.injectUrlJs(): String {
     return """<script src="$url" type="text/javascript"></script>"""
 }
 
 /**
  * Enum class representing the types of content injections that can be performed.
  */
-enum class ModifierInjectionType {
+enum class TWSAttachmentType {
     @Json(name = "text/css")
     CSS,
 
@@ -84,7 +84,7 @@ enum class ModifierInjectionType {
          * [this] The string content type (e.g., "text/css" or "text/javascript").
          * @return The corresponding ModifierInjectionType.
          */
-        internal fun String.fromContentType(): ModifierInjectionType {
+        internal fun String.fromContentType(): TWSAttachmentType {
             return when (lowercase(Locale.getDefault())) {
                 "text/css" -> CSS
                 "text/javascript" -> JAVASCRIPT

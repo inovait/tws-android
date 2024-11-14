@@ -14,19 +14,17 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.manager.localhandler
+package si.inova.tws.manager.snippet
 
-import kotlinx.coroutines.flow.Flow
-import si.inova.tws.manager.data.SnippetUpdateAction
-import si.inova.tws.manager.data.TWSSnippetDto
+import si.inova.tws.manager.data.ProjectDto
 import java.time.Instant
 
-internal interface LocalSnippetHandler {
-    val updateActionFlow: Flow<SnippetUpdateAction>
-
-    suspend fun updateAndScheduleCheck(snippets: List<TWSSnippetDto>)
-
-    suspend fun calculateDateOffsetAndRerun(serverDate: Instant?, snippets: List<TWSSnippetDto>)
-
-    fun release()
+internal interface SnippetLoadingManager {
+    suspend fun load(): ProjectResponse
 }
+
+internal data class ProjectResponse(
+    val project: ProjectDto,
+    val responseDate: Instant,
+    val mainSnippet: String? = null
+)

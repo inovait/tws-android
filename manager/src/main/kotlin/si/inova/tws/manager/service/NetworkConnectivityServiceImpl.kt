@@ -38,6 +38,13 @@ internal class NetworkConnectivityServiceImpl(context: Context) : NetworkConnect
     private val connectivityManager =
         context.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
 
+    override val isConnected: Boolean
+        get() {
+            val network = connectivityManager?.activeNetwork
+            val capabilities = connectivityManager?.getNetworkCapabilities(network)
+            return capabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true
+        }
+
     override val networkStatus: Flow<NetworkStatus> = callbackFlow {
         val connectivityCallback = object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) {

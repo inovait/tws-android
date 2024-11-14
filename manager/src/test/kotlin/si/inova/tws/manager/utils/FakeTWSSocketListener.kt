@@ -23,7 +23,7 @@ import si.inova.tws.manager.data.SnippetUpdateAction
 import si.inova.tws.manager.data.WebSocketStatus
 import si.inova.tws.manager.websocket.TWSSocketListener
 
-class FakeTWSSocketListener : TWSSocketListener() {
+internal class FakeTWSSocketListener : TWSSocketListener() {
     override val updateActionFlow: Flow<SnippetUpdateAction>
         get() = _updateActionFlow
 

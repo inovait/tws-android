@@ -16,17 +16,18 @@
 
 package si.inova.tws.manager.utils
 
-import si.inova.tws.data.DynamicResourceDto
-import si.inova.tws.data.VisibilityDto
-import si.inova.tws.data.WebSnippetDto
+import si.inova.tws.data.TWSAttachment
+import si.inova.tws.data.TWSSnippet
 import si.inova.tws.manager.data.ActionBody
 import si.inova.tws.manager.data.ActionType
 import si.inova.tws.manager.data.ProjectDto
 import si.inova.tws.manager.data.SharedSnippetDto
 import si.inova.tws.manager.data.SnippetUpdateAction
+import si.inova.tws.manager.data.VisibilityDto
+import si.inova.tws.manager.data.TWSSnippetDto
 import java.time.Instant
 
-val FAKE_SNIPPET_ONE = WebSnippetDto(
+internal val FAKE_SNIPPET_ONE = TWSSnippetDto(
     id = "0",
     target = "www.google.com",
     organizationId = "organization",
@@ -37,7 +38,16 @@ val FAKE_SNIPPET_ONE = WebSnippetDto(
     )
 )
 
-val FAKE_SNIPPET_TWO = WebSnippetDto(
+internal val FAKE_EXPOSED_SNIPPET_ONE = TWSSnippet(
+    id = "0",
+    target = "www.google.com",
+    props = mapOf(
+        Pair("tabName", "test1"),
+        Pair("tabIcon", "icon1")
+    )
+)
+
+internal val FAKE_SNIPPET_TWO = TWSSnippetDto(
     id = "1",
     target = "www.blink.com",
     organizationId = "organization",
@@ -48,7 +58,16 @@ val FAKE_SNIPPET_TWO = WebSnippetDto(
     )
 )
 
-val FAKE_SNIPPET_THREE = WebSnippetDto(
+internal val FAKE_EXPOSED_SNIPPET_TWO = TWSSnippet(
+    id = "1",
+    target = "www.blink.com",
+    props = mapOf(
+        Pair("tabName", "test2"),
+        Pair("tabIcon", "icon2")
+    )
+)
+
+internal val FAKE_SNIPPET_THREE = TWSSnippetDto(
     id = "3",
     target = "www.example.com",
     organizationId = "organization",
@@ -59,28 +78,52 @@ val FAKE_SNIPPET_THREE = WebSnippetDto(
     )
 )
 
-val FAKE_SNIPPET_FOUR = WebSnippetDto(
+internal val FAKE_EXPOSED_SNIPPET_THREE = TWSSnippet(
+    id = "3",
+    target = "www.example.com",
+    props = mapOf(
+        Pair("tabName", "test3"),
+        Pair("tabIcon", "icon3")
+    )
+)
+
+internal val FAKE_SNIPPET_FOUR = TWSSnippetDto(
     id = "4",
     target = "www.popup1.com",
     organizationId = "organization",
     projectId = "project"
 )
 
-val FAKE_SNIPPET_FIVE = WebSnippetDto(
+internal val FAKE_EXPOSED_SNIPPET_FOUR = TWSSnippet(
+    id = "4",
+    target = "www.popup1.com"
+)
+
+internal val FAKE_SNIPPET_FIVE = TWSSnippetDto(
     id = "5",
     target = "www.popup2.com",
     organizationId = "organization",
     projectId = "project"
 )
 
-val FAKE_PROJECT_DTO = ProjectDto(
+internal val FAKE_EXPOSED_SNIPPET_FIVE = TWSSnippet(
+    id = "5",
+    target = "www.popup2.com"
+)
+
+internal val FAKE_PROJECT_DTO = ProjectDto(
     snippets = listOf(FAKE_SNIPPET_ONE, FAKE_SNIPPET_TWO, FAKE_SNIPPET_FOUR, FAKE_SNIPPET_FIVE),
     listenOn = "wss:someUrl.com"
 )
 
-val FAKE_SHARED_PROJECT = SharedSnippetDto(snippet = FAKE_SNIPPET_ONE)
+internal val FAKE_PROJECT_DTO_2 = ProjectDto(
+    snippets = listOf(FAKE_SNIPPET_ONE, FAKE_SNIPPET_TWO),
+    listenOn = "wss:someUrl2.com"
+)
 
-fun WebSnippetDto.toActionBody() = ActionBody(
+internal val FAKE_SHARED_PROJECT = SharedSnippetDto(snippet = FAKE_SNIPPET_ONE)
+
+internal fun TWSSnippetDto.toActionBody() = ActionBody(
     id = id,
     target = target,
     headers = headers,
@@ -88,11 +131,11 @@ fun WebSnippetDto.toActionBody() = ActionBody(
     props = props
 )
 
-fun WebSnippetDto.setVisibility(ts: Long) = copy(
+internal fun TWSSnippetDto.setVisibility(ts: Long) = copy(
     visibility = VisibilityDto(untilUtc = Instant.ofEpochMilli(ts))
 )
 
-const val CREATE_SNIPPET = """
+internal const val CREATE_SNIPPET = """
 {
     "type": "SNIPPET_CREATED",
     "data": {
@@ -101,7 +144,7 @@ const val CREATE_SNIPPET = """
 }
 """
 
-const val UPDATE_SNIPPET_DYNAMIC_RESOURCES = """
+internal const val UPDATE_SNIPPET_DYNAMIC_RESOURCES = """
 {
     "type": "SNIPPET_UPDATED",
     "data": {
@@ -111,7 +154,7 @@ const val UPDATE_SNIPPET_DYNAMIC_RESOURCES = """
 }
 """
 
-const val UPDATE_SNIPPET_PROPS = """
+internal const val UPDATE_SNIPPET_PROPS = """
 {
     "type": "SNIPPET_UPDATED",
     "data": {
@@ -121,7 +164,7 @@ const val UPDATE_SNIPPET_PROPS = """
 }
 """
 
-const val UPDATE_SNIPPET_URL = """
+internal const val UPDATE_SNIPPET_URL = """
 {
     "type": "SNIPPET_UPDATED",
     "data": {
@@ -131,7 +174,7 @@ const val UPDATE_SNIPPET_URL = """
 }
 """
 
-const val UPDATE_SNIPPET_HTML = """
+internal const val UPDATE_SNIPPET_HTML = """
 {
     "type": "SNIPPET_UPDATED",
     "data": {
@@ -140,7 +183,7 @@ const val UPDATE_SNIPPET_HTML = """
 }
 """
 
-const val DELETE_SNIPPET = """
+internal const val DELETE_SNIPPET = """
 {
     "type": "SNIPPET_DELETED",
     "data": {
@@ -149,41 +192,41 @@ const val DELETE_SNIPPET = """
 }
 """
 
-val ADD_FAKE_SNIPPET_SOCKET = SnippetUpdateAction(
+internal val ADD_FAKE_SNIPPET_SOCKET = SnippetUpdateAction(
     type = ActionType.CREATED,
     data = ActionBody(id = "test")
 )
 
-val UPDATED_FAKE_SNIPPET_SOCKET = SnippetUpdateAction(
+internal val UPDATED_FAKE_SNIPPET_SOCKET = SnippetUpdateAction(
     type = ActionType.UPDATED,
     data = ActionBody(
         id = "test",
-        dynamicResources = listOf(DynamicResourceDto(url = "https://www.test.css", contentType = "text/css"))
+        dynamicResources = listOf(TWSAttachment(url = "https://www.test.css", contentType = "text/css"))
     )
 )
 
-val UPDATED_FAKE_SNIPPET_SOCKET_PROPS = SnippetUpdateAction(
+internal val UPDATED_FAKE_SNIPPET_SOCKET_PROPS = SnippetUpdateAction(
     type = ActionType.UPDATED,
     data = ActionBody(id = "test", props = mapOf("tabName" to "Name of tab"))
 )
 
-val UPDATED_FAKE_SNIPPET_SOCKET_URL = SnippetUpdateAction(
+internal val UPDATED_FAKE_SNIPPET_SOCKET_URL = SnippetUpdateAction(
     type = ActionType.UPDATED,
     data = ActionBody(id = "test", target = "www.newtarget.url")
 )
 
-val UPDATED_FAKE_SNIPPET_SOCKET_HTML = SnippetUpdateAction(
+internal val UPDATED_FAKE_SNIPPET_SOCKET_HTML = SnippetUpdateAction(
     type = ActionType.UPDATED,
     data = ActionBody(id = "test")
 )
 
-val DELETE_FAKE_SNIPPET_SOCKET = SnippetUpdateAction(
+internal val DELETE_FAKE_SNIPPET_SOCKET = SnippetUpdateAction(
     type = ActionType.DELETED,
     data = ActionBody(id = "test")
 )
 
-const val MILLISECONDS_DATE = 952_077_600_000 // 3.3.2000 10:00
-const val MILLISECONDS_DATE_FUTURE_1 = 952_077_660_000 // 3.3.2000 10:01
-const val MILLISECONDS_DATE_FUTURE_5 = 952_077_900_000 // 3.3.2000 10:11
-const val MILLISECONDS_DATE_FUTURE_11 = 952_078_260_000 // 3.3.2000 10:11
-const val MILLISECONDS_DATE_PAST = 952_077_540_000 // 3.3.2020 9:59
+internal const val MILLISECONDS_DATE = 952_077_600_000 // 3.3.2000 10:00
+internal const val MILLISECONDS_DATE_FUTURE_1 = 952_077_660_000 // 3.3.2000 10:01
+internal const val MILLISECONDS_DATE_FUTURE_5 = 952_077_900_000 // 3.3.2000 10:11
+internal const val MILLISECONDS_DATE_FUTURE_11 = 952_078_260_000 // 3.3.2000 10:11
+internal const val MILLISECONDS_DATE_PAST = 952_077_540_000 // 3.3.2020 9:59

@@ -14,20 +14,17 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.data
+package si.inova.tws.manager.utils
 
-import androidx.annotation.Keep
-import com.squareup.moshi.Json
-import com.squareup.moshi.JsonClass
+import kotlinx.coroutines.delay
+import si.inova.tws.manager.snippet.ProjectResponse
+import si.inova.tws.manager.snippet.SnippetLoadingManager
 
-@Keep
-@JsonClass(generateAdapter = false)
-enum class EngineType {
-    @Json(name = "mustache")
-    MUSTACHE,
+internal class FakeSnippetLoadingManager : SnippetLoadingManager {
+    var loaderResponse: ProjectResponse? = null
 
-    @Json(name = "none")
-    NONE,
-
-    OTHER
+    override suspend fun load(): ProjectResponse {
+        delay(1000)
+        return loaderResponse ?: error("Unknown configuration")
+    }
 }

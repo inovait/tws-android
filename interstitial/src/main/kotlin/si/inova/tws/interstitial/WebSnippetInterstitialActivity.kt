@@ -37,15 +37,14 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import si.inova.kotlinova.core.outcome.Outcome
-import si.inova.tws.core.WebSnippetComponent
-import si.inova.tws.data.WebSnippetDto
+import si.inova.tws.core.TWSView
+import si.inova.tws.data.TWSSnippet
 import si.inova.tws.interstitial.WebSnippetPopup.Companion.MANAGER_TAG
 import si.inova.tws.interstitial.WebSnippetPopup.Companion.NAVIGATION_BAR_COLOR
 import si.inova.tws.interstitial.WebSnippetPopup.Companion.STATUS_BAR_COLOR
 import si.inova.tws.interstitial.WebSnippetPopup.Companion.WEB_SNIPPET_DATA
 import si.inova.tws.interstitial.WebSnippetPopup.Companion.WEB_SNIPPET_ID
 import si.inova.tws.manager.TWSFactory
-import si.inova.tws.manager.TWSSdk
 
 /**
  * WebSnippetInterstitialActivity is a ComponentActivity responsible for displaying
@@ -80,24 +79,24 @@ class WebSnippetInterstitialActivity : ComponentActivity() {
         val manager = webSnippetId?.let {
             managerTag?.let { tag ->
                 TWSFactory.get(tag)
-            } ?: TWSSdk.get()
+            }
         }
 
         val webSnippetData = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            intent.getParcelableExtra(WEB_SNIPPET_DATA, WebSnippetDto::class.java)
+            intent.getParcelableExtra(WEB_SNIPPET_DATA, TWSSnippet::class.java)
         } else {
             @Suppress("DEPRECATION")
             intent.getParcelableExtra(WEB_SNIPPET_DATA)
         }
 
         setContent {
-            val shouldCloseFlow = manager?.snippetsFlow?.map { outcome ->
+            val shouldCloseFlow = manager?.snippets?.map { outcome ->
                 outcome is Outcome.Success && !outcome.data.any {
                     it.id == webSnippetId
                 }
             }?.collectAsState(false)?.value
 
-            val snippet = manager?.snippetsFlow?.map { outcome ->
+            val snippet = manager?.snippets?.map { outcome ->
                 outcome.data?.find { it.id == webSnippetId }
             }?.filterNotNull()?.collectAsState(null)?.value ?: webSnippetData
 
@@ -109,9 +108,9 @@ class WebSnippetInterstitialActivity : ComponentActivity() {
 
             Box(modifier = Modifier.fillMaxSize()) {
                 snippet?.let {
-                    WebSnippetComponent(
+                    TWSView(
                         modifier = Modifier.fillMaxSize(),
-                        target = it
+                        snippet = it
                     )
 
                     FilledIconButton(
