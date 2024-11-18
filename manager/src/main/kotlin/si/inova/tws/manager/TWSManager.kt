@@ -26,5 +26,5 @@ interface TWSManager {
 
     fun snippets(): Flow<List<TWSSnippet>?>
     fun forceRefresh()
-    fun setLocalProps(id: String, localProps: Map<String, Any>)
+    fun set(id: String, localProps: Map<String, Any>)
 }

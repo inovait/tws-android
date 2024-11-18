@@ -113,7 +113,7 @@ internal class TWSManagerImpl(
         }
     }
 
-    override fun setLocalProps(id: String, localProps: Map<String, Any>) {
+    override fun set(id: String, localProps: Map<String, Any>) {
         val currentLocalProps = _localProps.value.toMutableMap()
         currentLocalProps[id] = localProps
         _localProps.update { currentLocalProps }
