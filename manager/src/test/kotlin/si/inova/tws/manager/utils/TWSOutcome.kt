@@ -14,16 +14,18 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.manager
+package si.inova.tws.manager.utils
 
-import kotlinx.coroutines.flow.Flow
-import si.inova.tws.data.TWSSnippet
+import si.inova.tws.manager.TWSOutcome
 
-interface TWSManager {
-    val snippets: Flow<TWSOutcome<List<TWSSnippet>>>
-    val mainSnippetIdFlow: Flow<String?>
+infix fun <T> TWSOutcome<T>.shouldBeSuccessWithData(expectedData: T) {
+    assert(this is TWSOutcome.Success && this.data == expectedData)
+}
 
-    fun snippets(): Flow<List<TWSSnippet>?>
-    fun forceRefresh()
-    fun set(id: String, localProps: Map<String, Any>)
+infix fun <T> TWSOutcome<T>.shouldBeProgressWithData(expectedData: T?) {
+    assert(this is TWSOutcome.Progress<*> && this.data == expectedData)
+}
+
+fun <T> TWSOutcome<T>.shouldBeProgressWith(expectedData: T? = null) {
+    shouldBeProgressWithData(expectedData)
 }

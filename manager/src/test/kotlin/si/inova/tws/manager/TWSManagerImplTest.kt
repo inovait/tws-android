@@ -59,6 +59,9 @@ import si.inova.tws.manager.utils.FakeLocalSnippetHandler
 import si.inova.tws.manager.utils.FakeNetworkConnectivityService
 import si.inova.tws.manager.utils.FakeSnippetLoadingManager
 import si.inova.tws.manager.utils.FakeTWSSocket
+import si.inova.tws.manager.utils.shouldBeProgressWith
+import si.inova.tws.manager.utils.shouldBeProgressWithData
+import si.inova.tws.manager.utils.shouldBeSuccessWithData
 import si.inova.tws.manager.utils.toActionBody
 import si.inova.tws.manager.websocket.TWSSocket
 import java.time.Instant
@@ -534,7 +537,7 @@ class TWSManagerImplTest {
                 )
             )
 
-            webSnippetManager.setLocalProps(FAKE_SNIPPET_ONE.id, mapOf("name" to "Chris"))
+            webSnippetManager.set(FAKE_SNIPPET_ONE.id, mapOf("name" to "Chris"))
 
             runCurrent()
 
@@ -568,7 +571,7 @@ class TWSManagerImplTest {
                 )
             )
 
-            webSnippetManager.setLocalProps(
+            webSnippetManager.set(
                 FAKE_SNIPPET_ONE.id,
                 mapOf(
                     "name" to "Chris",
@@ -610,8 +613,8 @@ class TWSManagerImplTest {
                 )
             )
 
-            webSnippetManager.setLocalProps(FAKE_SNIPPET_ONE.id, mapOf("name" to "Chris"))
-            webSnippetManager.setLocalProps(FAKE_SNIPPET_ONE.id, mapOf("surname" to "Donovan"))
+            webSnippetManager.set(FAKE_SNIPPET_ONE.id, mapOf("name" to "Chris"))
+            webSnippetManager.set(FAKE_SNIPPET_ONE.id, mapOf("surname" to "Donovan"))
 
             runCurrent()
 

@@ -34,10 +34,6 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import si.inova.kotlinova.core.exceptions.UnknownCauseException
-import si.inova.kotlinova.core.outcome.CauseException
-import si.inova.kotlinova.core.outcome.Outcome
-import si.inova.kotlinova.core.outcome.mapData
 import si.inova.tws.manager.cache.CacheManager
 import si.inova.tws.manager.cache.FileCacheManager
 import si.inova.tws.manager.data.NetworkStatus
@@ -71,7 +67,7 @@ internal class TWSManagerImpl(
     private var collectingLocalHandler: Boolean = false
     private var networkStatusJob: Job? = null
 
-    private val _snippetsFlow: MutableStateFlow<Outcome<List<TWSSnippetDto>>> = MutableStateFlow(Outcome.Progress())
+    private val _snippetsFlow: MutableStateFlow<TWSOutcome<List<TWSSnippetDto>>> = MutableStateFlow(TWSOutcome.Progress())
     private val _localProps: MutableStateFlow<Map<String, Map<String, Any>>> = MutableStateFlow(emptyMap())
 
     /**
@@ -82,7 +78,7 @@ internal class TWSManagerImpl(
         outcome.mapData { it.toTWSSnippetList(localProps) }
     }.onStart { setupCollectingAndLoad() }
         .onCompletion { cancelCollecting() }
-        .stateIn(scope, SharingStarted.WhileSubscribed(5.seconds), Outcome.Progress())
+        .stateIn(scope, SharingStarted.WhileSubscribed(5.seconds), TWSOutcome.Progress())
 
     private val _mainSnippetIdFlow: MutableStateFlow<String?> = MutableStateFlow(null)
     override val mainSnippetIdFlow: Flow<String?> = _mainSnippetIdFlow
@@ -92,23 +88,21 @@ internal class TWSManagerImpl(
     override fun forceRefresh() {
         launch {
             try {
-                _snippetsFlow.emit(Outcome.Progress(cacheManager?.load(CACHED_SNIPPETS)))
+                _snippetsFlow.emit(TWSOutcome.Progress(cacheManager?.load(CACHED_SNIPPETS)))
 
                 val response = loader.load()
                 val project = response.project
 
                 _mainSnippetIdFlow.emit(response.mainSnippet)
 
-                _snippetsFlow.emit(Outcome.Success(project.snippets))
+                _snippetsFlow.emit(TWSOutcome.Success(project.snippets))
 
                 saveToCache(project.snippets)
 
                 twsSocket?.launchAndCollect(project.listenOn)
                 localSnippetHandler?.launchAndCollect(response.responseDate, project.snippets)
-            } catch (e: CauseException) {
-                _snippetsFlow.emit(Outcome.Error(e, _snippetsFlow.value.data))
             } catch (e: Exception) {
-                _snippetsFlow.emit(Outcome.Error(UnknownCauseException("", e), _snippetsFlow.value.data))
+                _snippetsFlow.emit(TWSOutcome.Error(e, _snippetsFlow.value.data))
             }
         }
     }
@@ -151,7 +145,7 @@ internal class TWSManagerImpl(
             val newList = _snippetsFlow.value.data.orEmpty().updateWith(it)
 
             localSnippetHandler?.updateAndScheduleCheck(newList)
-            _snippetsFlow.emit(Outcome.Success(newList))
+            _snippetsFlow.emit(TWSOutcome.Success(newList))
             saveToCache(newList)
         }.launchIn(this@TWSManagerImpl).invokeOnCompletion {
             collectingSocket = false
@@ -168,7 +162,7 @@ internal class TWSManagerImpl(
         updateActionFlow.onEach {
             val newList = _snippetsFlow.value.data.orEmpty().updateWith(it)
 
-            _snippetsFlow.emit(Outcome.Success(newList))
+            _snippetsFlow.emit(TWSOutcome.Success(newList))
             saveToCache(newList)
         }.launchIn(this@TWSManagerImpl).invokeOnCompletion {
             collectingLocalHandler = false

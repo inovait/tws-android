@@ -16,14 +16,28 @@
 
 package si.inova.tws.manager
 
-import kotlinx.coroutines.flow.Flow
-import si.inova.tws.data.TWSSnippet
+/**
+ * Standard wrapper for an operation. It can be either [Progress], [Success] or [Error].
+ */
+sealed class TWSOutcome<out T> {
+    abstract val data: T?
 
-interface TWSManager {
-    val snippets: Flow<TWSOutcome<List<TWSSnippet>>>
-    val mainSnippetIdFlow: Flow<String?>
+    data class Progress<out T>(override val data: T? = null) : TWSOutcome<T>()
 
-    fun snippets(): Flow<List<TWSSnippet>?>
-    fun forceRefresh()
-    fun set(id: String, localProps: Map<String, Any>)
+    data class Success<out T>(override val data: T) : TWSOutcome<T>()
+
+    data class Error<out T>(val exception: Exception, override val data: T? = null) : TWSOutcome<T>()
+}
+
+/**
+ * Map data of this outcome, while keeping the type.
+ *
+ * If provided Outcome has no data, [mapper] never gets called.
+ */
+fun <A, B> TWSOutcome<A>.mapData(mapper: (A) -> B): TWSOutcome<B> {
+    return when (this) {
+        is TWSOutcome.Error -> TWSOutcome.Error(exception, data?.let { mapper(it) })
+        is TWSOutcome.Progress -> TWSOutcome.Progress(data?.let { mapper(it) })
+        is TWSOutcome.Success -> TWSOutcome.Success(mapper(data))
+    }
 }
