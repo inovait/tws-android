@@ -24,12 +24,12 @@ import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 
 @Composable
-internal fun Exception.getUserFriendlyMessage(): String {
+internal fun Exception.getUserFriendlyMessage(): String? {
     return when (this) {
         is UnknownHostException,
         is ConnectException,
         is SocketTimeoutException -> stringResource(id = R.string.error_no_network)
 
-        else -> stringResource(id = R.string.error_general)
+        else -> null
     }
 }

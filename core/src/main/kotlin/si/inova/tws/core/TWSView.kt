@@ -257,10 +257,11 @@ private fun SnippetErrors(
 
     if (viewState.customErrorsForCurrentRequest.size > 0) {
         val error = viewState.customErrorsForCurrentRequest.first()
+        val message = error.getUserFriendlyMessage() ?: error.message ?: stringResource(R.string.error_general)
         if (error is MustacheException) {
-            errorViewContent(error.message ?: error.getUserFriendlyMessage())
+            errorViewContent(message)
         } else {
-            ErrorBannerWithSwipeToDismiss(error.getUserFriendlyMessage())
+            ErrorBannerWithSwipeToDismiss(message)
         }
     }
 }
