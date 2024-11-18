@@ -20,26 +20,26 @@ package si.inova.tws.core.data
  * Sealed class for constraining possible loading states.
  * See [Loading] and [Finished].
  */
-sealed class LoadingState {
+sealed class TWSLoadingState {
     /**
      * Describes a WebView that has not yet loaded for the first time.
      */
-    data object Initializing : LoadingState()
+    data object Initializing : TWSLoadingState()
 
     /**
      * Describes a WebView that will be reloaded as a result of a users pull to refresh action.
      */
-    data object ForceRefreshInitiated : LoadingState()
+    data object ForceRefreshInitiated : TWSLoadingState()
 
     /**
      * Describes a webview between `onPageStarted` and `onPageFinished` events, contains a
      * [progress] property which is updated by the webview and [isUserForceRefresh] property
      * which marks if page is refreshed because of the user action.
      */
-    data class Loading(val progress: Float, val isUserForceRefresh: Boolean) : LoadingState()
+    data class Loading(val progress: Float, val isUserForceRefresh: Boolean) : TWSLoadingState()
 
     /**
      * Describes a webview that has finished loading content.
      */
-    data object Finished : LoadingState()
+    data object Finished : TWSLoadingState()
 }

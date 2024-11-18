@@ -62,7 +62,7 @@ open class TWSWebViewClient(
         }
 
         return request?.url?.let {
-            interceptUrlCallback.intercept(it.toString())
+            interceptUrlCallback.handleUrl(it)
         } == true
     }
 

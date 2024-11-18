@@ -56,14 +56,14 @@ class TWSViewNavigator(private val coroutineScope: CoroutineScope) {
     /**
      * Navigates the webview back to the previous page.
      */
-    fun navigateBack() {
+    fun goBack() {
         coroutineScope.launch { navigationEvents.emit(NavigationEvent.Back) }
     }
 
     /**
      * Navigates the webview forward after going back from a page.
      */
-    fun navigateForward() {
+    fun goForward() {
         coroutineScope.launch { navigationEvents.emit(NavigationEvent.Forward) }
     }
 

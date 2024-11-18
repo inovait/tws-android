@@ -21,7 +21,7 @@ import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import si.inova.tws.core.data.LoadingState
+import si.inova.tws.core.data.TWSLoadingState
 import si.inova.tws.core.data.WebViewError
 import si.inova.tws.core.data.TWSViewNavigator
 import si.inova.tws.core.data.TWSViewState
@@ -43,8 +43,8 @@ open class AccompanistWebViewClient : WebViewClient() {
     override fun onPageStarted(view: WebView, url: String?, favicon: Bitmap?) {
         super.onPageStarted(view, url, favicon)
 
-        if (state.loadingState !is LoadingState.Loading) {
-            state.loadingState = LoadingState.Loading(0.0f, state.loadingState is LoadingState.ForceRefreshInitiated)
+        if (state.loadingState !is TWSLoadingState.Loading) {
+            state.loadingState = TWSLoadingState.Loading(0.0f, state.loadingState is TWSLoadingState.ForceRefreshInitiated)
             state.webViewErrorsForCurrentRequest.clear()
         }
 
@@ -53,7 +53,7 @@ open class AccompanistWebViewClient : WebViewClient() {
 
     override fun onPageFinished(view: WebView, url: String?) {
         super.onPageFinished(view, url)
-        state.loadingState = LoadingState.Finished
+        state.loadingState = TWSLoadingState.Finished
     }
 
     override fun doUpdateVisitedHistory(view: WebView, url: String?, isReload: Boolean) {

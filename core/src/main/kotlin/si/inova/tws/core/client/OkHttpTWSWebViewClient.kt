@@ -28,7 +28,7 @@ import okhttp3.Request
 import okhttp3.Response
 import okhttp3.ResponseBody
 import si.inova.tws.core.client.okhttp.webViewHttpClient
-import si.inova.tws.core.data.LoadingState
+import si.inova.tws.core.data.TWSLoadingState
 import si.inova.tws.core.data.TWSViewInterceptor
 import si.inova.tws.core.data.TWSViewState
 import si.inova.tws.core.util.HtmlModifierHelper
@@ -71,7 +71,7 @@ class OkHttpTWSWebViewClient(
     override fun onPageStarted(view: WebView, url: String?, favicon: Bitmap?) {
         super.onPageStarted(view, url, favicon)
 
-        if (state.loadingState !is LoadingState.Loading) {
+        if (state.loadingState !is TWSLoadingState.Loading) {
             state.customErrorsForCurrentRequest.clear()
         }
     }

@@ -50,7 +50,7 @@ import kotlinx.collections.immutable.toImmutableMap
 import si.inova.tws.core.client.OkHttpTWSWebViewClient
 import si.inova.tws.core.client.TWSWebChromeClient
 import si.inova.tws.core.data.TWSViewDeepLinkInterceptor
-import si.inova.tws.core.data.LoadingState
+import si.inova.tws.core.data.TWSLoadingState
 import si.inova.tws.core.data.TWSViewInterceptor
 import si.inova.tws.core.data.WebContent
 import si.inova.tws.core.data.TWSViewNavigator
@@ -271,7 +271,7 @@ private fun SnippetLoading(
     loadingPlaceholderContent: @Composable () -> Unit
 ) {
     val state = viewState.loadingState
-    if (state is LoadingState.Loading && !state.isUserForceRefresh) {
+    if (state is TWSLoadingState.Loading && !state.isUserForceRefresh) {
         loadingPlaceholderContent()
     }
 }
@@ -388,11 +388,11 @@ private fun WebSnippetLoadingPlaceholderFinishedComponentPreview() {
     )
 }
 
-private val webStateInitializing = TWSViewState(WebContent.NavigatorOnly).apply { loadingState = LoadingState.Initializing }
+private val webStateInitializing = TWSViewState(WebContent.NavigatorOnly).apply { loadingState = TWSLoadingState.Initializing }
 private val webStateLoading = TWSViewState(WebContent.NavigatorOnly).apply {
-    loadingState = LoadingState.Loading(0.5f, false)
+    loadingState = TWSLoadingState.Loading(0.5f, false)
 }
 private val webStateLoadingForceRefresh = TWSViewState(WebContent.NavigatorOnly).apply {
-    loadingState = LoadingState.Loading(0.5f, true)
+    loadingState = TWSLoadingState.Loading(0.5f, true)
 }
-private val webStateLoadingFinished = TWSViewState(WebContent.NavigatorOnly).apply { loadingState = LoadingState.Finished }
+private val webStateLoadingFinished = TWSViewState(WebContent.NavigatorOnly).apply { loadingState = TWSLoadingState.Finished }
