@@ -26,7 +26,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onCompletion
@@ -86,7 +85,7 @@ internal class TWSManagerImpl(
         .stateIn(scope, SharingStarted.WhileSubscribed(5.seconds), Outcome.Progress())
 
     private val _mainSnippetIdFlow: MutableStateFlow<String?> = MutableStateFlow(null)
-    override val mainSnippetIdFlow: Flow<String?> = _mainSnippetIdFlow.filterNotNull()
+    override val mainSnippetIdFlow: Flow<String?> = _mainSnippetIdFlow
 
     override fun snippets() = snippets.map { it.data }
 
