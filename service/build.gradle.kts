@@ -14,35 +14,40 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-pluginManagement {
-    repositories {
-        google {
-            content {
-                includeGroupByRegex("com\\.android.*")
-                includeGroupByRegex("com\\.google.*")
-                includeGroupByRegex("androidx.*")
-            }
+plugins {
+    `java-gradle-plugin`
+    `maven-publish`
+    `kotlin-dsl`
+}
+
+group = "si.inova.tws"
+version = File(rootDir, "version.txt").readText().trim()
+
+gradlePlugin {
+    plugins {
+        create("service") {
+            id = "si.inova.tws.service"
+            implementationClass = "si.inova.tws.service.TWSPlugin"
         }
-        mavenCentral()
-        gradlePluginPortal()
-        mavenLocal()
-    }
-}
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        google()
-        mavenCentral()
-        mavenLocal()
     }
 }
 
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+publishing {
+    publications {
+        create<MavenPublication>("gradlePlugin") {
+            groupId = project.group.toString()
+            artifactId = "service"
+            version = project.version.toString()
+        }
+    }
 
-rootProject.name = "TheWebSnippetSdk"
+    repositories { // TODO
+        mavenLocal()
+    }
+}
 
-include(":core")
-include(":interstitial")
-include(":manager")
-include(":data")
-include(":service")
+dependencies {
+    implementation("io.jsonwebtoken:jjwt-api:0.12.6") // TODO
+    implementation("com.google.code.gson:gson:2.10.1") // TODO
+    implementation("com.google.api-client:google-api-client:2.7.0") // TODO
+}

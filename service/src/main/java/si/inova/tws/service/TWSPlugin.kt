@@ -14,27 +14,33 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.manager.utils
+package si.inova.tws.service
 
-import kotlinx.coroutines.flow.MutableSharedFlow
-import si.inova.tws.manager.data.SnippetUpdateAction
-import si.inova.tws.manager.websocket.TWSSocket
+import org.gradle.api.Plugin
+import org.gradle.api.Project
+import si.inova.tws.service.util.generateJWT
+import si.inova.tws.service.util.readServiceFile
 
-internal class FakeTWSSocket : TWSSocket {
-    override var updateActionFlow: MutableSharedFlow<SnippetUpdateAction> = MutableSharedFlow()
+class TWSPlugin : Plugin<Project> {
+    override fun apply(project: Project) {
+        val buildType = project.properties["buildType"]?.toString()
 
-    override fun closeWebsocketConnection(): Boolean {
-        isConnectionOpen = false
-        return true
+        val service = readServiceFile(project.projectDir, buildType)
+
+        //https://github.com/jwtk/jjwt?tab=readme-ov-file#dependencies
+//        val key = Jwts.SIG.HS256.key().build()
+//        val jwt = Jwts.builder() // (1)
+//            .header() // (2) optional
+//            .keyId("aKeyId")
+//            .and()
+//            .subject("Bob") // (3) JSON Claims, or
+//            //.content(aByteArray, "text/plain")        //     any byte[] content, with media type
+//
+//            .signWith(signingKey)
+//            .compact()
+
+        val token = generateJWT(service) // TODO save that token for manager (SharedPreferences / DataStore)
+        println("token: $token")
     }
-
-    override fun setupWebSocketConnection(setupWssUrl: String, unauthorizedCallback: suspend () -> Unit) {
-        isConnectionOpen = true
-    }
-
-    suspend fun mockUpdateAction(action: SnippetUpdateAction) {
-        updateActionFlow.emit(action)
-    }
-
-    var isConnectionOpen = false
 }
+
