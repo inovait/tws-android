@@ -6,8 +6,10 @@ This documentation will guide you through implementing TheWebSnippet SDK into yo
     <img src="images/appIcon.png" alt="My Custom Icon" style="display: block; margin: 32px auto; max-width: 100%; height: auto;" />
 </div>
 
-## Quick Tutorial
+## Description
+TODO: Add description
 
+## Quick Tutorial
 ### Installation
 
 Add the following dependency to your `build.gradle` file:
@@ -19,10 +21,10 @@ dependencies {
 }
 ```
 
-### Step 1.1: Use Global TWS Manager - Initialize the TWS SDK
+### Step 1: Provide metada for TWS SDK
 
 Before using the TWS SDK, ensure you set up metadata keys for organization and project in AndroidManifest.xml. 
-These metadata keys allow the SDK to identify the correct organization and project context:
+These metadata keys allow the SDK to identify the correct organization and project context when initializing your TWSManager:
 
 ```xml
 <application>
@@ -35,48 +37,20 @@ These metadata keys allow the SDK to identify the correct organization and proje
 </application>
 ```
 
-In your Application class, initialize TWSSdk by passing the application context and an API key. This sets up the TWSManager for global use
-and will prevent the garbage collector to release the manager:
-
-```kotlin
-class MyApplication : Application() {
-   override fun onCreate() {
-      super.onCreate()
-      TWSSdk.initialize(this, "YOUR_API_KEY")
-   }
-}
-```
-
-> 💡 **Tip**: Use global initialization when `TWSManager` is accessed frequently throughout the app.
-
-### Step 1.2: Use Local TWS Manager - Create manager with Factory
-
-You can also initialize a TWSManager using TWSFactory with a specific configuration. Initializing it this way will allow garbage collector
-to release the manager once it is not used anymore:
-
-```kotlin
-val manager = TWSFactory.get(context, TWSConfiguration.Basic(
-   organizationId = "your_organization_id",
-   projectId = "your_project_id",
-   apiKey = "YOUR_API_KEY"
-))
-```
-
-> 💡 **Tip**: Use local initialization with `TWSFactory` when `TWSManager` is needed only temporarily. This approach optimizes memory usage for short-term tasks.
-
 ### Step 2: Using WebSnippetComponent to display snippet
 
 Set up WebSnippetComponent to display a specific snippet. Here’s how to collect snippets and display "home" snippet:
 
 ```kotlin
+val manager = TWSFactory.get(context)
+
 setContent {
-   val projectSnippets = manager.snippetsFlow.collectAsStateWithLifecycle(null).value
+   val projectSnippets = manager.snippets.collectAsStateWithLifecycle(null).value
 
    when (projectSnippets) {
-      is Outcome.Success -> {
+      is TWSOutcome.Success -> {
          val home = projectSnippets.data.first { it.id == "home" }
-         
-         WebSnippetComponent(target = home)
+         TWSView(snippet = home)
       }
 
       else -> {
