@@ -16,7 +16,6 @@
 
 package si.inova.tws.core.client
 
-import android.graphics.Bitmap
 import android.webkit.WebChromeClient
 import android.webkit.WebView
 import si.inova.tws.core.data.TWSLoadingState
@@ -37,11 +36,6 @@ internal open class AccompanistWebChromeClient : WebChromeClient() {
     override fun onReceivedTitle(view: WebView, title: String?) {
         super.onReceivedTitle(view, title)
         state.title = title
-    }
-
-    override fun onReceivedIcon(view: WebView, icon: Bitmap?) {
-        super.onReceivedIcon(view, icon)
-        state.icon = icon
     }
 
     override fun onProgressChanged(view: WebView, newProgress: Int) {

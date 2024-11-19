@@ -16,7 +16,6 @@
 
 package si.inova.tws.core.data
 
-import android.graphics.Bitmap
 import android.os.Bundle
 import android.webkit.WebView
 import androidx.compose.runtime.Composable
@@ -52,12 +51,6 @@ class TWSViewState(webContent: WebContent) {
         internal set
 
     /**
-     * the favicon received from the loaded content of the current page
-     */
-    var icon: Bitmap? by mutableStateOf(null)
-        internal set
-
-    /**
      * Whether the WebView is currently [TWSLoadingState.Loading] data in its main frame (along with
      * progress) or the data loading has [TWSLoadingState.Finished]. See [TWSLoadingState]
      */
@@ -66,14 +59,12 @@ class TWSViewState(webContent: WebContent) {
     /**
      * A list for errors captured in the last load. Reset when a new page is loaded.
      * Errors could be from any resource (iframe, image, etc.), not just for the main page.
-     * For more fine grained control use the OnError callback of the WebView.
      */
     val webViewErrorsForCurrentRequest: SnapshotStateList<WebViewError> = mutableStateListOf()
 
     /**
      * A list for errors captured in the last load. Reset when a new page is loaded.
-     * Errors could be from any resource (iframe, image, etc.), not just for the main page.
-     * For more fine grained control use the OnError callback of the WebView.
+     * Errors could be only from the main page.
      */
     val customErrorsForCurrentRequest: SnapshotStateList<Exception> = mutableStateListOf()
 
