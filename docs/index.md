@@ -7,7 +7,25 @@ This documentation will guide you through implementing TheWebSnippet SDK into yo
 </div>
 
 ## Description
-TODO: Add description
+The TWS SDK is a library, designed to make it easier and more powerful to add web
+content to your Android apps with a WebView on a steroids. You can use it to combine web 
+and native features, add web pages to an existing app, build a complete app using web content, 
+or mix web and native screens for a smoother user experience.
+
+The TWS SDK goes beyond a standard WebView. It lets you customize content with features like 
+custom HTTP headers, CSS, and JavaScript injections, giving you full control over how your
+web content looks and works. It also supports Mustache templates, so you can modify HTML 
+dynamically based on app data.
+
+The SDK makes handling files simple, including uploading and downloading files directly
+through the app. It also takes care of permissions for features like location, camera,
+and file storage, so you don’t have to worry about managing them yourself. For secure login,
+it supports Google authentication through Custom Chrome Tabs, redirecting users back to the 
+app after logging in.
+
+With an active internet connection, the TWSManager ensures your web snippets are always up-to-date. 
+Developers can change app content on the fly without rebuilding or updating the app. Even 
+offline, the SDK will still work smoothly, letting users access content without interruption.
 
 ## Quick Tutorial
 ### Installation
