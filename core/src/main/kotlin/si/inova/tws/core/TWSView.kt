@@ -69,26 +69,25 @@ import si.inova.tws.data.TWSSnippet
 
 /**
  *
- * WebSnippetComponent is a composable function that renders a WebView within a specified context,
+ * TWSView is a composable function that renders a WebView within a specified context,
  * allowing dynamic loading and interaction with web content. It provides various customizable options
  * to handle loading states, error handling, and URL interception.
  *
- * @param snippet An object that holds the necessary details to load and render a web snippet.
- * This includes the URL, custom HTTP headers, and any dynamic modifiers that might be applied to the web view.
- * @param modifier A compose modifier.
- * @param navigator An optional navigator object that can be used to control the WebView's
- * navigation from outside the composable.
- * @param viewState State of WebView.
- * @param errorViewContent A custom composable that defines the UI content to display when there's an error
- * loading WebView content.
- * @param loadingPlaceholderContent A custom composable that defines the UI content to show while the WebView content is loading.
- * @param interceptUrlCallback A lambda function that is invoked when a URL in WebView will be loaded.
- * Returning true prevents navigation to the new URL (and allowing you to define custom behavior for specific urls),
- * while returning false allows it to proceed.
- * @param googleLoginRedirectUrl A URL to which user is redirected after successful Google login. This will allow us to redirect
- * user back to the app after login in Custom Tabs has been completed.
- * @param isRefreshable if we allow to create pull to refresh
- */
+ * @param snippet A [TWSSnippet] containing the URL, custom HTTP headers, and modifiers
+ * for the web snippet to be rendered.
+ * @param modifier A [Modifier] to additionally customize the layout of the WebView.
+ * @param navigator The current [TWSViewNavigator] to control WebView navigation externally.
+ * @param viewState The current [TWSViewState] representing the state of the WebView.
+ * @param errorViewContent A custom composable displayed when there is an error loading content.
+ * Defaults to a full-screen [SnippetErrorView].
+ * @param loadingPlaceholderContent A custom composable displayed during loading.
+ * Defaults to a full-screen [SnippetLoadingView].
+ * @param interceptUrlCallback A [TWSViewInterceptor] invoked for URLs before navigation.
+ * Return `true` to prevent navigation, `false` to allow it.
+ * @param googleLoginRedirectUrl The URL the app should redirect to after a Google login
+ * via Custom Tabs. Allows returning users to the app after authentication.
+ * @param isRefreshable Enables pull-to-refresh functionality when set to `true`.
+ * */
 @Composable
 fun TWSView(
     snippet: TWSSnippet,
@@ -116,6 +115,20 @@ fun TWSView(
     }
 }
 
+/**
+ * Renders a WebView with popup support for handling separate web views in dialog-like containers.
+ * Popups are displayed in dialogs, and navigation can be controlled externally.
+ *
+ * @param target The [TWSSnippet] to load in the WebView.
+ * @param navigator The [TWSViewNavigator] for controlling navigation in the WebView.
+ * @param viewState The [TWSViewState] representing the state of the WebView.
+ * @param errorViewContent The composable content for rendering error messages.
+ * @param loadingPlaceholderContent The composable content for rendering a loading state.
+ * @param interceptUrlCallback A [TWSViewInterceptor] for handling intercepted URLs.
+ * @param googleLoginRedirectUrl URL to redirect back after Google login via Custom Tabs.
+ * @param isRefreshable Enables pull-to-refresh functionality.
+ * @param modifier A [Modifier] for layout adjustments.
+ */
 @Composable
 private fun SnippetContentWithPopup(
     target: TWSSnippet,

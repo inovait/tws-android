@@ -21,6 +21,10 @@ import okhttp3.Cookie
 import okhttp3.CookieJar
 import okhttp3.HttpUrl
 
+/**
+ * SharedCookieJar manages cookies for OkHttp using a shared CookieManager, allowing synchronization between
+ * OkHttp requests and Android's WebView for consistent session handling.
+ */
 internal class SharedCookieJar(private val cookieManager: CookieManager) : CookieJar {
     override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
         cookies.forEach { cookie ->

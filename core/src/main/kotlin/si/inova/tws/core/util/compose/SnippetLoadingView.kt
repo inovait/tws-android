@@ -15,6 +15,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
+/**
+ * A composable function that displays a loading view for snippets,
+ * with support for both full-screen and card-sized layouts.
+ *
+ * @param fullScreen A Boolean flag indicating whether the loading view should occupy the full screen (`true`)
+ * or a constrained card-sized layout (`false`).
+ */
 @Composable
 internal fun SnippetLoadingView(fullScreen: Boolean) {
     Box(

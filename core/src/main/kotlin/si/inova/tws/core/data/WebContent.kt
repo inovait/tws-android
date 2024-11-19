@@ -47,11 +47,27 @@ import android.webkit.WebView
  * - Addition of `MessageOnly` type to handle custom web content loading from a pop up.
  */
 sealed class WebContent {
+
+    /**
+     * Represents a URL to be loaded in the WebView.
+     *
+     * @param url The URL to load.
+     * @param additionalHttpHeaders Optional HTTP headers to include in the request.
+     */
     data class Url(
         val url: String,
         val additionalHttpHeaders: Map<String, String> = emptyMap()
     ) : WebContent()
 
+    /**
+     * Represents raw HTML or other data content to be loaded in the WebView.
+     *
+     * @param data The HTML or data content to load.
+     * @param baseUrl Optional base URL for resolving relative paths in the content.
+     * @param encoding The character encoding for the content, defaults to "utf-8".
+     * @param mimeType Optional MIME type for the content; defaults to "text/html" if null.
+     * @param historyUrl Optional URL for the WebView's history management.
+     */
     data class Data(
         val data: String,
         val baseUrl: String? = null,
@@ -60,8 +76,19 @@ sealed class WebContent {
         val historyUrl: String? = null
     ) : WebContent()
 
+    /**
+     * Represents a state where the WebView is controlled only via a navigator,
+     * without loading content directly into it. All communication with WebView must be done
+     * through navigator.
+     */
     data object NavigatorOnly : WebContent()
 
+    /**
+     * Represents a popup message request for creating a new window in the WebView.
+     *
+     * @param msg The message containing the WebView's popup request details.
+     * @param isDialog Indicates whether the content is a dialog.
+     */
     data class MessageOnly(val msg: Message, val isDialog: Boolean) : WebContent()
 }
 

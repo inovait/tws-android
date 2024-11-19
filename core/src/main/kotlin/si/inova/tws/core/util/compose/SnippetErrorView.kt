@@ -37,6 +37,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
+/**
+ * A composable function that displays an error view for snippets, which can adapt to either full-screen
+ * or card-sized layouts based on the provided configuration.
+ *
+ * @param errorMessage The error message to display in the view.
+ * @param fullScreen A Boolean flag indicating whether the view should occupy the full screen (`true`)
+ * or a smaller card-like height (`false`).
+ */
 @Composable
 internal fun SnippetErrorView(
     errorMessage: String,

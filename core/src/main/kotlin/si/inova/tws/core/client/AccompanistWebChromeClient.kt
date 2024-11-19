@@ -46,9 +46,6 @@ import si.inova.tws.core.data.TWSViewState
  * the web content displayed in a [WebView].
  *
  * NOTE: This is a modified version of the original Accompanist WebChromeClient implementation.
- * The original version was deprecated, and the modifications here include:
- * - Integration with custom loading states [TWSLoadingState].
- * - Enhanced management of loading progress with user-initiated refresh support.
  *
  * This class provides additional features beyond the basic functionality of [WebChromeClient]
  * by allowing you to handle events such as page title updates, icon changes, and progress

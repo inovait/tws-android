@@ -53,11 +53,10 @@ import kotlinx.coroutines.withContext
 
 /**
  * Allows control over the navigation of a WebView from outside the composable. E.g. for performing
- * a back navigation in response to the user clicking the "up" button in a TopAppBar.
+ * a back/forward navigation in response to the user clicking the "up" or "down" button in a TopAppBar.
  *
  * NOTE: This class is a modified version of the original Accompanist WebView navigator.
  *
- * @see [rememberTWSViewNavigator]
  */
 @Stable
 class TWSViewNavigator(private val coroutineScope: CoroutineScope) {
@@ -171,8 +170,10 @@ class TWSViewNavigator(private val coroutineScope: CoroutineScope) {
 }
 
 /**
- * Creates and remembers a [TWSViewNavigator] using the default [CoroutineScope] or a provided
- * override.
+ * Creates and remembers a [TWSViewNavigator] with the default [CoroutineScope].
+ *
+ * @param coroutineScope Optional scope for coroutine operations. Defaults to [rememberCoroutineScope].
+ * @return A remembered instance of [TWSViewNavigator].
  */
 @Composable
 fun rememberTWSViewNavigator(
@@ -180,8 +181,11 @@ fun rememberTWSViewNavigator(
 ): TWSViewNavigator = remember(coroutineScope) { TWSViewNavigator(coroutineScope) }
 
 /**
- * Creates and remembers a [TWSViewNavigator] using the default [CoroutineScope] or a provided
- * override.
+ * Creates and remembers a [TWSViewNavigator] with an optional key and default [CoroutineScope].
+ *
+ * @param key1 An optional key used for recomposition.
+ * @param coroutineScope Optional scope for coroutine operations. Defaults to [rememberCoroutineScope].
+ * @return A remembered instance of [TWSViewNavigator].
  */
 @Composable
 fun rememberTWSViewNavigator(
