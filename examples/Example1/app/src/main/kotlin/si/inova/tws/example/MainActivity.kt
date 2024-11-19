@@ -7,7 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import si.inova.tws.example.exampleScreen.Example1Screen
-import si.inova.tws.example.ui.theme.Example1Theme
+import si.inova.tws.example.ui.theme.ExampleTheme
 
 
 class MainActivity : ComponentActivity() {
@@ -15,7 +15,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            Example1Theme {
+            ExampleTheme {
                 val navController = rememberNavController()
 
                 NavHost(navController = navController, startDestination = Screen.NavigationScreen.route) {

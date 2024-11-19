@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Example1</string>
+    <string name="app_name">Example</string>
     <string name="error_message">Oooops, loading failed</string>
     <string name="logo_icon">Logo Icon</string>
 </resources>
