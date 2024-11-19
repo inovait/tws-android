@@ -20,6 +20,10 @@ import androidx.annotation.Keep
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
+/**
+ * An enum defining the processing engine for web content,
+ * will process snippet with Mustache if [TWSEngine.MUSTACHE] is used.
+ */
 @Keep
 @JsonClass(generateAdapter = false)
 enum class TWSEngine {

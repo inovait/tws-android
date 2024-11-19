@@ -23,17 +23,10 @@ import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
 
 /**
- * Data class representing a dynamic resource that can be injected into a WebView before the page is loaded.
+ * Represents a dynamic resource that can be injected into a WebView.
  *
- * @param url The path to the file to inject into the WebView.
- * @param contentType The type of file to inject,
- * either [TWSAttachmentType.CSS] for CSS files or [TWSAttachmentType.JAVASCRIPT] for JavaScript files
- * or [TWSAttachmentType.OTHER] for other type.
- *
- * @constructor Creates a [TWSAttachment] with the provided [url] and [contentType].
- * Depending on the [contentType], the corresponding injection code for CSS or JavaScript is generated.
- *
- * - [inject] The generated HTML code snippet for injecting the resource into a WebView, depending on the [contentType].
+ * @param url The URL of the resource to inject.
+ * @param contentType The type of resource, such as CSS or JavaScript.
  */
 @JsonClass(generateAdapter = true)
 @Parcelize

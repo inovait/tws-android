@@ -21,7 +21,7 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 /**
- * Enum class representing the types of content injections that can be performed.
+ * Enum class representing the types of injections that can be performed.
  */
 @JsonClass(generateAdapter = false)
 @Keep
