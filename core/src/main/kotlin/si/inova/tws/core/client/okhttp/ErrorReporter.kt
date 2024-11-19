@@ -16,24 +16,27 @@
 
 package si.inova.tws.core.client.okhttp
 
-import android.content.Context
-import android.webkit.CookieManager
 import jakarta.inject.Singleton
-import okhttp3.OkHttpClient
+import kotlin.coroutines.cancellation.CancellationException
+
+/**
+ * Error reporter that collects all non-fatal (but potentially still bad) exceptions. Can represent an error reporting service
+ * such as Firebase Crashlytics.
+ */
+internal fun interface ErrorReporter {
+    fun report(throwable: Throwable)
+}
 
 @Singleton
-internal fun webViewHttpClient(context: Context): OkHttpClient {
-    if (Thread.currentThread().name == "main") {
-        error("OkHttp should not be initialized on the main thread")
+internal val provideErrorReporter = ErrorReporter {
+    object : ErrorReporter {
+        override fun report(throwable: Throwable) {
+            if (throwable is CancellationException) {
+                report(Exception("Got cancellation exception", throwable))
+                return
+            }
+
+            throwable.printStackTrace()
+        }
     }
-
-    val manager = GlobalOkHttpDiskCacheManager(context, provideErrorReporter)
-    val cookieManager = CookieManager.getInstance().also { it.setAcceptCookie(true) }
-
-    return OkHttpClient.Builder()
-        .cache(manager.cache)
-        .cookieJar(SharedCookieJar(cookieManager))
-        .followRedirects(false)
-        .followSslRedirects(false)
-        .build()
 }
