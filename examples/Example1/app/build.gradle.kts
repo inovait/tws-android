@@ -55,9 +55,6 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
 
-    implementation(libs.tws.core)
-    implementation(libs.tws.interstitial)
-    api(libs.tws.manager)
     implementation(libs.kotlin.immutableCollections)
 
     coreLibraryDesugaring(libs.desugarJdkLibs)
