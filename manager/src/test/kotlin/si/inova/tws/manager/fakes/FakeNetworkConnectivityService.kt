@@ -1,0 +1,35 @@
+/*
+ * Copyright 2024 INOVA IT d.o.o.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation
+ * files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy,
+ * modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software
+ *  is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ *  OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+ *   BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+package si.inova.tws.manager.fakes
+
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import si.inova.tws.manager.data.NetworkStatus
+import si.inova.tws.manager.service.NetworkConnectivityService
+
+internal class FakeNetworkConnectivityService : NetworkConnectivityService {
+    private val _networkStatus = MutableStateFlow<NetworkStatus>(NetworkStatus.Connected)
+    override val networkStatus: Flow<NetworkStatus>
+        get() = _networkStatus
+
+    override val isConnected: Boolean
+        get() = _networkStatus.value == NetworkStatus.Connected
+
+    fun mockNetworkStatus(status: NetworkStatus) {
+        _networkStatus.value = status
+    }
+}

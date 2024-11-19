@@ -14,7 +14,7 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.manager.websocket
+package si.inova.tws.manager
 
 import app.cash.turbine.test
 import io.mockk.every
@@ -28,16 +28,18 @@ import okhttp3.OkHttpClient
 import okhttp3.WebSocket
 import org.junit.Before
 import org.junit.Test
-import si.inova.kotlinova.core.test.TestScopeWithDispatcherProvider
-import si.inova.kotlinova.core.test.testMainImmediateBackgroundScope
 import si.inova.tws.manager.data.WebSocketStatus
 import si.inova.tws.manager.utils.ADD_FAKE_SNIPPET_SOCKET
-import si.inova.tws.manager.utils.FakeTWSSocketListener
+import si.inova.tws.manager.fakes.FakeTWSSocketListener
+import si.inova.tws.manager.utils.testScopeWithDispatcherProvider
 import si.inova.tws.manager.utils.UPDATED_FAKE_SNIPPET_SOCKET
+import si.inova.tws.manager.websocket.TWSSocket
+import si.inova.tws.manager.websocket.TWSSocketImpl
+import si.inova.tws.manager.websocket.TWSSocketListenerImpl
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class TWSSocketTest {
-    private val scope = TestScopeWithDispatcherProvider()
+    private val scope = testScopeWithDispatcherProvider()
 
     private val fakeSocketListener = FakeTWSSocketListener()
 
@@ -49,7 +51,7 @@ class TWSSocketTest {
     @Before
     fun setUp() {
         twsSocket = TWSSocketImpl(
-            scope = scope.testMainImmediateBackgroundScope,
+            scope = scope.backgroundScope,
             listener = fakeSocketListener,
             client = client
         )
