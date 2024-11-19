@@ -25,10 +25,6 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito.mock
-import si.inova.kotlinova.core.test.TestScopeWithDispatcherProvider
-import si.inova.kotlinova.core.test.outcomes.shouldBeProgressWith
-import si.inova.kotlinova.core.test.outcomes.shouldBeProgressWithData
-import si.inova.kotlinova.core.test.outcomes.shouldBeSuccessWithData
 import si.inova.tws.data.TWSAttachment
 import si.inova.tws.data.TWSAttachmentType
 import si.inova.tws.manager.cache.CacheManager
@@ -54,18 +50,22 @@ import si.inova.tws.manager.utils.FAKE_SNIPPET_FOUR
 import si.inova.tws.manager.utils.FAKE_SNIPPET_ONE
 import si.inova.tws.manager.utils.FAKE_SNIPPET_THREE
 import si.inova.tws.manager.utils.FAKE_SNIPPET_TWO
-import si.inova.tws.manager.utils.FakeCacheManager
-import si.inova.tws.manager.utils.FakeLocalSnippetHandler
-import si.inova.tws.manager.utils.FakeNetworkConnectivityService
-import si.inova.tws.manager.utils.FakeSnippetLoadingManager
-import si.inova.tws.manager.utils.FakeTWSSocket
+import si.inova.tws.manager.fakes.FakeCacheManager
+import si.inova.tws.manager.fakes.FakeLocalSnippetHandler
+import si.inova.tws.manager.fakes.FakeNetworkConnectivityService
+import si.inova.tws.manager.fakes.FakeSnippetLoadingManager
+import si.inova.tws.manager.fakes.FakeTWSSocket
+import si.inova.tws.manager.utils.testScopeWithDispatcherProvider
+import si.inova.tws.manager.utils.shouldBeProgressWith
+import si.inova.tws.manager.utils.shouldBeProgressWithData
+import si.inova.tws.manager.utils.shouldBeSuccessWithData
 import si.inova.tws.manager.utils.toActionBody
 import si.inova.tws.manager.websocket.TWSSocket
 import java.time.Instant
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class TWSManagerImplTest {
-    private val fakeScope = TestScopeWithDispatcherProvider()
+    private val fakeScope = testScopeWithDispatcherProvider()
 
     private val fakeSocket = FakeTWSSocket()
     private val fakeHandler = FakeLocalSnippetHandler()
@@ -534,7 +534,7 @@ class TWSManagerImplTest {
                 )
             )
 
-            webSnippetManager.setLocalProps(FAKE_SNIPPET_ONE.id, mapOf("name" to "Chris"))
+            webSnippetManager.set(FAKE_SNIPPET_ONE.id, mapOf("name" to "Chris"))
 
             runCurrent()
 
@@ -568,7 +568,7 @@ class TWSManagerImplTest {
                 )
             )
 
-            webSnippetManager.setLocalProps(
+            webSnippetManager.set(
                 FAKE_SNIPPET_ONE.id,
                 mapOf(
                     "name" to "Chris",
@@ -610,8 +610,8 @@ class TWSManagerImplTest {
                 )
             )
 
-            webSnippetManager.setLocalProps(FAKE_SNIPPET_ONE.id, mapOf("name" to "Chris"))
-            webSnippetManager.setLocalProps(FAKE_SNIPPET_ONE.id, mapOf("surname" to "Donovan"))
+            webSnippetManager.set(FAKE_SNIPPET_ONE.id, mapOf("name" to "Chris"))
+            webSnippetManager.set(FAKE_SNIPPET_ONE.id, mapOf("surname" to "Donovan"))
 
             runCurrent()
 

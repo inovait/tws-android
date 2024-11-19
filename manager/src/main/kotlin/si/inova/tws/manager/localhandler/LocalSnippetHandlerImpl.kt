@@ -21,12 +21,12 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
-import si.inova.kotlinova.core.time.AndroidTimeProvider
-import si.inova.kotlinova.core.time.DefaultAndroidTimeProvider
 import si.inova.tws.manager.data.ActionBody
 import si.inova.tws.manager.data.ActionType
 import si.inova.tws.manager.data.SnippetUpdateAction
 import si.inova.tws.manager.data.TWSSnippetDto
+import si.inova.tws.manager.time.AndroidTimeProvider
+import si.inova.tws.manager.time.DefaultAndroidTimeProvider
 import java.time.Duration
 import java.time.Instant
 

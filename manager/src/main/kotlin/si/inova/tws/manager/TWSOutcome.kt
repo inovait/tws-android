@@ -14,17 +14,30 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.manager.utils
+package si.inova.tws.manager
 
-import kotlinx.coroutines.delay
-import si.inova.tws.manager.snippet.ProjectResponse
-import si.inova.tws.manager.snippet.SnippetLoadingManager
+/**
+ * Standard wrapper for an operation. It can be either [Progress], [Success] or [Error].
+ */
+sealed class TWSOutcome<out T> {
+    abstract val data: T?
 
-internal class FakeSnippetLoadingManager : SnippetLoadingManager {
-    var loaderResponse: ProjectResponse? = null
+    data class Progress<out T>(override val data: T? = null) : TWSOutcome<T>()
 
-    override suspend fun load(): ProjectResponse {
-        delay(1000)
-        return loaderResponse ?: error("Unknown configuration")
+    data class Success<out T>(override val data: T) : TWSOutcome<T>()
+
+    data class Error<out T>(val exception: Exception, override val data: T? = null) : TWSOutcome<T>()
+}
+
+/**
+ * Map data of this outcome, while keeping the type.
+ *
+ * If provided Outcome has no data, [mapper] never gets called.
+ */
+fun <A, B> TWSOutcome<A>.mapData(mapper: (A) -> B): TWSOutcome<B> {
+    return when (this) {
+        is TWSOutcome.Error -> TWSOutcome.Error(exception, data?.let { mapper(it) })
+        is TWSOutcome.Progress -> TWSOutcome.Progress(data?.let { mapper(it) })
+        is TWSOutcome.Success -> TWSOutcome.Success(mapper(data))
     }
 }

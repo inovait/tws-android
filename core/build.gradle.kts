@@ -71,8 +71,6 @@ dependencies {
     implementation(libs.androidx.browser)
     implementation(libs.androidx.lifecycle.compose)
     implementation(libs.coil.compose)
-    implementation(libs.kotlinova.retrofit)
-    implementation(libs.kotlinova.core)
     implementation(libs.inject)
     implementation(libs.androidx.swiperefreshlayout)
     implementation(libs.mustache)

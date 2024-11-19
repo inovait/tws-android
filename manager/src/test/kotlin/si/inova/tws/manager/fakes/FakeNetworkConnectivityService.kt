@@ -14,22 +14,22 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.core.util.compose
+package si.inova.tws.manager.fakes
 
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.res.stringResource
-import si.inova.tws.core.R
-import java.net.ConnectException
-import java.net.SocketTimeoutException
-import java.net.UnknownHostException
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import si.inova.tws.manager.data.NetworkStatus
+import si.inova.tws.manager.service.NetworkConnectivityService
 
-@Composable
-internal fun Exception.getUserFriendlyMessage(): String? {
-    return when (this) {
-        is UnknownHostException,
-        is ConnectException,
-        is SocketTimeoutException -> stringResource(id = R.string.error_no_network)
+internal class FakeNetworkConnectivityService : NetworkConnectivityService {
+    private val _networkStatus = MutableStateFlow<NetworkStatus>(NetworkStatus.Connected)
+    override val networkStatus: Flow<NetworkStatus>
+        get() = _networkStatus
 
-        else -> null
+    override val isConnected: Boolean
+        get() = _networkStatus.value == NetworkStatus.Connected
+
+    fun mockNetworkStatus(status: NetworkStatus) {
+        _networkStatus.value = status
     }
 }

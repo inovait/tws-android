@@ -14,30 +14,24 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.manager.utils
+package si.inova.tws.manager.fakes
 
-import retrofit2.Response
-import si.inova.kotlinova.retrofit.FakeService
-import si.inova.kotlinova.retrofit.ServiceTestingHelper
-import si.inova.tws.manager.data.ProjectDto
-import si.inova.tws.manager.data.SharedSnippetDto
-import si.inova.tws.manager.network.TWSFunctions
+import kotlinx.coroutines.flow.MutableSharedFlow
+import si.inova.tws.manager.data.SnippetUpdateAction
+import si.inova.tws.manager.data.TWSSnippetDto
+import si.inova.tws.manager.localhandler.LocalSnippetHandler
+import java.time.Instant
 
-internal class FakeTWSFunctions(
-    private val helper: ServiceTestingHelper = ServiceTestingHelper()
-) : TWSFunctions, FakeService by helper {
-    var returnedProject: Response<ProjectDto>? = null
-    var returnedSharedSnippet: SharedSnippetDto? = null
+internal class FakeLocalSnippetHandler : LocalSnippetHandler {
+    override val updateActionFlow: MutableSharedFlow<SnippetUpdateAction> = MutableSharedFlow()
 
-    override suspend fun getWebSnippets(organizationId: String, projectId: String, apiKey: String?): Response<ProjectDto> {
-        helper.intercept()
+    override suspend fun updateAndScheduleCheck(snippets: List<TWSSnippetDto>) {}
 
-        return returnedProject ?: error("Returned project not faked!")
+    suspend fun mockUpdateAction(action: SnippetUpdateAction) {
+        updateActionFlow.emit(action)
     }
 
-    override suspend fun getSharedSnippetData(shareId: String): SharedSnippetDto {
-        helper.intercept()
+    override suspend fun calculateDateOffsetAndRerun(serverDate: Instant?, snippets: List<TWSSnippetDto>) {}
 
-        return returnedSharedSnippet ?: error("Returned shared snippet not faked!")
-    }
+    override fun release() {}
 }

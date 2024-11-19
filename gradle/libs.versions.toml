@@ -9,7 +9,6 @@ junit = "4.13.2"
 mockk = "1.13.12"
 moshiKotlin = "1.15.1"
 okhttp = "4.12.0"
-runner = "1.0.2"
 androidGradleCacheFix = "3.0.1"
 kotlin-immutableCollections = "0.3.7"
 androidx-activity-compose = "1.9.1"
@@ -20,7 +19,6 @@ versionsChecker = "0.51.0"
 desugarJdkLibs = "2.0.4"
 nexusPublish = "0.30.0"
 androidx-browser = "1.8.0"
-kotlinova = "3.1.0"
 inject = "2.0.1"
 retrofit = "2.11.0"
 certificateTransparency = "2.5.19"
@@ -49,7 +47,6 @@ moshi-adapters = { module = "com.squareup.moshi:moshi-adapters", version.ref = "
 moshi-kotlin = { module = "com.squareup.moshi:moshi-kotlin", version.ref = "moshiKotlin" }
 moshi-codegen = { module = "com.squareup.moshi:moshi-kotlin-codegen", version.ref = "moshiKotlin" }
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
-runner = { group = "com.android.support.test", name = "runner", version.ref = "runner" }
 kotlin-immutableCollections = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "kotlin-immutableCollections" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activity-compose" }
 androidx-compose-material3 = { module = "androidx.compose.material3:material3", version.ref = "androidx-compose-material3" }
@@ -60,10 +57,6 @@ android-agp = { module = "com.android.tools.build:gradle", version.ref = "agp" }
 v-checker-plugin = { module = "com.github.ben-manes:gradle-versions-plugin", version.ref = "versionsChecker" }
 desugarJdkLibs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugarJdkLibs" }
 compose-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "androidx-foundation" }
-kotlinova-retrofit = { module = "si.inova.kotlinova:retrofit", version.ref = "kotlinova" }
-kotlinova-retrofit-test = { module = "si.inova.kotlinova:retrofit-test", version.ref = "kotlinova" }
-kotlinova-core = { module = "si.inova.kotlinova:core", version.ref = "kotlinova" }
-kotlinova-core-test = { module = "si.inova.kotlinova:core-test", version.ref = "kotlinova" }
 kotlin-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlin-coroutines" }
 retrofit-moshi = { module = "com.squareup.retrofit2:converter-moshi", version.ref = "retrofit" }
 retrofit-scalars = { module = "com.squareup.retrofit2:converter-scalars", version.ref = "retrofit" }
@@ -85,5 +78,4 @@ versions = { id = "com.github.ben-manes.versions", version.ref = "versionsChecke
 nexusPublish = { id = "io.codearte.nexus-staging", version.ref = "nexusPublish" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
-dokka-base = { id = "org.jetbrains.dokka:dokka-base", version.ref = "dokka" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
