@@ -30,7 +30,7 @@ import si.inova.tws.core.data.TWSViewState
  * by allowing you to handle events such as page title updates, icon changes, and progress
  * updates for the loading state of the WebView.
  */
-open class AccompanistWebChromeClient : WebChromeClient() {
+internal open class AccompanistWebChromeClient : WebChromeClient() {
     open lateinit var state: TWSViewState
         internal set
 

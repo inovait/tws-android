@@ -34,7 +34,7 @@ import si.inova.tws.core.data.TWSViewState
  *
  * The `AccompanistWebViewClient` class must be extended to customize its behavior for specific use cases.
  */
-open class AccompanistWebViewClient : WebViewClient() {
+internal open class AccompanistWebViewClient : WebViewClient() {
     open lateinit var state: TWSViewState
         internal set
     open lateinit var navigator: TWSViewNavigator

@@ -46,7 +46,7 @@ import si.inova.tws.core.data.TWSViewState
  * The callback takes two parameters: a [TWSViewState] and a Boolean. The Boolean indicates whether the
  * custom tab is open (true) or closed (false).
  */
-open class TWSWebViewClient(
+internal open class TWSWebViewClient(
     private val interceptUrlCallback: TWSViewInterceptor,
     private val popupStateCallback: ((TWSViewState, Boolean) -> Unit)? = null
 ) : AccompanistWebViewClient() {

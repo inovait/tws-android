@@ -57,7 +57,7 @@ import java.util.concurrent.TimeUnit
  * they are passed to OkHttp.
  * @param popupStateCallback An optional callback to manage visibility of popups or custom tabs within the WebView.
  */
-class OkHttpTWSWebViewClient(
+internal class OkHttpTWSWebViewClient(
     private val dynamicModifiers: List<TWSAttachment>,
     private val mustacheProps: Map<String, Any>,
     private val engine: TWSEngine,
