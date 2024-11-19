@@ -1,6 +1,6 @@
-package si.inova.tws.example
+package si.inova.tws.example.exampleScreen
 
-import android.util.Log
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,29 +19,60 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
-import si.inova.kotlinova.core.outcome.Outcome
 import si.inova.tws.core.TWSView
 import si.inova.tws.data.TWSSnippet
+import si.inova.tws.example.R
+import si.inova.tws.manager.TWSConfiguration
+import si.inova.tws.manager.TWSFactory
 import si.inova.tws.manager.TWSOutcome
+import si.inova.tws.manager.mapData
 
 @Composable
-fun ContentScreen(content: TWSOutcome<List<TWSSnippet>>) {
+fun Example1Screen() {
+    val context = LocalContext.current
+    val organizationId = "examples"
+    val projectId = "example1"
+    val manager = TWSFactory.get(
+        context,
+        TWSConfiguration.Basic(organizationId = organizationId, projectId = projectId, apiKey = "apiKey")
+    )
+    // collect snippets for your project
+    val content = manager.snippets
+        .collectAsStateWithLifecycle(null).value
+        ?.mapData { data ->
+            // sort your tabs with custom key set in snippet properties
+            data.sortedBy {
+                it.props["tabSortKey"] as? String
+            }
+        }
+
+    content?.let {
+        Example1Component(content)
+    }
+}
+
+@Composable
+fun Example1Component(
+    content: TWSOutcome<List<TWSSnippet>>
+) {
     when {
         !content.data.isNullOrEmpty() -> {
-            WebViewComponent(content.data!!.toImmutableList())
+            val data = content.data ?: return
+            WebViewComponent(data.toImmutableList())
         }
 
         content is TWSOutcome.Error -> {
@@ -74,7 +105,7 @@ fun OnErrorComponent() {
             contentDescription = "Error"
         )
         Spacer(Modifier.size(8.dp))
-        Text(text = "Oooops, loading failed", style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Medium))
+        Text(text = stringResource(R.string.error_message), style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Medium))
     }
 }
 
