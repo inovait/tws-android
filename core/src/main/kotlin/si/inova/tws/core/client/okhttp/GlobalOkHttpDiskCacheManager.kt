@@ -53,8 +53,8 @@ internal class GlobalOkHttpDiskCacheManager(
             error("Disk cache must not be initialized on the main thread")
         }
 
-        val storageManager = context
-            .getSystemService(Context.STORAGE_SERVICE) as StorageManager
+        val storageManager = context.getSystemService(Context.STORAGE_SERVICE) as? StorageManager
+            ?: error("Could not get storage service")
 
         val cacheSize = determineCacheSizeBytes(storageManager)
         createCache(storageManager, cacheSize)
