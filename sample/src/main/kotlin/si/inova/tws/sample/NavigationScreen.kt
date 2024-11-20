@@ -57,37 +57,32 @@ fun NavigationScreen(
         ) {
             item {
                 NavigationItem(
-                    title = "Tab names and icons",
-                    description = "In this example you will learn about how you can set your own custom "
-                            + "tab names and tab icons to your content"
+                    title = stringResource(R.string.example1_title),
+                    description = stringResource(R.string.example1_description)
                 ) { navController.navigate(Screen.Example1Screen.route) }
             }
             item {
                 NavigationItem(
-                    title = "Mustache",
-                    description = "In this example you will see how to use mustache processing "
-                            + "to dynamically set content to existing html"
+                    title = stringResource(R.string.example2_title),
+                    description = stringResource(R.string.example2_description)
+                ) { navController.navigate(Screen.Example2Screen.route) }
+            }
+            item {
+                NavigationItem(
+                    title = stringResource(R.string.example3_title),
+                    description = stringResource(R.string.example3_description)
                 ) {}
             }
             item {
                 NavigationItem(
-                    title = "Injection",
-                    description = "In this example we will showcase how you can inject CSS and javascript "
-                    + "in your html"
+                    title = stringResource(R.string.example4_title),
+                    description = stringResource(R.string.example4_description)
                 ) {}
             }
             item {
                 NavigationItem(
-                    title = "Login redirection",
-                    description = "In this example we will showcase how to handle login redirects "
-                    + "that can be handled natively"
-                ) {}
-            }
-            item {
-                NavigationItem(
-                    title = "Intercepts",
-                    description = "In this example you will learn how to create custom intercepts "
-                    + "to url requests"
+                    title = stringResource(R.string.example5_title),
+                    description = stringResource(R.string.example5_description)
                 ) {}
             }
         }
