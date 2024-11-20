@@ -74,10 +74,10 @@ jobs:
           [ -d $VERSION ] && rm -rf $VERSION
           [ -d main ] && rm -rf main
           
-          mkdir -p $VERSION
-          mkdir -p main
           cp -r /tmp/generated_docs/$VERSION ./
           cp -r /tmp/generated_docs/main ./
+          
+          ls -R
 
       # Step 9: Commit and push changes to gh-pages
       - name: Commit and push changes
