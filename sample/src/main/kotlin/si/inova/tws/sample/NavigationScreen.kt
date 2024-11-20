@@ -71,7 +71,7 @@ fun NavigationScreen(
                 NavigationItem(
                     title = stringResource(R.string.example3_title),
                     description = stringResource(R.string.example3_description)
-                ) {}
+                ) { navController.navigate(Screen.Example3Screen.route) }
             }
             item {
                 NavigationItem(
