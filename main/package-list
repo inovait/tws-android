@@ -1,0 +1,13 @@
+$dokka.format:html-v1
+$dokka.linkExtension:html
+
+module:core
+si.inova.tws.core
+si.inova.tws.core.data
+si.inova.tws.core.util.compose
+module:data
+si.inova.tws.data
+module:interstitial
+si.inova.tws.interstitial
+module:manager
+si.inova.tws.manager
