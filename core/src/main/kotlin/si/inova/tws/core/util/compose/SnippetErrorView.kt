@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -38,22 +37,19 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 /**
- * A composable function that displays an error view for snippets, which can adapt to either full-screen
- * or card-sized layouts based on the provided configuration.
+ * A composable function that displays an error view for snippets.
  *
- * @param errorMessage The error message to display in the view.
- * @param fullScreen A Boolean flag indicating whether the view should occupy the full screen (`true`)
- * or a smaller card-like height (`false`).
+ * @param errorMessage The error message to display within the view.
+ * @param modifier A [Modifier] for customizing the layout or behavior of the error view.
  */
 @Composable
-internal fun SnippetErrorView(
+fun SnippetErrorView(
     errorMessage: String,
-    fullScreen: Boolean
+    modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
-            .then(if (fullScreen) Modifier.fillMaxHeight() else Modifier.height(200.dp))
             .background(Color.White)
     ) {
         Spacer(modifier = Modifier.weight(1f))
@@ -79,24 +75,15 @@ internal fun SnippetErrorView(
 
 @Preview
 @Composable
-fun SnippetErrorViewFullScreenPreview() {
-    SnippetErrorView(errorMessage = "No internet connection", fullScreen = true)
+private fun SnippetErrorViewFullScreenPreview() {
+    SnippetErrorView(modifier = Modifier.fillMaxHeight(), errorMessage = "No internet connection")
 }
 
 @Preview
 @Composable
-fun SnippetErrorViewCardPreview() {
-    SnippetErrorView(errorMessage = "No internet connection", fullScreen = false)
-}
-
-@Preview
-@Composable
-fun SnippetErrorViewFullScreenLongTextPreview() {
-    SnippetErrorView(errorMessage = "Section close tag with mismatched open tag 'title' != 'person @line 559", fullScreen = true)
-}
-
-@Preview
-@Composable
-fun SnippetErrorViewCardLongTextPreview() {
-    SnippetErrorView(errorMessage = "Section close tag with mismatched open tag 'title' != 'person @line 559", fullScreen = false)
+private fun SnippetErrorViewFullScreenLongTextPreview() {
+    SnippetErrorView(
+        modifier = Modifier.fillMaxHeight(),
+        errorMessage = "Section close tag with mismatched open tag 'title' != 'person @line 559"
+    )
 }

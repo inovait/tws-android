@@ -94,8 +94,8 @@ fun TWSView(
     modifier: Modifier = Modifier,
     navigator: TWSViewNavigator = rememberTWSViewNavigator("${snippet.id}:${snippet.target}"),
     viewState: TWSViewState = rememberTWSViewState(snippet, "${snippet.id}:${snippet.target}"),
-    errorViewContent: @Composable (String) -> Unit = { SnippetErrorView(it, true) },
-    loadingPlaceholderContent: @Composable () -> Unit = { SnippetLoadingView(true) },
+    errorViewContent: @Composable (String) -> Unit = { SnippetErrorView(modifier = Modifier.fillMaxHeight(), errorMessage = it) },
+    loadingPlaceholderContent: @Composable () -> Unit = { SnippetLoadingView(modifier = Modifier.fillMaxHeight()) },
     interceptUrlCallback: TWSViewInterceptor = TWSViewDeepLinkInterceptor(LocalContext.current),
     googleLoginRedirectUrl: String? = null,
     isRefreshable: Boolean = true
