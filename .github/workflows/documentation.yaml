@@ -82,8 +82,11 @@ jobs:
       # Step 9: Commit and push changes to gh-pages
       - name: Commit and push changes
         run: |
+          touch .nojekyll
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add .
-          git diff --quiet && echo "No changes to commit" || git commit -m "Update documentation for version $VERSION"
+          git status
+          git add -A
+          git status
+          git diff --cached --quiet && echo "No changes to commit" || git commit -m "Update documentation for version $VERSION"
           git push origin gh-pages
