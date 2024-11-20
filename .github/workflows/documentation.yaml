@@ -36,6 +36,10 @@ jobs:
       - name: Generate documentation with Dokka
         run: ./gradlew dokkaHtmlMultiModule
 
+      # Debug Step: List files in build directory after Dokka task
+      - name: List files in build directory
+        run: ls -R build
+
       # Step 5: Prepare the documentation for deployment
       - name: Prepare documentation for deployment
         run: |
@@ -44,11 +48,19 @@ jobs:
           mkdir -p docs/main
           cp -r build/dokka/htmlMultiModule/* docs/main/
 
+      # Debug Step: List files in docs directory after copying
+      - name: List files in docs directory
+        run: ls -R docs
+
       # Step 6: Save generated documentation to a temporary location
       - name: Save generated documentation
         run: |
           mkdir -p /tmp/generated_docs
           cp -r docs/* /tmp/generated_docs/
+
+      # Debug Step: List files in temporary location
+      - name: List files in temporary location
+        run: ls -R /tmp/generated_docs
 
       # Step 7: Checkout gh-pages branch
       - name: Checkout gh-pages
