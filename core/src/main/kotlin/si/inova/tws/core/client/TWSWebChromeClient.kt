@@ -40,7 +40,7 @@ import si.inova.tws.core.util.hasPermissionInManifest
  * @param popupStateCallback An optional callback that provides updates regarding the
  * state of popup windows within the WebView.
  */
-open class TWSWebChromeClient(
+internal open class TWSWebChromeClient(
     private val popupStateCallback: ((TWSViewState, Boolean) -> Unit)? = null,
 ) : AccompanistWebChromeClient() {
     private lateinit var showPermissionRequest: (String, (Boolean) -> Unit) -> Unit

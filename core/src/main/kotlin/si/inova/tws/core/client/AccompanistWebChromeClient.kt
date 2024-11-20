@@ -16,10 +16,9 @@
 
 package si.inova.tws.core.client
 
-import android.graphics.Bitmap
 import android.webkit.WebChromeClient
 import android.webkit.WebView
-import si.inova.tws.core.data.LoadingState
+import si.inova.tws.core.data.TWSLoadingState
 import si.inova.tws.core.data.TWSViewState
 
 /**
@@ -30,30 +29,25 @@ import si.inova.tws.core.data.TWSViewState
  * by allowing you to handle events such as page title updates, icon changes, and progress
  * updates for the loading state of the WebView.
  */
-open class AccompanistWebChromeClient : WebChromeClient() {
+internal open class AccompanistWebChromeClient : WebChromeClient() {
     open lateinit var state: TWSViewState
         internal set
 
     override fun onReceivedTitle(view: WebView, title: String?) {
         super.onReceivedTitle(view, title)
-        state.pageTitle = title
-    }
-
-    override fun onReceivedIcon(view: WebView, icon: Bitmap?) {
-        super.onReceivedIcon(view, icon)
-        state.pageIcon = icon
+        state.title = title
     }
 
     override fun onProgressChanged(view: WebView, newProgress: Int) {
         super.onProgressChanged(view, newProgress)
         val loadingState = state.loadingState
 
-        if (loadingState is LoadingState.Finished) return
+        if (loadingState is TWSLoadingState.Finished) return
 
-        state.loadingState = LoadingState.Loading(
+        state.loadingState = TWSLoadingState.Loading(
             progress = newProgress / PERCENTAGE_DIVISOR,
-            isUserForceRefresh = loadingState is LoadingState.ForceRefreshInitiated ||
-                (loadingState as? LoadingState.Loading)?.isUserForceRefresh == true
+            isUserForceRefresh = loadingState is TWSLoadingState.ForceRefreshInitiated ||
+                (loadingState as? TWSLoadingState.Loading)?.isUserForceRefresh == true
         )
     }
 

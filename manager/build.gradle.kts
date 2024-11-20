@@ -56,8 +56,6 @@ publishLibrary(
 dependencies {
     api(projects.data)
 
-    api(libs.kotlinova.core)
-    implementation(libs.kotlinova.retrofit)
     implementation(libs.androidx.core.ktx)
     implementation(libs.dispatch)
     implementation(libs.retrofit.moshi)
@@ -66,14 +64,13 @@ dependencies {
     implementation(libs.moshi.kotlin)
     implementation(libs.inject)
     implementation(libs.moshi.adapters)
+    implementation(libs.okhttp)
 
     kapt(libs.moshi.codegen)
 
-    testImplementation(libs.kotlinova.core.test)
     testImplementation(libs.kotlin.coroutines.test)
     testImplementation(libs.mockito)
     testImplementation(libs.junit)
-    testImplementation(libs.kotlinova.retrofit.test)
     testImplementation(libs.turbine)
     testImplementation(libs.mockk)
 }

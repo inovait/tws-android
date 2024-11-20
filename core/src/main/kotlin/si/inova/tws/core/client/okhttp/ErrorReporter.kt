@@ -14,22 +14,29 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.core.util.compose
+package si.inova.tws.core.client.okhttp
 
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.res.stringResource
-import si.inova.tws.core.R
-import java.net.ConnectException
-import java.net.SocketTimeoutException
-import java.net.UnknownHostException
+import jakarta.inject.Singleton
+import kotlin.coroutines.cancellation.CancellationException
 
-@Composable
-internal fun Exception.getUserFriendlyMessage(): String? {
-    return when (this) {
-        is UnknownHostException,
-        is ConnectException,
-        is SocketTimeoutException -> stringResource(id = R.string.error_no_network)
+/**
+ * Error reporter that collects all non-fatal (but potentially still bad) exceptions. Can represent an error reporting service
+ * such as Firebase Crashlytics.
+ */
+internal fun interface ErrorReporter {
+    fun report(throwable: Throwable)
+}
 
-        else -> null
+@Singleton
+internal val provideErrorReporter = ErrorReporter {
+    object : ErrorReporter {
+        override fun report(throwable: Throwable) {
+            if (throwable is CancellationException) {
+                report(Exception("Got cancellation exception", throwable))
+                return
+            }
+
+            throwable.printStackTrace()
+        }
     }
 }

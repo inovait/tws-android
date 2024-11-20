@@ -14,22 +14,30 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.core.util.compose
+package si.inova.tws.manager.fakes
 
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.res.stringResource
-import si.inova.tws.core.R
-import java.net.ConnectException
-import java.net.SocketTimeoutException
-import java.net.UnknownHostException
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import si.inova.tws.manager.data.SnippetUpdateAction
+import si.inova.tws.manager.data.WebSocketStatus
+import si.inova.tws.manager.websocket.TWSSocketListener
 
-@Composable
-internal fun Exception.getUserFriendlyMessage(): String? {
-    return when (this) {
-        is UnknownHostException,
-        is ConnectException,
-        is SocketTimeoutException -> stringResource(id = R.string.error_no_network)
+internal class FakeTWSSocketListener : TWSSocketListener() {
+    override val updateActionFlow: Flow<SnippetUpdateAction>
+        get() = _updateActionFlow
 
-        else -> null
+    override val socketStatus: Flow<WebSocketStatus>
+        get() = _socketStatus
+
+    private val _updateActionFlow = MutableSharedFlow<SnippetUpdateAction>()
+    private val _socketStatus = MutableStateFlow<WebSocketStatus>(WebSocketStatus.Closed)
+
+    fun mockSocketStatus(status: WebSocketStatus) {
+        _socketStatus.value = status
+    }
+
+    suspend fun mockUpdateActionFlow(action: SnippetUpdateAction) {
+        _updateActionFlow.emit(action)
     }
 }

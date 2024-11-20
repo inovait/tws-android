@@ -14,23 +14,29 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.manager.utils
+package si.inova.tws.manager.time
 
-import si.inova.tws.manager.cache.CacheManager
-import si.inova.tws.manager.data.TWSSnippetDto
+import android.os.SystemClock
 
-internal class FakeCacheManager : CacheManager {
-    private var cachedList: List<TWSSnippetDto>? = null
+internal interface AndroidTimeProvider : TimeProvider {
+    /**
+     * @return number of milliseconds since the system was booted, including deep sleep
+     *
+     * @see [SystemClock.elapsedRealtime]
+     */
+    fun elapsedRealtime(): Long
 
-    override fun save(key: String, data: List<TWSSnippetDto>) {
-        cachedList = data
-    }
+    /**
+     * @return number of nanoseconds since the system was booted, including deep sleep
+     *
+     * @see [SystemClock.elapsedRealtimeNanos]
+     */
+    fun elapsedRealtimeNanos(): Long
 
-    override fun load(key: String): List<TWSSnippetDto>? {
-        return cachedList
-    }
-
-    override fun clear() {
-        cachedList = null
-    }
+    /**
+     * @return number of nanoseconds since the system was booted, excluding deep sleep
+     *
+     * @see [SystemClock.uptimeMillis]
+     */
+    fun uptimeMillis(): Long
 }

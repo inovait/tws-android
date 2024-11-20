@@ -16,7 +16,6 @@
 
 package si.inova.tws.manager.snippet
 
-import si.inova.kotlinova.retrofit.callfactory.bodyOrThrow
 import si.inova.tws.manager.TWSConfiguration
 import si.inova.tws.manager.factory.BaseServiceFactory
 import si.inova.tws.manager.factory.create
@@ -62,7 +61,7 @@ internal class SnippetLoadingManagerImpl(
 
         val twsProjectResponse = functions.getWebSnippets(organizationId, projectId, configuration.apiKey)
         return ProjectResponse(
-            twsProjectResponse.bodyOrThrow(),
+            twsProjectResponse.body() ?: error("Body not available"),
             twsProjectResponse.headers().getDate(HEADER_DATE)?.toInstant() ?: Instant.now(),
             sharedId
         )

@@ -35,7 +35,7 @@ import androidx.core.content.ContextCompat.startActivity
  *   or in an external browser.
  */
 fun interface TWSViewInterceptor {
-    fun intercept(url: String): Boolean
+    fun handleUrl(url: Uri): Boolean
 }
 
 /**
@@ -52,8 +52,8 @@ fun interface TWSViewInterceptor {
  * @param context The application context used for launching intents and checking if URLs are supported.
  */
 class TWSViewDeepLinkInterceptor(private val context: Context) : TWSViewInterceptor {
-    override fun intercept(url: String): Boolean {
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+    override fun handleUrl(url: Uri): Boolean {
+        val intent = Intent(Intent.ACTION_VIEW, url)
 
         val isUrlSupported = context.packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY).any {
             it.activityInfo.packageName == context.packageName
@@ -61,7 +61,7 @@ class TWSViewDeepLinkInterceptor(private val context: Context) : TWSViewIntercep
 
         return if (isUrlSupported) {
             // Force deep link processing and mark url as handled
-            startActivity(context, Intent(Intent.ACTION_VIEW, Uri.parse(url)), null)
+            startActivity(context, Intent(Intent.ACTION_VIEW, url), null)
             true
         } else {
             // Mark url as unhandled web view will display it
@@ -82,7 +82,7 @@ class TWSViewDeepLinkInterceptor(private val context: Context) : TWSViewIntercep
  *   display all URLs by default.
  */
 class TWSViewNoOpInterceptor : TWSViewInterceptor {
-    override fun intercept(url: String): Boolean {
+    override fun handleUrl(url: Uri): Boolean {
         return false
     }
 }

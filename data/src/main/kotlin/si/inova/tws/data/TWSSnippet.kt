@@ -17,13 +17,9 @@
 package si.inova.tws.data
 
 import android.os.Parcelable
-import androidx.annotation.Keep
-import com.squareup.moshi.JsonClass
 import kotlinx.parcelize.Parcelize
 import kotlinx.parcelize.RawValue
 
-@JsonClass(generateAdapter = true)
-@Keep
 @Parcelize
 data class TWSSnippet(
     val id: String,

@@ -14,22 +14,23 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.manager.utils
+package si.inova.tws.manager.fakes
 
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import si.inova.tws.manager.data.NetworkStatus
-import si.inova.tws.manager.service.NetworkConnectivityService
+import si.inova.tws.manager.cache.CacheManager
+import si.inova.tws.manager.data.TWSSnippetDto
 
-internal class FakeNetworkConnectivityService : NetworkConnectivityService {
-    private val _networkStatus = MutableStateFlow<NetworkStatus>(NetworkStatus.Connected)
-    override val networkStatus: Flow<NetworkStatus>
-        get() = _networkStatus
+internal class FakeCacheManager : CacheManager {
+    private var cachedList: List<TWSSnippetDto>? = null
 
-    override val isConnected: Boolean
-        get() = _networkStatus.value == NetworkStatus.Connected
+    override fun save(key: String, data: List<TWSSnippetDto>) {
+        cachedList = data
+    }
 
-    fun mockNetworkStatus(status: NetworkStatus) {
-        _networkStatus.value = status
+    override fun load(key: String): List<TWSSnippetDto>? {
+        return cachedList
+    }
+
+    override fun clear() {
+        cachedList = null
     }
 }

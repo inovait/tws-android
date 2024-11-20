@@ -14,22 +14,32 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.core.util.compose
+package si.inova.tws.core.data
 
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.res.stringResource
-import si.inova.tws.core.R
-import java.net.ConnectException
-import java.net.SocketTimeoutException
-import java.net.UnknownHostException
+/**
+ * Sealed class for constraining possible loading states.
+ * See [Loading] and [Finished].
+ */
+sealed class TWSLoadingState {
+    /**
+     * Describes a WebView that has not yet loaded for the first time.
+     */
+    data object Initializing : TWSLoadingState()
 
-@Composable
-internal fun Exception.getUserFriendlyMessage(): String? {
-    return when (this) {
-        is UnknownHostException,
-        is ConnectException,
-        is SocketTimeoutException -> stringResource(id = R.string.error_no_network)
+    /**
+     * Describes a WebView that will be reloaded as a result of a users pull to refresh action.
+     */
+    data object ForceRefreshInitiated : TWSLoadingState()
 
-        else -> null
-    }
+    /**
+     * Describes a webview between `onPageStarted` and `onPageFinished` events, contains a
+     * [progress] property which is updated by the webview and [isUserForceRefresh] property
+     * which marks if page is refreshed because of the user action.
+     */
+    data class Loading(val progress: Float, val isUserForceRefresh: Boolean) : TWSLoadingState()
+
+    /**
+     * Describes a webview that has finished loading content.
+     */
+    data object Finished : TWSLoadingState()
 }

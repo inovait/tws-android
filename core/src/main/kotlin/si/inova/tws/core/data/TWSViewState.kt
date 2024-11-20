@@ -16,7 +16,6 @@
 
 package si.inova.tws.core.data
 
-import android.graphics.Bitmap
 import android.os.Bundle
 import android.webkit.WebView
 import androidx.compose.runtime.Composable
@@ -48,32 +47,24 @@ class TWSViewState(webContent: WebContent) {
     /**
      * The title received from the loaded content of the current page
      */
-    var pageTitle: String? by mutableStateOf(null)
+    var title: String? by mutableStateOf(null)
         internal set
 
     /**
-     * the favicon received from the loaded content of the current page
+     * Whether the WebView is currently [TWSLoadingState.Loading] data in its main frame (along with
+     * progress) or the data loading has [TWSLoadingState.Finished]. See [TWSLoadingState]
      */
-    var pageIcon: Bitmap? by mutableStateOf(null)
-        internal set
-
-    /**
-     * Whether the WebView is currently [LoadingState.Loading] data in its main frame (along with
-     * progress) or the data loading has [LoadingState.Finished]. See [LoadingState]
-     */
-    var loadingState: LoadingState by mutableStateOf(LoadingState.Initializing)
+    var loadingState: TWSLoadingState by mutableStateOf(TWSLoadingState.Initializing)
 
     /**
      * A list for errors captured in the last load. Reset when a new page is loaded.
      * Errors could be from any resource (iframe, image, etc.), not just for the main page.
-     * For more fine grained control use the OnError callback of the WebView.
      */
     val webViewErrorsForCurrentRequest: SnapshotStateList<WebViewError> = mutableStateListOf()
 
     /**
      * A list for errors captured in the last load. Reset when a new page is loaded.
-     * Errors could be from any resource (iframe, image, etc.), not just for the main page.
-     * For more fine grained control use the OnError callback of the WebView.
+     * Errors could be only from the main page.
      */
     val customErrorsForCurrentRequest: SnapshotStateList<Exception> = mutableStateListOf()
 
@@ -184,14 +175,14 @@ private fun createTWSViewStateSaver(key: String): Saver<TWSViewState, Any> {
             }.takeIf { !it.isEmpty } ?: state.viewState
 
             mapOf(
-                pageTitleKey to state.pageTitle,
+                pageTitleKey to state.title,
                 lastLoadedUrlKey to state.lastLoadedUrl,
                 stateBundle to viewState
             )
         },
         restore = {
             TWSViewState(WebContent.NavigatorOnly).apply {
-                this.pageTitle = it[pageTitleKey] as String?
+                this.title = it[pageTitleKey] as String?
                 this.lastLoadedUrl = it[lastLoadedUrlKey] as String?
                 this.viewState = it[stateBundle] as Bundle?
             }

@@ -14,32 +14,17 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.core.data
+package si.inova.tws.manager.fakes
 
-/**
- * Sealed class for constraining possible loading states.
- * See [Loading] and [Finished].
- */
-sealed class LoadingState {
-    /**
-     * Describes a WebView that has not yet loaded for the first time.
-     */
-    data object Initializing : LoadingState()
+import kotlinx.coroutines.delay
+import si.inova.tws.manager.snippet.ProjectResponse
+import si.inova.tws.manager.snippet.SnippetLoadingManager
 
-    /**
-     * Describes a WebView that will be reloaded as a result of a users pull to refresh action.
-     */
-    data object ForceRefreshInitiated : LoadingState()
+internal class FakeSnippetLoadingManager : SnippetLoadingManager {
+    var loaderResponse: ProjectResponse? = null
 
-    /**
-     * Describes a webview between `onPageStarted` and `onPageFinished` events, contains a
-     * [progress] property which is updated by the webview and [isUserForceRefresh] property
-     * which marks if page is refreshed because of the user action.
-     */
-    data class Loading(val progress: Float, val isUserForceRefresh: Boolean) : LoadingState()
-
-    /**
-     * Describes a webview that has finished loading content.
-     */
-    data object Finished : LoadingState()
+    override suspend fun load(): ProjectResponse {
+        delay(1000)
+        return loaderResponse ?: error("Unknown configuration")
+    }
 }
