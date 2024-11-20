@@ -83,10 +83,8 @@ jobs:
       - name: Commit and push changes
         run: |
           touch .nojekyll
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git status
+          git config user.email "ci@inova.si"
+          git config user.name "Build Bot"
           git add -A
-          git status
-          git diff --cached --quiet && echo "No changes to commit" || git commit -m "Update documentation for version $VERSION"
+          git commit -m "Update documentation for version $VERSION" --no-verify
           git push origin gh-pages
