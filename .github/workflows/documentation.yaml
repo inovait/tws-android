@@ -44,22 +44,30 @@ jobs:
           mkdir -p docs/main
           cp -r build/dokka/htmlMultiModule/* docs/main/
 
+      # Step 6: Save generated documentation to a temporary location
+      - name: Save generated documentation
+        run: |
+          mkdir -p /tmp/generated_docs
+          cp -r docs/* /tmp/generated_docs/
 
-      # Step 6: Checkout gh-pages branch
+      # Step 7: Checkout gh-pages branch
       - name: Checkout gh-pages
         uses: actions/checkout@v3
         with:
           ref: gh-pages
 
-      # Step 7: Copy generated docs to gh-pages
+      # Step 8: Copy generated docs from temporary location to gh-pages
       - name: Copy generated docs to gh-pages
         run: |
           [ -d $VERSION ] && rm -rf $VERSION
           [ -d main ] && rm -rf main
-          mv docs/$VERSION ./
-          mv docs/main ./
+          
+          mkdir -p $VERSION
+          mkdir -p main
+          cp -r /tmp/generated_docs/$VERSION ./
+          cp -r /tmp/generated_docs/main ./
 
-      # Step 8: Commit and push changes to gh-pages
+      # Step 9: Commit and push changes to gh-pages
       - name: Commit and push changes
         run: |
           git config user.name "github-actions[bot]"
