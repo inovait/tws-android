@@ -39,7 +39,7 @@ dependencies {
 }
 ```
 
-### Step 1: Provide metada for TWS SDK
+### Step 1: Provide metadata for TWS SDK
 
 Before using the TWS SDK, ensure you set up metadata keys for organization and project in AndroidManifest.xml. 
 These metadata keys allow the SDK to identify the correct organization and project context when initializing your TWSManager:
@@ -55,7 +55,7 @@ These metadata keys allow the SDK to identify the correct organization and proje
 </application>
 ```
 
-### Step 2: Using WebSnippetComponent to display snippet
+### Step 2: Using TWSView to display snippet
 
 Set up WebSnippetComponent to display a specific snippet. Here’s how to collect snippets and display "home" snippet:
 
