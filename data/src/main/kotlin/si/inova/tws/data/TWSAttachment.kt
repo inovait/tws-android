@@ -17,6 +17,7 @@
 package si.inova.tws.data
 
 import android.os.Parcelable
+import com.squareup.moshi.JsonClass
 import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
 
@@ -26,6 +27,7 @@ import kotlinx.parcelize.Parcelize
  * @param url The URL of the resource to inject.
  * @param contentType The type of resource, such as CSS or JavaScript.
  */
+@JsonClass(generateAdapter = true)
 @Parcelize
 data class TWSAttachment(
     val url: String,
