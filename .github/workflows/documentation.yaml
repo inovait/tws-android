@@ -56,8 +56,8 @@ jobs:
         run: |
           [ -d $VERSION ] && rm -rf $VERSION
           [ -d main ] && rm -rf main
-          mv ../docs/$VERSION ./
-          mv ../docs/main ./
+          mv docs/$VERSION ./
+          mv docs/main ./
 
       # Step 8: Commit and push changes to gh-pages
       - name: Commit and push changes
