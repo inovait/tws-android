@@ -1,10 +1,11 @@
-# TheWebSnippet SDK
-## Overview
-This documentation will guide you through implementing TheWebSnippet SDK into your own app.
 
-<div style="width: 100%;">
+<div style="text-align: center;width: 100%;">
+    <h1>TheWebSnippet SDK</h1>
     <img src="images/appIcon.png" alt="My Custom Icon" style="display: block; margin: 32px auto; max-width: 100%; height: auto;" />
 </div>
+
+## Overview
+This documentation will guide you through implementing TheWebSnippet SDK into your own app.
 
 ## Description
 The TWS SDK is a library, designed to make it easier and more powerful to add web
