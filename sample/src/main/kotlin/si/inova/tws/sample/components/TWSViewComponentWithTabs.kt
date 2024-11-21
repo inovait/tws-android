@@ -50,6 +50,10 @@ fun TWSViewComponentWithTabs(
         TWSView(
             snippet = content[currentTab],
             modifier = Modifier.padding(padding),
+            // Set custom loading placeholder
+            loadingPlaceholderContent = { LoadingSpinner() },
+            // set custom error placeholder
+            errorViewContent = { OnErrorComponent() }
         )
     }
 }

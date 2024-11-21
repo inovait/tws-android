@@ -41,9 +41,10 @@ fun TWSViewInjectionExample() {
 }
 
 @Composable
-fun TWSViewInjectionContent(
+private fun TWSViewInjectionContent(
     manager: TWSManager
 ) {
+    // Collect snippets for your project
     val content = manager.snippets.collectAsStateWithLifecycle(null).value
 
     content?.let {

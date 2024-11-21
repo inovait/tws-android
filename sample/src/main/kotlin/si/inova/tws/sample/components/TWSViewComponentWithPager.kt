@@ -16,6 +16,7 @@
 
 package si.inova.tws.sample.components
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -26,18 +27,27 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.coroutines.launch
 import si.inova.tws.core.TWSView
 import si.inova.tws.data.TWSSnippet
 
 @Composable
 fun TWSViewComponentWithPager(data: ImmutableList<TWSSnippet>) {
     val pagerState = rememberPagerState { data.size }
+    val coroutineScope = rememberCoroutineScope()
+
+    BackHandler(enabled = pagerState.currentPage != 0) {
+        coroutineScope.launch {
+            pagerState.animateScrollToPage(0)
+        }
+    }
 
     HorizontalPager(
         state = pagerState,
@@ -45,7 +55,11 @@ fun TWSViewComponentWithPager(data: ImmutableList<TWSSnippet>) {
         TWSView(
             modifier = Modifier
                 .fillMaxSize(),
-            snippet = data[page]
+            snippet = data[page],
+            // Set custom loading placeholder
+            loadingPlaceholderContent = { LoadingSpinner() },
+            // set custom error placeholder
+            errorViewContent = { OnErrorComponent() }
         )
     }
 

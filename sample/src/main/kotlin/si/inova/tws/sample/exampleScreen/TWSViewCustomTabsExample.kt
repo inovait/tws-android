@@ -26,12 +26,12 @@ fun TWSViewCustomTabsExample() {
 }
 
 @Composable
-fun TWSViewCustomTabsContent(
+private fun TWSViewCustomTabsContent(
     manager: TWSManager
 ) {
-    // collect snippets for your project
+    // Collect snippets for your project
     val content = manager.snippets.collectAsStateWithLifecycle(null).value?.mapData { data ->
-            // sort your tabs with custom key set in snippet properties
+        // Sort tabs with custom key set in snippet properties
             data.sortedBy {
                 it.props["tabSortKey"] as? String
             }

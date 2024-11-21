@@ -49,17 +49,17 @@ fun TWSViewMustacheExample() {
                 )
         )
 
-    // easily set local properties
+    // Set local properties
     manager.set("UseCaseExample2-howToMustache", localProps)
 
     TWSViewMustacheContent(manager)
 }
 
 @Composable
-fun TWSViewMustacheContent(
+private fun TWSViewMustacheContent(
     manager: TWSManager
 ) {
-    // collect snippets for your project
+    // Collect snippets for your project
     val content = manager.snippets.collectAsStateWithLifecycle(null).value
 
     content?.let {
