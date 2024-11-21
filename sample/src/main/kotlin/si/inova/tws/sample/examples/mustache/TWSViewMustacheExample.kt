@@ -26,8 +26,8 @@ import si.inova.tws.manager.TWSFactory
 import si.inova.tws.manager.TWSManager
 import si.inova.tws.manager.TWSOutcome
 import si.inova.tws.sample.R
-import si.inova.tws.sample.components.LoadingView
 import si.inova.tws.sample.components.ErrorView
+import si.inova.tws.sample.components.LoadingView
 import si.inova.tws.sample.components.TWSViewComponentWithPager
 
 @Composable
@@ -52,7 +52,7 @@ fun TWSViewMustacheExample() {
         )
 
     // Set local properties
-    manager.set("UseCaseExample2-howToMustache", localProps)
+    manager.set("howToMustache", localProps)
 
     TWSViewMustacheContent(manager)
 }
