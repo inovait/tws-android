@@ -22,7 +22,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import si.inova.tws.core.TWSView
 import si.inova.tws.core.data.TWSViewInterceptor
-import si.inova.tws.manager.TWSConfiguration
 import si.inova.tws.manager.TWSFactory
 import si.inova.tws.manager.TWSManager
 import si.inova.tws.manager.TWSOutcome
@@ -34,10 +33,8 @@ fun NavigationScreen(
     navController: NavController
 ) {
     val context = LocalContext.current
-    val manager = TWSFactory.get(
-        context,
-        TWSConfiguration.Basic(organizationId, projectId, "apiKey")
-    )
+    // Configuration specified in manifest meta data
+    val manager = TWSFactory.get(context)
 
     NavigationContent(navController, manager)
 }
@@ -101,6 +98,3 @@ private fun NavigationContent(
         }
     }
 }
-
-private const val organizationId = "examples"
-private const val projectId = "example5"
