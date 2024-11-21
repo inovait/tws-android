@@ -16,67 +16,139 @@
 
 package si.inova.tws.sample.components
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.launch
 import si.inova.tws.core.TWSView
 import si.inova.tws.data.TWSSnippet
+import si.inova.tws.sample.ui.theme.TheWebSnippetSdkTheme
 
 @Composable
 fun TWSViewComponentWithPager(data: ImmutableList<TWSSnippet>) {
     val pagerState = rememberPagerState { data.size }
-    val coroutineScope = rememberCoroutineScope()
+    val scope = rememberCoroutineScope()
 
-    BackHandler(enabled = pagerState.currentPage != 0) {
-        coroutineScope.launch {
-            pagerState.animateScrollToPage(0)
+    Column(modifier = Modifier.fillMaxSize()) {
+        // Horizontal pager for displaying snippets
+        HorizontalPager(
+            modifier = Modifier.weight(1f),
+            state = pagerState,
+            userScrollEnabled = false
+        ) { page ->
+            TWSView(
+                modifier = Modifier.fillMaxSize(),
+                snippet = data[page],
+                loadingPlaceholderContent = { LoadingSpinner() },
+                errorViewContent = { OnErrorComponent() }
+            )
         }
-    }
 
-    HorizontalPager(
-        state = pagerState,
-    ) { page ->
-        TWSView(
-            modifier = Modifier
-                .fillMaxSize(),
-            snippet = data[page],
-            // Set custom loading placeholder
-            loadingPlaceholderContent = { LoadingSpinner() },
-            // set custom error placeholder
-            errorViewContent = { OnErrorComponent() }
-        )
-    }
+        HorizontalDivider(color = Color.Black)
 
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.BottomCenter
-    ) {
-        Row(modifier = Modifier.padding(bottom = 8.dp)) {
-            data.forEachIndexed { index, _ ->
-                Box(
-                    modifier = Modifier
-                        .padding(2.dp)
-                        .clip(CircleShape)
-                        .background(if (pagerState.currentPage == index) Color.DarkGray else Color.LightGray)
-                        .size(12.dp)
-                )
+        Row(modifier = Modifier.fillMaxWidth()) {
+            // Navigate back button
+            NavigateIndicator(Icons.AutoMirrored.Filled.ArrowBack, pagerState.currentPage > 0) {
+                scope.launch {
+                    pagerState.animateScrollToPage(pagerState.currentPage - 1)
+                }
+            }
+
+            // Current page indicator
+            PageIndicators(
+                modifier = Modifier.weight(1f).align(Alignment.CenterVertically),
+                currentPage = pagerState.currentPage,
+                pageCount = pagerState.pageCount
+            )
+
+            // Navigate forward button
+            NavigateIndicator(Icons.AutoMirrored.Filled.ArrowForward, pagerState.currentPage < pagerState.pageCount - 1) {
+                scope.launch {
+                    pagerState.animateScrollToPage(pagerState.currentPage + 1)
+                }
             }
         }
+    }
+}
+
+@Composable
+private fun NavigateIndicator(
+    imageVector: ImageVector,
+    isEnabled: Boolean,
+    modifier: Modifier = Modifier,
+    goToPrevious: () -> Unit = {}
+) {
+    IconButton(
+        modifier = modifier.padding(horizontal = 16.dp),
+        enabled = isEnabled,
+        onClick = goToPrevious
+    ) {
+        Icon(
+            imageVector = imageVector,
+            contentDescription = "Navigate to page"
+        )
+    }
+}
+
+@Composable
+private fun PageIndicators(
+    currentPage: Int,
+    pageCount: Int,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.Center
+    ) {
+        for (index in 0 until pageCount) {
+            Box(
+                modifier = Modifier
+                    .padding(2.dp)
+                    .clip(CircleShape)
+                    .background(if (currentPage == index) Color.DarkGray else Color.LightGray)
+                    .size(12.dp)
+            )
+        }
+    }
+}
+
+@Composable
+@Preview
+private fun PagerPreview() {
+    TheWebSnippetSdkTheme {
+        TWSViewComponentWithPager(
+            persistentListOf(
+                TWSSnippet(id = "1", "www.example1.com"),
+                TWSSnippet(id = "2", "www.example2.com"),
+                TWSSnippet(id = "3", "www.example3.com")
+            )
+        )
     }
 }
