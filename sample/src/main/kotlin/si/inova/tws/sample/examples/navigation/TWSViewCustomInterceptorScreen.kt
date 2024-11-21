@@ -17,62 +17,37 @@
 package si.inova.tws.sample.examples.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import si.inova.tws.core.TWSView
-import si.inova.tws.manager.TWSConfiguration
 import si.inova.tws.manager.TWSFactory
 import si.inova.tws.manager.TWSManager
-import si.inova.tws.manager.TWSOutcome
-import si.inova.tws.sample.R
 import si.inova.tws.sample.components.LoadingView
 import si.inova.tws.sample.components.ErrorView
 
 @Composable
 fun TWSViewCustomInterceptorScreen(navController: NavController) {
     val context = LocalContext.current
-    val manager = TWSFactory.get(
-        context,
-        TWSConfiguration.Basic(organizationId, projectId, "apiKey")
-    )
 
-    NavigationContent(navController, manager)
-}
+    // TWSFactory will take configuration from Android Manifest
+    val manager: TWSManager = remember(Unit) { TWSFactory.get(context) }
 
-@Composable
-private fun NavigationContent(
-    navController: NavController,
-    manager: TWSManager
-) {
-    val content = manager.snippets.collectAsStateWithLifecycle(null).value
+    // Collecting TWSManager.snippets(), which returns list of available snippets, either cached
+    // or up to date. Iff you want to get the current state, collect TWSManager.snippets, which
+    // exposes TWSOutcome.Error, TWSOutcome.Progress or TWSOutcome.Success state
+    val homeSnippet = manager.snippets().collectAsStateWithLifecycle(null).value?.firstOrNull {
+        it.id == "UseCaseExample5-intercepts" // this should be changed to more user friendly message
+    }
 
-    content?.let {
-        when {
-            !content.data.isNullOrEmpty() -> {
-                val data = content.data ?: return
-                val navigationScreen = data[0]
-
-                TWSView(
-                    snippet = navigationScreen,
-                    loadingPlaceholderContent = { LoadingView() },
-                    errorViewContent = { ErrorView(it) },
-                    // Handling urls natively
-                    interceptUrlCallback = TWSViewDemoInterceptor { navController.navigate(it) }
-                )
-            }
-
-            content is TWSOutcome.Error -> {
-                ErrorView(content.exception.message ?: stringResource(R.string.error_message))
-            }
-
-            content is TWSOutcome.Progress -> {
-                LoadingView()
-            }
-        }
+    homeSnippet?.let { home ->
+        TWSView(
+            snippet = home,
+            loadingPlaceholderContent = { LoadingView() },
+            errorViewContent = { ErrorView(it) },
+            // Handling urls natively
+            interceptUrlCallback = TWSViewDemoInterceptor { navController.navigate(it) }
+        )
     }
 }
-
-private const val organizationId = "examples"
-private const val projectId = "example5"
