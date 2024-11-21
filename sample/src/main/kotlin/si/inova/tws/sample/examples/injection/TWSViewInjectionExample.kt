@@ -17,35 +17,29 @@
 package si.inova.tws.sample.examples.injection
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.collections.immutable.toImmutableList
 import si.inova.tws.manager.TWSConfiguration
 import si.inova.tws.manager.TWSFactory
-import si.inova.tws.manager.TWSManager
 import si.inova.tws.manager.TWSOutcome
 import si.inova.tws.sample.R
-import si.inova.tws.sample.components.LoadingView
 import si.inova.tws.sample.components.ErrorView
+import si.inova.tws.sample.components.LoadingView
 import si.inova.tws.sample.components.TWSViewComponentWithPager
 
 @Composable
 fun TWSViewInjectionExample() {
     val context = LocalContext.current
-    val manager =
+    val manager = remember(Unit) {
         TWSFactory.get(
             context,
             TWSConfiguration.Basic(organizationId = organizationId, projectId = projectId, apiKey = "apiKey")
         )
+    }
 
-    TWSViewInjectionContent(manager)
-}
-
-@Composable
-private fun TWSViewInjectionContent(
-    manager: TWSManager
-) {
     // Collect snippets for your project
     val content = manager.snippets.collectAsStateWithLifecycle(null).value
 
