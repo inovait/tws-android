@@ -5,5 +5,5 @@ sealed class Screen(val route: String) {
     data object TWSViewCustomTabsExample : Screen("customTabsExample")
     data object TWSViewMustacheExample : Screen("mustacheExample")
     data object TWSViewInjectionExample : Screen("injectionExample")
-    data object TWSViewLoginRedirectExample : Screen("loginRedirectExample")
+    data object TWSViewPermissionsExample : Screen("permissionsExample")
 }

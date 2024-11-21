@@ -64,14 +64,14 @@ internal enum class ActionType {
 @JsonClass(generateAdapter = true)
 internal data class ActionBody(
     val id: String,
-    val organizationId: String? = null,
-    val projectId: String? = null,
-    val target: String? = null,
-    val headers: Map<String, String>? = null,
+    val organizationId: String,
+    val projectId: String,
+    val target: String,
+    val headers: Map<String, String>? = emptyMap(),
     val visibility: VisibilityDto? = null,
-    val dynamicResources: List<TWSAttachment>? = null,
-    val props: Map<String, Any>? = null,
-    val engine: TWSEngine? = null
+    val dynamicResources: List<TWSAttachment> = emptyList(),
+    val props: Map<String, Any> = emptyMap(),
+    val engine: TWSEngine = TWSEngine.NONE
 )
 
 internal fun ActionBody.isEmpty(): Boolean {
@@ -117,9 +117,9 @@ internal fun List<TWSSnippetDto>.update(data: ActionBody): List<TWSSnippetDto> {
                     target = data.target ?: it.target,
                     headers = data.headers ?: it.headers,
                     visibility = data.visibility ?: it.visibility,
-                    dynamicResources = data.dynamicResources ?: it.dynamicResources,
-                    props = data.props ?: it.props,
-                    engine = data.engine ?: it.engine
+                    dynamicResources = data.dynamicResources,
+                    props = data.props,
+                    engine = data.engine
                 )
             }
         } else {

@@ -14,40 +14,48 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.sample.examples.navigation
+package si.inova.tws.sample.examples.permissions
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
 import si.inova.tws.core.TWSView
+import si.inova.tws.manager.TWSConfiguration
 import si.inova.tws.manager.TWSFactory
 import si.inova.tws.manager.TWSManager
-import si.inova.tws.sample.components.LoadingView
+import si.inova.tws.manager.TWSOutcome
+import si.inova.tws.manager.mapData
+import si.inova.tws.sample.R
 import si.inova.tws.sample.components.ErrorView
+import si.inova.tws.sample.components.LoadingView
 
 @Composable
-fun TWSViewCustomInterceptorScreen(navController: NavController) {
+fun TWSViewPermissionsExample() {
     val context = LocalContext.current
+    val manager: TWSManager = remember(Unit) { TWSFactory.get(context, config) }
 
-    // TWSFactory will take configuration from Android Manifest
-    val manager: TWSManager = remember(Unit) { TWSFactory.get(context) }
+    val permissionSnippetState = manager.snippets.collectAsStateWithLifecycle(null).value?.mapData { state ->
+        state.firstOrNull { it.id == "permissions" }
+    } ?: return
 
-    // Collecting TWSManager.snippets(), which returns list of available snippets, either cached
-    // or up to date. Iff you want to get the current state, collect TWSManager.snippets, which
-    // exposes TWSOutcome.Error, TWSOutcome.Progress or TWSOutcome.Success state
-    val homeSnippet = manager.snippets().collectAsStateWithLifecycle(null).value?.firstOrNull {
-        it.id == "UseCaseExample5-intercepts" // this should be changed to more user friendly message
-    }
+    val snippet = permissionSnippetState.data
+    when {
+        snippet != null -> {
+            TWSView(snippet = snippet)
+        }
 
-    homeSnippet?.let { home ->
-        TWSView(
-            snippet = home,
-            loadingPlaceholderContent = { LoadingView() },
-            errorViewContent = { ErrorView(it) },
-            // Handling urls natively
-            interceptUrlCallback = TWSViewDemoInterceptor { navController.navigate(it) }
-        )
+        permissionSnippetState is TWSOutcome.Error -> {
+            ErrorView(permissionSnippetState.exception.message ?: stringResource(R.string.error_message))
+        }
+
+        permissionSnippetState is TWSOutcome.Progress -> {
+            LoadingView()
+        }
     }
 }
+
+private const val organizationId = "examples"
+private const val projectId = "example4"
+private val config = TWSConfiguration.Basic(organizationId, projectId, "apiKey")

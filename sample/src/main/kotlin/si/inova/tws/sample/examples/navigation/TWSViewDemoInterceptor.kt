@@ -27,7 +27,7 @@ class TWSViewDemoInterceptor(private val navigate: (String) -> Unit) : TWSViewIn
             urlString.contains("/customTabsExample") -> TWSViewCustomTabsExample.route
             urlString.contains("/mustacheExample") -> TWSViewMustacheExample.route
             urlString.contains("/injectionExample") -> TWSViewInjectionExample.route
-            urlString.contains("/loginRedirectExample") -> TWSViewLoginRedirectExample.route
+            urlString.contains("/loginRedirectExample") -> TWSViewPermissionsExample.route
             else -> null
         }
 
