@@ -43,7 +43,11 @@ fun TWSViewPermissionsExample() {
     val snippet = permissionSnippetState.data
     when {
         snippet != null -> {
-            TWSView(snippet = snippet)
+            TWSView(
+                snippet = snippet,
+                loadingPlaceholderContent = { LoadingView() },
+                errorViewContent = { ErrorView(it) },
+            )
         }
 
         permissionSnippetState is TWSOutcome.Error -> {
