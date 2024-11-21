@@ -59,31 +59,31 @@ fun NavigationScreen(
                 NavigationItem(
                     title = stringResource(R.string.example1_title),
                     description = stringResource(R.string.example1_description)
-                ) { navController.navigate(Screen.Example1Screen.route) }
+                ) { navController.navigate(Screen.TWSViewCustomTabsExample.route) }
             }
             item {
                 NavigationItem(
                     title = stringResource(R.string.example2_title),
                     description = stringResource(R.string.example2_description)
-                ) { navController.navigate(Screen.Example2Screen.route) }
+                ) { navController.navigate(Screen.TWSViewMustacheExample.route) }
             }
             item {
                 NavigationItem(
                     title = stringResource(R.string.example3_title),
                     description = stringResource(R.string.example3_description)
-                ) { navController.navigate(Screen.Example3Screen.route) }
+                ) { navController.navigate(Screen.TWSViewInjectionExample.route) }
             }
             item {
                 NavigationItem(
                     title = stringResource(R.string.example4_title),
                     description = stringResource(R.string.example4_description)
-                ) {}
+                ) { navController.navigate(Screen.TWSViewLoginRedirectExample.route) }
             }
             item {
                 NavigationItem(
                     title = stringResource(R.string.example5_title),
                     description = stringResource(R.string.example5_description)
-                ) {}
+                ) { navController.navigate(Screen.TWSViewInterceptExample.route) }
             }
         }
     }
@@ -146,14 +146,6 @@ private fun TopBar() {
             tint = Color.Unspecified
         )
         Spacer(modifier = Modifier.width(16.dp))
-        Text(text = "The Web Snippet Examples", style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 24.sp))
+        Text(text = stringResource(R.string.examples_title), style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 24.sp))
     }
 }
-
-
-
-
-
-
-
-

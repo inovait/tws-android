@@ -22,29 +22,35 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.collections.immutable.toImmutableList
 import si.inova.tws.manager.TWSConfiguration
 import si.inova.tws.manager.TWSFactory
+import si.inova.tws.manager.TWSManager
 import si.inova.tws.manager.TWSOutcome
 import si.inova.tws.sample.components.LoadingSpinner
 import si.inova.tws.sample.components.OnErrorComponent
-import si.inova.tws.sample.components.WebViewComponentWithPager
+import si.inova.tws.sample.components.TWSViewComponentWithPager
 
 @Composable
-fun Example3Screen() {
+fun TWSViewInjectionExample() {
     val context = LocalContext.current
-    val organizationId = "examples"
-    val projectId = "example3"
     val manager =
         TWSFactory.get(
             context,
             TWSConfiguration.Basic(organizationId = organizationId, projectId = projectId, apiKey = "apiKey")
         )
 
+    TWSViewInjectionContent(manager)
+}
+
+@Composable
+fun TWSViewInjectionContent(
+    manager: TWSManager
+) {
     val content = manager.snippets.collectAsStateWithLifecycle(null).value
 
     content?.let {
         when {
             !content.data.isNullOrEmpty() -> {
                 val data = content.data ?: return
-                WebViewComponentWithPager(data.toImmutableList())
+                TWSViewComponentWithPager(data.toImmutableList())
             }
 
             content is TWSOutcome.Error -> {
@@ -57,3 +63,6 @@ fun Example3Screen() {
         }
     }
 }
+
+private const val organizationId = "examples"
+private const val projectId = "example3"

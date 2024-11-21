@@ -18,4 +18,5 @@
     <string name="example5_title">Intercepts</string>
     <string name="example5_description">In this example you will learn how to create custom intercepts to url requests</string>
 
+    <string name="examples_title">The Web Snippet Examples</string>
 </resources>

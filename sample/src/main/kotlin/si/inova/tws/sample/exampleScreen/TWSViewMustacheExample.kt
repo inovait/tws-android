@@ -22,16 +22,15 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.collections.immutable.toImmutableList
 import si.inova.tws.manager.TWSConfiguration
 import si.inova.tws.manager.TWSFactory
+import si.inova.tws.manager.TWSManager
 import si.inova.tws.manager.TWSOutcome
 import si.inova.tws.sample.components.LoadingSpinner
 import si.inova.tws.sample.components.OnErrorComponent
-import si.inova.tws.sample.components.WebViewComponentWithPager
+import si.inova.tws.sample.components.TWSViewComponentWithPager
 
 @Composable
-fun Example2Screen() {
+fun TWSViewMustacheExample() {
     val context = LocalContext.current
-    val organizationId = "examples"
-    val projectId = "example2"
     val manager =
         TWSFactory.get(
             context,
@@ -53,6 +52,13 @@ fun Example2Screen() {
     // easily set local properties
     manager.set("UseCaseExample2-howToMustache", localProps)
 
+    TWSViewMustacheContent(manager)
+}
+
+@Composable
+fun TWSViewMustacheContent(
+    manager: TWSManager
+) {
     // collect snippets for your project
     val content = manager.snippets.collectAsStateWithLifecycle(null).value
 
@@ -60,7 +66,7 @@ fun Example2Screen() {
         when {
             !content.data.isNullOrEmpty() -> {
                 val data = content.data ?: return
-                WebViewComponentWithPager(data.toImmutableList())
+                TWSViewComponentWithPager(data.toImmutableList())
             }
 
             content is TWSOutcome.Error -> {
@@ -73,3 +79,6 @@ fun Example2Screen() {
         }
     }
 }
+
+private const val organizationId = "examples"
+private const val projectId = "example2"

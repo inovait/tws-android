@@ -36,7 +36,7 @@ import si.inova.tws.core.TWSView
 import si.inova.tws.data.TWSSnippet
 
 @Composable
-fun WebViewComponentWithPager(data: ImmutableList<TWSSnippet>) {
+fun TWSViewComponentWithPager(data: ImmutableList<TWSSnippet>) {
     val pagerState = rememberPagerState { data.size }
 
     HorizontalPager(

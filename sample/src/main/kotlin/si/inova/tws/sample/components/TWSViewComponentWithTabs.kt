@@ -36,7 +36,7 @@ import si.inova.tws.data.TWSSnippet
 import si.inova.tws.sample.R
 
 @Composable
-fun WebViewComponentWithTabs(
+fun TWSViewComponentWithTabs(
     content: ImmutableList<TWSSnippet>
 ) {
     var currentTab by remember { mutableIntStateOf(0) }
