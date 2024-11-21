@@ -18,41 +18,36 @@ package si.inova.tws.sample.examples.tabs
 
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.collections.immutable.toImmutableList
 import si.inova.tws.manager.TWSConfiguration
 import si.inova.tws.manager.TWSFactory
-import si.inova.tws.manager.TWSManager
 import si.inova.tws.manager.TWSOutcome
 import si.inova.tws.manager.mapData
 import si.inova.tws.sample.R
-import si.inova.tws.sample.components.LoadingView
 import si.inova.tws.sample.components.ErrorView
+import si.inova.tws.sample.components.LoadingView
 
 @Composable
 fun TWSViewCustomTabsExample() {
     val context = LocalContext.current
-    val manager = TWSFactory.get(
-        context,
-        TWSConfiguration.Basic(organizationId = organizationId, projectId = projectId, apiKey = "apiKey")
-    )
+    val manager = remember(Unit) {
+        TWSFactory.get(
+            context,
+            TWSConfiguration.Basic(organizationId = organizationId, projectId = projectId, apiKey = "apiKey")
+        )
+    }
 
-    TWSViewCustomTabsContent(manager)
-}
-
-@Composable
-private fun TWSViewCustomTabsContent(
-    manager: TWSManager
-) {
     // Collect snippets for your project
     val content = manager.snippets.collectAsStateWithLifecycle(null).value?.mapData { data ->
         // Sort tabs with custom key set in snippet properties
-            data.sortedBy {
-                it.props["tabSortKey"] as? String
-            }
+        data.sortedBy {
+            it.props["tabSortKey"] as? String
         }
+    }
 
     content?.let {
         when {

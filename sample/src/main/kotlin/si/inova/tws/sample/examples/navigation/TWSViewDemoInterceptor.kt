@@ -18,7 +18,10 @@ package si.inova.tws.sample.examples.navigation
 
 import android.net.Uri
 import si.inova.tws.core.data.TWSViewInterceptor
-import si.inova.tws.sample.Screen.*
+import si.inova.tws.sample.Screen.TWSViewCustomTabsExample
+import si.inova.tws.sample.Screen.TWSViewInjectionExample
+import si.inova.tws.sample.Screen.TWSViewMustacheExample
+import si.inova.tws.sample.Screen.TWSViewPermissionsExample
 
 class TWSViewDemoInterceptor(private val navigate: (String) -> Unit) : TWSViewInterceptor {
     override fun handleUrl(url: Uri): Boolean {
@@ -27,7 +30,7 @@ class TWSViewDemoInterceptor(private val navigate: (String) -> Unit) : TWSViewIn
             urlString.contains("/customTabsExample") -> TWSViewCustomTabsExample.route
             urlString.contains("/mustacheExample") -> TWSViewMustacheExample.route
             urlString.contains("/injectionExample") -> TWSViewInjectionExample.route
-            urlString.contains("/loginRedirectExample") -> TWSViewPermissionsExample.route
+            urlString.contains("/permissionsExample") -> TWSViewPermissionsExample.route
             else -> null
         }
 
