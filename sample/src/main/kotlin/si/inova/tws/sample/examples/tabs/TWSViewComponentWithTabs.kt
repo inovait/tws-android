@@ -14,7 +14,7 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.sample.components
+package si.inova.tws.sample.examples.tabs
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -34,6 +34,8 @@ import kotlinx.collections.immutable.ImmutableList
 import si.inova.tws.core.TWSView
 import si.inova.tws.data.TWSSnippet
 import si.inova.tws.sample.R
+import si.inova.tws.sample.components.LoadingView
+import si.inova.tws.sample.components.ErrorView
 
 @Composable
 fun TWSViewComponentWithTabs(
@@ -43,6 +45,7 @@ fun TWSViewComponentWithTabs(
     val onClick: (Int) -> Unit = {
         currentTab = it
     }
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         bottomBar = { BottomTabsRow(content, currentTab, onClick) })
@@ -50,10 +53,8 @@ fun TWSViewComponentWithTabs(
         TWSView(
             snippet = content[currentTab],
             modifier = Modifier.padding(padding),
-            // Set custom loading placeholder
-            loadingPlaceholderContent = { LoadingSpinner() },
-            // set custom error placeholder
-            errorViewContent = { OnErrorComponent() }
+            loadingPlaceholderContent = { LoadingView() },
+            errorViewContent = { ErrorView(it) }
         )
     }
 }

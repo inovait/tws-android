@@ -14,56 +14,65 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.sample.exampleScreen
+package si.inova.tws.sample.examples.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import kotlinx.collections.immutable.toImmutableList
+import androidx.navigation.NavController
+import si.inova.tws.core.TWSView
 import si.inova.tws.manager.TWSConfiguration
 import si.inova.tws.manager.TWSFactory
 import si.inova.tws.manager.TWSManager
 import si.inova.tws.manager.TWSOutcome
-import si.inova.tws.sample.components.LoadingSpinner
-import si.inova.tws.sample.components.OnErrorComponent
-import si.inova.tws.sample.components.TWSViewComponentWithPager
+import si.inova.tws.sample.R
+import si.inova.tws.sample.components.LoadingView
+import si.inova.tws.sample.components.ErrorView
 
 @Composable
-fun TWSViewInjectionExample() {
+fun TWSViewCustomInterceptorScreen(navController: NavController) {
     val context = LocalContext.current
-    val manager =
-        TWSFactory.get(
-            context,
-            TWSConfiguration.Basic(organizationId = organizationId, projectId = projectId, apiKey = "apiKey")
-        )
+    val manager = TWSFactory.get(
+        context,
+        TWSConfiguration.Basic(organizationId, projectId, "apiKey")
+    )
 
-    TWSViewInjectionContent(manager)
+    NavigationContent(navController, manager)
 }
 
 @Composable
-private fun TWSViewInjectionContent(
+private fun NavigationContent(
+    navController: NavController,
     manager: TWSManager
 ) {
-    // Collect snippets for your project
     val content = manager.snippets.collectAsStateWithLifecycle(null).value
 
     content?.let {
         when {
             !content.data.isNullOrEmpty() -> {
                 val data = content.data ?: return
-                TWSViewComponentWithPager(data.toImmutableList())
+                val navigationScreen = data[0]
+
+                TWSView(
+                    snippet = navigationScreen,
+                    loadingPlaceholderContent = { LoadingView() },
+                    errorViewContent = { ErrorView(it) },
+                    // Handling urls natively
+                    interceptUrlCallback = TWSViewDemoInterceptor { navController.navigate(it) }
+                )
             }
 
             content is TWSOutcome.Error -> {
-                OnErrorComponent()
+                ErrorView(content.exception.message ?: stringResource(R.string.error_message))
             }
 
             content is TWSOutcome.Progress -> {
-                LoadingSpinner()
+                LoadingView()
             }
         }
     }
 }
 
 private const val organizationId = "examples"
-private const val projectId = "example3"
+private const val projectId = "example5"

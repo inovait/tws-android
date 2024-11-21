@@ -34,7 +34,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -66,8 +65,8 @@ fun TWSViewComponentWithPager(data: ImmutableList<TWSSnippet>) {
             TWSView(
                 modifier = Modifier.fillMaxSize(),
                 snippet = data[page],
-                loadingPlaceholderContent = { LoadingSpinner() },
-                errorViewContent = { OnErrorComponent() }
+                loadingPlaceholderContent = { LoadingView() },
+                errorViewContent = { ErrorView(it) }
             )
         }
 
