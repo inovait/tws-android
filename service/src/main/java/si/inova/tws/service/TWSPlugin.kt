@@ -16,31 +16,38 @@
 
 package si.inova.tws.service
 
+import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import si.inova.tws.service.util.generateJWT
-import si.inova.tws.service.util.readServiceFile
+import org.gradle.configurationcache.extensions.capitalized
+import org.gradle.kotlin.dsl.register
+import si.inova.tws.service.task.GenerateTokenTask
 
 class TWSPlugin : Plugin<Project> {
     override fun apply(project: Project) {
-        val buildType = project.properties["buildType"]?.toString()
+        val androidComponents =
+            project.extensions.getByType(ApplicationAndroidComponentsExtension::class.java)
+        androidComponents.onVariants { variant ->
+            variant.sources.res
+                ?.let {
+                    val resCreationTask =
+                        project.tasks.register<GenerateTokenTask>("create${variant.name.capitalized()}$TASK_NAME")
 
-        val service = readServiceFile(project.projectDir, buildType)
+                    resCreationTask.configure {
+                        inputFiles.add(project.layout.projectDirectory.file("src/${variant.name}/$FILE_NAME"))
+                        inputFiles.add(project.layout.projectDirectory.file(FILE_NAME))
+                    }
 
-        //https://github.com/jwtk/jjwt?tab=readme-ov-file#dependencies
-//        val key = Jwts.SIG.HS256.key().build()
-//        val jwt = Jwts.builder() // (1)
-//            .header() // (2) optional
-//            .keyId("aKeyId")
-//            .and()
-//            .subject("Bob") // (3) JSON Claims, or
-//            //.content(aByteArray, "text/plain")        //     any byte[] content, with media type
-//
-//            .signWith(signingKey)
-//            .compact()
+                    it.addGeneratedSourceDirectory(
+                        resCreationTask,
+                        GenerateTokenTask::outputDirectory
+                    )
+                }
+        }
+    }
 
-        val token = generateJWT(service) // TODO save that token for manager (SharedPreferences / DataStore)
-        println("token: $token")
+    companion object {
+        private const val TASK_NAME = "TWSTokenGenerator"
+        private const val FILE_NAME = "tws-service.json"
     }
 }
-

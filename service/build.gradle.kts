@@ -23,6 +23,16 @@ plugins {
 group = "si.inova.tws"
 version = File(rootDir, "version.txt").readText().trim()
 
+publishing {
+    publications {
+        create<MavenPublication>("gradlePlugin") {
+            groupId = project.group.toString()
+            artifactId = "service"
+            version = project.version.toString()
+        }
+    }
+}
+
 gradlePlugin {
     plugins {
         create("service") {
@@ -32,22 +42,7 @@ gradlePlugin {
     }
 }
 
-publishing {
-    publications {
-        create<MavenPublication>("gradlePlugin") {
-            groupId = project.group.toString()
-            artifactId = "service"
-            version = project.version.toString()
-        }
-    }
-
-    repositories { // TODO
-        mavenLocal()
-    }
-}
-
 dependencies {
-    implementation("io.jsonwebtoken:jjwt-api:0.12.6") // TODO
-    implementation("com.google.code.gson:gson:2.10.1") // TODO
-    implementation("com.google.api-client:google-api-client:2.7.0") // TODO
+    implementation(libs.android.agp)
+    implementation(libs.google.api.client)
 }
