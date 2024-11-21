@@ -55,7 +55,6 @@ import si.inova.tws.manager.fakes.FakeLocalSnippetHandler
 import si.inova.tws.manager.fakes.FakeNetworkConnectivityService
 import si.inova.tws.manager.fakes.FakeSnippetLoadingManager
 import si.inova.tws.manager.fakes.FakeTWSSocket
-import si.inova.tws.manager.utils.FAKE_SNIPPET_ONE_ACTION_BODY_HTML
 import si.inova.tws.manager.utils.testScopeWithDispatcherProvider
 import si.inova.tws.manager.utils.shouldBeProgressWith
 import si.inova.tws.manager.utils.shouldBeProgressWithData
@@ -186,7 +185,7 @@ class TWSManagerImplTest {
             fakeSocket.mockUpdateAction(
                 SnippetUpdateAction(
                     ActionType.UPDATED,
-                    ActionBody(id = FAKE_SNIPPET_ONE.id, target = "www.example.com")
+                    FAKE_SNIPPET_ONE.toActionBody().copy(target = "www.example.com")
                 )
             )
             runCurrent()
@@ -273,7 +272,7 @@ class TWSManagerImplTest {
             fakeSocket.mockUpdateAction(
                 SnippetUpdateAction(
                     ActionType.UPDATED,
-                    ActionBody(id = FAKE_SNIPPET_ONE.id, target = "www.updated.com")
+                    FAKE_SNIPPET_ONE.toActionBody().copy(target = "www.updated.com")
                 )
             )
             runCurrent()
@@ -349,7 +348,7 @@ class TWSManagerImplTest {
                 )
             )
 
-            fakeHandler.mockUpdateAction(SnippetUpdateAction(ActionType.UPDATED, FAKE_SNIPPET_ONE_ACTION_BODY_HTML))
+            fakeHandler.mockUpdateAction(SnippetUpdateAction(ActionType.UPDATED, FAKE_SNIPPET_ONE.toActionBody()))
             runCurrent()
 
             expectMostRecentItem().shouldBeSuccessWithData(
@@ -493,8 +492,7 @@ class TWSManagerImplTest {
             fakeSocket.mockUpdateAction(
                 SnippetUpdateAction(
                     type = ActionType.UPDATED,
-                    data = ActionBody(
-                        id = FAKE_SNIPPET_ONE.id,
+                    data = FAKE_SNIPPET_ONE.toActionBody().copy(
                         dynamicResources = listOf(TWSAttachment("https://test.cs", TWSAttachmentType.CSS))
                     )
                 )
