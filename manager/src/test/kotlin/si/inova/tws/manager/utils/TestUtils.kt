@@ -39,17 +39,6 @@ internal val FAKE_SNIPPET_ONE = TWSSnippetDto(
     )
 )
 
-internal val FAKE_SNIPPET_ONE_ACTION_BODY_HTML = ActionBody(
-    id = "0",
-    target = "www.google.com",
-    organizationId = "organization",
-    projectId = "project",
-    props = mapOf(
-        Pair("tabName", "test1"),
-        Pair("tabIcon", "icon1")
-    )
-)
-
 internal val FAKE_EXPOSED_SNIPPET_ONE = TWSSnippet(
     id = "0",
     target = "www.google.com",
@@ -137,10 +126,14 @@ internal val FAKE_SHARED_PROJECT = SharedSnippetDto(snippet = FAKE_SNIPPET_ONE)
 
 internal fun TWSSnippetDto.toActionBody() = ActionBody(
     id = id,
+    organizationId = organizationId,
+    projectId = projectId,
     target = target,
     headers = headers,
+    visibility = visibility,
     dynamicResources = dynamicResources,
-    props = props
+    props = props,
+    engine = engine
 )
 
 internal fun TWSSnippetDto.setVisibility(ts: Long) = copy(
