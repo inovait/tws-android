@@ -55,6 +55,7 @@ import si.inova.tws.manager.fakes.FakeLocalSnippetHandler
 import si.inova.tws.manager.fakes.FakeNetworkConnectivityService
 import si.inova.tws.manager.fakes.FakeSnippetLoadingManager
 import si.inova.tws.manager.fakes.FakeTWSSocket
+import si.inova.tws.manager.utils.FAKE_SNIPPET_ONE_ACTION_BODY_HTML
 import si.inova.tws.manager.utils.testScopeWithDispatcherProvider
 import si.inova.tws.manager.utils.shouldBeProgressWith
 import si.inova.tws.manager.utils.shouldBeProgressWithData
@@ -348,7 +349,7 @@ class TWSManagerImplTest {
                 )
             )
 
-            fakeHandler.mockUpdateAction(SnippetUpdateAction(ActionType.UPDATED, ActionBody(id = FAKE_SNIPPET_ONE.id)))
+            fakeHandler.mockUpdateAction(SnippetUpdateAction(ActionType.UPDATED, FAKE_SNIPPET_ONE_ACTION_BODY_HTML))
             runCurrent()
 
             expectMostRecentItem().shouldBeSuccessWithData(
