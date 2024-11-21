@@ -65,8 +65,8 @@ fun TWSViewComponentWithPager(data: ImmutableList<TWSSnippet>) {
             TWSView(
                 modifier = Modifier.fillMaxSize(),
                 snippet = data[page],
-                loadingPlaceholderContent = { LoadingSpinner() },
-                errorViewContent = { OnErrorComponent() }
+                loadingPlaceholderContent = { LoadingView() },
+                errorViewContent = { ErrorView(it) }
             )
         }
 

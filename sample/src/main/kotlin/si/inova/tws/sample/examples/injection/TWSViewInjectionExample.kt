@@ -14,22 +14,24 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.sample.exampleScreen
+package si.inova.tws.sample.examples.injection
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.collections.immutable.toImmutableList
 import si.inova.tws.manager.TWSConfiguration
 import si.inova.tws.manager.TWSFactory
 import si.inova.tws.manager.TWSManager
 import si.inova.tws.manager.TWSOutcome
-import si.inova.tws.sample.components.LoadingSpinner
-import si.inova.tws.sample.components.OnErrorComponent
+import si.inova.tws.sample.R
+import si.inova.tws.sample.components.LoadingView
+import si.inova.tws.sample.components.ErrorView
 import si.inova.tws.sample.components.TWSViewComponentWithPager
 
 @Composable
-fun TWSViewMustacheExample() {
+fun TWSViewInjectionExample() {
     val context = LocalContext.current
     val manager =
         TWSFactory.get(
@@ -37,26 +39,11 @@ fun TWSViewMustacheExample() {
             TWSConfiguration.Basic(organizationId = organizationId, projectId = projectId, apiKey = "apiKey")
         )
 
-    val localProps =
-        mapOf(
-            "welcome_email" to
-                mapOf(
-                    "name" to "Alice",
-                    "company" to "TheWebSnippet",
-                    "guide_url" to "https://mustache.github.io",
-                    "community_name" to "TWS dev team",
-                    "support_email" to "support@TWS.com"
-                )
-        )
-
-    // Set local properties
-    manager.set("UseCaseExample2-howToMustache", localProps)
-
-    TWSViewMustacheContent(manager)
+    TWSViewInjectionContent(manager)
 }
 
 @Composable
-private fun TWSViewMustacheContent(
+private fun TWSViewInjectionContent(
     manager: TWSManager
 ) {
     // Collect snippets for your project
@@ -70,15 +57,15 @@ private fun TWSViewMustacheContent(
             }
 
             content is TWSOutcome.Error -> {
-                OnErrorComponent()
+                ErrorView(content.exception.message ?: stringResource(R.string.error_message))
             }
 
             content is TWSOutcome.Progress -> {
-                LoadingSpinner()
+                LoadingView()
             }
         }
     }
 }
 
 private const val organizationId = "examples"
-private const val projectId = "example2"
+private const val projectId = "example3"

@@ -21,27 +21,27 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import si.inova.tws.sample.R
+import si.inova.tws.sample.ui.theme.TheWebSnippetSdkTheme
 
 @Composable
-fun OnErrorComponent() {
+fun ErrorView(
+    errorText: String,
+    modifier: Modifier = Modifier.fillMaxSize()
+) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState()),
+        modifier = modifier,
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -51,6 +51,18 @@ fun OnErrorComponent() {
             contentDescription = "Error"
         )
         Spacer(Modifier.size(8.dp))
-        Text(text = stringResource(R.string.error_message), style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Medium))
+
+        Text(
+            text = errorText,
+            style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Medium)
+        )
+    }
+}
+
+@Composable
+@Preview
+private fun FullScreenErrorViewPreview() {
+    TheWebSnippetSdkTheme {
+        ErrorView("Sorry, something went wrong!")
     }
 }

@@ -6,9 +6,10 @@ import androidx.activity.compose.setContent
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import si.inova.tws.example.exampleScreen.TWSViewCustomTabsExample
-import si.inova.tws.sample.exampleScreen.TWSViewInjectionExample
-import si.inova.tws.sample.exampleScreen.TWSViewMustacheExample
+import si.inova.tws.sample.examples.tabs.TWSViewCustomTabsExample
+import si.inova.tws.sample.examples.injection.TWSViewInjectionExample
+import si.inova.tws.sample.examples.mustache.TWSViewMustacheExample
+import si.inova.tws.sample.examples.navigation.TWSViewCustomInterceptorScreen
 import si.inova.tws.sample.ui.theme.TheWebSnippetSdkTheme
 
 class MainActivity : ComponentActivity() {
@@ -19,13 +20,12 @@ class MainActivity : ComponentActivity() {
             TheWebSnippetSdkTheme {
                 val navController = rememberNavController()
 
-                NavHost(navController = navController, startDestination = Screen.NavigationScreen.route) {
-                    composable(Screen.NavigationScreen.route) { NavigationScreen(navController) }
+                NavHost(navController = navController, startDestination = Screen.TWSViewCustomInterceptorExample.route) {
+                    composable(Screen.TWSViewCustomInterceptorExample.route) { TWSViewCustomInterceptorScreen(navController) }
                     composable(Screen.TWSViewCustomTabsExample.route) { TWSViewCustomTabsExample() }
                     composable(Screen.TWSViewMustacheExample.route) { TWSViewMustacheExample() }
                     composable(Screen.TWSViewInjectionExample.route) { TWSViewInjectionExample() }
                     composable(Screen.TWSViewLoginRedirectExample.route) { }
-                    composable(Screen.TWSViewInterceptExample.route) { }
                 }
             }
         }

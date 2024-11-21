@@ -14,42 +14,24 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.sample.components
+package si.inova.tws.sample.examples.navigation
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.size
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import si.inova.tws.sample.ui.theme.TheWebSnippetSdkTheme
+import android.net.Uri
+import si.inova.tws.core.data.TWSViewInterceptor
+import si.inova.tws.sample.Screen.*
 
-@Composable
-fun LoadingView(modifier: Modifier = Modifier.fillMaxSize()) {
-    Box(
-        modifier = modifier,
-        contentAlignment = Alignment.Center
-    ) {
-        CircularProgressIndicator(modifier = Modifier.size(40.dp))
-    }
-}
+class TWSViewDemoInterceptor(private val navigate: (String) -> Unit) : TWSViewInterceptor {
+    override fun handleUrl(url: Uri): Boolean {
+        val urlString = url.toString()
+        val route = when {
+            urlString.contains("/customTabsExample") -> TWSViewCustomTabsExample.route
+            urlString.contains("/mustacheExample") -> TWSViewMustacheExample.route
+            urlString.contains("/injectionExample") -> TWSViewInjectionExample.route
+            urlString.contains("/loginRedirectExample") -> TWSViewLoginRedirectExample.route
+            else -> null
+        }
 
-@Composable
-@Preview
-private fun FullScreenLoadingViewPreview() {
-    TheWebSnippetSdkTheme {
-        LoadingView()
-    }
-}
-
-@Composable
-@Preview
-private fun SmallLoadingViewPreview() {
-    TheWebSnippetSdkTheme {
-        LoadingView(modifier = Modifier.height(200.dp))
+        route?.let { navigate(it) }
+        return route != null
     }
 }
