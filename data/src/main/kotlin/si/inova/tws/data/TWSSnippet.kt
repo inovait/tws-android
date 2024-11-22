@@ -20,6 +20,18 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 import kotlinx.parcelize.RawValue
 
+/**
+ * Represents a web snippet that can be rendered in a WebView.
+ *
+ * @param id A unique identifier for the snippet.
+ * @param target The URL of the snippets content.
+ * @param headers custom HTTP headers to include with the request.
+ * @param dynamicResources A list of resources (CSS/JS) to inject.
+ * @param props Custom properties for the snippet. If the [engine] is set to [TWSEngine.MUSTACHE],
+ * these properties are also used for Mustache template processing.
+ * @param engine Specifies how the snippet content is processed, either rendered normally or processed as Mustache.
+ * @param loadIteration A counter for manual reloads of the snippet, useful whenever snippets HTML is changed.
+ */
 @Parcelize
 data class TWSSnippet(
     val id: String,

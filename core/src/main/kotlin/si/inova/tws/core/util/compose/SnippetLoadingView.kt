@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -15,13 +14,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
+/**
+ * A composable function that displays a loading indicator for snippets.
+ *
+ * @param modifier A [Modifier] to configure the layout or styling of the loading view.
+ */
 @Composable
-internal fun SnippetLoadingView(fullScreen: Boolean) {
+fun SnippetLoadingView(modifier: Modifier = Modifier) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .background(Color.Black.copy(alpha = 0.5f))
-            .then(if (fullScreen) Modifier.fillMaxHeight() else Modifier.height(200.dp))
     ) {
         CircularProgressIndicator(
             modifier = Modifier
@@ -35,12 +38,6 @@ internal fun SnippetLoadingView(fullScreen: Boolean) {
 
 @Preview
 @Composable
-fun SnippetLoadingFullScreenPreview() {
-    SnippetLoadingView(fullScreen = true)
-}
-
-@Preview
-@Composable
-fun SnippetLoadingCardPreview() {
-    SnippetLoadingView(fullScreen = false)
+private fun SnippetLoadingFullScreenPreview() {
+    SnippetLoadingView(modifier = Modifier.fillMaxHeight())
 }

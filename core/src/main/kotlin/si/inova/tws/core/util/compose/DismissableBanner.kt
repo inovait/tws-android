@@ -45,6 +45,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import si.inova.tws.core.R
 
+/**
+ * A composable function that displays an error banner with swipe-to-dismiss functionality.
+ *
+ * @param bannerText The text message to display inside the error banner.
+ */
 @Composable
 internal fun ErrorBannerWithSwipeToDismiss(bannerText: String) {
     val dismissState = rememberSwipeToDismissBoxState()

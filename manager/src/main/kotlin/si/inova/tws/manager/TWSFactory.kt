@@ -22,10 +22,25 @@ import jakarta.inject.Singleton
 import java.lang.ref.WeakReference
 import java.util.WeakHashMap
 
+/**
+ * A factory for creating and managing instances of [TWSManager].
+ *
+ * This factory uses a [WeakHashMap] to cache instances of [TWSManager] associated with specific tags.
+ * Instances are stored as weak references, meaning they will be automatically cleared by the garbage
+ * collector when they are no longer in use, ensuring memory efficiency.
+ */
 @Singleton
 object TWSFactory {
     private val instances = WeakHashMap<String, WeakReference<TWSManager>>()
 
+    /**
+     * Retrieves a [TWSManager] instance for the default configuration, which is created using metadata
+     * from the application's manifest.
+     *
+     * @param context The application context.
+     * @return A [TWSManager] instance associated with the configuration.
+     * @throws IllegalStateException if required metadata is missing in the Android Manifest.
+     */
     fun get(context: Context): TWSManager {
         val configuration = TWSConfiguration.Basic(
             getMetaData(context, ORGANIZATION_ID_METADATA),
@@ -36,14 +51,34 @@ object TWSFactory {
         return createOrGet(context, "${configuration.organizationId}_${configuration.projectId}", configuration)
     }
 
+    /**
+     * Retrieves a [TWSManager] instance for a custom [TWSConfiguration.Basic].
+     *
+     * @param context The application context.
+     * @param configuration The basic configuration containing organization and project IDs.
+     * @return A [TWSManager] instance associated with the provided configuration.
+     */
     fun get(context: Context, configuration: TWSConfiguration.Basic): TWSManager {
         return createOrGet(context, "${configuration.organizationId}_${configuration.projectId}", configuration)
     }
 
+    /**
+     * Retrieves a [TWSManager] instance for a custom [TWSConfiguration.Shared].
+     *
+     * @param context The application context.
+     * @param configuration The shared configuration containing the shared ID.
+     * @return A [TWSManager] instance associated with the provided configuration.
+     */
     fun get(context: Context, configuration: TWSConfiguration.Shared): TWSManager {
         return createOrGet(context, configuration.sharedId, configuration)
     }
 
+    /**
+     * Retrieves an existing [TWSManager] instance by its tag, if available.
+     *
+     * @param tag The unique tag associated with a [TWSManager] instance.
+     * @return The [TWSManager] instance if it exists in the cache, or `null` otherwise.
+     */
     fun get(tag: String): TWSManager? {
         return instances[tag]?.get()
     }
@@ -71,13 +106,31 @@ object TWSFactory {
     }
 }
 
+/**
+ * Represents configuration for a [TWSManager].
+ *
+ * @param apiKey The API key used to authenticate requests.
+ */
 sealed class TWSConfiguration(open val apiKey: String) {
+    /**
+     * Basic configuration for a [TWSManager].
+     *
+     * @param organizationId The ID of the organization.
+     * @param projectId The ID of the project.
+     * @param apiKey The API key used to authenticate requests.
+     */
     data class Basic(
         val organizationId: String,
         val projectId: String,
         override val apiKey: String
     ) : TWSConfiguration(apiKey)
 
+    /**
+     * Shared configuration for a [TWSManager].
+     *
+     * @param sharedId The shared identifier for accessing shared snippet.
+     * @param apiKey The API key used to authenticate requests.
+     */
     data class Shared(
         val sharedId: String,
         override val apiKey: String

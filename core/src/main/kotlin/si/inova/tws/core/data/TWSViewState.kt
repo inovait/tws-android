@@ -1,17 +1,37 @@
 /*
  * Copyright 2024 INOVA IT d.o.o.
  *
+ * This file contains modifications based on code from the Accompanist WebView library.
+ * Original Copyright (c) 2021 The Android Open Source Project, licensed under the Apache License, Version 2.0.
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy,
  * modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software
- *  is furnished to do so, subject to the following conditions:
+ * is furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ * The above copyright notice, this permission notice, and the following additional notice shall be included in all copies or
+ * substantial portions of the Software.
  *
+ * -----
+ * Portions of this file are derived from the Accompanist WebView library,
+ * which is available at https://github.com/google/accompanist/blob/main/web/src/main/java/com/google/accompanist/web/WebView.kt.
+ * Copyright (c) 2021 The Android Open Source Project. Licensed under Apache License, Version 2.0.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at:
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and limitations under the License.
+ *
+ * -----
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
- *  OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
- *   BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package si.inova.tws.core.data
@@ -33,6 +53,11 @@ import si.inova.tws.data.TWSSnippet
 
 /**
  * A state holder to hold the state for the WebView.
+ *
+ * NOTE: This class is a modified version of the original Accompanist WebView state holder.
+ * Modifications made include:
+ * - Added custom error tracking with `customErrorsForCurrentRequest`.
+ * - Removed some of the properties that were unused in our implementation.
  */
 @Stable
 class TWSViewState(webContent: WebContent) {
@@ -87,7 +112,6 @@ class TWSViewState(webContent: WebContent) {
  *
  * @param snippet An instance of [TWSSnippet] containing the target URL and any
  * additional HTTP headers for the WebView.
- *
  */
 @Composable
 fun rememberTWSViewState(
@@ -110,17 +134,15 @@ fun rememberTWSViewState(
     }
 
 /**
- * Creates a WebView state that persists across recompositions, configured to
- * display HTML data in the TWSView.
+ * Creates and remembers a [TWSViewState] for displaying HTML data in the WebView.
  *
- * @param data The HTML data to load into the WebView.
- * @param baseUrl Optional base URL to resolve relative paths in the HTML content.
- * @param encoding The encoding type for the HTML content, defaulting to "utf-8".
- * @param mimeType Optional MIME type for the data; if null, "text/html" is assumed.
- * @param historyUrl Optional URL for the WebView history.
- * @param key1 An optional key used to remember the state; if changed, a new
- * instance of [TWSViewState] is created.
- *
+ * @param data The HTML content to load.
+ * @param baseUrl Optional base URL for resolving relative paths.
+ * @param encoding Encoding for the HTML content, defaults to "utf-8".
+ * @param mimeType Optional MIME type for the data; defaults to "text/html".
+ * @param historyUrl Optional history URL for the WebView.
+ * @param key1 An optional key for recomposition; if changed, a new instance of [TWSViewState] is created.
+ * @return A [TWSViewState] configured to load the specified HTML content.
  */
 @Composable
 fun rememberTWSViewStateWithHTMLData(
@@ -144,11 +166,9 @@ fun rememberTWSViewStateWithHTMLData(
  * across activity recreation. This state is remembered via a key and stored
  * using Composes `rememberSaveable` to restore state after process death.
  *
- * @param inputs A set of inputs; if any of these change, the WebView state
- * will reset.
- * @param key An optional key for saved state persistence. If not provided, the
- * key is auto-generated by Compose for each unique code location in the
- * composition tree.
+ * @param inputs A set of inputs to determine when the state should be reset.
+ * @param key An optional key for saved state persistence; defaults to an auto-generated key.
+ * @return A [TWSViewState] that retains its state across activity recreation.
  *
  * Note: When using saved state, URL updates via recomposition are disabled.
  * To load new URLs, use a TWSViewNavigator.

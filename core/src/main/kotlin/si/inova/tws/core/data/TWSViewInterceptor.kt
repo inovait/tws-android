@@ -23,33 +23,30 @@ import android.net.Uri
 import androidx.core.content.ContextCompat.startActivity
 
 /**
- * `UrlLoadingCallback` is a functional interface that defines a contract for intercepting URLs within the
- * `TwsWebViewClient` class.
- *
- * This interface provides a single abstract method, `intercept`, which takes a URL as input and returns
+ * TWSViewInterceptor is a functional interface used to intercept URLs within a WebView.
+ * This interface provides a single method, handleUrl, which takes a URL as input and returns
  * a Boolean indicating whether the URL has been handled by the application.
  *
- * Typical usage:
- * - Implement this interface to customize URL interception behavior within a WebView.
- * - Use the `intercept` method to determine if a URL should be opened within the app (e.g., as a deep link)
- *   or in an external browser.
+ * Usage:
+ * - Implement this interface to customize URL interception behavior.
+ * - Use handleUrl to determine if a URL should be handled internally or externally (e.g., deep linking).
  */
 fun interface TWSViewInterceptor {
     fun handleUrl(url: Uri): Boolean
 }
 
 /**
- * `DeepLinkUrlLoadingCallback` is an implementation of [TWSViewInterceptor] designed to handle deep link URLs.
+ * `TWSViewDeepLinkInterceptor` is an implementation of [TWSViewInterceptor] that handles deep link URLs
+ * by launching the appropriate in-app activity if the URL matches the app's package name.
  *
- * This class intercepts URLs and attempts to open them as deep links within the app if they match the
- * app's package name. If a URL can be handled as a deep link, it triggers an intent to start the
- * activity associated with that URL.
+ * Usage:
+ * - Attach this to a `TwsWebViewClient` to intercept URLs and handle supported deep links.
  *
- * Example:
- * - Pass this implementation to the `TwsWebViewClient` to intercept URLs and launch corresponding
- *   activities within the app.
+ * Functionality:
+ * - Verifies if the URL can be handled within the app.
+ * - Launches the corresponding activity if supported; otherwise, allows the WebView to load the URL.
  *
- * @param context The application context used for launching intents and checking if URLs are supported.
+ * @param context The application context used for intent handling and URL verification.
  */
 class TWSViewDeepLinkInterceptor(private val context: Context) : TWSViewInterceptor {
     override fun handleUrl(url: Uri): Boolean {
@@ -71,15 +68,7 @@ class TWSViewDeepLinkInterceptor(private val context: Context) : TWSViewIntercep
 }
 
 /**
- * `NoOpLoadingCallback` is an implementation of [TWSViewInterceptor] that does not handle any URLs.
- *
- * This class is a "no-operation" implementation, meaning it will always return `false` for any URL
- * passed to its `intercept` method. It effectively instructs the `TwsWebViewClient` to allow all URLs
- * to be displayed within the WebView without additional handling.
- *
- * Usage:
- * - Use this class as a default or placeholder when no URL handling is required, or when WebView should
- *   display all URLs by default.
+ * `TWSViewNoOpInterceptor` is a [TWSViewInterceptor] that ignores all URLs, allowing the WebView to load them by default.
  */
 class TWSViewNoOpInterceptor : TWSViewInterceptor {
     override fun handleUrl(url: Uri): Boolean {

@@ -19,11 +19,65 @@ package si.inova.tws.manager
 import kotlinx.coroutines.flow.Flow
 import si.inova.tws.data.TWSSnippet
 
+/**
+ * A manager interface for handling snippets, their properties, and lifecycle events.
+ *
+ * Instances of [TWSManager] should be created using [TWSFactory].
+ *
+ * ### Example Usage
+ * ```kotlin
+ * val manager = TWSFactory.get(context)
+ * val projectSnippets = manager.snippets.collectAsStateWithLifecycle(null).value
+ * // Use projectSnippets with TWSView or process them as needed
+ * ```
+ *
+ * ### Defining Metadata in Android Manifest
+ * To use [TWSManager], you must define the required metadata in your `AndroidManifest.xml` file:
+ * ```xml
+ * <application>
+ *     <!-- Other application elements -->
+ *     <meta-data
+ *         android:name="si.inova.tws.ORGANIZATION_ID"
+ *         android:value="your_organization_id_here" />
+ *     <meta-data
+ *         android:name="si.inova.tws.PROJECT_ID"
+ *         android:value="your_project_id_here" />
+ * </application>
+ * ```
+ */
 interface TWSManager {
+    /**
+     * A flow that combines remote snippets with local properties to keep the data in sync and up-to-date.
+     * Use `collectAsStateWithLifecycle` to automatically start and stop data collection based on the lifecycle.
+     */
     val snippets: Flow<TWSOutcome<List<TWSSnippet>>>
+
+    /**
+     * A flow that emits the ID of the main snippet. Available only when opening shared snippet.
+     * Use `collectAsStateWithLifecycle` to automatically start and stop data collection based on the lifecycle.
+     */
     val mainSnippetIdFlow: Flow<String?>
 
+    /**
+     * Retrieves the list of snippets as a flow of data only.
+     * Use `collectAsStateWithLifecycle` to automatically start and stop data collection based on the lifecycle.
+     *
+     * @return A [Flow] emitting the current list of snippets, cached, remote or `null` if unavailable.
+     */
     fun snippets(): Flow<List<TWSSnippet>?>
+
+    /**
+     * Forces a refresh of the snippets by reloading them from the remote source.
+     * Updates are emitted in [snippets] flow to all active collectors and cached for future use.
+     */
     fun forceRefresh()
+
+    /**
+     * Updates or adds local properties for a specific snippet.
+     * These properties are  applied to the snippet for all active collectors.
+     *
+     * @param id The unique identifier of the snippet.
+     * @param localProps A map of properties to associate with the snippet.
+     */
     fun set(id: String, localProps: Map<String, Any>)
 }
