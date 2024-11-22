@@ -93,8 +93,8 @@ import si.inova.tws.data.TWSSnippet
 fun TWSView(
     snippet: TWSSnippet,
     modifier: Modifier = Modifier,
-    navigator: TWSViewNavigator = rememberTWSViewNavigator("${snippet.id}:${snippet.target}"),
-    viewState: TWSViewState = rememberTWSViewState(snippet, "${snippet.id}:${snippet.target}"),
+    navigator: TWSViewNavigator = rememberTWSViewNavigator(snippet),
+    viewState: TWSViewState = rememberTWSViewState(snippet),
     errorViewContent: @Composable (String) -> Unit = { SnippetErrorView(it, true) },
     loadingPlaceholderContent: @Composable () -> Unit = { SnippetLoadingView(true) },
     interceptUrlCallback: TWSViewInterceptor = TWSViewDeepLinkInterceptor(LocalContext.current),
