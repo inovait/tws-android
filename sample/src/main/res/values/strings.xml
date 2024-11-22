@@ -1,22 +1,4 @@
 <resources>
     <string name="app_name">Sample</string>
     <string name="error_message">Oooops, loading failed</string>
-    <string name="logo_icon">Logo Icon</string>
-
-    <string name="example1_title">Tab names and icons</string>
-    <string name="example1_description">In this example you will learn about how you can set your own custom tab names and tab icons to your content</string>
-
-    <string name="example2_title">Mustache</string>
-    <string name="example2_description">In this example you will see how to use mustache processing to dynamically set content to existing html</string>
-
-    <string name="example3_title">Injection</string>
-    <string name="example3_description">In this example we will showcase how you can inject CSS and javascript in your html</string>
-
-    <string name="example4_title">Login redirection</string>
-    <string name="example4_description">In this example we will showcase how to handle login redirects that can be handled natively</string>
-
-    <string name="example5_title">Intercepts</string>
-    <string name="example5_description">In this example you will learn how to create custom intercepts to url requests</string>
-
-    <string name="examples_title">The Web Snippet Examples</string>
 </resources>
