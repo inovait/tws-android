@@ -34,8 +34,8 @@ import kotlinx.collections.immutable.ImmutableList
 import si.inova.tws.core.TWSView
 import si.inova.tws.data.TWSSnippet
 import si.inova.tws.sample.R
-import si.inova.tws.sample.components.LoadingView
 import si.inova.tws.sample.components.ErrorView
+import si.inova.tws.sample.components.LoadingView
 
 @Composable
 fun TWSViewComponentWithTabs(
@@ -67,6 +67,7 @@ fun BottomTabsRow(
 ) {
     TabRow(currentTab) {
         content.forEachIndexed { index, item ->
+            // Setting text and icons for each tab using custom snippet properties
             Tab(
                 selected = index == currentTab,
                 onClick = { onClick(index) },
