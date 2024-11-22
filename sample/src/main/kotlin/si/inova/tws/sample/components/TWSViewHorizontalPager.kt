@@ -84,11 +84,11 @@ fun TWSViewComponentWithPager(data: ImmutableList<TWSSnippet>) {
             PageIndicators(
                 modifier = Modifier.weight(1f).align(Alignment.CenterVertically),
                 currentPage = pagerState.currentPage,
-                pageCount = pagerState.pageCount
+                pageCount = data.size
             )
 
             // Navigate forward button
-            NavigateIndicator(Icons.AutoMirrored.Filled.ArrowForward, pagerState.currentPage < pagerState.pageCount - 1) {
+            NavigateIndicator(Icons.AutoMirrored.Filled.ArrowForward, pagerState.currentPage < data.size - 1) {
                 scope.launch {
                     pagerState.animateScrollToPage(pagerState.currentPage + 1)
                 }
@@ -126,12 +126,12 @@ private fun PageIndicators(
         modifier = modifier,
         horizontalArrangement = Arrangement.Center
     ) {
-        for (index in 0 until pageCount) {
+        repeat(pageCount) {
             Box(
                 modifier = Modifier
                     .padding(2.dp)
                     .clip(CircleShape)
-                    .background(if (currentPage == index) Color.DarkGray else Color.LightGray)
+                    .background(if (currentPage == it) Color.DarkGray else Color.LightGray)
                     .size(12.dp)
             )
         }

@@ -41,20 +41,20 @@ fun TWSViewMustacheExample() {
         )
     }
 
-    val localProps =
-        mapOf(
-            "welcome_email" to
-                mapOf(
-                    "name" to "Alice",
-                    "company" to "TheWebSnippet",
-                    "guide_url" to "https://mustache.github.io",
-                    "community_name" to "TWS dev team",
-                    "support_email" to "support@TWS.com"
-                )
-        )
-
     // Set local properties
     LaunchedEffect(Unit) {
+        val localProps =
+            mapOf(
+                "welcome_email" to
+                    mapOf(
+                        "name" to "Alice",
+                        "company" to "TheWebSnippet",
+                        "guide_url" to "https://mustache.github.io",
+                        "community_name" to "TWS dev team",
+                        "support_email" to "support@TWS.com"
+                    )
+            )
+
         manager.set("howToMustache", localProps)
     }
 
