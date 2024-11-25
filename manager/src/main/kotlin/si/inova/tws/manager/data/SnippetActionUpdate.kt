@@ -98,7 +98,8 @@ internal fun List<TWSSnippetDto>.insert(data: ActionBody): List<TWSSnippetDto> {
                     projectId = data.projectId.orEmpty(),
                     visibility = data.visibility,
                     dynamicResources = data.dynamicResources.orEmpty(),
-                    props = data.props.orEmpty()
+                    props = data.props.orEmpty(),
+                    engine = data.engine ?: TWSEngine.NONE
                 )
             )
         }
