@@ -49,12 +49,12 @@ import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toImmutableMap
 import si.inova.tws.core.client.OkHttpTWSWebViewClient
 import si.inova.tws.core.client.TWSWebChromeClient
-import si.inova.tws.core.data.TWSViewDeepLinkInterceptor
 import si.inova.tws.core.data.TWSLoadingState
+import si.inova.tws.core.data.TWSViewDeepLinkInterceptor
 import si.inova.tws.core.data.TWSViewInterceptor
-import si.inova.tws.core.data.WebContent
 import si.inova.tws.core.data.TWSViewNavigator
 import si.inova.tws.core.data.TWSViewState
+import si.inova.tws.core.data.WebContent
 import si.inova.tws.core.data.onCreateWindowStatus
 import si.inova.tws.core.data.rememberTWSViewNavigator
 import si.inova.tws.core.data.rememberTWSViewState
@@ -79,9 +79,9 @@ import si.inova.tws.data.TWSSnippet
  * @param navigator The current [TWSViewNavigator] to control WebView navigation externally.
  * @param viewState The current [TWSViewState] representing the state of the WebView.
  * @param errorViewContent A custom composable displayed when there is an error loading content.
- * Defaults to a full-screen [SnippetErrorView].
+ * Defaults to a [SnippetErrorView] with the same modifier as [TWSView].
  * @param loadingPlaceholderContent A custom composable displayed during loading.
- * Defaults to a full-screen [SnippetLoadingView].
+ * Defaults to a [SnippetLoadingView] with the same modifier as [TWSView].
  * @param interceptUrlCallback A [TWSViewInterceptor] invoked for URLs before navigation.
  * Return `true` to prevent navigation, `false` to allow it.
  * @param googleLoginRedirectUrl The URL the app should redirect to after a Google login
@@ -94,8 +94,8 @@ fun TWSView(
     modifier: Modifier = Modifier,
     navigator: TWSViewNavigator = rememberTWSViewNavigator(snippet),
     viewState: TWSViewState = rememberTWSViewState(snippet),
-    errorViewContent: @Composable (String) -> Unit = { SnippetErrorView(it, true) },
-    loadingPlaceholderContent: @Composable () -> Unit = { SnippetLoadingView(true) },
+    errorViewContent: @Composable (String) -> Unit = { SnippetErrorView(it, modifier) },
+    loadingPlaceholderContent: @Composable () -> Unit = { SnippetLoadingView(modifier) },
     interceptUrlCallback: TWSViewInterceptor = TWSViewDeepLinkInterceptor(LocalContext.current),
     googleLoginRedirectUrl: String? = null,
     isRefreshable: Boolean = true
