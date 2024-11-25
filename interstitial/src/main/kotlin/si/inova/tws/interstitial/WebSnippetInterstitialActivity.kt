@@ -36,7 +36,6 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
-import si.inova.kotlinova.core.outcome.Outcome
 import si.inova.tws.core.TWSView
 import si.inova.tws.data.TWSSnippet
 import si.inova.tws.interstitial.WebSnippetPopup.Companion.MANAGER_TAG
@@ -45,6 +44,7 @@ import si.inova.tws.interstitial.WebSnippetPopup.Companion.STATUS_BAR_COLOR
 import si.inova.tws.interstitial.WebSnippetPopup.Companion.WEB_SNIPPET_DATA
 import si.inova.tws.interstitial.WebSnippetPopup.Companion.WEB_SNIPPET_ID
 import si.inova.tws.manager.TWSFactory
+import si.inova.tws.manager.TWSOutcome
 
 /**
  * WebSnippetInterstitialActivity is a ComponentActivity responsible for displaying
@@ -91,7 +91,7 @@ class WebSnippetInterstitialActivity : ComponentActivity() {
 
         setContent {
             val shouldCloseFlow = manager?.snippets?.map { outcome ->
-                outcome is Outcome.Success && !outcome.data.any {
+                outcome is TWSOutcome.Success && !outcome.data.any {
                     it.id == webSnippetId
                 }
             }?.collectAsState(false)?.value

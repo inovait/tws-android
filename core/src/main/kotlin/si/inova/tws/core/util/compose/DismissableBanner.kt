@@ -28,6 +28,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SwipeToDismissBox
@@ -37,13 +39,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import si.inova.tws.core.R
 
+/**
+ * A composable function that displays an error banner with swipe-to-dismiss functionality.
+ *
+ * @param bannerText The text message to display inside the error banner.
+ */
 @Composable
 internal fun ErrorBannerWithSwipeToDismiss(bannerText: String) {
     val dismissState = rememberSwipeToDismissBoxState()
@@ -68,7 +74,7 @@ internal fun ErrorBannerWithSwipeToDismiss(bannerText: String) {
             horizontalArrangement = Arrangement.Center
         ) {
             Icon(
-                painter = painterResource(id = R.drawable.ic_warning),
+                imageVector = Icons.Default.Warning,
                 contentDescription = null,
                 tint = Color.White,
                 modifier = Modifier.size(24.dp)
@@ -92,10 +98,4 @@ private const val baseDismissColor = 0xFFB71C1C
 @Preview
 private fun BannerNoNetworkPreview() {
     ErrorBannerWithSwipeToDismiss(stringResource(R.string.error_no_network))
-}
-
-@Composable
-@Preview
-private fun BannerGeneralPreview() {
-    ErrorBannerWithSwipeToDismiss(stringResource(R.string.error_general))
 }

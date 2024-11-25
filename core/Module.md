@@ -1,7 +1,10 @@
 # Module core
 
-The Core module provides a robust framework for integrating web views within Jetpack Compose applications through the 
-WebSnippetComponent and TabWebSnippetComponent composable functions. This module enhances user experience by preserving 
-scroll positions and allowing custom CSS and JavaScript injection before page loads. It facilitates Google authentication by 
-handling login URL interceptions and manages permissions for sensitive actions like geolocation and camera access with 
-straightforward callbacks. Additionally, the module supports file selection via a wrapped file chooser dialog.
+The Core module of the TWS SDK provides a set of tools to seamlessly embed web
+content into your Android applications using Jetpack Compose. It focuses on simplifying
+the integration of web-based features and enhancing the user interface with dynamic and
+customizable web views.
+
+With the Core module, you can create, display, and interact with web snippets 
+directly in your Compose-based layouts. It is designed to handle dynamic content, 
+error states, loading indicators, and more, ensuring a smooth and polished user experience.

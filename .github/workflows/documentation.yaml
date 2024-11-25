@@ -1,0 +1,77 @@
+name: Generate Documentation
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  generate-documentation:
+    name: Generate updated documentation
+    runs-on: "ubuntu-latest"
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          ref: develop
+
+      # Step 2: Set up Java environment (needed for Dokka)
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      # Step 3: Parse new SDK version
+      - name: Parse SDK version
+        id: parse_version
+        run: |
+          VERSION=$(cat version.txt)
+          echo "SDK Version: $VERSION"
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      # Step 4: Run the Dokka task
+      - name: Generate documentation with Dokka
+        run: ./gradlew dokkaHtmlMultiModule
+
+
+      # Step 5: Prepare the documentation for deployment
+      - name: Prepare documentation for deployment
+        run: |
+          mkdir -p docs/$VERSION
+          cp -r build/dokka/htmlMultiModule/* docs/$VERSION/
+          mkdir -p docs/main
+          cp -r build/dokka/htmlMultiModule/* docs/main/
+
+      # Step 6: Save generated documentation to a temporary location
+      - name: Save generated documentation
+        run: |
+          mkdir -p /tmp/generated_docs
+          cp -r docs/* /tmp/generated_docs/
+
+      # Step 7: Checkout gh-pages branch
+      - name: Checkout gh-pages
+        uses: actions/checkout@v3
+        with:
+          ref: gh-pages
+
+      # Step 8: Copy generated docs from temporary location to gh-pages
+      - name: Copy generated docs to gh-pages
+        run: |
+          [ -d $VERSION ] && rm -rf $VERSION
+          [ -d main ] && rm -rf main
+          
+          cp -r /tmp/generated_docs/$VERSION ./
+          cp -r /tmp/generated_docs/main ./
+
+      # Step 9: Commit and push changes to gh-pages
+      - name: Commit and push changes
+        run: |
+          touch .nojekyll
+          git config user.email "ci@inova.si"
+          git config user.name "Build Bot"
+          git add -A
+          git commit -m "Update documentation for version $VERSION" --no-verify
+          git push origin gh-pages

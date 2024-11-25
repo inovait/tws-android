@@ -16,28 +16,16 @@
 
 package si.inova.tws.manager.utils
 
-import retrofit2.Response
-import si.inova.kotlinova.retrofit.FakeService
-import si.inova.kotlinova.retrofit.ServiceTestingHelper
-import si.inova.tws.manager.data.ProjectDto
-import si.inova.tws.manager.data.SharedSnippetDto
-import si.inova.tws.manager.network.TWSFunctions
+import si.inova.tws.manager.TWSOutcome
 
-internal class FakeTWSFunctions(
-    private val helper: ServiceTestingHelper = ServiceTestingHelper()
-) : TWSFunctions, FakeService by helper {
-    var returnedProject: Response<ProjectDto>? = null
-    var returnedSharedSnippet: SharedSnippetDto? = null
+infix fun <T> TWSOutcome<T>.shouldBeSuccessWithData(expectedData: T) {
+    assert(this is TWSOutcome.Success && this.data == expectedData)
+}
 
-    override suspend fun getWebSnippets(organizationId: String, projectId: String, apiKey: String?): Response<ProjectDto> {
-        helper.intercept()
+infix fun <T> TWSOutcome<T>.shouldBeProgressWithData(expectedData: T?) {
+    assert(this is TWSOutcome.Progress<*> && this.data == expectedData)
+}
 
-        return returnedProject ?: error("Returned project not faked!")
-    }
-
-    override suspend fun getSharedSnippetData(shareId: String): SharedSnippetDto {
-        helper.intercept()
-
-        return returnedSharedSnippet ?: error("Returned shared snippet not faked!")
-    }
+fun <T> TWSOutcome<T>.shouldBeProgressWith(expectedData: T? = null) {
+    shouldBeProgressWithData(expectedData)
 }

@@ -1,17 +1,37 @@
 /*
  * Copyright 2024 INOVA IT d.o.o.
  *
+ * This file contains modifications based on code from the Accompanist WebView library.
+ * Original Copyright (c) 2021 The Android Open Source Project, licensed under the Apache License, Version 2.0.
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy,
  * modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software
- *  is furnished to do so, subject to the following conditions:
+ * is furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ * The above copyright notice, this permission notice, and the following additional notice shall be included in all copies or
+ * substantial portions of the Software.
  *
+ * -----
+ * Portions of this file are derived from the Accompanist WebView library,
+ * which is available at https://github.com/google/accompanist/blob/main/web/src/main/java/com/google/accompanist/web/WebView.kt.
+ * Copyright (c) 2021 The Android Open Source Project. Licensed under Apache License, Version 2.0.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at:
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and limitations under the License.
+ *
+ * -----
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
- *  OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
- *   BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package si.inova.tws.core.data
@@ -33,9 +53,10 @@ import kotlinx.coroutines.withContext
 
 /**
  * Allows control over the navigation of a WebView from outside the composable. E.g. for performing
- * a back navigation in response to the user clicking the "up" button in a TopAppBar.
+ * a back/forward navigation in response to the user clicking the "up" or "down" button in a TopAppBar.
  *
- * @see [rememberTWSViewNavigator]
+ * NOTE: This class is a modified version of the original Accompanist WebView navigator.
+ *
  */
 @Stable
 class TWSViewNavigator(private val coroutineScope: CoroutineScope) {
@@ -56,14 +77,14 @@ class TWSViewNavigator(private val coroutineScope: CoroutineScope) {
     /**
      * Navigates the webview back to the previous page.
      */
-    fun navigateBack() {
+    fun goBack() {
         coroutineScope.launch { navigationEvents.emit(NavigationEvent.Back) }
     }
 
     /**
      * Navigates the webview forward after going back from a page.
      */
-    fun navigateForward() {
+    fun goForward() {
         coroutineScope.launch { navigationEvents.emit(NavigationEvent.Forward) }
     }
 
@@ -149,8 +170,10 @@ class TWSViewNavigator(private val coroutineScope: CoroutineScope) {
 }
 
 /**
- * Creates and remembers a [TWSViewNavigator] using the default [CoroutineScope] or a provided
- * override.
+ * Creates and remembers a [TWSViewNavigator] with the default [CoroutineScope].
+ *
+ * @param coroutineScope Optional scope for coroutine operations. Defaults to [rememberCoroutineScope].
+ * @return A remembered instance of [TWSViewNavigator].
  */
 @Composable
 fun rememberTWSViewNavigator(
@@ -158,8 +181,11 @@ fun rememberTWSViewNavigator(
 ): TWSViewNavigator = remember(coroutineScope) { TWSViewNavigator(coroutineScope) }
 
 /**
- * Creates and remembers a [TWSViewNavigator] using the default [CoroutineScope] or a provided
- * override.
+ * Creates and remembers a [TWSViewNavigator] with an optional key and default [CoroutineScope].
+ *
+ * @param key1 An optional key used for recomposition.
+ * @param coroutineScope Optional scope for coroutine operations. Defaults to [rememberCoroutineScope].
+ * @return A remembered instance of [TWSViewNavigator].
  */
 @Composable
 fun rememberTWSViewNavigator(

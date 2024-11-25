@@ -14,7 +14,7 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.manager.websocket
+package si.inova.tws.manager
 
 import android.util.Log
 import app.cash.turbine.test
@@ -40,6 +40,7 @@ import si.inova.tws.manager.utils.UPDATE_SNIPPET_DYNAMIC_RESOURCES
 import si.inova.tws.manager.utils.UPDATE_SNIPPET_HTML
 import si.inova.tws.manager.utils.UPDATE_SNIPPET_PROPS
 import si.inova.tws.manager.utils.UPDATE_SNIPPET_URL
+import si.inova.tws.manager.websocket.TWSSocketListenerImpl
 
 class TWSSocketListenerImplTest {
     private val mockWebSocket = mockk<WebSocket>(relaxed = true)

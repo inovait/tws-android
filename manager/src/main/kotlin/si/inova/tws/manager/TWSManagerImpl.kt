@@ -26,7 +26,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onCompletion
@@ -35,10 +34,6 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import si.inova.kotlinova.core.exceptions.UnknownCauseException
-import si.inova.kotlinova.core.outcome.CauseException
-import si.inova.kotlinova.core.outcome.Outcome
-import si.inova.kotlinova.core.outcome.mapData
 import si.inova.tws.manager.cache.CacheManager
 import si.inova.tws.manager.cache.FileCacheManager
 import si.inova.tws.manager.data.NetworkStatus
@@ -56,6 +51,21 @@ import si.inova.tws.manager.websocket.TWSSocketImpl
 import java.time.Instant
 import kotlin.time.Duration.Companion.seconds
 
+/**
+ * An implementation of [TWSManager] that manages snippets, their loading, caching, and live updates.
+ * It integrates WebSocket connections, local snippet handler, and network connectivity to ensure
+ * snippets are always up-to-date and react to changes dynamically.
+ *
+ * @param context The application context, used for cache management and connectivity services.
+ * @param tag A unique tag used for cache management and identification.
+ * @param configuration The configuration for the manager, defining source of the snippets.
+ * @param scope A [CoroutineScope] used for asynchronous operations and lifecycle management.
+ * @param loader A [SnippetLoadingManager] responsible for loading snippets from a remote source.
+ * @param twsSocket An optional WebSocket connection to receive live updates.
+ * @param localSnippetHandler An optional handler for local snippet updates, like visibility changes.
+ * @param cacheManager An optional cache manager to handle snippet caching.
+ * @param networkConnectivityService An optional service to monitor network connectivity changes.
+ */
 internal class TWSManagerImpl(
     context: Context,
     tag: String = "",
@@ -72,49 +82,66 @@ internal class TWSManagerImpl(
     private var collectingLocalHandler: Boolean = false
     private var networkStatusJob: Job? = null
 
-    private val _snippetsFlow: MutableStateFlow<Outcome<List<TWSSnippetDto>>> = MutableStateFlow(Outcome.Progress())
+    private val _snippetsFlow: MutableStateFlow<TWSOutcome<List<TWSSnippetDto>>> = MutableStateFlow(TWSOutcome.Progress())
     private val _localProps: MutableStateFlow<Map<String, Map<String, Any>>> = MutableStateFlow(emptyMap())
 
     /**
-     * collect [snippets] using `collectAsStateWithLifecycle`
-     * to ensure the WebSocket disconnects when not needed and reconnects appropriately.
+     * A flow that combines remote snippets with local properties to keep the data in sync and up-to-date.
+     * Use `collectAsStateWithLifecycle` to automatically start and stop data collection based on the lifecycle.
      */
     override val snippets = combine(_snippetsFlow, _localProps) { outcome, localProps ->
         outcome.mapData { it.toTWSSnippetList(localProps) }
     }.onStart { setupCollectingAndLoad() }
         .onCompletion { cancelCollecting() }
-        .stateIn(scope, SharingStarted.WhileSubscribed(5.seconds), Outcome.Progress())
+        .stateIn(scope, SharingStarted.WhileSubscribed(5.seconds), TWSOutcome.Progress())
 
+    /**
+     * A flow that emits the ID of the main snippet. Available only when opening shared snippet.
+     */
     private val _mainSnippetIdFlow: MutableStateFlow<String?> = MutableStateFlow(null)
-    override val mainSnippetIdFlow: Flow<String?> = _mainSnippetIdFlow.filterNotNull()
+    override val mainSnippetIdFlow: Flow<String?> = _mainSnippetIdFlow
 
+    /**
+     * Retrieves the list of snippets as a flow of data only.
+     *
+     * @return A [Flow] emitting the current list of snippets or `null` if unavailable.
+     */
     override fun snippets() = snippets.map { it.data }
 
+    /**
+     * Forces a refresh of the snippets by reloading them from the remote source.
+     * Updates are emitted to all active collectors and cached for future use.
+     */
     override fun forceRefresh() {
         launch {
             try {
-                _snippetsFlow.emit(Outcome.Progress(cacheManager?.load(CACHED_SNIPPETS)))
+                _snippetsFlow.emit(TWSOutcome.Progress(cacheManager?.load(CACHED_SNIPPETS)))
 
                 val response = loader.load()
                 val project = response.project
 
                 _mainSnippetIdFlow.emit(response.mainSnippet)
 
-                _snippetsFlow.emit(Outcome.Success(project.snippets))
+                _snippetsFlow.emit(TWSOutcome.Success(project.snippets))
 
                 saveToCache(project.snippets)
 
                 twsSocket?.launchAndCollect(project.listenOn)
                 localSnippetHandler?.launchAndCollect(response.responseDate, project.snippets)
-            } catch (e: CauseException) {
-                _snippetsFlow.emit(Outcome.Error(e, _snippetsFlow.value.data))
             } catch (e: Exception) {
-                _snippetsFlow.emit(Outcome.Error(UnknownCauseException("", e), _snippetsFlow.value.data))
+                _snippetsFlow.emit(TWSOutcome.Error(e, _snippetsFlow.value.data))
             }
         }
     }
 
-    override fun setLocalProps(id: String, localProps: Map<String, Any>) {
+    /**
+     * Updates or adds local properties for a specific snippet.
+     * These properties are  applied to the snippet for all active collectors.
+     *
+     * @param id The unique identifier of the snippet.
+     * @param localProps A map of properties to associate with the snippet.
+     */
+    override fun set(id: String, localProps: Map<String, Any>) {
         val currentLocalProps = _localProps.value.toMutableMap()
         currentLocalProps[id] = localProps
         _localProps.update { currentLocalProps }
@@ -152,7 +179,7 @@ internal class TWSManagerImpl(
             val newList = _snippetsFlow.value.data.orEmpty().updateWith(it)
 
             localSnippetHandler?.updateAndScheduleCheck(newList)
-            _snippetsFlow.emit(Outcome.Success(newList))
+            _snippetsFlow.emit(TWSOutcome.Success(newList))
             saveToCache(newList)
         }.launchIn(this@TWSManagerImpl).invokeOnCompletion {
             collectingSocket = false
@@ -169,7 +196,7 @@ internal class TWSManagerImpl(
         updateActionFlow.onEach {
             val newList = _snippetsFlow.value.data.orEmpty().updateWith(it)
 
-            _snippetsFlow.emit(Outcome.Success(newList))
+            _snippetsFlow.emit(TWSOutcome.Success(newList))
             saveToCache(newList)
         }.launchIn(this@TWSManagerImpl).invokeOnCompletion {
             collectingLocalHandler = false

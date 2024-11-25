@@ -14,22 +14,27 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.core.util.compose
+package si.inova.tws.manager.fakes
 
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.res.stringResource
-import si.inova.tws.core.R
-import java.net.ConnectException
-import java.net.SocketTimeoutException
-import java.net.UnknownHostException
+import kotlinx.coroutines.flow.MutableSharedFlow
+import si.inova.tws.manager.data.SnippetUpdateAction
+import si.inova.tws.manager.websocket.TWSSocket
 
-@Composable
-internal fun Exception.getUserFriendlyMessage(): String? {
-    return when (this) {
-        is UnknownHostException,
-        is ConnectException,
-        is SocketTimeoutException -> stringResource(id = R.string.error_no_network)
+internal class FakeTWSSocket : TWSSocket {
+    override var updateActionFlow: MutableSharedFlow<SnippetUpdateAction> = MutableSharedFlow()
 
-        else -> null
+    override fun closeWebsocketConnection(): Boolean {
+        isConnectionOpen = false
+        return true
     }
+
+    override fun setupWebSocketConnection(setupWssUrl: String, unauthorizedCallback: suspend () -> Unit) {
+        isConnectionOpen = true
+    }
+
+    suspend fun mockUpdateAction(action: SnippetUpdateAction) {
+        updateActionFlow.emit(action)
+    }
+
+    var isConnectionOpen = false
 }

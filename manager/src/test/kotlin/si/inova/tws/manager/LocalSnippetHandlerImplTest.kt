@@ -23,11 +23,10 @@ import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
-import si.inova.kotlinova.core.test.TestScopeWithDispatcherProvider
-import si.inova.kotlinova.core.time.FakeAndroidTimeProvider
 import si.inova.tws.manager.data.ActionBody
 import si.inova.tws.manager.data.ActionType
 import si.inova.tws.manager.data.SnippetUpdateAction
+import si.inova.tws.manager.fakes.FakeAndroidTimeProvider
 import si.inova.tws.manager.localhandler.LocalSnippetHandlerImpl
 import si.inova.tws.manager.utils.FAKE_SNIPPET_ONE
 import si.inova.tws.manager.utils.FAKE_SNIPPET_THREE
@@ -37,13 +36,14 @@ import si.inova.tws.manager.utils.MILLISECONDS_DATE_FUTURE_1
 import si.inova.tws.manager.utils.MILLISECONDS_DATE_FUTURE_11
 import si.inova.tws.manager.utils.MILLISECONDS_DATE_FUTURE_5
 import si.inova.tws.manager.utils.MILLISECONDS_DATE_PAST
+import si.inova.tws.manager.utils.testScopeWithDispatcherProvider
 import si.inova.tws.manager.utils.setVisibility
 import java.time.Instant
 import java.util.concurrent.TimeUnit
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class LocalSnippetHandlerImplTest {
-    private val scope = TestScopeWithDispatcherProvider()
+    private val scope = testScopeWithDispatcherProvider()
     private val timeProvider = FakeAndroidTimeProvider(
         currentMilliseconds = { MILLISECONDS_DATE + timePassedBy } // 3.3.2000 10:00
     )

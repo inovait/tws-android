@@ -16,12 +16,12 @@
 
 package si.inova.tws.data
 
-import androidx.annotation.Keep
 import com.squareup.moshi.Json
-import com.squareup.moshi.JsonClass
 
-@Keep
-@JsonClass(generateAdapter = false)
+/**
+ * An enum defining the processing engine for web content,
+ * will process snippet with Mustache if [TWSEngine.MUSTACHE] is used.
+ */
 enum class TWSEngine {
     @Json(name = "mustache")
     MUSTACHE,

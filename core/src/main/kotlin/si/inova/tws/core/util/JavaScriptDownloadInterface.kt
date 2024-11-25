@@ -30,6 +30,11 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 
+/**
+ * A JavaScript interface for handling file downloads in a WebView.
+ * This class provides functionality to convert Base64 strings to files, store them,
+ * and notify the user via the Android notification system or Toast messages.
+ */
 internal class JavaScriptDownloadInterface(private val context: Context) {
 
     @Suppress("Unused") // it is used in javascript

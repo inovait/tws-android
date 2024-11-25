@@ -1,13 +1,33 @@
 /*
  * Copyright 2024 INOVA IT d.o.o.
  *
+ * This file contains modifications based on code from the Accompanist WebView wrapper.
+ * Original Copyright (c) 2021 The Android Open Source Project, licensed under the Apache License, Version 2.0.
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy,
  * modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software
  * is furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ * The above copyright notice, this permission notice, and the following additional notice shall be included in all copies or
+ * substantial portions of the Software.
  *
+ * -----
+ * Portions of this file are derived from the Accompanist WebView library,
+ * which is available at https://github.com/google/accompanist/blob/main/web/src/main/java/com/google/accompanist/web/WebView.kt.
+ * Copyright (c) 2021 The Android Open Source Project. Licensed under Apache License, Version 2.0.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at:
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and limitations under the License.
+ *
+ * -----
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
  * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
  * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
@@ -45,7 +65,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import si.inova.tws.core.client.AccompanistWebChromeClient
 import si.inova.tws.core.client.AccompanistWebViewClient
 import si.inova.tws.core.client.TWSWebChromeClient
-import si.inova.tws.core.data.LoadingState
+import si.inova.tws.core.data.TWSLoadingState
 import si.inova.tws.core.data.TWSDownloadListener
 import si.inova.tws.core.data.WebContent
 import si.inova.tws.core.data.TWSViewNavigator
@@ -57,10 +77,17 @@ import si.inova.tws.core.util.JavaScriptDownloadInterface.Companion.JAVASCRIPT_I
 /**
  *  A wrapper around the Android View WebView to provide a basic WebView composable.
  *
- * NOTE: This is a modified copy from Accompanists WebView wrapper, since it is not supported anymore and allows
- * us to further customize the component according to our needs. Check https://google.github.io/accompanist/web/
- * for default implementation.
- **
+ *
+ * NOTE: This is a modified copy from Accompanist's WebView wrapper, since it is no longer supported.
+ * The original implementation can be found at https://google.github.io/accompanist/web/.
+ * This modified version allows further customization of the component according to our needs.
+ * -----
+ * Modifications include:
+ * - Added `isRefreshable` option for pull-to-refresh functionality.
+ * - Enhanced lifecycle management using `LifecycleResumeEffect`.
+ * - Added permission handling for file downloads.
+ * - Added JavaScript interface for download operations.
+ *
  * The WebView attempts to set the layoutParams based on the Compose modifier passed in. If it
  * is incorrectly sizing, use the layoutParams composable function instead.
  *
@@ -223,7 +250,7 @@ internal fun WebView(
         },
         update = {
             if (isRefreshable) {
-                it.isRefreshing = (state.loadingState as? LoadingState.Loading)?.isUserForceRefresh == true
+                it.isRefreshing = (state.loadingState as? TWSLoadingState.Loading)?.isUserForceRefresh == true
             }
         }
     )
@@ -356,7 +383,7 @@ private fun createSwipeRefreshLayout(
 ): SwipeRefreshLayout {
     return SwipeRefreshLayout(context).apply {
         setOnRefreshListener {
-            state.loadingState = LoadingState.ForceRefreshInitiated
+            state.loadingState = TWSLoadingState.ForceRefreshInitiated
             navigator.reload()
         }
         addView(webView)

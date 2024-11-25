@@ -14,24 +14,23 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.manager.utils
+package si.inova.tws.manager.fakes
 
-import kotlinx.coroutines.flow.MutableSharedFlow
-import si.inova.tws.manager.data.SnippetUpdateAction
+import si.inova.tws.manager.cache.CacheManager
 import si.inova.tws.manager.data.TWSSnippetDto
-import si.inova.tws.manager.localhandler.LocalSnippetHandler
-import java.time.Instant
 
-internal class FakeLocalSnippetHandler : LocalSnippetHandler {
-    override val updateActionFlow: MutableSharedFlow<SnippetUpdateAction> = MutableSharedFlow()
+internal class FakeCacheManager : CacheManager {
+    private var cachedList: List<TWSSnippetDto>? = null
 
-    override suspend fun updateAndScheduleCheck(snippets: List<TWSSnippetDto>) {}
-
-    suspend fun mockUpdateAction(action: SnippetUpdateAction) {
-        updateActionFlow.emit(action)
+    override fun save(key: String, data: List<TWSSnippetDto>) {
+        cachedList = data
     }
 
-    override suspend fun calculateDateOffsetAndRerun(serverDate: Instant?, snippets: List<TWSSnippetDto>) {}
+    override fun load(key: String): List<TWSSnippetDto>? {
+        return cachedList
+    }
 
-    override fun release() {}
+    override fun clear() {
+        cachedList = null
+    }
 }

@@ -20,9 +20,6 @@ import android.content.Context
 import android.webkit.CookieManager
 import jakarta.inject.Singleton
 import okhttp3.OkHttpClient
-import si.inova.kotlinova.core.reporting.ErrorReporter
-import si.inova.kotlinova.retrofit.caching.GlobalOkHttpDiskCacheManager
-import kotlin.coroutines.cancellation.CancellationException
 
 @Singleton
 internal fun webViewHttpClient(context: Context): OkHttpClient {
@@ -39,18 +36,4 @@ internal fun webViewHttpClient(context: Context): OkHttpClient {
         .followRedirects(false)
         .followSslRedirects(false)
         .build()
-}
-
-@Singleton
-internal val provideErrorReporter = ErrorReporter {
-    object : ErrorReporter {
-        override fun report(throwable: Throwable) {
-            if (throwable is CancellationException) {
-                report(Exception("Got cancellation exception", throwable))
-                return
-            }
-
-            throwable.printStackTrace()
-        }
-    }
 }

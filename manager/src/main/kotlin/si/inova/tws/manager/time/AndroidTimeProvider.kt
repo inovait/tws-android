@@ -14,22 +14,29 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.manager.utils
+package si.inova.tws.manager.time
 
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import si.inova.tws.manager.data.NetworkStatus
-import si.inova.tws.manager.service.NetworkConnectivityService
+import android.os.SystemClock
 
-internal class FakeNetworkConnectivityService : NetworkConnectivityService {
-    private val _networkStatus = MutableStateFlow<NetworkStatus>(NetworkStatus.Connected)
-    override val networkStatus: Flow<NetworkStatus>
-        get() = _networkStatus
+internal interface AndroidTimeProvider : TimeProvider {
+    /**
+     * @return number of milliseconds since the system was booted, including deep sleep
+     *
+     * @see [SystemClock.elapsedRealtime]
+     */
+    fun elapsedRealtime(): Long
 
-    override val isConnected: Boolean
-        get() = _networkStatus.value == NetworkStatus.Connected
+    /**
+     * @return number of nanoseconds since the system was booted, including deep sleep
+     *
+     * @see [SystemClock.elapsedRealtimeNanos]
+     */
+    fun elapsedRealtimeNanos(): Long
 
-    fun mockNetworkStatus(status: NetworkStatus) {
-        _networkStatus.value = status
-    }
+    /**
+     * @return number of nanoseconds since the system was booted, excluding deep sleep
+     *
+     * @see [SystemClock.uptimeMillis]
+     */
+    fun uptimeMillis(): Long
 }

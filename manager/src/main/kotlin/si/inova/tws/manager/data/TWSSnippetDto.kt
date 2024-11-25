@@ -16,10 +16,8 @@
 
 package si.inova.tws.manager.data
 
-import android.os.Parcelable
 import androidx.annotation.Keep
 import com.squareup.moshi.JsonClass
-import kotlinx.parcelize.Parcelize
 import kotlinx.parcelize.RawValue
 import si.inova.tws.data.TWSAttachment
 import si.inova.tws.data.TWSEngine
@@ -27,7 +25,6 @@ import si.inova.tws.data.TWSSnippet
 
 @JsonClass(generateAdapter = true)
 @Keep
-@Parcelize
 internal data class TWSSnippetDto(
     val id: String,
     val target: String,
@@ -39,7 +36,7 @@ internal data class TWSSnippetDto(
     val props: Map<String, @RawValue Any> = emptyMap(),
     val engine: TWSEngine = TWSEngine.NONE,
     val loadIteration: Int = 0
-) : Parcelable
+)
 
 internal fun TWSSnippetDto.toTWSSnippet(localProps: Map<String, Any>) = TWSSnippet(
     id = this.id,

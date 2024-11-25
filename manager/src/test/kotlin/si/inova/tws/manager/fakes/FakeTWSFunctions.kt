@@ -14,23 +14,30 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.manager.utils
+package si.inova.tws.manager.fakes
 
-import si.inova.tws.manager.cache.CacheManager
-import si.inova.tws.manager.data.TWSSnippetDto
+import retrofit2.Response
+import si.inova.tws.manager.data.ProjectDto
+import si.inova.tws.manager.data.SharedSnippetDto
+import si.inova.tws.manager.network.TWSFunctions
+import si.inova.tws.manager.utils.FakeService
+import si.inova.tws.manager.utils.ServiceTestingHelper
 
-internal class FakeCacheManager : CacheManager {
-    private var cachedList: List<TWSSnippetDto>? = null
+internal class FakeTWSFunctions(
+    private val helper: ServiceTestingHelper = ServiceTestingHelper()
+) : TWSFunctions, FakeService by helper {
+    var returnedProject: Response<ProjectDto>? = null
+    var returnedSharedSnippet: SharedSnippetDto? = null
 
-    override fun save(key: String, data: List<TWSSnippetDto>) {
-        cachedList = data
+    override suspend fun getWebSnippets(organizationId: String, projectId: String, apiKey: String?): Response<ProjectDto> {
+        helper.intercept()
+
+        return returnedProject ?: error("Returned project not faked!")
     }
 
-    override fun load(key: String): List<TWSSnippetDto>? {
-        return cachedList
-    }
+    override suspend fun getSharedSnippetData(shareId: String): SharedSnippetDto {
+        helper.intercept()
 
-    override fun clear() {
-        cachedList = null
+        return returnedSharedSnippet ?: error("Returned shared snippet not faked!")
     }
 }

@@ -1,7 +1,7 @@
 /*
  * Copyright 2024 INOVA IT d.o.o.
  *
- * This file contains modifications based on code from the Accompanist WebView wrapper.
+ * This file contains modifications based on code from the Accompanist WebView library.
  * Original Copyright (c) 2021 The Android Open Source Project, licensed under the Apache License, Version 2.0.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation
@@ -34,46 +34,37 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.core.client
-
-import android.webkit.WebChromeClient
-import android.webkit.WebView
-import si.inova.tws.core.data.TWSLoadingState
-import si.inova.tws.core.data.TWSViewState
+package si.inova.tws.core.data
 
 /**
- * AccompanistWebChromeClient is a subclass of [WebChromeClient] designed to manage
- * the web content displayed in a [WebView].
+ * TWSLoadingState is a sealed class for constraining possible loading states.
  *
- * NOTE: This is a modified version of the original Accompanist WebChromeClient implementation.
- *
- * This class provides additional features beyond the basic functionality of [WebChromeClient]
- * by allowing you to handle events such as page title updates, icon changes, and progress
- * updates for the loading state of the WebView.
+ * NOTE: This class is a modified version of the original loading state representation
+ * from the Accompanist WebView library. Modifications were made to add support for force-refresh
+ * states initiated by user actions and more detailed loading progress tracking.
+ * -----
+ * See [Loading] and [Finished].
  */
-internal open class AccompanistWebChromeClient : WebChromeClient() {
-    open lateinit var state: TWSViewState
-        internal set
+sealed class TWSLoadingState {
+    /**
+     * Describes a WebView that has not yet loaded for the first time.
+     */
+    data object Initializing : TWSLoadingState()
 
-    override fun onReceivedTitle(view: WebView, title: String?) {
-        super.onReceivedTitle(view, title)
-        state.title = title
-    }
+    /**
+     * Describes a WebView that will be reloaded as a result of a users pull to refresh action.
+     */
+    data object ForceRefreshInitiated : TWSLoadingState()
 
-    override fun onProgressChanged(view: WebView, newProgress: Int) {
-        super.onProgressChanged(view, newProgress)
-        val loadingState = state.loadingState
+    /**
+     * Describes a webview between `onPageStarted` and `onPageFinished` events, contains a
+     * [progress] property which is updated by the webview and [isUserForceRefresh] property
+     * which marks if page is refreshed because of the user action.
+     */
+    data class Loading(val progress: Float, val isUserForceRefresh: Boolean) : TWSLoadingState()
 
-        if (loadingState is TWSLoadingState.Finished) return
-
-        state.loadingState = TWSLoadingState.Loading(
-            progress = newProgress / PERCENTAGE_DIVISOR,
-            isUserForceRefresh = loadingState is TWSLoadingState.ForceRefreshInitiated ||
-                (loadingState as? TWSLoadingState.Loading)?.isUserForceRefresh == true
-        )
-    }
-
-    companion object {
-        private const val PERCENTAGE_DIVISOR = 100.0f
-    }
+    /**
+     * Describes a webview that has finished loading content.
+     */
+    data object Finished : TWSLoadingState()
 }

@@ -23,7 +23,6 @@ import com.squareup.moshi.ToJson
 import com.squareup.moshi.adapters.EnumJsonAdapter
 import jakarta.inject.Singleton
 import okhttp3.OkHttpClient
-import si.inova.kotlinova.retrofit.interceptors.BypassCacheInterceptor
 import si.inova.tws.data.TWSAttachmentType
 import si.inova.tws.data.TWSEngine
 import java.time.Instant
@@ -58,7 +57,6 @@ internal fun twsOkHttpClient(): OkHttpClient {
 
 internal fun prepareDefaultOkHttpClient(): OkHttpClient.Builder {
     return OkHttpClient.Builder()
-        .addInterceptor(BypassCacheInterceptor())
         .addNetworkInterceptor(certificateTransparencyInterceptor())
 }
 
