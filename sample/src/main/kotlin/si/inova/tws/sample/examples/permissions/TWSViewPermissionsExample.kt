@@ -17,27 +17,29 @@
 package si.inova.tws.sample.examples.permissions
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import si.inova.tws.core.TWSView
-import si.inova.tws.manager.TWSConfiguration
-import si.inova.tws.manager.TWSFactory
+import si.inova.tws.data.TWSSnippet
 import si.inova.tws.manager.TWSManager
 import si.inova.tws.manager.TWSOutcome
 import si.inova.tws.manager.mapData
 import si.inova.tws.sample.R
 import si.inova.tws.sample.components.ErrorView
 import si.inova.tws.sample.components.LoadingView
+import javax.inject.Inject
 
 @Composable
-fun TWSViewPermissionsExample() {
-    val context = LocalContext.current
-    val manager: TWSManager = remember(Unit) { TWSFactory.get(context, config) }
-
-    val permissionSnippetState = manager.snippets.collectAsStateWithLifecycle(null).value?.mapData { state ->
-        state.firstOrNull { it.id == "permissions" }
+fun TWSViewPermissionsExample(
+    twsPermissionsViewModel: TWSPermissionsViewModel = hiltViewModel()
+) {
+    val permissionSnippetState = twsPermissionsViewModel.twsSnippetsFlow.collectAsStateWithLifecycle(null).value
+        ?.mapData { state ->
+            state.firstOrNull { it.id == "permissions" }
     } ?: return
 
     val snippet = permissionSnippetState.data
@@ -60,6 +62,11 @@ fun TWSViewPermissionsExample() {
     }
 }
 
-private const val organizationId = "examples"
-private const val projectId = "example4"
-private val config = TWSConfiguration.Basic(organizationId, projectId, "apiKey")
+@HiltViewModel
+class TWSPermissionsViewModel @Inject constructor(
+    manager: TWSManager
+) : ViewModel() {
+    // Collecting TWSManager.snippets, which returns the current state, which
+    // exposes TWSOutcome.Error, TWSOutcome.Progress or TWSOutcome.Success state.
+    val twsSnippetsFlow: Flow<TWSOutcome<List<TWSSnippet>>> = manager.snippets
+}

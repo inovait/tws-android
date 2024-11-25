@@ -17,37 +17,41 @@
 package si.inova.tws.sample.examples.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalContext
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import si.inova.tws.core.TWSView
-import si.inova.tws.manager.TWSFactory
+import si.inova.tws.data.TWSSnippet
 import si.inova.tws.manager.TWSManager
-import si.inova.tws.sample.components.LoadingView
 import si.inova.tws.sample.components.ErrorView
+import si.inova.tws.sample.components.LoadingView
+import javax.inject.Inject
 
 @Composable
-fun TWSViewCustomInterceptorExample(navController: NavController) {
-    val context = LocalContext.current
+fun TWSViewCustomInterceptorExample(
+    navController: NavController,
+    twsInterceptorViewModel: TWSInterceptorViewModel = hiltViewModel()
+) {
+    val homeSnippet = twsInterceptorViewModel.twsSnippetsFlow.collectAsStateWithLifecycle(null).value
+        ?.firstOrNull { it.id == "customInterceptors" } ?: return
 
-    // TWSFactory will take configuration from Android Manifest
-    val manager: TWSManager = remember(Unit) { TWSFactory.get(context) }
+    TWSView(
+        snippet = homeSnippet,
+        loadingPlaceholderContent = { LoadingView() },
+        errorViewContent = { ErrorView(it) },
+        // Handling urls natively
+        interceptUrlCallback = TWSViewDemoInterceptor { navController.navigate(it) }
+    )
+}
 
+@HiltViewModel
+class TWSInterceptorViewModel @Inject constructor(
+    manager: TWSManager
+) : ViewModel() {
     // Collecting TWSManager.snippets(), which returns list of available snippets, either cached
-    // or up to date. Iff you want to get the current state, collect TWSManager.snippets, which
-    // exposes TWSOutcome.Error, TWSOutcome.Progress or TWSOutcome.Success state
-    val homeSnippet = manager.snippets().collectAsStateWithLifecycle(null).value?.firstOrNull {
-        it.id == "customInterceptors"
-    }
-
-    homeSnippet?.let { home ->
-        TWSView(
-            snippet = home,
-            loadingPlaceholderContent = { LoadingView() },
-            errorViewContent = { ErrorView(it) },
-            // Handling urls natively
-            interceptUrlCallback = TWSViewDemoInterceptor { navController.navigate(it) }
-        )
-    }
+    // or up to date.
+    val twsSnippetsFlow: Flow<List<TWSSnippet>?> = manager.snippets()
 }

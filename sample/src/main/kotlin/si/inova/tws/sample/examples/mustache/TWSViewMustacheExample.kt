@@ -18,29 +18,28 @@ package si.inova.tws.sample.examples.mustache
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableList
-import si.inova.tws.manager.TWSConfiguration
-import si.inova.tws.manager.TWSFactory
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import si.inova.tws.data.TWSSnippet
+import si.inova.tws.manager.TWSManager
 import si.inova.tws.manager.TWSOutcome
+import si.inova.tws.manager.mapData
 import si.inova.tws.sample.R
 import si.inova.tws.sample.components.ErrorView
 import si.inova.tws.sample.components.LoadingView
 import si.inova.tws.sample.components.TWSViewComponentWithPager
+import javax.inject.Inject
 
 @Composable
-fun TWSViewMustacheExample() {
-    val context = LocalContext.current
-    val manager = remember(Unit) {
-        TWSFactory.get(
-            context,
-            TWSConfiguration.Basic(organizationId = organizationId, projectId = projectId, apiKey = "apiKey")
-        )
-    }
-
+fun TWSViewMustacheExample(
+    twsMustacheViewModel: TWSMustacheViewModel = hiltViewModel()
+) {
     // Set local properties
     LaunchedEffect(Unit) {
         val localProps =
@@ -54,12 +53,11 @@ fun TWSViewMustacheExample() {
                         "support_email" to "support@TWS.com"
                     )
             )
-
-        manager.set("howToMustache", localProps)
+        twsMustacheViewModel.setProps("howToMustache", localProps)
     }
 
     // Collect snippets for your project
-    val content = manager.snippets.collectAsStateWithLifecycle(null).value
+    val content = twsMustacheViewModel.twsSnippetsFlow.collectAsStateWithLifecycle(null).value
 
     content?.let {
         when {
@@ -79,5 +77,20 @@ fun TWSViewMustacheExample() {
     }
 }
 
-private const val organizationId = "examples"
-private const val projectId = "example2"
+@HiltViewModel
+class TWSMustacheViewModel @Inject constructor(
+    private val manager: TWSManager
+) : ViewModel() {
+    // Collecting TWSManager.snippets, which returns the current state, which
+    // exposes TWSOutcome.Error, TWSOutcome.Progress or TWSOutcome.Success state.
+    val twsSnippetsFlow: Flow<TWSOutcome<List<TWSSnippet>>> = manager.snippets
+        .map { data ->
+            data.mapData { it.filter { snippet -> snippet.props["page"] == mustachePage } }
+        }
+
+    fun setProps(id: String, localProps: Map<String, Any>) {
+        manager.set(id, localProps)
+    }
+
+    private val mustachePage = "mustache"
+}

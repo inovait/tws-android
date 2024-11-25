@@ -18,36 +18,29 @@ package si.inova.tws.sample.examples.tabs
 
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableList
-import si.inova.tws.manager.TWSConfiguration
-import si.inova.tws.manager.TWSFactory
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import si.inova.tws.data.TWSSnippet
+import si.inova.tws.manager.TWSManager
 import si.inova.tws.manager.TWSOutcome
 import si.inova.tws.manager.mapData
 import si.inova.tws.sample.R
 import si.inova.tws.sample.components.ErrorView
 import si.inova.tws.sample.components.LoadingView
+import javax.inject.Inject
 
 @Composable
-fun TWSViewCustomTabsExample() {
-    val context = LocalContext.current
-    val manager = remember(Unit) {
-        TWSFactory.get(
-            context,
-            TWSConfiguration.Basic(organizationId = organizationId, projectId = projectId, apiKey = "apiKey")
-        )
-    }
-
+fun TWSViewCustomTabsExample(
+    twsCustomTabsViewModel: TWSCustomTabsViewModel = hiltViewModel()
+) {
     // Collect snippets for your project
-    val content = manager.snippets.collectAsStateWithLifecycle(null).value?.mapData { data ->
-        // Sort tabs with custom key set in snippet properties
-        data.sortedBy {
-            it.props["tabSortKey"] as? String
-        }
-    }
+    val content = twsCustomTabsViewModel.twsSnippetsFlow.collectAsStateWithLifecycle(null).value
 
     content?.let {
         when {
@@ -67,5 +60,18 @@ fun TWSViewCustomTabsExample() {
     }
 }
 
-private const val organizationId = "examples"
-private const val projectId = "example1"
+@HiltViewModel
+class TWSCustomTabsViewModel @Inject constructor(
+    manager: TWSManager
+) : ViewModel() {
+    // Collecting TWSManager.snippets, which returns the current state, which
+    // exposes TWSOutcome.Error, TWSOutcome.Progress or TWSOutcome.Success state.
+    val twsSnippetsFlow: Flow<TWSOutcome<List<TWSSnippet>>> = manager.snippets.map { data ->
+        data.mapData { it.filter { snippet -> snippet.props["page"] == propsPage } }
+    }.map { data ->
+        // Sort tabs with custom tabSortKey property
+        data.mapData { it.sortedBy { snippet -> snippet.props["tabSortKey"] as? String } }
+    }
+
+    private val propsPage = "snippetProps"
+}

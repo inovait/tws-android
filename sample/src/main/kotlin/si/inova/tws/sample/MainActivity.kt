@@ -6,13 +6,15 @@ import androidx.activity.compose.setContent
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import si.inova.tws.sample.examples.tabs.TWSViewCustomTabsExample
+import dagger.hilt.android.AndroidEntryPoint
 import si.inova.tws.sample.examples.injection.TWSViewInjectionExample
 import si.inova.tws.sample.examples.mustache.TWSViewMustacheExample
 import si.inova.tws.sample.examples.navigation.TWSViewCustomInterceptorExample
 import si.inova.tws.sample.examples.permissions.TWSViewPermissionsExample
+import si.inova.tws.sample.examples.tabs.TWSViewCustomTabsExample
 import si.inova.tws.sample.ui.theme.TheWebSnippetSdkTheme
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
