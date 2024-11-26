@@ -26,9 +26,5 @@ internal data class ServiceAccount(
     @SerializedName("private_key_id")
     val privateKeyId: String,
     @SerializedName("private_key")
-    val privateKey: String,
-    @SerializedName("login_uri")
-    val loginUri: String,
-    @SerializedName("register_uri")
-    val registerUri: String
+    val privateKey: String
 )

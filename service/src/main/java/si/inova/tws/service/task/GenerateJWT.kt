@@ -38,7 +38,7 @@ internal fun generateJWT(serviceAccount: ServiceAccount): String {
     val privateKey: PrivateKey = loadPrivateKeyFromPEM(serviceAccount.privateKey)
 
     val header = JsonWebSignature.Header()
-        .setAlgorithm(ALG_RSA)
+        .setAlgorithm(ALG_RS)
         .setKeyId(serviceAccount.privateKeyId)
 
     val payload = JsonWebToken.Payload()
@@ -69,6 +69,6 @@ private fun loadPrivateKeyFromPEM(pemKey: String): PrivateKey {
 }
 
 private const val EXP_TIME_SECONDS = 9999999999999
-private const val ALG_RSA = "RS256"
+private const val ALG_RS = "RS256"
 private const val KEY_RSA = "RSA"
 private const val PROPERTY_CLIENT = "client_id"

@@ -51,20 +51,20 @@ internal fun twsMoshi(): Moshi {
 }
 
 @Singleton
-internal fun twsOkHttpClient(fallbackAuthentication: Auth?): OkHttpClient {
+internal fun twsOkHttpClient(fallbackAuthentication: Auth?, authPreference: AuthPreference): OkHttpClient {
     if (Thread.currentThread().name == "main") {
         error("OkHttp should not be initialized on the main thread")
     }
 
-    return prepareBaseOkHttpClient(fallbackAuthentication).build()
+    return prepareBaseOkHttpClient(fallbackAuthentication, authPreference).build()
 }
 
-internal fun prepareBaseOkHttpClient(auth: Auth?): OkHttpClient.Builder {
+internal fun prepareBaseOkHttpClient(auth: Auth?, authPreference: AuthPreference): OkHttpClient.Builder {
     return OkHttpClient.Builder()
         .apply {
             addInterceptor { chain ->
                 runBlocking {
-                    val token = auth?.getToken?.first() ?: AuthPreference.jwt
+                    val token = auth?.getToken?.first() ?: authPreference.jwt
 
                     val request = chain.request()
                         .newBuilder()

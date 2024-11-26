@@ -19,7 +19,7 @@ package si.inova.tws.manager
 import android.content.Context
 import android.content.pm.PackageManager
 import jakarta.inject.Singleton
-import si.inova.tws.manager.preference.AuthPreference
+import si.inova.tws.manager.preference.AuthPreferenceImpl
 import java.lang.ref.WeakReference
 import java.util.WeakHashMap
 
@@ -94,7 +94,7 @@ object TWSFactory {
         return if (existingInstance != null) {
             existingInstance
         } else {
-            AuthPreference.initialize(context)
+            AuthPreferenceImpl.initialize(context)
             val newInstance = TWSManagerImpl(context, tag, configuration)
             instances[tag] = WeakReference(newInstance)
             newInstance

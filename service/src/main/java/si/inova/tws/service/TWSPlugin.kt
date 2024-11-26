@@ -28,21 +28,20 @@ class TWSPlugin : Plugin<Project> {
         val androidComponents =
             project.extensions.getByType(ApplicationAndroidComponentsExtension::class.java)
         androidComponents.onVariants { variant ->
-            variant.sources.res
-                ?.let {
-                    val resCreationTask =
-                        project.tasks.register<GenerateTokenTask>("create${variant.name.capitalized()}$TASK_NAME")
+            variant.sources.res?.let {
+                val resCreationTask =
+                    project.tasks.register<GenerateTokenTask>("create${variant.name.capitalized()}$TASK_NAME")
 
-                    resCreationTask.configure {
-                        inputFiles.add(project.layout.projectDirectory.file("src/${variant.name}/$FILE_NAME"))
-                        inputFiles.add(project.layout.projectDirectory.file(FILE_NAME))
-                    }
-
-                    it.addGeneratedSourceDirectory(
-                        resCreationTask,
-                        GenerateTokenTask::outputDirectory
-                    )
+                resCreationTask.configure {
+                    inputFiles.add(project.layout.projectDirectory.file("src/${variant.name}/$FILE_NAME"))
+                    inputFiles.add(project.layout.projectDirectory.file(FILE_NAME))
                 }
+
+                it.addGeneratedSourceDirectory(
+                    resCreationTask,
+                    GenerateTokenTask::outputDirectory
+                )
+            }
         }
     }
 

@@ -16,59 +16,14 @@
 
 package si.inova.tws.manager.preference
 
-import android.content.Context
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
 import jakarta.inject.Singleton
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 
 @Singleton
-object AuthPreference {
-    private lateinit var appContext: Context
-    private val Context.authPreferences: DataStore<Preferences> by preferencesDataStore(name = DATASTORE_NAME)
-
-    fun initialize(context: Context) {
-        if (!::appContext.isInitialized) {
-            this.appContext = context.applicationContext
-        }
-    }
-
-    val jwt: String by lazy {
-        appContext.getString(appContext.resources.getIdentifier(RESOURCE_VALUE_NAME, "string", appContext.packageName))
-    }
-
-    val refreshToken: Flow<String> by lazy {
-        appContext.authPreferences.data
-            .map { preferences ->
-                preferences[REFRESH_TOKEN] ?: ""
-            }
-    }
-
-    val authToken: Flow<String> by lazy {
-        appContext.authPreferences.data
-            .map { preferences ->
-                preferences[AUTH_TOKEN] ?: ""
-            }
-    }
-
-    suspend fun setRefreshToken(authToken: String) {
-        appContext.authPreferences.edit { settings ->
-            settings[REFRESH_TOKEN] = authToken
-        }
-    }
-
-    suspend fun setAuthToken(authToken: String) {
-        appContext.authPreferences.edit { settings ->
-            settings[AUTH_TOKEN] = authToken
-        }
-    }
+internal interface AuthPreference {
+    val jwt: String
+    val refreshToken: Flow<String>
+    val authToken: Flow<String>
+    suspend fun setRefreshToken(authToken: String)
+    suspend fun setAuthToken(authToken: String)
 }
-
-private const val RESOURCE_VALUE_NAME = "si.inova.tws.service.jwt"
-private const val DATASTORE_NAME = "authPreferences"
-private val REFRESH_TOKEN = stringPreferencesKey("refreshToken")
-private val AUTH_TOKEN = stringPreferencesKey("authToken")

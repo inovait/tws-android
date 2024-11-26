@@ -20,7 +20,7 @@ import jakarta.inject.Singleton
 import kotlinx.coroutines.flow.Flow
 
 @Singleton
-interface Auth {
+internal interface Auth {
     val getToken: Flow<String>
     suspend fun refreshToken()
 }
