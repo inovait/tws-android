@@ -1,6 +1,6 @@
 # Module sample
 
-The Sample application serves as a tool to help you better understand how to use TheWebSnippetSDK.
-It will provide you with examples such as how to define and use custom snippet properties, how to set and use mustache properties,
-how to use URL intercepts to handle navigation in your native application, how TWSWebView handles download, upload, camera and
-location permissions, as well as how to use CSS and Javascript injection to customize your page.
+The Sample application is designed to help you better understand how to use TheWebSnippetSDK. It provides examples such as
+defining and using custom snippet properties, setting and utilizing Mustache properties,
+handling URL intercepts for navigation in your native application, managing downloads, uploads, camera access and
+location permissions in TWSWebView, and customizing your page with CSS and JavaScript injection.

@@ -29,6 +29,8 @@ import si.inova.tws.manager.TWSManager
 @InstallIn(SingletonComponent::class)
 class AppModule {
     /**
+     * Provides a global instance of TWSManager configured in Manifest.
+     *
      * @param context Application context.
      * @return Global instance of [TWSManager].
      */

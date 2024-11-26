@@ -25,6 +25,7 @@ import si.inova.tws.sample.Screen.TWSViewPermissionsExample
 
 /**
  * An implementation of [TWSViewInterceptor] used for custom URL redirects.
+ *
  * @param navigate A function called with the corresponding route, depending on the received URL.
  */
 class TWSViewDemoInterceptor(private val navigate: (String) -> Unit) : TWSViewInterceptor {

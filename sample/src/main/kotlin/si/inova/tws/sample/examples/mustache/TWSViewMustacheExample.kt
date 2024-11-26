@@ -37,9 +37,9 @@ import si.inova.tws.sample.components.TWSViewComponentWithPager
 import javax.inject.Inject
 
 /**
- * Renders a screen showcasing setting of mustache properties and use of mustache syntax.
- * @param twsMustacheViewModel A viewModel that provides access to the [TWSOutcome],
- * which exposes [TWSOutcome.Error], [TWSOutcome.Progress] and [TWSOutcome.Success].
+ * A composable function that renders a screen showcasing setting of mustache properties and use of mustache syntax.
+ *
+ * @param twsMustacheViewModel A viewModel that provides access to the [TWSOutcome].
  */
 @Composable
 fun TWSViewMustacheExample(
@@ -99,6 +99,7 @@ class TWSMustacheViewModel @Inject constructor(
 
     /**
      * A function that exposes [TWSManager.set], for setting the local properties of a [TWSSnippet].
+     *
      * @param id Unique id of the snippet.
      * @param localProps A map of properties that will get added to the [TWSSnippet].
      */

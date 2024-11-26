@@ -36,9 +36,9 @@ import si.inova.tws.sample.components.TWSViewComponentWithPager
 import javax.inject.Inject
 
 /**
- * Renders a screen showcasing the use of CSS and Javascript injection.
- * @param twsInjectionViewModel A viewModel that provides access to the [TWSOutcome],
- * which exposes [TWSOutcome.Error], [TWSOutcome.Progress] and [TWSOutcome.Success].
+ * A composable function that renders a screen showcasing the use of CSS and Javascript injection.
+ *
+ * @param twsInjectionViewModel A viewModel that provides access to the [TWSOutcome].
  */
 @Composable
 fun TWSViewInjectionExample(

@@ -51,7 +51,8 @@ import si.inova.tws.data.TWSSnippet
 import si.inova.tws.sample.ui.theme.SampleTheme
 
 /**
- * Displays a full screen [HorizontalPager], that holds the list of [TWSSnippet].
+ * A composable function that displays a full screen [HorizontalPager], that holds the list of [TWSSnippet].
+ *
  * @param data A list of [TWSSnippet] that will get displayed in a [HorizontalPager].
  */
 @Composable
@@ -129,7 +130,6 @@ private fun NavigateIndicator(
 }
 
 /**
- *
  * @param currentPage A number indicating the current page number.
  * @param pageCount A number of all the pages.
  * @param modifier A [Modifier] use to control the layout and style of the [PageIndicators].

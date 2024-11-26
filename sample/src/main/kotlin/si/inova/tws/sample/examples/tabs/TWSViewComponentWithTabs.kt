@@ -38,7 +38,9 @@ import si.inova.tws.sample.components.ErrorView
 import si.inova.tws.sample.components.LoadingView
 
 /**
- * Renders a screen that showcases how custom [TWSSnippet] properties can be utilized in a native application.
+ * A composable function that renders a screen that showcases how custom [TWSSnippet]
+ * properties can be utilized in a native application.
+ *
  * @param content A list of [TWSSnippet] that gets displayed in a [BottomTabsRow]
  */
 @Composable

@@ -34,9 +34,10 @@ import si.inova.tws.sample.components.LoadingView
 import javax.inject.Inject
 
 /**
- * Renders a screen showcasing how download, upload, camera and location permissions are handled in [TWSView].
- * @param twsPermissionsViewModel A viewModel that provides access to the [TWSOutcome],
- * which exposes [TWSOutcome.Error], [TWSOutcome.Progress] and [TWSOutcome.Success].
+ * A composable function that renders a screen showcasing how download, upload, camera and
+ * location permissions are handled in [TWSView].
+ *
+ * @param twsPermissionsViewModel A viewModel that provides access to the [TWSOutcome].
  */
 @Composable
 fun TWSViewPermissionsExample(

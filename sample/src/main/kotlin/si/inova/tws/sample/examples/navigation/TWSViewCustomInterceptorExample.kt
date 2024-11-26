@@ -31,7 +31,8 @@ import si.inova.tws.sample.components.LoadingView
 import javax.inject.Inject
 
 /**
- * Renders a screen used for navigation, showcasing the use of [TWSViewDemoInterceptor] to handle URLs natively.
+ * A composable function that renders a screen used for navigation, showcasing the use of [TWSViewDemoInterceptor] to handle URLs natively.
+ *
  * @param navController A [NavController] used to handle navigation between screens.
  * @param twsInterceptorViewModel A viewModel that provides access to the list of [TWSSnippet].
  */

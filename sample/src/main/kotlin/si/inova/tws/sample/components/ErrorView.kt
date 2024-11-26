@@ -36,7 +36,8 @@ import si.inova.tws.sample.R
 import si.inova.tws.sample.ui.theme.SampleTheme
 
 /**
- * Displays exclamation icon and a custom error message.
+ * A composable function that displays exclamation icon and a custom error message.
+ *
  * @param errorText Custom text displayed when an error occurs.
  * @param modifier A [Modifier] to configure the layout or styling of the error view.
  */

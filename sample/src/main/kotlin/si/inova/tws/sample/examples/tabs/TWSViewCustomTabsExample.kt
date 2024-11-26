@@ -36,8 +36,7 @@ import si.inova.tws.sample.components.LoadingView
 import javax.inject.Inject
 
 /**
- * @param twsCustomTabsViewModel A viewModel that provides access to the [TWSOutcome],
- * which exposes [TWSOutcome.Error], [TWSOutcome.Progress] and [TWSOutcome.Success].
+ * @param twsCustomTabsViewModel A viewModel that provides access to the [TWSOutcome].
  */
 @Composable
 fun TWSViewCustomTabsExample(

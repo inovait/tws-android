@@ -29,7 +29,8 @@ import androidx.compose.ui.unit.dp
 import si.inova.tws.sample.ui.theme.SampleTheme
 
 /**
- * Displays a loading indicator.
+ * A composable function that displays a loading indicator.
+ *
  * @param modifier A [Modifier] used to configure the layout or styling of the loading view.
  */
 @Composable
