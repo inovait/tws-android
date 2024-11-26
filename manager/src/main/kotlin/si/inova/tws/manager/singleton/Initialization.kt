@@ -22,9 +22,13 @@ import com.squareup.moshi.Moshi
 import com.squareup.moshi.ToJson
 import com.squareup.moshi.adapters.EnumJsonAdapter
 import jakarta.inject.Singleton
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
 import si.inova.tws.data.TWSAttachmentType
 import si.inova.tws.data.TWSEngine
+import si.inova.tws.manager.manager.auth.Auth
+import si.inova.tws.manager.preference.AuthPreference
 import java.time.Instant
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
@@ -47,16 +51,43 @@ internal fun twsMoshi(): Moshi {
 }
 
 @Singleton
-internal fun twsOkHttpClient(): OkHttpClient {
+internal fun twsOkHttpClient(fallbackAuthentication: Auth?): OkHttpClient {
     if (Thread.currentThread().name == "main") {
         error("OkHttp should not be initialized on the main thread")
     }
 
-    return prepareDefaultOkHttpClient().build()
+    return prepareBaseOkHttpClient(fallbackAuthentication).build()
 }
 
-internal fun prepareDefaultOkHttpClient(): OkHttpClient.Builder {
+internal fun prepareBaseOkHttpClient(auth: Auth?): OkHttpClient.Builder {
     return OkHttpClient.Builder()
+        .apply {
+            addInterceptor { chain ->
+                runBlocking {
+                    val token = auth?.getToken?.first() ?: AuthPreference.jwt
+
+                    val request = chain.request()
+                        .newBuilder()
+                        .header("Authorization", "Bearer $token")
+                        .build()
+
+                    chain.proceed(request)
+                }
+            }
+            if (auth != null) {
+                authenticator { _, response ->
+                    runBlocking {
+                        auth.refreshToken()
+
+                        val token = auth.getToken.first()
+
+                        response.request.newBuilder()
+                            .header("Authorization", "Bearer $token")
+                            .build()
+                    }
+                }
+            }
+        }
         .addNetworkInterceptor(certificateTransparencyInterceptor())
 }
 

@@ -44,8 +44,8 @@ import si.inova.tws.manager.localhandler.LocalSnippetHandler
 import si.inova.tws.manager.localhandler.LocalSnippetHandlerImpl
 import si.inova.tws.manager.service.NetworkConnectivityService
 import si.inova.tws.manager.service.NetworkConnectivityServiceImpl
-import si.inova.tws.manager.snippet.SnippetLoadingManager
-import si.inova.tws.manager.snippet.SnippetLoadingManagerImpl
+import si.inova.tws.manager.manager.snippet.SnippetLoadingManager
+import si.inova.tws.manager.manager.snippet.SnippetLoadingManagerImpl
 import si.inova.tws.manager.websocket.TWSSocket
 import si.inova.tws.manager.websocket.TWSSocketImpl
 import java.time.Instant

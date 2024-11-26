@@ -69,6 +69,6 @@ private fun loadPrivateKeyFromPEM(pemKey: String): PrivateKey {
 }
 
 private const val EXP_TIME_SECONDS = 9999999999999
-private const val ALG_RSA = "RSA256"
+private const val ALG_RSA = "RS256"
 private const val KEY_RSA = "RSA"
 private const val PROPERTY_CLIENT = "client_id"

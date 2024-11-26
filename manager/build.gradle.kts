@@ -65,6 +65,7 @@ dependencies {
     implementation(libs.inject)
     implementation(libs.moshi.adapters)
     implementation(libs.okhttp)
+    implementation(libs.data.store)
 
     kapt(libs.moshi.codegen)
 

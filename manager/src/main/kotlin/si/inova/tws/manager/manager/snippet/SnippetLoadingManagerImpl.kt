@@ -14,17 +14,20 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.manager.snippet
+package si.inova.tws.manager.manager.snippet
 
 import si.inova.tws.manager.TWSConfiguration
 import si.inova.tws.manager.factory.BaseServiceFactory
 import si.inova.tws.manager.factory.create
-import si.inova.tws.manager.network.TWSFunctions
+import si.inova.tws.manager.function.TWSSnippetFunction
+import si.inova.tws.manager.manager.auth.Auth
+import si.inova.tws.manager.manager.auth.AuthLoginManagerImpl
 import java.time.Instant
 
 internal class SnippetLoadingManagerImpl(
     private val configuration: TWSConfiguration,
-    private val functions: TWSFunctions = BaseServiceFactory().create()
+    snippetLoginAuth: Auth = AuthLoginManagerImpl(),
+    private val functions: TWSSnippetFunction = BaseServiceFactory(snippetLoginAuth).create()
 ) : SnippetLoadingManager {
     private var orgId: String? = null
     private var projId: String? = null
@@ -59,7 +62,7 @@ internal class SnippetLoadingManagerImpl(
         orgId = organizationId
         projId = projectId
 
-        val twsProjectResponse = functions.getWebSnippets(organizationId, projectId, configuration.apiKey)
+        val twsProjectResponse = functions.getWebSnippets(organizationId, projectId)
         return ProjectResponse(
             twsProjectResponse.body() ?: error("Body not available"),
             twsProjectResponse.headers().getDate(HEADER_DATE)?.toInstant() ?: Instant.now(),

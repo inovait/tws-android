@@ -14,7 +14,7 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.manager.snippet
+package si.inova.tws.manager.manager.snippet
 
 import si.inova.tws.manager.data.ProjectDto
 import java.time.Instant
