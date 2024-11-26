@@ -40,6 +40,7 @@ import javax.inject.Inject
  * A composable function that renders a screen showcasing setting of mustache properties and use of mustache syntax.
  *
  * @param twsMustacheViewModel A viewModel that provides access to the [TWSOutcome].
+ * @sample si.inova.tws.sample.examples.mustache.TWSViewMustacheExample
  */
 @Composable
 fun TWSViewMustacheExample(
@@ -83,7 +84,7 @@ fun TWSViewMustacheExample(
 }
 
 /**
- * @constructor Global instance of [TWSManager].
+ * @param manager Global instance of [TWSManager].
  * @property twsSnippetsFlow A Flow collecting [TWSOutcome] state from the manager, filtered by a custom property "page".
  */
 @HiltViewModel
