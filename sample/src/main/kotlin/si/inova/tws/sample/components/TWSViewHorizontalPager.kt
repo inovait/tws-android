@@ -48,8 +48,12 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.launch
 import si.inova.tws.core.TWSView
 import si.inova.tws.data.TWSSnippet
-import si.inova.tws.sample.ui.theme.TheWebSnippetSdkTheme
+import si.inova.tws.sample.ui.theme.SampleTheme
 
+/**
+ * Displays a full screen [HorizontalPager], that holds the list of [TWSSnippet].
+ * @param data A list of [TWSSnippet] that will get displayed in a [HorizontalPager].
+ */
 @Composable
 fun TWSViewComponentWithPager(data: ImmutableList<TWSSnippet>) {
     val pagerState = rememberPagerState { data.size }
@@ -82,7 +86,9 @@ fun TWSViewComponentWithPager(data: ImmutableList<TWSSnippet>) {
 
             // Current page indicator
             PageIndicators(
-                modifier = Modifier.weight(1f).align(Alignment.CenterVertically),
+                modifier = Modifier
+                    .weight(1f)
+                    .align(Alignment.CenterVertically),
                 currentPage = pagerState.currentPage,
                 pageCount = data.size
             )
@@ -97,6 +103,12 @@ fun TWSViewComponentWithPager(data: ImmutableList<TWSSnippet>) {
     }
 }
 
+/**
+ * @param imageVector An [ImageVector] displayed in [IconButton].
+ * @param isEnabled Boolean that controls if the button is enabled.
+ * @param modifier A [Modifier] used for layout and styling of the [IconButton].
+ * @param goToPrevious A function that controls on click behaviour for [IconButton].
+ */
 @Composable
 private fun NavigateIndicator(
     imageVector: ImageVector,
@@ -116,6 +128,12 @@ private fun NavigateIndicator(
     }
 }
 
+/**
+ *
+ * @param currentPage A number indicating the current page number.
+ * @param pageCount A number of all the pages.
+ * @param modifier A [Modifier] use to control the layout and style of the [PageIndicators].
+ */
 @Composable
 private fun PageIndicators(
     currentPage: Int,
@@ -141,7 +159,7 @@ private fun PageIndicators(
 @Composable
 @Preview
 private fun PagerPreview() {
-    TheWebSnippetSdkTheme {
+    SampleTheme {
         TWSViewComponentWithPager(
             persistentListOf(
                 TWSSnippet(id = "1", "www.example1.com"),

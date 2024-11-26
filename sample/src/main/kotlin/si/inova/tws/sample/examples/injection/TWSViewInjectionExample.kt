@@ -35,6 +35,11 @@ import si.inova.tws.sample.components.LoadingView
 import si.inova.tws.sample.components.TWSViewComponentWithPager
 import javax.inject.Inject
 
+/**
+ * Renders a screen showcasing the use of CSS and Javascript injection.
+ * @param twsInjectionViewModel A viewModel that provides access to the [TWSOutcome],
+ * which exposes [TWSOutcome.Error], [TWSOutcome.Progress] and [TWSOutcome.Success].
+ */
 @Composable
 fun TWSViewInjectionExample(
     twsInjectionViewModel: TWSInjectionViewModel = hiltViewModel()
@@ -60,6 +65,10 @@ fun TWSViewInjectionExample(
     }
 }
 
+/**
+ * @param manager Global Instance of [TWSManager].
+ * @property twsSnippetsFlow A Flow collecting [TWSOutcome] state from the manager, filtered by a custom property "page".
+ */
 @HiltViewModel
 class TWSInjectionViewModel @Inject constructor(
     manager: TWSManager

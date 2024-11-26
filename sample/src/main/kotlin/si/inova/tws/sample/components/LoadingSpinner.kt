@@ -26,8 +26,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import si.inova.tws.sample.ui.theme.TheWebSnippetSdkTheme
+import si.inova.tws.sample.ui.theme.SampleTheme
 
+/**
+ * Displays a loading indicator.
+ * @param modifier A [Modifier] used to configure the layout or styling of the loading view.
+ */
 @Composable
 fun LoadingView(modifier: Modifier = Modifier.fillMaxSize()) {
     Box(
@@ -41,7 +45,7 @@ fun LoadingView(modifier: Modifier = Modifier.fillMaxSize()) {
 @Composable
 @Preview
 private fun FullScreenLoadingViewPreview() {
-    TheWebSnippetSdkTheme {
+    SampleTheme {
         LoadingView()
     }
 }
@@ -49,7 +53,7 @@ private fun FullScreenLoadingViewPreview() {
 @Composable
 @Preview
 private fun SmallLoadingViewPreview() {
-    TheWebSnippetSdkTheme {
+    SampleTheme {
         LoadingView(modifier = Modifier.height(200.dp))
     }
 }

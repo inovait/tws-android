@@ -33,6 +33,11 @@ import si.inova.tws.sample.components.ErrorView
 import si.inova.tws.sample.components.LoadingView
 import javax.inject.Inject
 
+/**
+ * Renders a screen showcasing how download, upload, camera and location permissions are handled in [TWSView].
+ * @param twsPermissionsViewModel A viewModel that provides access to the [TWSOutcome],
+ * which exposes [TWSOutcome.Error], [TWSOutcome.Progress] and [TWSOutcome.Success].
+ */
 @Composable
 fun TWSViewPermissionsExample(
     twsPermissionsViewModel: TWSPermissionsViewModel = hiltViewModel()
@@ -62,6 +67,10 @@ fun TWSViewPermissionsExample(
     }
 }
 
+/**
+ * @param manager Global Instance of [TWSManager].
+ * @property twsSnippetsFlow A Flow collecting [TWSOutcome] state from the manager.
+ */
 @HiltViewModel
 class TWSPermissionsViewModel @Inject constructor(
     manager: TWSManager

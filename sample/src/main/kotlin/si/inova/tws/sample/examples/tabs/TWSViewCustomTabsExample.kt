@@ -35,6 +35,10 @@ import si.inova.tws.sample.components.ErrorView
 import si.inova.tws.sample.components.LoadingView
 import javax.inject.Inject
 
+/**
+ * @param twsCustomTabsViewModel A viewModel that provides access to the [TWSOutcome],
+ * which exposes [TWSOutcome.Error], [TWSOutcome.Progress] and [TWSOutcome.Success].
+ */
 @Composable
 fun TWSViewCustomTabsExample(
     twsCustomTabsViewModel: TWSCustomTabsViewModel = hiltViewModel()
@@ -60,6 +64,11 @@ fun TWSViewCustomTabsExample(
     }
 }
 
+/**
+ * @param manager Global Instance of [TWSManager].
+ * @property twsSnippetsFlow A Flow collecting [TWSOutcome] state from the manager,
+ * filtered by a custom property "page" and sorted by a custom property "tabSortKey".
+ */
 @HiltViewModel
 class TWSCustomTabsViewModel @Inject constructor(
     manager: TWSManager

@@ -36,6 +36,11 @@ import si.inova.tws.sample.components.LoadingView
 import si.inova.tws.sample.components.TWSViewComponentWithPager
 import javax.inject.Inject
 
+/**
+ * Renders a screen showcasing setting of mustache properties and use of mustache syntax.
+ * @param twsMustacheViewModel A viewModel that provides access to the [TWSOutcome],
+ * which exposes [TWSOutcome.Error], [TWSOutcome.Progress] and [TWSOutcome.Success].
+ */
 @Composable
 fun TWSViewMustacheExample(
     twsMustacheViewModel: TWSMustacheViewModel = hiltViewModel()
@@ -77,6 +82,10 @@ fun TWSViewMustacheExample(
     }
 }
 
+/**
+ * @param manager Global Instance of [TWSManager].
+ * @property twsSnippetsFlow A Flow collecting [TWSOutcome] state from the manager, filtered by a custom property "page".
+ */
 @HiltViewModel
 class TWSMustacheViewModel @Inject constructor(
     private val manager: TWSManager
@@ -88,6 +97,11 @@ class TWSMustacheViewModel @Inject constructor(
             data.mapData { it.filter { snippet -> snippet.props["page"] == mustachePage } }
         }
 
+    /**
+     * A function that exposes [TWSManager.set], for setting the local properties of a [TWSSnippet].
+     * @param id Unique id of the snippet.
+     * @param localProps A map of properties that will get added to the [TWSSnippet].
+     */
     fun setProps(id: String, localProps: Map<String, Any>) {
         manager.set(id, localProps)
     }

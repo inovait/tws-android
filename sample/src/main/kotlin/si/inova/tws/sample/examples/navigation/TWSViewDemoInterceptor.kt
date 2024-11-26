@@ -23,6 +23,10 @@ import si.inova.tws.sample.Screen.TWSViewInjectionExample
 import si.inova.tws.sample.Screen.TWSViewMustacheExample
 import si.inova.tws.sample.Screen.TWSViewPermissionsExample
 
+/**
+ * An implementation of [TWSViewInterceptor] used for custom URL redirects.
+ * @param navigate A function called with the corresponding route, depending on the received URL.
+ */
 class TWSViewDemoInterceptor(private val navigate: (String) -> Unit) : TWSViewInterceptor {
     override fun handleUrl(url: Uri): Boolean {
         val urlString = url.toString()

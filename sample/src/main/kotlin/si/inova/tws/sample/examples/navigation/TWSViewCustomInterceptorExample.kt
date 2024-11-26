@@ -30,6 +30,11 @@ import si.inova.tws.sample.components.ErrorView
 import si.inova.tws.sample.components.LoadingView
 import javax.inject.Inject
 
+/**
+ * Renders a screen used for navigation, showcasing the use of [TWSViewDemoInterceptor] to handle URLs natively.
+ * @param navController A [NavController] used to handle navigation between screens.
+ * @param twsInterceptorViewModel A viewModel that provides access to the list of [TWSSnippet].
+ */
 @Composable
 fun TWSViewCustomInterceptorExample(
     navController: NavController,
@@ -47,11 +52,13 @@ fun TWSViewCustomInterceptorExample(
     )
 }
 
+/**
+ * @param manager Global Instance of [TWSManager].
+ * @property twsSnippetsFlow A Flow collecting the list of available [TWSSnippet], either cached or up to date.
+ */
 @HiltViewModel
 class TWSInterceptorViewModel @Inject constructor(
     manager: TWSManager
 ) : ViewModel() {
-    // Collecting TWSManager.snippets(), which returns list of available snippets, either cached
-    // or up to date.
     val twsSnippetsFlow: Flow<List<TWSSnippet>?> = manager.snippets()
 }

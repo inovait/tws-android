@@ -37,6 +37,10 @@ import si.inova.tws.sample.R
 import si.inova.tws.sample.components.ErrorView
 import si.inova.tws.sample.components.LoadingView
 
+/**
+ * Renders a screen that showcases how custom [TWSSnippet] properties can be utilized in a native application.
+ * @param content A list of [TWSSnippet] that gets displayed in a [BottomTabsRow]
+ */
 @Composable
 fun TWSViewComponentWithTabs(
     content: ImmutableList<TWSSnippet>
@@ -59,8 +63,13 @@ fun TWSViewComponentWithTabs(
     }
 }
 
+/**
+ * @param content A list of [TWSSnippet] used for setting the text and icon for the tabs.
+ * @param currentTab A number indicating the index of currently selected tab.
+ * @param onClick A function that accepts the index of a clicked tab, used for handling tab switching.
+ */
 @Composable
-fun BottomTabsRow(
+private fun BottomTabsRow(
     content: ImmutableList<TWSSnippet>,
     currentTab: Int,
     onClick: (Int) -> Unit
