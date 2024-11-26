@@ -83,7 +83,7 @@ fun TWSViewMustacheExample(
 }
 
 /**
- * @param manager Global Instance of [TWSManager].
+ * @constructor Global instance of [TWSManager].
  * @property twsSnippetsFlow A Flow collecting [TWSOutcome] state from the manager, filtered by a custom property "page".
  */
 @HiltViewModel

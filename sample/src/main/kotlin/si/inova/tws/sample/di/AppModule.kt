@@ -28,6 +28,10 @@ import si.inova.tws.manager.TWSManager
 @Module
 @InstallIn(SingletonComponent::class)
 class AppModule {
+    /**
+     * @param context Application context.
+     * @return Global instance of [TWSManager].
+     */
     @Provides
     fun provideTWSManager(
         @ApplicationContext

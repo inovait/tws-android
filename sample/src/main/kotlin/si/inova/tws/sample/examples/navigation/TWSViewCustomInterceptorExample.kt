@@ -53,7 +53,7 @@ fun TWSViewCustomInterceptorExample(
 }
 
 /**
- * @param manager Global Instance of [TWSManager].
+ * @constructor Global instance of [TWSManager].
  * @property twsSnippetsFlow A Flow collecting the list of available [TWSSnippet], either cached or up to date.
  */
 @HiltViewModel
