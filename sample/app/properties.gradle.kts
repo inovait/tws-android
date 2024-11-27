@@ -17,17 +17,10 @@
 import java.util.Properties
 
 val configProperties = loadProperties(rootDir.resolve("config.properties"))
-val versionProperties = loadProperties(rootDir.resolve("version.properties"))
 
 // config.properties
-extra["applicationId"] = configProperties.getProperty("applicationId")
-extra["appName"] = configProperties.getProperty("appName")
 extra["organizationId"] = configProperties.getProperty("organizationId")
 extra["projectId"] = configProperties.getProperty("projectId")
-
-extra["appLinks"] = configProperties.getProperty("appLinks").takeIf {
-    it.isNotBlank() && !it.contains("<APP_LINKS>")
-}
 
 fun loadProperties(file: File): Properties {
     val properties = Properties()

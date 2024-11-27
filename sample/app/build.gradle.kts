@@ -26,12 +26,8 @@ android {
     namespace = "si.inova.tws.sample"
     compileSdk = 34
 
-    buildFeatures {
-        buildConfig = true
-    }
-
     defaultConfig {
-        applicationId = extra.getString("applicationId")
+        applicationId = "si.inova.tws.sample"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
@@ -39,13 +35,7 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        buildConfigField(
-            "String",
-            "GOOGLE_LOGIN_REDIRECT",
-            "\"${extra.getString("appLinks").split(" ").firstOrNull() ?: ""}\""
-        )
 
-        manifestPlaceholders["appName"] = extra.getString("appName")
         manifestPlaceholders["twsOrganizationId"] = extra.getString("organizationId")
         manifestPlaceholders["twsProjectId"] = extra.getString("projectId")
     }
