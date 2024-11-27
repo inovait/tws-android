@@ -37,7 +37,6 @@ detekt-compilerWarnings = "0.0.4"
 detekt-compose = "0.4.15"
 lifecycleRuntimeKtx = "2.8.7"
 composeBom = "2024.04.01"
-navigationCompose = "2.8.4"
 
 [libraries]
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
@@ -84,7 +83,6 @@ androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecyc
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
 androidx-ui = { group = "androidx.compose.ui", name = "ui" }
 androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
-androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 
 [plugins]
 versions = { id = "com.github.ben-manes.versions", version.ref = "versionsChecker" }

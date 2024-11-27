@@ -27,13 +27,13 @@ if (properties.containsKey("ossrhUsername")) {
 }
 
 // Configure submodules, can be configured separately also
-subprojects {
+allprojects {
    apply(plugin = "org.jetbrains.dokka")
-
    tasks.withType<DokkaTaskPartial>().configureEach {
       dokkaSourceSets.configureEach {
          documentedVisibilities = setOf(DokkaConfiguration.Visibility.PUBLIC)
          reportUndocumented = true
+         outputDirectory.set(rootProject.rootDir.resolve("dokka"))
       }
    }
 }
