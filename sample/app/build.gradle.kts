@@ -19,18 +19,35 @@ tasks.withType<DokkaTaskPartial>().configureEach {
     }
 }
 
+// Load properties in extras
+apply(from = "properties.gradle.kts")
+
 android {
     namespace = "si.inova.tws.sample"
     compileSdk = 34
 
+    buildFeatures {
+        buildConfig = true
+    }
+
     defaultConfig {
-        applicationId = "si.inova.tws.sample"
+        applicationId = extra.getString("applicationId")
         minSdk = 24
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField(
+            "String",
+            "GOOGLE_LOGIN_REDIRECT",
+            "\"${extra.getString("appLinks").split(" ").firstOrNull() ?: ""}\""
+        )
+
+        manifestPlaceholders["appName"] = extra.getString("appName")
+        manifestPlaceholders["twsOrganizationId"] = extra.getString("organizationId")
+        manifestPlaceholders["twsProjectId"] = extra.getString("projectId")
     }
 
     buildTypes {
@@ -85,4 +102,8 @@ dependencies {
     implementation(libs.tws.core)
     implementation(libs.tws.manager)
     implementation(libs.tws.interstitial)
+}
+
+fun ExtraPropertiesExtension.getString(key: String): String {
+    return this[key]?.let { it as? String } ?: ""
 }

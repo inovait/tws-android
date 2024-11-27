@@ -14,7 +14,7 @@
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
+        android:label="${appName}"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Sample"
@@ -26,10 +26,10 @@
          -->
         <meta-data
             android:name="si.inova.tws.ORGANIZATION_ID"
-            android:value="samples" />
+            android:value="${twsOrganizationId}" />
         <meta-data
             android:name="si.inova.tws.PROJECT_ID"
-            android:value="sample" />
+            android:value="${twsProjectId}" />
 
         <activity
             android:name=".MainActivity"
