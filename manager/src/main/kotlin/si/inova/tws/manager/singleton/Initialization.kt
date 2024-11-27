@@ -63,7 +63,7 @@ internal fun prepareBaseOkHttpClient(auth: Auth?, jwt: String?): OkHttpClient.Bu
         .apply {
             addInterceptor { chain ->
                 runBlocking {
-                    val token = auth?.getToken?.first() ?: jwt
+                    val token = auth?.getToken?.first() ?: jwt ?: return@runBlocking chain.proceed(chain.request())
 
                     val request = chain.request()
                         .newBuilder()
