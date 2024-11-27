@@ -14,17 +14,29 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.manager.fakes
+package si.inova.tws.manager.fakes.function
 
-import kotlinx.coroutines.delay
-import si.inova.tws.manager.snippet.ProjectResponse
-import si.inova.tws.manager.snippet.SnippetLoadingManager
+import si.inova.tws.manager.data.AuthTokenDto
+import si.inova.tws.manager.data.RefreshTokenDto
+import si.inova.tws.manager.function.TWSAuthFunction
+import si.inova.tws.manager.utils.FakeService
+import si.inova.tws.manager.utils.ServiceTestingHelper
 
-internal class FakeSnippetLoadingManager : SnippetLoadingManager {
-    var loaderResponse: ProjectResponse? = null
+internal class FakeTWSAuthFunction(
+    private val helper: ServiceTestingHelper = ServiceTestingHelper()
+) : TWSAuthFunction, FakeService by helper {
+    var refreshToken: RefreshTokenDto? = null
+    var authToken: AuthTokenDto? = null
 
-    override suspend fun load(): ProjectResponse {
-        delay(1000)
-        return loaderResponse ?: error("Unknown configuration")
+    override suspend fun register(): RefreshTokenDto {
+        helper.intercept()
+
+        return refreshToken ?: error("Returned refreshToken not faked!")
+    }
+
+    override suspend fun login(): AuthTokenDto {
+        helper.intercept()
+
+        return authToken ?: error("Returned authToken not faked!")
     }
 }

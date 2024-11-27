@@ -16,28 +16,26 @@
 
 package si.inova.tws.manager.fakes
 
-import retrofit2.Response
-import si.inova.tws.manager.data.ProjectDto
-import si.inova.tws.manager.data.SharedSnippetDto
-import si.inova.tws.manager.network.TWSFunctions
-import si.inova.tws.manager.utils.FakeService
-import si.inova.tws.manager.utils.ServiceTestingHelper
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.update
+import si.inova.tws.manager.preference.AuthPreference
 
-internal class FakeTWSFunctions(
-    private val helper: ServiceTestingHelper = ServiceTestingHelper()
-) : TWSFunctions, FakeService by helper {
-    var returnedProject: Response<ProjectDto>? = null
-    var returnedSharedSnippet: SharedSnippetDto? = null
+class FakeAuthPreference : AuthPreference {
+    override val jwt: String = "test-jwt-token"
 
-    override suspend fun getWebSnippets(organizationId: String, projectId: String, apiKey: String?): Response<ProjectDto> {
-        helper.intercept()
+    private val _refreshToken: MutableStateFlow<String?> = MutableStateFlow(null)
+    override val refreshToken: Flow<String> = _refreshToken.filterNotNull()
 
-        return returnedProject ?: error("Returned project not faked!")
+    private val _authToken: MutableStateFlow<String?> = MutableStateFlow(null)
+    override val authToken: Flow<String> = _authToken.filterNotNull()
+
+    override suspend fun setRefreshToken(authToken: String) {
+        _refreshToken.update { authToken }
     }
 
-    override suspend fun getSharedSnippetData(shareId: String): SharedSnippetDto {
-        helper.intercept()
-
-        return returnedSharedSnippet ?: error("Returned shared snippet not faked!")
+    override suspend fun setAuthToken(authToken: String) {
+        _authToken.update { authToken }
     }
 }
