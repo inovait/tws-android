@@ -45,4 +45,6 @@ gradlePlugin {
 dependencies {
     implementation(libs.android.agp)
     implementation(libs.google.api.client)
+
+    testImplementation(libs.junit)
 }
