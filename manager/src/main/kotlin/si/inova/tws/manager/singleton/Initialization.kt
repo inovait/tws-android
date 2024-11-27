@@ -28,7 +28,6 @@ import okhttp3.OkHttpClient
 import si.inova.tws.data.TWSAttachmentType
 import si.inova.tws.data.TWSEngine
 import si.inova.tws.manager.manager.auth.Auth
-import si.inova.tws.manager.preference.AuthPreference
 import java.time.Instant
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
@@ -51,20 +50,20 @@ internal fun twsMoshi(): Moshi {
 }
 
 @Singleton
-internal fun twsOkHttpClient(fallbackAuthentication: Auth?, authPreference: AuthPreference): OkHttpClient {
+internal fun twsOkHttpClient(fallbackAuthentication: Auth?, jwt: String?): OkHttpClient {
     if (Thread.currentThread().name == "main") {
         error("OkHttp should not be initialized on the main thread")
     }
 
-    return prepareBaseOkHttpClient(fallbackAuthentication, authPreference).build()
+    return prepareBaseOkHttpClient(fallbackAuthentication, jwt).build()
 }
 
-internal fun prepareBaseOkHttpClient(auth: Auth?, authPreference: AuthPreference): OkHttpClient.Builder {
+internal fun prepareBaseOkHttpClient(auth: Auth?, jwt: String?): OkHttpClient.Builder {
     return OkHttpClient.Builder()
         .apply {
             addInterceptor { chain ->
                 runBlocking {
-                    val token = auth?.getToken?.first() ?: authPreference.jwt
+                    val token = auth?.getToken?.first() ?: jwt
 
                     val request = chain.request()
                         .newBuilder()

@@ -23,18 +23,16 @@ import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
 import si.inova.tws.manager.manager.auth.Auth
-import si.inova.tws.manager.preference.AuthPreference
-import si.inova.tws.manager.preference.AuthPreferenceImpl
 import si.inova.tws.manager.singleton.twsMoshi
 import si.inova.tws.manager.singleton.twsOkHttpClient
 
 @Singleton
 internal class BaseServiceFactory(
     private val fallbackAuthentication: Auth? = null,
-    private val authPreference: AuthPreference = AuthPreferenceImpl
+    private val jwt: String? = null
 ) : ServiceFactory {
     private val moshi: Moshi by lazy { twsMoshi() }
-    private val okHttpClient: OkHttpClient by lazy { twsOkHttpClient(fallbackAuthentication, authPreference) }
+    private val okHttpClient: OkHttpClient by lazy { twsOkHttpClient(fallbackAuthentication, jwt) }
 
     override fun <S> create(
         klass: Class<S>,

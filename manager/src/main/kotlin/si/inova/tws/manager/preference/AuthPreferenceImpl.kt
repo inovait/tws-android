@@ -16,6 +16,7 @@
 
 package si.inova.tws.manager.preference
 
+import android.annotation.SuppressLint
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
@@ -26,16 +27,10 @@ import jakarta.inject.Singleton
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
+@SuppressLint("DiscouragedApi") // RESOURCE_VALUE_NAME can only be retrieved from build
 @Singleton
-internal object AuthPreferenceImpl : AuthPreference {
-    private lateinit var appContext: Context
+internal class AuthPreferenceImpl(private val appContext: Context) : AuthPreference {
     private val Context.authPreferences: DataStore<Preferences> by preferencesDataStore(name = DATASTORE_NAME)
-
-    fun initialize(context: Context) {
-        if (!::appContext.isInitialized) {
-            this.appContext = context.applicationContext
-        }
-    }
 
     override val jwt: String by lazy {
         appContext.getString(appContext.resources.getIdentifier(RESOURCE_VALUE_NAME, "string", appContext.packageName))
