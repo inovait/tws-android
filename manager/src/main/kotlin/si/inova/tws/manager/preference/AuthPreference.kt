@@ -14,35 +14,16 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-pluginManagement {
-    repositories {
-        google {
-            content {
-                includeGroupByRegex("com\\.android.*")
-                includeGroupByRegex("com\\.google.*")
-                includeGroupByRegex("androidx.*")
-            }
-        }
-        mavenCentral()
-        gradlePluginPortal()
-        mavenLocal()
-    }
+package si.inova.tws.manager.preference
+
+import jakarta.inject.Singleton
+import kotlinx.coroutines.flow.Flow
+
+@Singleton
+internal interface AuthPreference {
+    val jwt: String
+    val refreshToken: Flow<String>
+    val authToken: Flow<String>
+    suspend fun setRefreshToken(authToken: String)
+    suspend fun setAuthToken(authToken: String)
 }
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        google()
-        mavenCentral()
-        mavenLocal()
-    }
-}
-
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
-
-rootProject.name = "TheWebSnippetSdk"
-
-include(":core")
-include(":interstitial")
-include(":manager")
-include(":data")
-include(":service")

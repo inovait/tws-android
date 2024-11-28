@@ -14,35 +14,37 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-pluginManagement {
-    repositories {
-        google {
-            content {
-                includeGroupByRegex("com\\.android.*")
-                includeGroupByRegex("com\\.google.*")
-                includeGroupByRegex("androidx.*")
-            }
+plugins {
+    `java-gradle-plugin`
+    `maven-publish`
+    `kotlin-dsl`
+}
+
+group = "si.inova.tws"
+version = File(rootDir, "version.txt").readText().trim()
+
+publishing {
+    publications {
+        create<MavenPublication>("gradlePlugin") {
+            groupId = project.group.toString()
+            artifactId = "service"
+            version = project.version.toString()
         }
-        mavenCentral()
-        gradlePluginPortal()
-        mavenLocal()
-    }
-}
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        google()
-        mavenCentral()
-        mavenLocal()
     }
 }
 
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+gradlePlugin {
+    plugins {
+        create("service") {
+            id = "si.inova.tws.service"
+            implementationClass = "si.inova.tws.service.TWSPlugin"
+        }
+    }
+}
 
-rootProject.name = "TheWebSnippetSdk"
+dependencies {
+    implementation(libs.android.agp)
+    implementation(libs.google.api.client)
 
-include(":core")
-include(":interstitial")
-include(":manager")
-include(":data")
-include(":service")
+    testImplementation(libs.junit)
+}

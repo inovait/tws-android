@@ -14,35 +14,30 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-pluginManagement {
-    repositories {
-        google {
-            content {
-                includeGroupByRegex("com\\.android.*")
-                includeGroupByRegex("com\\.google.*")
-                includeGroupByRegex("androidx.*")
-            }
-        }
-        mavenCentral()
-        gradlePluginPortal()
-        mavenLocal()
-    }
+package si.inova.tws.manager.function
+
+import jakarta.inject.Singleton
+import retrofit2.Response
+import retrofit2.http.GET
+import retrofit2.http.Headers
+import retrofit2.http.Path
+import si.inova.tws.manager.data.ProjectDto
+import si.inova.tws.manager.data.SharedSnippetDto
+
+@Singleton
+internal interface TWSSnippetFunction {
+    @GET("organizations/{organizationId}/projects/{projectId}/v2/register")
+    suspend fun getWebSnippets(
+        @Path("organizationId")
+        organizationId: String,
+        @Path("projectId")
+        projectId: String
+    ): Response<ProjectDto>
+
+    @Headers("Accept: application/json")
+    @GET("shared/{shareId}")
+    suspend fun getSharedSnippetData(
+        @Path("shareId")
+        shareId: String
+    ): SharedSnippetDto
 }
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        google()
-        mavenCentral()
-        mavenLocal()
-    }
-}
-
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
-
-rootProject.name = "TheWebSnippetSdk"
-
-include(":core")
-include(":interstitial")
-include(":manager")
-include(":data")
-include(":service")

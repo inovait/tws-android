@@ -14,35 +14,17 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-pluginManagement {
-    repositories {
-        google {
-            content {
-                includeGroupByRegex("com\\.android.*")
-                includeGroupByRegex("com\\.google.*")
-                includeGroupByRegex("androidx.*")
-            }
-        }
-        mavenCentral()
-        gradlePluginPortal()
-        mavenLocal()
+package si.inova.tws.manager.fakes.manager
+
+import kotlinx.coroutines.delay
+import si.inova.tws.manager.manager.snippet.ProjectResponse
+import si.inova.tws.manager.manager.snippet.SnippetLoadingManager
+
+internal class FakeSnippetLoadingManager : SnippetLoadingManager {
+    var loaderResponse: ProjectResponse? = null
+
+    override suspend fun load(): ProjectResponse {
+        delay(1000)
+        return loaderResponse ?: error("Unknown configuration")
     }
 }
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        google()
-        mavenCentral()
-        mavenLocal()
-    }
-}
-
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
-
-rootProject.name = "TheWebSnippetSdk"
-
-include(":core")
-include(":interstitial")
-include(":manager")
-include(":data")
-include(":service")

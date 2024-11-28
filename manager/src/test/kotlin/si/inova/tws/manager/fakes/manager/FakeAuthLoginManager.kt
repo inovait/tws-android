@@ -14,35 +14,22 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-pluginManagement {
-    repositories {
-        google {
-            content {
-                includeGroupByRegex("com\\.android.*")
-                includeGroupByRegex("com\\.google.*")
-                includeGroupByRegex("androidx.*")
-            }
-        }
-        mavenCentral()
-        gradlePluginPortal()
-        mavenLocal()
+package si.inova.tws.manager.fakes.manager
+
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.filterNotNull
+import si.inova.tws.manager.fakes.function.FakeTWSAuthFunction
+import si.inova.tws.manager.manager.auth.Auth
+
+internal class FakeAuthLoginManager(
+    private val fakeTWSAuthFunction: FakeTWSAuthFunction = FakeTWSAuthFunction()
+) : Auth {
+    private val _getToken: MutableStateFlow<String?> = MutableStateFlow(null)
+    override val getToken: Flow<String> = _getToken.filterNotNull()
+
+    override suspend fun refreshToken() {
+        fakeTWSAuthFunction.login()
+        _getToken.value = fakeTWSAuthFunction.authToken?.authToken
     }
 }
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        google()
-        mavenCentral()
-        mavenLocal()
-    }
-}
-
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
-
-rootProject.name = "TheWebSnippetSdk"
-
-include(":core")
-include(":interstitial")
-include(":manager")
-include(":data")
-include(":service")

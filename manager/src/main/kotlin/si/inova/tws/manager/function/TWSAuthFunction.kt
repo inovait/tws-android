@@ -14,17 +14,18 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.manager.fakes
+package si.inova.tws.manager.function
 
-import kotlinx.coroutines.delay
-import si.inova.tws.manager.snippet.ProjectResponse
-import si.inova.tws.manager.snippet.SnippetLoadingManager
+import jakarta.inject.Singleton
+import retrofit2.http.POST
+import si.inova.tws.manager.data.AuthTokenDto
+import si.inova.tws.manager.data.RefreshTokenDto
 
-internal class FakeSnippetLoadingManager : SnippetLoadingManager {
-    var loaderResponse: ProjectResponse? = null
+@Singleton
+internal interface TWSAuthFunction {
+    @POST("auth/register")
+    suspend fun register(): RefreshTokenDto
 
-    override suspend fun load(): ProjectResponse {
-        delay(1000)
-        return loaderResponse ?: error("Unknown configuration")
-    }
+    @POST("auth/login")
+    suspend fun login(): AuthTokenDto
 }

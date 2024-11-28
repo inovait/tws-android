@@ -33,6 +33,8 @@ dokka = "1.9.20"
 detekt = "1.23.7"
 detekt-compilerWarnings = "0.0.4"
 detekt-compose = "0.4.15"
+google-api = "2.7.0"
+data-store = "1.1.1"
 
 [libraries]
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
@@ -72,6 +74,8 @@ detekt-plugin = { module = "io.gitlab.arturbosch.detekt:detekt-gradle-plugin", v
 detekt-formatting = { module = "io.gitlab.arturbosch.detekt:detekt-formatting", version.ref = "detekt" }
 detekt-compilerWarnings = { module = "com.braisgabin.detekt:kotlin-compiler-wrapper", version.ref = "detekt-compilerWarnings" }
 detekt-compose = { module = "io.nlopez.compose.rules:detekt", version.ref = "detekt-compose" }
+google-api-client = { group = "com.google.api-client", name = "google-api-client", version.ref = "google-api" }
+data-store = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "data-store" }
 
 [plugins]
 versions = { id = "com.github.ben-manes.versions", version.ref = "versionsChecker" }
