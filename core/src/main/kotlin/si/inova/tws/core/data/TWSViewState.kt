@@ -107,21 +107,19 @@ class TWSViewState(webContent: WebContent) {
 }
 
 /**
- * Creates and remembers a [TWSViewState] that persists across recompositions.
- * Configured to load a URL with optional additional headers.
+ * Creates a TWSView state that persists across recompositions, configured to display URL with
+ * optional additional headers.
  *
- * @param snippet A [TWSSnippet] containing the target URL and optional headers.
- * @param key1 An optional key for recomposition; if changed, a new instance of [TWSViewState] is created.
- * @return A [TWSViewState] configured to load the specified URL and headers.
+ * @param snippet An instance of [TWSSnippet] containing the target URL and any
+ * additional HTTP headers for the WebView.
  */
 @Composable
 fun rememberTWSViewState(
-    snippet: TWSSnippet,
-    key1: Any? = null
+    snippet: TWSSnippet
 ): TWSViewState =
     // Rather than using .apply {} here we will recreate the state, this prevents
     // a recomposition loop when the webview updates the url itself.
-    remember(key1 = key1) {
+    remember(key1 = snippet) {
         TWSViewState(
             WebContent.Url(
                 url = snippet.target,

@@ -14,35 +14,29 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-pluginManagement {
-    repositories {
-        google {
-            content {
-                includeGroupByRegex("com\\.android.*")
-                includeGroupByRegex("com\\.google.*")
-                includeGroupByRegex("androidx.*")
-            }
-        }
-        mavenCentral()
-        gradlePluginPortal()
-        mavenLocal()
-    }
-}
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        google()
-        mavenCentral()
-        mavenLocal()
-    }
-}
+package si.inova.tws.sample.di
 
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+import android.content.Context
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
+import si.inova.tws.manager.TWSFactory
+import si.inova.tws.manager.TWSManager
 
-rootProject.name = "TheWebSnippetSdk"
-include(":core")
-include(":interstitial")
-include(":manager")
-include(":data")
-include(":service")
-includeBuild("sample")
+@Module
+@InstallIn(SingletonComponent::class)
+class AppModule {
+    /**
+     * Provides a global instance of TWSManager configured in Manifest.
+     *
+     * @param context Application context.
+     * @return Global instance of [TWSManager].
+     */
+    @Provides
+    fun provideTWSManager(
+        @ApplicationContext
+        context: Context
+    ): TWSManager = TWSFactory.get(context)
+}

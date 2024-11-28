@@ -67,15 +67,20 @@ internal data class ActionBody(
     val organizationId: String? = null,
     val projectId: String? = null,
     val target: String? = null,
-    val headers: Map<String, String>? = null,
+    val headers: Map<String, String>? = emptyMap(),
     val visibility: VisibilityDto? = null,
-    val dynamicResources: List<TWSAttachment>? = null,
-    val props: Map<String, Any>? = null,
-    val engine: TWSEngine? = null
+    val dynamicResources: List<TWSAttachment>? = emptyList(),
+    val props: Map<String, Any>? = emptyMap(),
+    val engine: TWSEngine? = TWSEngine.NONE
 )
 
-internal fun ActionBody.isEmpty(): Boolean {
-    return target == null && headers == null && visibility == null && dynamicResources == null && props == null && engine == null
+internal fun ActionBody.isEqual(snippet: TWSSnippetDto): Boolean {
+    return target == snippet.target &&
+        headers == snippet.headers &&
+        visibility == snippet.visibility &&
+        dynamicResources == snippet.dynamicResources &&
+        props == snippet.props &&
+        engine == snippet.engine
 }
 
 internal fun List<TWSSnippetDto>.updateWith(action: SnippetUpdateAction): List<TWSSnippetDto> {
@@ -108,7 +113,7 @@ internal fun List<TWSSnippetDto>.insert(data: ActionBody): List<TWSSnippetDto> {
 internal fun List<TWSSnippetDto>.update(data: ActionBody): List<TWSSnippetDto> {
     return map {
         if (it.id == data.id) {
-            if (data.isEmpty()) {
+            if (data.isEqual(it)) {
                 // html has changed, increase load iteration
                 it.copy(loadIteration = it.loadIteration + 1)
             } else {

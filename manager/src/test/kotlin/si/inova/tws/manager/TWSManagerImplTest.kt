@@ -185,7 +185,7 @@ class TWSManagerImplTest {
             fakeSocket.mockUpdateAction(
                 SnippetUpdateAction(
                     ActionType.UPDATED,
-                    ActionBody(id = FAKE_SNIPPET_ONE.id, target = "www.example.com")
+                    FAKE_SNIPPET_ONE.toActionBody().copy(target = "www.example.com")
                 )
             )
             runCurrent()
@@ -272,7 +272,7 @@ class TWSManagerImplTest {
             fakeSocket.mockUpdateAction(
                 SnippetUpdateAction(
                     ActionType.UPDATED,
-                    ActionBody(id = FAKE_SNIPPET_ONE.id, target = "www.updated.com")
+                    FAKE_SNIPPET_ONE.toActionBody().copy(target = "www.updated.com")
                 )
             )
             runCurrent()
@@ -348,7 +348,7 @@ class TWSManagerImplTest {
                 )
             )
 
-            fakeHandler.mockUpdateAction(SnippetUpdateAction(ActionType.UPDATED, ActionBody(id = FAKE_SNIPPET_ONE.id)))
+            fakeHandler.mockUpdateAction(SnippetUpdateAction(ActionType.UPDATED, FAKE_SNIPPET_ONE.toActionBody()))
             runCurrent()
 
             expectMostRecentItem().shouldBeSuccessWithData(
@@ -492,8 +492,7 @@ class TWSManagerImplTest {
             fakeSocket.mockUpdateAction(
                 SnippetUpdateAction(
                     type = ActionType.UPDATED,
-                    data = ActionBody(
-                        id = FAKE_SNIPPET_ONE.id,
+                    data = FAKE_SNIPPET_ONE.toActionBody().copy(
                         dynamicResources = listOf(TWSAttachment("https://test.cs", TWSAttachmentType.CSS))
                     )
                 )
