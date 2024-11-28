@@ -30,6 +30,6 @@ internal class AuthLoginManagerImpl(
 
     override suspend fun refreshToken() {
         val response = twsAuth.login()
-        AuthPreference.setAuthToken(response.authToken)
+        AuthPreference.setAccessToken(response.accessToken)
     }
 }

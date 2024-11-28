@@ -52,19 +52,19 @@ internal object AuthPreference {
     val accessToken: Flow<String> by lazy {
         appContext.authPreferences.data
             .map { preferences ->
-                preferences[AUTH_TOKEN] ?: ""
+                preferences[ACCESS_TOKEN] ?: ""
             }
     }
 
-    suspend fun setRefreshToken(authToken: String) {
+    suspend fun setRefreshToken(refreshToken: String) {
         appContext.authPreferences.edit { settings ->
-            settings[REFRESH_TOKEN] = authToken
+            settings[REFRESH_TOKEN] = refreshToken
         }
     }
 
-    suspend fun setAuthToken(authToken: String) {
+    suspend fun setAccessToken(accessToken: String) {
         appContext.authPreferences.edit { settings ->
-            settings[AUTH_TOKEN] = authToken
+            settings[ACCESS_TOKEN] = accessToken
         }
     }
 }
@@ -72,4 +72,4 @@ internal object AuthPreference {
 private const val RESOURCE_VALUE_NAME = "si.inova.tws.service.jwt"
 private const val DATASTORE_NAME = "authPreferences"
 private val REFRESH_TOKEN = stringPreferencesKey("refreshToken")
-private val AUTH_TOKEN = stringPreferencesKey("authToken")
+private val ACCESS_TOKEN = stringPreferencesKey("accessToken")

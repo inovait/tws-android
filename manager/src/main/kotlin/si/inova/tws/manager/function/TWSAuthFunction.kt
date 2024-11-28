@@ -18,7 +18,7 @@ package si.inova.tws.manager.function
 
 import jakarta.inject.Singleton
 import retrofit2.http.POST
-import si.inova.tws.manager.data.AuthTokenDto
+import si.inova.tws.manager.data.AccessTokenDto
 import si.inova.tws.manager.data.RefreshTokenDto
 
 @Singleton
@@ -27,5 +27,5 @@ internal interface TWSAuthFunction {
     suspend fun register(): RefreshTokenDto
 
     @POST("auth/login")
-    suspend fun login(): AuthTokenDto
+    suspend fun login(): AccessTokenDto
 }
