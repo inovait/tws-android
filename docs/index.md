@@ -31,7 +31,7 @@ offline, the SDK will still work smoothly, letting users access content without 
 ## Quick Tutorial
 ### Installation
 
-In your root-level (project-level) Gradle file (<project>/build.gradle.kts or <project>/build.gradle), add the Service Gradle
+In your <b>root-level (project-level)</b> Gradle file (`<project>/build.gradle.kts` or `<project>/build.gradle`), add the Service Gradle
 plugin to the plugins block:
 
 ```gradle
@@ -39,8 +39,9 @@ plugin {
    id("si.inova.tws.service") version "1.0.0" apply false
 }
 ```
+<br>
 
-In your module (app-level) Gradle file (usually <project>/<app-module>/build.gradle.kts or <project>/<app-module>/build.gradle),
+In your <b>module (app-level)</b> Gradle file (usually `<project>/<app-module>/build.gradle.kts` or `<project>/<app-module>/build.gradle`),
 add the Service Gradle plugin:
 
 ```gradle
@@ -48,8 +49,9 @@ plugin {
    id("si.inova.tws.service")
 }
 ```
+<br>
 
-In your module (app-level) Gradle file (usually <project>/<app-module>/build.gradle.kts or <project>/<app-module>/build.gradle),
+In your <b>module (app-level)<b> Gradle file (usually `<project>/<app-module>/build.gradle.kts` or `<project>/<app-module>/build.gradle`),
 add the Core and/or Manager Gradle dependency:
 
 ```gradle
@@ -61,7 +63,7 @@ dependencies {
 
 ### Step 1: Add a TWS configuration file
 
-Download and then add the TWS configuration file (tws-services.json) to your app:
+Download and then add the TWS configuration file (`tws-services.json`) to your app:
 Move your config file into the module (app-level) root directory of your app or in your desired flavour.
 
 ### Step 2: Provide metadata for TWS SDK

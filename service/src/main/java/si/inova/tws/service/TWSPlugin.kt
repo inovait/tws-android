@@ -23,6 +23,20 @@ import org.gradle.configurationcache.extensions.capitalized
 import org.gradle.kotlin.dsl.register
 import si.inova.tws.service.task.GenerateTokenTask
 
+/**
+ * TWSPlugin is a Gradle plugin that automates the generation of tokens for Android application variants.
+ *
+ * The plugin performs the following steps:
+ * 1. Retrieves the `ApplicationAndroidComponentsExtension` to interact with Android build variants.
+ * 2. Iterates over all Android build variants.
+ * 3. For each variant, it:
+ *    - Registers a task (`GenerateTokenTask`) dynamically named based on the variant name.
+ *    - Configures the task to take specific input files, including:
+ *      - A variant-specific configuration file (e.g., `src/<variant-name>/tws-service.json`).
+ *      - A fallback configuration file (`tws-service.json`) located at the project root.
+ *    - Adds the task's output directory as a generated source directory to the variant's resources.
+ *
+ */
 class TWSPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         val androidComponents =
