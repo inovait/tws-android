@@ -16,16 +16,21 @@
 
 package si.inova.tws.manager
 
+import android.content.Context
 import kotlinx.coroutines.test.runTest
 import okhttp3.Headers
+import org.junit.Before
 import org.junit.Test
+import org.mockito.Mockito
 import retrofit2.Response
+import si.inova.tws.manager.fakes.FakeAuthPreference
+import si.inova.tws.manager.fakes.function.FakeTWSSnippetFunction
+import si.inova.tws.manager.manager.snippet.ProjectResponse
+import si.inova.tws.manager.manager.snippet.SnippetLoadingManager
+import si.inova.tws.manager.manager.snippet.SnippetLoadingManagerImpl
+import si.inova.tws.manager.preference.AuthPreference
 import si.inova.tws.manager.utils.FAKE_PROJECT_DTO
 import si.inova.tws.manager.utils.FAKE_SHARED_PROJECT
-import si.inova.tws.manager.fakes.FakeTWSFunctions
-import si.inova.tws.manager.snippet.ProjectResponse
-import si.inova.tws.manager.snippet.SnippetLoadingManager
-import si.inova.tws.manager.snippet.SnippetLoadingManagerImpl
 import si.inova.tws.manager.utils.MILLISECONDS_DATE
 import si.inova.tws.manager.utils.testScopeWithDispatcherProvider
 import java.time.Instant
@@ -34,15 +39,26 @@ import java.util.Date
 internal class SnippetLoadingManagerImplTest {
     private val scope = testScopeWithDispatcherProvider()
 
-    private val fakeFunctions = FakeTWSFunctions()
+    private val fakeFunctions = FakeTWSSnippetFunction()
 
     private lateinit var impl: SnippetLoadingManager
+
+    private val fakeAuthPreference: AuthPreference = FakeAuthPreference()
+
+    private lateinit var context: Context
+
+    @Before
+    fun setup() {
+        context = Mockito.mock(Context::class.java)
+    }
 
     @Test
     fun `Load project`() = scope.runTest {
         impl = SnippetLoadingManagerImpl(
+            context = context,
             configuration = TWSConfiguration.Basic("org", "proj", "key"),
-            functions = fakeFunctions
+            functions = fakeFunctions,
+            authPreference = fakeAuthPreference
         )
 
         fakeFunctions.returnedProject =
@@ -63,8 +79,10 @@ internal class SnippetLoadingManagerImplTest {
     @Test
     fun `Load shared snippet`() = scope.runTest {
         impl = SnippetLoadingManagerImpl(
+            context = context,
             configuration = TWSConfiguration.Shared("sharedId", "key"),
-            functions = fakeFunctions
+            functions = fakeFunctions,
+            authPreference = fakeAuthPreference
         )
 
         fakeFunctions.returnedSharedSnippet = FAKE_SHARED_PROJECT

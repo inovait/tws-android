@@ -14,35 +14,25 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-pluginManagement {
-    repositories {
-        google {
-            content {
-                includeGroupByRegex("com\\.android.*")
-                includeGroupByRegex("com\\.google.*")
-                includeGroupByRegex("androidx.*")
-            }
-        }
-        mavenCentral()
-        gradlePluginPortal()
-        mavenLocal()
+package si.inova.tws.manager.manager.auth
+
+import jakarta.inject.Singleton
+import kotlinx.coroutines.flow.Flow
+import si.inova.tws.manager.factory.BaseServiceFactory
+import si.inova.tws.manager.factory.create
+import si.inova.tws.manager.function.TWSAuthFunction
+import si.inova.tws.manager.preference.AuthPreference
+
+@Singleton
+internal class AuthRegisterManagerImpl(
+    private val authPreference: AuthPreference,
+    private val twsAuth: TWSAuthFunction = BaseServiceFactory(jwt = authPreference.jwt).create(),
+) : Auth {
+    override val getToken: Flow<String>
+        get() = authPreference.refreshToken
+
+    override suspend fun refreshToken() {
+        val response = twsAuth.register()
+        authPreference.setRefreshToken(response.refreshToken)
     }
 }
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        google()
-        mavenCentral()
-        mavenLocal()
-    }
-}
-
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
-
-rootProject.name = "TheWebSnippetSdk"
-include(":core")
-include(":interstitial")
-include(":manager")
-include(":data")
-include(":service")
-includeBuild("sample")

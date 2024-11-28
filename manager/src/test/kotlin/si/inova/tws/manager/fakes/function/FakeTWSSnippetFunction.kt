@@ -14,35 +14,30 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-pluginManagement {
-    repositories {
-        google {
-            content {
-                includeGroupByRegex("com\\.android.*")
-                includeGroupByRegex("com\\.google.*")
-                includeGroupByRegex("androidx.*")
-            }
-        }
-        mavenCentral()
-        gradlePluginPortal()
-        mavenLocal()
+package si.inova.tws.manager.fakes.function
+
+import retrofit2.Response
+import si.inova.tws.manager.data.ProjectDto
+import si.inova.tws.manager.data.SharedSnippetDto
+import si.inova.tws.manager.function.TWSSnippetFunction
+import si.inova.tws.manager.utils.FakeService
+import si.inova.tws.manager.utils.ServiceTestingHelper
+
+internal class FakeTWSSnippetFunction(
+    private val helper: ServiceTestingHelper = ServiceTestingHelper()
+) : TWSSnippetFunction, FakeService by helper {
+    var returnedProject: Response<ProjectDto>? = null
+    var returnedSharedSnippet: SharedSnippetDto? = null
+
+    override suspend fun getWebSnippets(organizationId: String, projectId: String): Response<ProjectDto> {
+        helper.intercept()
+
+        return returnedProject ?: error("Returned project not faked!")
+    }
+
+    override suspend fun getSharedSnippetData(shareId: String): SharedSnippetDto {
+        helper.intercept()
+
+        return returnedSharedSnippet ?: error("Returned shared snippet not faked!")
     }
 }
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        google()
-        mavenCentral()
-        mavenLocal()
-    }
-}
-
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
-
-rootProject.name = "TheWebSnippetSdk"
-include(":core")
-include(":interstitial")
-include(":manager")
-include(":data")
-include(":service")
-includeBuild("sample")

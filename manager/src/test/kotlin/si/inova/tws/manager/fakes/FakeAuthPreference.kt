@@ -14,35 +14,28 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-pluginManagement {
-    repositories {
-        google {
-            content {
-                includeGroupByRegex("com\\.android.*")
-                includeGroupByRegex("com\\.google.*")
-                includeGroupByRegex("androidx.*")
-            }
-        }
-        mavenCentral()
-        gradlePluginPortal()
-        mavenLocal()
+package si.inova.tws.manager.fakes
+
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.update
+import si.inova.tws.manager.preference.AuthPreference
+
+class FakeAuthPreference : AuthPreference {
+    override val jwt: String = "test-jwt-token"
+
+    private val _refreshToken: MutableStateFlow<String?> = MutableStateFlow(null)
+    override val refreshToken: Flow<String> = _refreshToken.filterNotNull()
+
+    private val _authToken: MutableStateFlow<String?> = MutableStateFlow(null)
+    override val authToken: Flow<String> = _authToken.filterNotNull()
+
+    override suspend fun setRefreshToken(authToken: String) {
+        _refreshToken.update { authToken }
+    }
+
+    override suspend fun setAuthToken(authToken: String) {
+        _authToken.update { authToken }
     }
 }
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        google()
-        mavenCentral()
-        mavenLocal()
-    }
-}
-
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
-
-rootProject.name = "TheWebSnippetSdk"
-include(":core")
-include(":interstitial")
-include(":manager")
-include(":data")
-include(":service")
-includeBuild("sample")

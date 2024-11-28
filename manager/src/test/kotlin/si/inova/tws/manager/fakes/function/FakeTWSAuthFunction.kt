@@ -14,17 +14,29 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.manager.snippet
+package si.inova.tws.manager.fakes.function
 
-import si.inova.tws.manager.data.ProjectDto
-import java.time.Instant
+import si.inova.tws.manager.data.AuthTokenDto
+import si.inova.tws.manager.data.RefreshTokenDto
+import si.inova.tws.manager.function.TWSAuthFunction
+import si.inova.tws.manager.utils.FakeService
+import si.inova.tws.manager.utils.ServiceTestingHelper
 
-internal interface SnippetLoadingManager {
-    suspend fun load(): ProjectResponse
+internal class FakeTWSAuthFunction(
+    private val helper: ServiceTestingHelper = ServiceTestingHelper()
+) : TWSAuthFunction, FakeService by helper {
+    var refreshToken: RefreshTokenDto? = null
+    var authToken: AuthTokenDto? = null
+
+    override suspend fun register(): RefreshTokenDto {
+        helper.intercept()
+
+        return refreshToken ?: error("Returned refreshToken not faked!")
+    }
+
+    override suspend fun login(): AuthTokenDto {
+        helper.intercept()
+
+        return authToken ?: error("Returned authToken not faked!")
+    }
 }
-
-internal data class ProjectResponse(
-    val project: ProjectDto,
-    val responseDate: Instant,
-    val mainSnippet: String? = null
-)

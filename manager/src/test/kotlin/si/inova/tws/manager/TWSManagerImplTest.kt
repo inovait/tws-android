@@ -35,8 +35,8 @@ import si.inova.tws.manager.data.ProjectDto
 import si.inova.tws.manager.data.SnippetUpdateAction
 import si.inova.tws.manager.localhandler.LocalSnippetHandler
 import si.inova.tws.manager.service.NetworkConnectivityService
-import si.inova.tws.manager.snippet.ProjectResponse
-import si.inova.tws.manager.snippet.SnippetLoadingManager
+import si.inova.tws.manager.manager.snippet.ProjectResponse
+import si.inova.tws.manager.manager.snippet.SnippetLoadingManager
 import si.inova.tws.manager.utils.FAKE_EXPOSED_SNIPPET_FIVE
 import si.inova.tws.manager.utils.FAKE_EXPOSED_SNIPPET_FOUR
 import si.inova.tws.manager.utils.FAKE_EXPOSED_SNIPPET_ONE
@@ -53,7 +53,7 @@ import si.inova.tws.manager.utils.FAKE_SNIPPET_TWO
 import si.inova.tws.manager.fakes.FakeCacheManager
 import si.inova.tws.manager.fakes.FakeLocalSnippetHandler
 import si.inova.tws.manager.fakes.FakeNetworkConnectivityService
-import si.inova.tws.manager.fakes.FakeSnippetLoadingManager
+import si.inova.tws.manager.fakes.manager.FakeSnippetLoadingManager
 import si.inova.tws.manager.fakes.FakeTWSSocket
 import si.inova.tws.manager.utils.testScopeWithDispatcherProvider
 import si.inova.tws.manager.utils.shouldBeProgressWith

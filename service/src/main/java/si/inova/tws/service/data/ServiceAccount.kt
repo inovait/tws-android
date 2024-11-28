@@ -14,35 +14,17 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-pluginManagement {
-    repositories {
-        google {
-            content {
-                includeGroupByRegex("com\\.android.*")
-                includeGroupByRegex("com\\.google.*")
-                includeGroupByRegex("androidx.*")
-            }
-        }
-        mavenCentral()
-        gradlePluginPortal()
-        mavenLocal()
-    }
-}
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        google()
-        mavenCentral()
-        mavenLocal()
-    }
-}
+package si.inova.tws.service.data
 
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+import com.google.gson.annotations.SerializedName
 
-rootProject.name = "TheWebSnippetSdk"
-include(":core")
-include(":interstitial")
-include(":manager")
-include(":data")
-include(":service")
-includeBuild("sample")
+internal data class ServiceAccount(
+    @SerializedName("client_id")
+    val clientId: String,
+    @SerializedName("organization_id")
+    val organizationId: String,
+    @SerializedName("private_key_id")
+    val privateKeyId: String,
+    @SerializedName("private_key")
+    val privateKey: String
+)

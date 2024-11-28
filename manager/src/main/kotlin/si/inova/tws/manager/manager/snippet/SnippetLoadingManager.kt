@@ -14,30 +14,17 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.manager.fakes
+package si.inova.tws.manager.manager.snippet
 
-import retrofit2.Response
 import si.inova.tws.manager.data.ProjectDto
-import si.inova.tws.manager.data.SharedSnippetDto
-import si.inova.tws.manager.network.TWSFunctions
-import si.inova.tws.manager.utils.FakeService
-import si.inova.tws.manager.utils.ServiceTestingHelper
+import java.time.Instant
 
-internal class FakeTWSFunctions(
-    private val helper: ServiceTestingHelper = ServiceTestingHelper()
-) : TWSFunctions, FakeService by helper {
-    var returnedProject: Response<ProjectDto>? = null
-    var returnedSharedSnippet: SharedSnippetDto? = null
-
-    override suspend fun getWebSnippets(organizationId: String, projectId: String, apiKey: String?): Response<ProjectDto> {
-        helper.intercept()
-
-        return returnedProject ?: error("Returned project not faked!")
-    }
-
-    override suspend fun getSharedSnippetData(shareId: String): SharedSnippetDto {
-        helper.intercept()
-
-        return returnedSharedSnippet ?: error("Returned shared snippet not faked!")
-    }
+internal interface SnippetLoadingManager {
+    suspend fun load(): ProjectResponse
 }
+
+internal data class ProjectResponse(
+    val project: ProjectDto,
+    val responseDate: Instant,
+    val mainSnippet: String? = null
+)
