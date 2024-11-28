@@ -24,14 +24,19 @@ import androidx.navigation.NavController
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import si.inova.tws.core.TWSView
+import si.inova.tws.core.data.TWSViewInterceptor
 import si.inova.tws.data.TWSSnippet
 import si.inova.tws.manager.TWSManager
+import si.inova.tws.sample.Screen.TWSViewCustomTabsExample
+import si.inova.tws.sample.Screen.TWSViewInjectionExample
+import si.inova.tws.sample.Screen.TWSViewMustacheExample
+import si.inova.tws.sample.Screen.TWSViewPermissionsExample
 import si.inova.tws.sample.components.ErrorView
 import si.inova.tws.sample.components.LoadingView
 import javax.inject.Inject
 
 /**
- * A composable function that renders a screen used for navigation, showcasing the use of [TWSViewDemoInterceptor] to handle URLs natively.
+ * A composable function that renders a screen used for navigation, showcasing the use of [TWSViewInterceptor] to handle URLs natively.
  *
  * @param navController A [NavController] used to handle navigation between screens.
  * @param twsInterceptorViewModel A viewModel that provides access to the list of [TWSSnippet].
@@ -49,7 +54,19 @@ fun TWSViewCustomInterceptorExample(
         loadingPlaceholderContent = { LoadingView() },
         errorViewContent = { ErrorView(it) },
         // Handling urls natively
-        interceptUrlCallback = TWSViewDemoInterceptor { navController.navigate(it) }
+        interceptUrlCallback = { url ->
+            val urlString = url.toString()
+            val route = when {
+                urlString.contains("/customTabsExample") -> TWSViewCustomTabsExample.route
+                urlString.contains("/mustacheExample") -> TWSViewMustacheExample.route
+                urlString.contains("/injectionExample") -> TWSViewInjectionExample.route
+                urlString.contains("/permissionsExample") -> TWSViewPermissionsExample.route
+                else -> null
+            }
+
+            route?.let { navController.navigate(it) }
+            route != null
+        }
     )
 }
 
