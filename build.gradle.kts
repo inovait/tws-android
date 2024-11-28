@@ -8,7 +8,6 @@ import org.jetbrains.dokka.gradle.DokkaTaskPartial
 plugins {
    alias(libs.plugins.nexusPublish)
    alias(libs.plugins.dokka)
-   id("com.google.dagger.hilt.android") version "2.51.1" apply false
 }
 
 buildscript {
@@ -33,7 +32,6 @@ allprojects {
       dokkaSourceSets.configureEach {
          documentedVisibilities = setOf(DokkaConfiguration.Visibility.PUBLIC)
          reportUndocumented = true
-         outputDirectory.set(rootProject.rootDir.resolve("dokka"))
       }
    }
 }
