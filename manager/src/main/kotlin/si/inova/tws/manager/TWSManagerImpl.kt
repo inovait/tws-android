@@ -71,7 +71,7 @@ internal class TWSManagerImpl(
     tag: String = "",
     private val configuration: TWSConfiguration,
     scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO),
-    private val loader: SnippetLoadingManager = SnippetLoadingManagerImpl(context, configuration),
+    private val loader: SnippetLoadingManager = SnippetLoadingManagerImpl(configuration),
     private val twsSocket: TWSSocket? = TWSSocketImpl(scope),
     private val localSnippetHandler: LocalSnippetHandler? = LocalSnippetHandlerImpl(scope),
     private val cacheManager: CacheManager? = FileCacheManager(context, tag),

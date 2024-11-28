@@ -16,24 +16,20 @@
 
 package si.inova.tws.manager.manager.auth
 
-import jakarta.inject.Singleton
 import kotlinx.coroutines.flow.Flow
 import si.inova.tws.manager.factory.BaseServiceFactory
 import si.inova.tws.manager.factory.create
 import si.inova.tws.manager.function.TWSAuthFunction
 import si.inova.tws.manager.preference.AuthPreference
 
-@Singleton
 internal class AuthLoginManagerImpl(
-    private val authPreference: AuthPreference,
-    snippetRegister: Auth = AuthRegisterManagerImpl(authPreference),
-    private val twsAuth: TWSAuthFunction = BaseServiceFactory(snippetRegister).create()
+    private val twsAuth: TWSAuthFunction = BaseServiceFactory(AuthRegisterManagerImpl()).create()
 ) : Auth {
     override val getToken: Flow<String>
-        get() = authPreference.authToken
+        get() = AuthPreference.accessToken
 
     override suspend fun refreshToken() {
         val response = twsAuth.login()
-        authPreference.setAuthToken(response.authToken)
+        AuthPreference.setAuthToken(response.authToken)
     }
 }
