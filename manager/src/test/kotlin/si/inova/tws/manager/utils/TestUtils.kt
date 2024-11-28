@@ -126,10 +126,14 @@ internal val FAKE_SHARED_PROJECT = SharedSnippetDto(snippet = FAKE_SNIPPET_ONE)
 
 internal fun TWSSnippetDto.toActionBody() = ActionBody(
     id = id,
+    organizationId = organizationId,
+    projectId = projectId,
     target = target,
     headers = headers,
+    visibility = visibility,
     dynamicResources = dynamicResources,
-    props = props
+    props = props,
+    engine = engine
 )
 
 internal fun TWSSnippetDto.setVisibility(ts: Long) = copy(
