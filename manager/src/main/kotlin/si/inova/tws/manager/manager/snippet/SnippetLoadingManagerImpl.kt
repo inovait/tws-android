@@ -16,23 +16,16 @@
 
 package si.inova.tws.manager.manager.snippet
 
-import android.content.Context
 import si.inova.tws.manager.TWSConfiguration
 import si.inova.tws.manager.factory.BaseServiceFactory
 import si.inova.tws.manager.factory.create
 import si.inova.tws.manager.function.TWSSnippetFunction
-import si.inova.tws.manager.manager.auth.Auth
 import si.inova.tws.manager.manager.auth.AuthLoginManagerImpl
-import si.inova.tws.manager.preference.AuthPreference
-import si.inova.tws.manager.preference.AuthPreferenceImpl
 import java.time.Instant
 
 internal class SnippetLoadingManagerImpl(
-    context: Context,
     private val configuration: TWSConfiguration,
-    authPreference: AuthPreference = AuthPreferenceImpl(context),
-    snippetLoginAuth: Auth = AuthLoginManagerImpl(authPreference),
-    private val functions: TWSSnippetFunction = BaseServiceFactory(snippetLoginAuth).create()
+    private val functions: TWSSnippetFunction = BaseServiceFactory(AuthLoginManagerImpl()).create()
 ) : SnippetLoadingManager {
     private var orgId: String? = null
     private var projId: String? = null

@@ -17,7 +17,6 @@
 package si.inova.tws.manager.factory
 
 import com.squareup.moshi.Moshi
-import jakarta.inject.Singleton
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
@@ -26,13 +25,9 @@ import si.inova.tws.manager.manager.auth.Auth
 import si.inova.tws.manager.singleton.twsMoshi
 import si.inova.tws.manager.singleton.twsOkHttpClient
 
-@Singleton
-internal class BaseServiceFactory(
-    private val fallbackAuthentication: Auth? = null,
-    private val jwt: String? = null
-) : ServiceFactory {
+internal class BaseServiceFactory(private val fallbackAuthentication: Auth? = null) : ServiceFactory {
     private val moshi: Moshi by lazy { twsMoshi() }
-    private val okHttpClient: OkHttpClient by lazy { twsOkHttpClient(fallbackAuthentication, jwt) }
+    private val okHttpClient: OkHttpClient by lazy { twsOkHttpClient(fallbackAuthentication) }
 
     override fun <S> create(
         klass: Class<S>,
