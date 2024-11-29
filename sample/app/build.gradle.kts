@@ -1,10 +1,10 @@
 import org.jetbrains.dokka.gradle.DokkaTaskPartial
 
 plugins {
-    alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.compose)
-    alias(libs.plugins.dokka)
+    alias(sampleLibs.plugins.android.application)
+    alias(sampleLibs.plugins.kotlin.android)
+    alias(sampleLibs.plugins.kotlin.compose)
+    alias(sampleLibs.plugins.dokka)
     id("kotlin-kapt")
     id("com.google.dagger.hilt.android")
 }
@@ -67,25 +67,25 @@ hilt {
 }
 
 dependencies {
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.androidx.activity.compose)
-    implementation(platform(libs.androidx.compose.bom))
-    implementation(libs.androidx.ui)
-    implementation(libs.androidx.ui.graphics)
-    implementation(libs.androidx.ui.tooling.preview)
-    implementation(libs.androidx.material3)
-    debugImplementation(libs.androidx.ui.tooling)
-    debugImplementation(libs.androidx.ui.test.manifest)
+    implementation(sampleLibs.androidx.core.ktx)
+    implementation(sampleLibs.androidx.lifecycle.runtime.ktx)
+    implementation(sampleLibs.androidx.activity.compose)
+    implementation(platform(sampleLibs.androidx.compose.bom))
+    implementation(sampleLibs.androidx.ui)
+    implementation(sampleLibs.androidx.ui.graphics)
+    implementation(sampleLibs.androidx.ui.tooling.preview)
+    implementation(sampleLibs.androidx.material3)
+    debugImplementation(sampleLibs.androidx.ui.tooling)
+    debugImplementation(sampleLibs.androidx.ui.test.manifest)
 
-    coreLibraryDesugaring(libs.desugarJdkLibs)
-    implementation(libs.hilt.android)
-    kapt(libs.hilt.android.compiler)
-    implementation(libs.kotlin.immutableCollections)
-    implementation(libs.androidx.hilt.navigation.compose)
-    implementation(libs.tws.core)
-    implementation(libs.tws.manager)
-    implementation(libs.tws.interstitial)
+    coreLibraryDesugaring(sampleLibs.desugarJdkLibs)
+    implementation(sampleLibs.hilt.android)
+    kapt(sampleLibs.hilt.android.compiler)
+    implementation(sampleLibs.kotlin.immutableCollections)
+    implementation(sampleLibs.androidx.hilt.navigation.compose)
+    implementation(sampleLibs.tws.core)
+    implementation(sampleLibs.tws.manager)
+    implementation(sampleLibs.tws.interstitial)
 }
 
 fun ExtraPropertiesExtension.getString(key: String): String {

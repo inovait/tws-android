@@ -20,6 +20,11 @@ dependencyResolutionManagement {
             url = uri("${rootProject.projectDir}/libs")
         }
     }
+    versionCatalogs {
+        create("sampleLibs") {
+            from(files("gradle/libs.versions.toml"))
+        }
+    }
 }
 
 rootProject.name = "sample"
