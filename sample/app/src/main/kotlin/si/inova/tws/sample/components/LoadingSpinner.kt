@@ -32,6 +32,7 @@ import si.inova.tws.sample.ui.theme.SampleTheme
  * A composable function that displays a loading indicator.
  *
  * @param modifier A [Modifier] used to configure the layout or styling of the loading view.
+ * @sample si.inova.tws.sample.components.LoadingView
  */
 @Composable
 fun LoadingView(modifier: Modifier = Modifier.fillMaxSize()) {

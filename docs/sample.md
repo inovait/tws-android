@@ -1,3 +1,8 @@
+<div style="text-align: center;width: 100%;">
+    <h1>TWS Sample application</h1>
+    <img src="images/appIcon.png" alt="My Custom Icon" style="display: block; margin: 32px auto; max-width: 100%; height: auto;" />
+</div>
+
 ## Sample application
 
 For a simpler and clearer understanding of the TWS SDK, we have prepared a sample application to help you get started.
@@ -26,7 +31,6 @@ an external source,
 you can add it to the local snippet properties using TWSManager. See an example of this in the TWSViewMustacheExample.
 
 We also provide you with some of the system properties that can be used:
-
 - {{version}}
 - {{device.vendor}}
 - {{device.name}}

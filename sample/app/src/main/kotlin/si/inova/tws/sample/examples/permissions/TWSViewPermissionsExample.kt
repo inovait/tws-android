@@ -47,6 +47,7 @@ import javax.inject.Inject
  *     `<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />`
  *
  * @param twsPermissionsViewModel A viewModel that provides access to the [TWSOutcome].
+ * @sample si.inova.tws.sample.examples.permissions.TWSViewPermissionsExample
  */
 @Composable
 fun TWSViewPermissionsExample(

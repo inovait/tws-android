@@ -66,6 +66,9 @@ fun TWSViewComponentWithTabs(
 }
 
 /**
+ * A composable function that extracts "tabName" and "tabIcon" properties from [TWSSnippet.props] and sets them
+ * for each tab.
+ *
  * @param content A list of [TWSSnippet] used for setting the text and icon for the tabs.
  * @param currentTab A number indicating the index of currently selected tab.
  * @param onClick A function that accepts the index of a clicked tab, used for handling tab switching.

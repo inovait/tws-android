@@ -40,6 +40,7 @@ import si.inova.tws.sample.ui.theme.SampleTheme
  *
  * @param errorText Custom text displayed when an error occurs.
  * @param modifier A [Modifier] to configure the layout or styling of the error view.
+ * @sample si.inova.tws.sample.components.ErrorView
  */
 @Composable
 fun ErrorView(
