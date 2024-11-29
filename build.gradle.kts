@@ -41,8 +41,7 @@ tasks.dokkaHtmlMultiModule {
    moduleName.set("TheWebSnippet SDK")
 
    // Include custom index.md file
-   includes.from("docs/index.md")
-
+   includes.from("docs/index.md", "docs/sample.md")
    // Include custom assets
    pluginConfiguration<DokkaBase, DokkaBaseConfiguration> {
       customAssets = listOf(file("docs/appIcon.png"))
