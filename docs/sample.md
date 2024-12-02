@@ -85,12 +85,15 @@ screens. You can see our implementation in TWSViewCustomInterceptorExample.
 
 #### Permissions
 
-Permissions from TWSView are handled natively. All you need to do is include the required permissions in AndroidManifest.
+Web permission are handled natively within TWSView. All you need to do is include the required permissions in AndroidManifest,
+if your web pages requires any of the following permission.
 
 - for camera permissions, include: `<uses-permission android:name="android.permission.CAMERA"/>` and
   `<uses-feature android:name="android.hardware.camera" android:required="false" />`,
 - for downloading or uploading files, include: `<uses-permission android:name="android.permission.INTERNET" />`,
 - and for accessing the users location, include: `<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />`
+
+See the "permissions" Snippets Dashboard for the JavaScript implementation download/upload, camera and location access.
 
 When any of the permissions is triggered, a native "permissions required" modal will be shown to the user, and the permission
 settings will be remembered by the application.
