@@ -17,10 +17,12 @@
 package si.inova.tws.manager.data
 
 import androidx.annotation.Keep
+import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 @Keep
 internal data class AccessTokenDto(
+    @Json(name = "authToken")
     val accessToken: String
 )
