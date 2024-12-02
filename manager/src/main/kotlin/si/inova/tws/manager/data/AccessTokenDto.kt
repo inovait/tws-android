@@ -21,6 +21,6 @@ import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 @Keep
-internal data class AuthTokenDto(
-    val authToken: String
+internal data class AccessTokenDto(
+    val accessToken: String
 )

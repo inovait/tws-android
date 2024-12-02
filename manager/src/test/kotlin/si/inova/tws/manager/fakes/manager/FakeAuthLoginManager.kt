@@ -30,6 +30,6 @@ internal class FakeAuthLoginManager(
 
     override suspend fun refreshToken() {
         fakeTWSAuthFunction.login()
-        _getToken.value = fakeTWSAuthFunction.authToken?.authToken
+        _getToken.value = fakeTWSAuthFunction.accessToken?.accessToken
     }
 }

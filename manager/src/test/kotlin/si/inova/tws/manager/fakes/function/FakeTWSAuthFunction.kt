@@ -16,7 +16,7 @@
 
 package si.inova.tws.manager.fakes.function
 
-import si.inova.tws.manager.data.AuthTokenDto
+import si.inova.tws.manager.data.AccessTokenDto
 import si.inova.tws.manager.data.RefreshTokenDto
 import si.inova.tws.manager.function.TWSAuthFunction
 import si.inova.tws.manager.utils.FakeService
@@ -26,7 +26,7 @@ internal class FakeTWSAuthFunction(
     private val helper: ServiceTestingHelper = ServiceTestingHelper()
 ) : TWSAuthFunction, FakeService by helper {
     var refreshToken: RefreshTokenDto? = null
-    var authToken: AuthTokenDto? = null
+    var accessToken: AccessTokenDto? = null
 
     override suspend fun register(): RefreshTokenDto {
         helper.intercept()
@@ -34,9 +34,9 @@ internal class FakeTWSAuthFunction(
         return refreshToken ?: error("Returned refreshToken not faked!")
     }
 
-    override suspend fun login(): AuthTokenDto {
+    override suspend fun login(): AccessTokenDto {
         helper.intercept()
 
-        return authToken ?: error("Returned authToken not faked!")
+        return accessToken ?: error("Returned accessToken not faked!")
     }
 }

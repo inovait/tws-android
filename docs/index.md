@@ -31,7 +31,28 @@ offline, the SDK will still work smoothly, letting users access content without 
 ## Quick Tutorial
 ### Installation
 
-Add the following dependency to your `build.gradle` file:
+In your <b>root-level (project-level)</b> Gradle file (`<project>/build.gradle.kts` or `<project>/build.gradle`), add the Service Gradle
+plugin to the plugins block:
+
+```gradle
+plugin {
+   id("si.inova.tws.service") version "1.0.0" apply false
+}
+```
+<br>
+
+In your <b>module (app-level)</b> Gradle file (usually `<project>/<app-module>/build.gradle.kts` or `<project>/<app-module>/build.gradle`),
+add the Service Gradle plugin:
+
+```gradle
+plugin {
+   id("si.inova.tws.service")
+}
+```
+<br>
+
+In your <b>module (app-level)<b> Gradle file (usually `<project>/<app-module>/build.gradle.kts` or `<project>/<app-module>/build.gradle`),
+add the Core and/or Manager Gradle dependency:
 
 ```gradle
 dependencies {
@@ -40,7 +61,12 @@ dependencies {
 }
 ```
 
-### Step 1: Provide metadata for TWS SDK
+### Step 1: Add a TWS configuration file
+
+Download and then add the TWS configuration file (`tws-services.json`) to your app:
+Move your config file into the module (app-level) root directory of your app or in your desired flavour.
+
+### Step 2: Provide metadata for TWS SDK
 
 Before using the TWS SDK, ensure you set up metadata keys for organization and project in AndroidManifest.xml. 
 These metadata keys allow the SDK to identify the correct organization and project context when initializing your TWSManager:
@@ -56,7 +82,7 @@ These metadata keys allow the SDK to identify the correct organization and proje
 </application>
 ```
 
-### Step 2: Using TWSView to display snippet
+### Step 3: Using TWSView to display snippet
 
 Set up WebSnippetComponent to display a specific snippet. Here’s how to collect snippets and display "home" snippet:
 

@@ -54,7 +54,7 @@ import java.io.File
  * @throws IllegalStateException If no valid `tws-service.json` file is found.
  */
 @CacheableTask
-abstract class GenerateTokenTask : DefaultTask() {
+internal abstract class GenerateTokenTask : DefaultTask() {
 
     @get:OutputDirectory
     abstract val outputDirectory: DirectoryProperty
@@ -99,7 +99,7 @@ abstract class GenerateTokenTask : DefaultTask() {
         file.writeText(content)
     }
 
-    companion object {
+    internal companion object {
         private const val FILE_NAME = "si_inova_tws_service_mappingfield.xml"
     }
 }
