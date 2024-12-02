@@ -75,20 +75,34 @@
       <p class="paragraph">With an active internet connection, the TWSManager ensures your web snippets are always up-to-date.  Developers can change app content on the fly without rebuilding or updating the app. Even  offline, the SDK will still work smoothly, letting users access content without interruption.</p>
       <h2 class="">Quick Tutorial</h2>
       <h3 class="">Installation</h3>
-      <p class="paragraph">Add the following dependency to your <code class="lang-kotlin">build.gradle</code> file:</p>
+      <p class="paragraph">In your <b>root-level (project-level)</b> Gradle file (<code class="lang-kotlin">&lt;project&gt;/build.gradle.kts</code> or <code class="lang-kotlin">&lt;project&gt;/build.gradle</code>), add the Service Gradle plugin to the plugins block:</p>
+      <div class="sample-container">
+        <pre><code class="block lang-gradle" theme="idea">plugin {<br>   id(&quot;si.inova.tws.service&quot;) version &quot;1.0.0&quot; apply false<br>}</code></pre>
+<span class="top-right-position"><span class="copy-icon"></span>
+          <div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div>
+        </span></div>
+<br>      <p class="paragraph">In your <b>module (app-level)</b> Gradle file (usually <code class="lang-kotlin">&lt;project&gt;/&lt;app-module&gt;/build.gradle.kts</code> or <code class="lang-kotlin">&lt;project&gt;/&lt;app-module&gt;/build.gradle</code>), add the Service Gradle plugin:</p>
+      <div class="sample-container">
+        <pre><code class="block lang-gradle" theme="idea">plugin {<br>   id(&quot;si.inova.tws.service&quot;)<br>}</code></pre>
+<span class="top-right-position"><span class="copy-icon"></span>
+          <div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div>
+        </span></div>
+<br>      <p class="paragraph">In your <b>module (app-level)<b> Gradle file (usually <code class="lang-kotlin">&lt;project&gt;/&lt;app-module&gt;/build.gradle.kts</code> or <code class="lang-kotlin">&lt;project&gt;/&lt;app-module&gt;/build.gradle</code>), add the Core and/or Manager Gradle dependency:</p>
       <div class="sample-container">
         <pre><code class="block lang-gradle" theme="idea">dependencies {<br>    implementation 'si.inova.tws:core:1.0.0' // Contains UI Composable components for displaying web pages<br>    implementation 'si.inova.tws:manager:1.0.0' // Contains TWSManager for loading and refreshing snippets in real time<br>}</code></pre>
 <span class="top-right-position"><span class="copy-icon"></span>
           <div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div>
         </span></div>
-      <h3 class="">Step 1: Provide metadata for TWS SDK</h3>
+      <h3 class="">Step 1: Add a TWS configuration file</h3>
+      <p class="paragraph">Download and then add the TWS configuration file (<code class="lang-kotlin">tws-services.json</code>) to your app: Move your config file into the module (app-level) root directory of your app or in your desired flavour.</p>
+      <h3 class="">Step 2: Provide metadata for TWS SDK</h3>
       <p class="paragraph">Before using the TWS SDK, ensure you set up metadata keys for organization and project in AndroidManifest.xml.  These metadata keys allow the SDK to identify the correct organization and project context when initializing your TWSManager:</p>
       <div class="sample-container">
         <pre><code class="block lang-xml" theme="idea">&lt;application&gt;<br>   &lt;meta-data<br>           android:name=&quot;si.inova.tws.ORGANIZATION_ID&quot;<br>           android:value=&quot;your_organization_id&quot; /&gt;<br>   &lt;meta-data<br>           android:name=&quot;si.inova.tws.PROJECT_ID&quot;<br>           android:value=&quot;your_project_id&quot; /&gt;<br>&lt;/application&gt;</code></pre>
 <span class="top-right-position"><span class="copy-icon"></span>
           <div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div>
         </span></div>
-      <h3 class="">Step 2: Using TWSView to display snippet</h3>
+      <h3 class="">Step 3: Using TWSView to display snippet</h3>
       <p class="paragraph">Set up WebSnippetComponent to display a specific snippet. Here’s how to collect snippets and display &quot;home&quot; snippet:</p>
       <div class="sample-container">
         <pre><code class="block lang-kotlin" theme="idea">val manager = TWSFactory.get(context)<br><br>setContent {<br>   val projectSnippets = manager.snippets.collectAsStateWithLifecycle(null).value<br><br>   when (projectSnippets) {<br>      is TWSOutcome.Success -&gt; {<br>         val home = projectSnippets.data.first { it.id == &quot;home&quot; }<br>         TWSView(snippet = home)<br>      }<br><br>      else -&gt; {<br>         // Handle errors or loading state here<br>      }<br>   }<br>}</code></pre>
@@ -185,7 +199,9 @@
 <span class="anchor-wrapper"><span class="anchor-icon" pointing-to="162306168%2FMain%2F0"></span>
                 <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
               </span></span></div>
-          <div><span class="brief-comment"></span></div>
+          <div><span class="brief-comment">
+              <p class="paragraph">A service plugin is a tool that connects your organization's services to your mobile app seamlessly with manager SDK.</p>
+            </span></div>
         </div>
       </div>
     </div>

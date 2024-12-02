@@ -13,4 +13,3 @@ module:manager
 si.inova.tws.manager
 module:service
 si.inova.tws.service
-si.inova.tws.service.task
