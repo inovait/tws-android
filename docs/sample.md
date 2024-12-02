@@ -31,10 +31,11 @@ an external source,
 you can add it to the local snippet properties using TWSManager. See an example of this in the TWSViewMustacheExample.
 
 We also provide you with some of the system properties that can be used:
-- {{version}}
-- {{device.vendor}}
-- {{device.name}}
-- {{os.version}}
+
+- version
+- device.vendor
+- device.name
+- os.version
 
 #### Mustache processing
 
