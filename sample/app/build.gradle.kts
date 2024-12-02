@@ -5,6 +5,7 @@ plugins {
     alias(sampleLibs.plugins.kotlin.android)
     alias(sampleLibs.plugins.kotlin.compose)
     alias(sampleLibs.plugins.dokka)
+    alias(sampleLibs.plugins.twsService)
     id("kotlin-kapt")
     id("com.google.dagger.hilt.android")
 }

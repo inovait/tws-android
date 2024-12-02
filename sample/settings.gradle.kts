@@ -9,6 +9,9 @@ pluginManagement {
         }
         mavenCentral()
         gradlePluginPortal()
+        maven {
+            url = uri("${rootProject.projectDir}/libs")
+        }
     }
 }
 dependencyResolutionManagement {

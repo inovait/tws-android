@@ -1,0 +1,80 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "si.inova.tws",
+    "module": "service",
+    "version": "0.13.0-develop",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "8.7"
+    }
+  },
+  "variants": [
+    {
+      "name": "apiElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.jvm.version": 17,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-api",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "files": [
+        {
+          "name": "service-0.13.0-develop.jar",
+          "url": "service-0.13.0-develop.jar",
+          "size": 15813,
+          "sha512": "3a9a0ee2e2793e4e91de7e8492fcfe115435f49794140863e7b07e821f0519097aa257f21e500d963c9e1d66402119b642111bbdb7680b8d109b058b5ce3b293",
+          "sha256": "cdc0dbe05728525697b4167bfe6298bc85b3e66d16afd143eacb00104af5b18b",
+          "sha1": "53da07fff6317ef8a209bf278ffd3664e29a1523",
+          "md5": "16bdf7042cb0d60912de2dd04003d027"
+        }
+      ]
+    },
+    {
+      "name": "runtimeElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.jvm.version": 17,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "dependencies": [
+        {
+          "group": "com.android.tools.build",
+          "module": "gradle",
+          "version": {
+            "requires": "8.4.0"
+          }
+        },
+        {
+          "group": "com.google.api-client",
+          "module": "google-api-client",
+          "version": {
+            "requires": "2.7.0"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "service-0.13.0-develop.jar",
+          "url": "service-0.13.0-develop.jar",
+          "size": 15813,
+          "sha512": "3a9a0ee2e2793e4e91de7e8492fcfe115435f49794140863e7b07e821f0519097aa257f21e500d963c9e1d66402119b642111bbdb7680b8d109b058b5ce3b293",
+          "sha256": "cdc0dbe05728525697b4167bfe6298bc85b3e66d16afd143eacb00104af5b18b",
+          "sha1": "53da07fff6317ef8a209bf278ffd3664e29a1523",
+          "md5": "16bdf7042cb0d60912de2dd04003d027"
+        }
+      ]
+    }
+  ]
+}

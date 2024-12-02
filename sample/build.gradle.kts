@@ -6,6 +6,7 @@ plugins {
     alias(sampleLibs.plugins.android.application) apply false
     alias(sampleLibs.plugins.kotlin.android) apply false
     alias(sampleLibs.plugins.kotlin.compose) apply false
+    alias(sampleLibs.plugins.twsService) apply false
     alias(sampleLibs.plugins.dokka)
     id("com.google.dagger.hilt.android") version "2.51.1" apply false
 }
