@@ -26,7 +26,7 @@ import si.inova.tws.manager.data.SharedSnippetDto
 
 @Singleton
 internal interface TWSSnippetFunction {
-    @GET("organization/{organizationId}/projects/{projectId}/v2/register")
+    @GET("organizations/{organizationId}/projects/{projectId}/v2/register")
     suspend fun getWebSnippets(
         @Path("organizationId")
         organizationId: String,
