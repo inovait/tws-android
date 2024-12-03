@@ -18,6 +18,7 @@ package com.thewebsnippet.manager
 
 import android.content.Context
 import android.content.pm.PackageManager
+import com.thewebsnippet.manager.preference.AuthPreference
 import jakarta.inject.Singleton
 import java.lang.ref.WeakReference
 import java.util.WeakHashMap
@@ -93,6 +94,8 @@ object TWSFactory {
         return if (existingInstance != null) {
             existingInstance
         } else {
+            AuthPreference.safeInit(context)
+
             val newInstance = TWSManagerImpl(context, tag, configuration)
             instances[tag] = WeakReference(newInstance)
             newInstance

@@ -20,20 +20,16 @@ import com.thewebsnippet.manager.factory.BaseServiceFactory
 import com.thewebsnippet.manager.factory.create
 import com.thewebsnippet.manager.function.TWSAuthFunction
 import com.thewebsnippet.manager.preference.AuthPreference
-import jakarta.inject.Singleton
 import kotlinx.coroutines.flow.Flow
 
-@Singleton
 internal class AuthLoginManagerImpl(
-    private val authPreference: AuthPreference,
-    snippetRegister: Auth = AuthRegisterManagerImpl(authPreference),
-    private val twsAuth: TWSAuthFunction = BaseServiceFactory(snippetRegister).create()
+    private val twsAuth: TWSAuthFunction = BaseServiceFactory(AuthRegisterManagerImpl()).create()
 ) : Auth {
     override val getToken: Flow<String>
-        get() = authPreference.authToken
+        get() = AuthPreference.accessToken
 
     override suspend fun refreshToken() {
         val response = twsAuth.login()
-        authPreference.setAuthToken(response.authToken)
+        AuthPreference.setAccessToken(response.accessToken)
     }
 }

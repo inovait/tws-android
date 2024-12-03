@@ -20,19 +20,14 @@ import com.squareup.moshi.Moshi
 import com.thewebsnippet.manager.manager.auth.Auth
 import com.thewebsnippet.manager.singleton.twsMoshi
 import com.thewebsnippet.manager.singleton.twsOkHttpClient
-import jakarta.inject.Singleton
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
 
-@Singleton
-internal class BaseServiceFactory(
-    private val fallbackAuthentication: Auth? = null,
-    private val jwt: String? = null
-) : ServiceFactory {
+internal class BaseServiceFactory(private val fallbackAuthentication: Auth? = null) : ServiceFactory {
     private val moshi: Moshi by lazy { twsMoshi() }
-    private val okHttpClient: OkHttpClient by lazy { twsOkHttpClient(fallbackAuthentication, jwt) }
+    private val okHttpClient: OkHttpClient by lazy { twsOkHttpClient(fallbackAuthentication) }
 
     override fun <S> create(
         klass: Class<S>,

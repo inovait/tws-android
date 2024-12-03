@@ -1,3 +1,6 @@
+import org.jetbrains.dokka.gradle.DokkaTaskPartial
+import util.publishLibrary
+
 /*
  * Copyright 2024 INOVA IT d.o.o.
  *
@@ -18,6 +21,23 @@ plugins {
     `java-gradle-plugin`
     `maven-publish`
     `kotlin-dsl`
+    alias(libs.plugins.dokka)
+}
+
+publishLibrary(
+    userFriendlyName = "service",
+    description = "Setup for manager",
+    githubPath = "service"
+)
+
+// configuration specific to this subproject.
+// notice the use of Partial task
+tasks.withType<DokkaTaskPartial>().configureEach {
+    dokkaSourceSets {
+        configureEach {
+            includes.from("Module.md")
+        }
+    }
 }
 
 group = "com.thewebsnippet"

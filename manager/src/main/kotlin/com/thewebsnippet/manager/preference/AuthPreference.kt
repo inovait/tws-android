@@ -16,14 +16,60 @@
 
 package com.thewebsnippet.manager.preference
 
-import jakarta.inject.Singleton
+import android.annotation.SuppressLint
+import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
-@Singleton
-internal interface AuthPreference {
-    val jwt: String
-    val refreshToken: Flow<String>
-    val authToken: Flow<String>
-    suspend fun setRefreshToken(authToken: String)
-    suspend fun setAuthToken(authToken: String)
+@SuppressLint("DiscouragedApi") // RESOURCE_VALUE_NAME can only be retrieved from build
+internal object AuthPreference {
+    private lateinit var appContext: Context
+
+    private val Context.authPreferences: DataStore<Preferences> by preferencesDataStore(name = DATASTORE_NAME)
+
+    fun safeInit(context: Context) {
+        if (::appContext.isInitialized) return
+
+        appContext = context
+    }
+
+    val jwt: String by lazy {
+        appContext.getString(appContext.resources.getIdentifier(RESOURCE_VALUE_NAME, "string", appContext.packageName))
+    }
+
+    val refreshToken: Flow<String> by lazy {
+        appContext.authPreferences.data
+            .map { preferences ->
+                preferences[REFRESH_TOKEN] ?: ""
+            }
+    }
+
+    val accessToken: Flow<String> by lazy {
+        appContext.authPreferences.data
+            .map { preferences ->
+                preferences[ACCESS_TOKEN] ?: ""
+            }
+    }
+
+    suspend fun setRefreshToken(refreshToken: String) {
+        appContext.authPreferences.edit { settings ->
+            settings[REFRESH_TOKEN] = refreshToken
+        }
+    }
+
+    suspend fun setAccessToken(accessToken: String) {
+        appContext.authPreferences.edit { settings ->
+            settings[ACCESS_TOKEN] = accessToken
+        }
+    }
 }
+
+private const val RESOURCE_VALUE_NAME = "com.thewebsnippet.service.jwt"
+private const val DATASTORE_NAME = "authPreferences"
+private val REFRESH_TOKEN = stringPreferencesKey("refreshToken")
+private val ACCESS_TOKEN = stringPreferencesKey("accessToken")

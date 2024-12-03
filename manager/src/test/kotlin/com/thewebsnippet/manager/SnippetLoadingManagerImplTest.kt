@@ -16,22 +16,17 @@
 
 package com.thewebsnippet.manager
 
-import android.content.Context
-import com.thewebsnippet.manager.fakes.FakeAuthPreference
 import com.thewebsnippet.manager.fakes.function.FakeTWSSnippetFunction
 import com.thewebsnippet.manager.manager.snippet.ProjectResponse
 import com.thewebsnippet.manager.manager.snippet.SnippetLoadingManager
 import com.thewebsnippet.manager.manager.snippet.SnippetLoadingManagerImpl
-import com.thewebsnippet.manager.preference.AuthPreference
 import com.thewebsnippet.manager.utils.FAKE_PROJECT_DTO
 import com.thewebsnippet.manager.utils.FAKE_SHARED_PROJECT
 import com.thewebsnippet.manager.utils.MILLISECONDS_DATE
 import com.thewebsnippet.manager.utils.testScopeWithDispatcherProvider
 import kotlinx.coroutines.test.runTest
 import okhttp3.Headers
-import org.junit.Before
 import org.junit.Test
-import org.mockito.Mockito
 import retrofit2.Response
 import java.time.Instant
 import java.util.Date
@@ -43,22 +38,11 @@ internal class SnippetLoadingManagerImplTest {
 
     private lateinit var impl: SnippetLoadingManager
 
-    private val fakeAuthPreference: AuthPreference = FakeAuthPreference()
-
-    private lateinit var context: Context
-
-    @Before
-    fun setup() {
-        context = Mockito.mock(Context::class.java)
-    }
-
     @Test
     fun `Load project`() = scope.runTest {
         impl = SnippetLoadingManagerImpl(
-            context = context,
             configuration = TWSConfiguration.Basic("org", "proj", "key"),
             functions = fakeFunctions,
-            authPreference = fakeAuthPreference
         )
 
         fakeFunctions.returnedProject =
@@ -79,10 +63,8 @@ internal class SnippetLoadingManagerImplTest {
     @Test
     fun `Load shared snippet`() = scope.runTest {
         impl = SnippetLoadingManagerImpl(
-            context = context,
             configuration = TWSConfiguration.Shared("sharedId", "key"),
             functions = fakeFunctions,
-            authPreference = fakeAuthPreference
         )
 
         fakeFunctions.returnedSharedSnippet = FAKE_SHARED_PROJECT

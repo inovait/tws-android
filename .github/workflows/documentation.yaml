@@ -72,6 +72,10 @@ jobs:
           touch .nojekyll
           git config user.email "ci@inova.si"
           git config user.name "Build Bot"
-          git add -A
-          git commit -m "Update documentation for version $VERSION" --no-verify
-          git push origin gh-pages
+          if [[ -n "$(git status --porcelain)" ]]; then
+            git add -A
+            git commit -m "Update documentation for version $VERSION" --no-verify
+            git push origin gh-pages
+          else
+            echo "No changes detected, skipping commit and push."
+          fi

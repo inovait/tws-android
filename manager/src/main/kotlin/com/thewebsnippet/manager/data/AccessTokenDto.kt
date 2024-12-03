@@ -14,28 +14,15 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.thewebsnippet.manager.fakes
+package com.thewebsnippet.manager.data
 
-import com.thewebsnippet.manager.preference.AuthPreference
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.update
+import androidx.annotation.Keep
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
-class FakeAuthPreference : AuthPreference {
-    override val jwt: String = "test-jwt-token"
-
-    private val _refreshToken: MutableStateFlow<String?> = MutableStateFlow(null)
-    override val refreshToken: Flow<String> = _refreshToken.filterNotNull()
-
-    private val _authToken: MutableStateFlow<String?> = MutableStateFlow(null)
-    override val authToken: Flow<String> = _authToken.filterNotNull()
-
-    override suspend fun setRefreshToken(authToken: String) {
-        _refreshToken.update { authToken }
-    }
-
-    override suspend fun setAuthToken(authToken: String) {
-        _authToken.update { authToken }
-    }
-}
+@JsonClass(generateAdapter = true)
+@Keep
+internal data class AccessTokenDto(
+    @Json(name = "authToken")
+    val accessToken: String
+)

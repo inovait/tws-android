@@ -16,7 +16,7 @@
 
 package com.thewebsnippet.manager.function
 
-import com.thewebsnippet.manager.data.AuthTokenDto
+import com.thewebsnippet.manager.data.AccessTokenDto
 import com.thewebsnippet.manager.data.RefreshTokenDto
 import jakarta.inject.Singleton
 import retrofit2.http.POST
@@ -27,5 +27,5 @@ internal interface TWSAuthFunction {
     suspend fun register(): RefreshTokenDto
 
     @POST("auth/login")
-    suspend fun login(): AuthTokenDto
+    suspend fun login(): AccessTokenDto
 }

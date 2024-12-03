@@ -16,7 +16,7 @@
 
 package com.thewebsnippet.manager.fakes.function
 
-import com.thewebsnippet.manager.data.AuthTokenDto
+import com.thewebsnippet.manager.data.AccessTokenDto
 import com.thewebsnippet.manager.data.RefreshTokenDto
 import com.thewebsnippet.manager.function.TWSAuthFunction
 import com.thewebsnippet.manager.utils.FakeService
@@ -26,7 +26,7 @@ internal class FakeTWSAuthFunction(
     private val helper: ServiceTestingHelper = ServiceTestingHelper()
 ) : TWSAuthFunction, FakeService by helper {
     var refreshToken: RefreshTokenDto? = null
-    var authToken: AuthTokenDto? = null
+    var accessToken: AccessTokenDto? = null
 
     override suspend fun register(): RefreshTokenDto {
         helper.intercept()
@@ -34,9 +34,9 @@ internal class FakeTWSAuthFunction(
         return refreshToken ?: error("Returned refreshToken not faked!")
     }
 
-    override suspend fun login(): AuthTokenDto {
+    override suspend fun login(): AccessTokenDto {
         helper.intercept()
 
-        return authToken ?: error("Returned authToken not faked!")
+        return accessToken ?: error("Returned accessToken not faked!")
     }
 }

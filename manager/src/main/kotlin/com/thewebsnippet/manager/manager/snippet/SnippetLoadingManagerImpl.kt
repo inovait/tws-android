@@ -16,23 +16,16 @@
 
 package com.thewebsnippet.manager.manager.snippet
 
-import android.content.Context
 import com.thewebsnippet.manager.TWSConfiguration
 import com.thewebsnippet.manager.factory.BaseServiceFactory
 import com.thewebsnippet.manager.factory.create
 import com.thewebsnippet.manager.function.TWSSnippetFunction
-import com.thewebsnippet.manager.manager.auth.Auth
 import com.thewebsnippet.manager.manager.auth.AuthLoginManagerImpl
-import com.thewebsnippet.manager.preference.AuthPreference
-import com.thewebsnippet.manager.preference.AuthPreferenceImpl
 import java.time.Instant
 
 internal class SnippetLoadingManagerImpl(
-    context: Context,
     private val configuration: TWSConfiguration,
-    authPreference: AuthPreference = AuthPreferenceImpl(context),
-    snippetLoginAuth: Auth = AuthLoginManagerImpl(authPreference),
-    private val functions: TWSSnippetFunction = BaseServiceFactory(snippetLoginAuth).create()
+    private val functions: TWSSnippetFunction = BaseServiceFactory(AuthLoginManagerImpl()).create()
 ) : SnippetLoadingManager {
     private var orgId: String? = null
     private var projId: String? = null

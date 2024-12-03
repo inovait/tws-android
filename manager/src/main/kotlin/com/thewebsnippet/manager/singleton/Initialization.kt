@@ -24,7 +24,7 @@ import com.squareup.moshi.adapters.EnumJsonAdapter
 import com.thewebsnippet.data.TWSAttachmentType
 import com.thewebsnippet.data.TWSEngine
 import com.thewebsnippet.manager.manager.auth.Auth
-import jakarta.inject.Singleton
+import com.thewebsnippet.manager.preference.AuthPreference
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
@@ -33,7 +33,6 @@ import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeFormatter.ISO_INSTANT
 
-@Singleton
 internal fun twsMoshi(): Moshi {
     if (Thread.currentThread().name == "main") {
         error("Moshi should not be initialized on the main thread")
@@ -49,21 +48,20 @@ internal fun twsMoshi(): Moshi {
         .build()
 }
 
-@Singleton
-internal fun twsOkHttpClient(fallbackAuthentication: Auth?, jwt: String?): OkHttpClient {
+internal fun twsOkHttpClient(fallbackAuthentication: Auth?): OkHttpClient {
     if (Thread.currentThread().name == "main") {
         error("OkHttp should not be initialized on the main thread")
     }
 
-    return prepareBaseOkHttpClient(fallbackAuthentication, jwt).build()
+    return prepareBaseOkHttpClient(fallbackAuthentication).build()
 }
 
-internal fun prepareBaseOkHttpClient(auth: Auth?, jwt: String?): OkHttpClient.Builder {
+internal fun prepareBaseOkHttpClient(auth: Auth?): OkHttpClient.Builder {
     return OkHttpClient.Builder()
         .apply {
             addInterceptor { chain ->
                 runBlocking {
-                    val token = auth?.getToken?.first() ?: jwt ?: return@runBlocking chain.proceed(chain.request())
+                    val token = auth?.getToken?.first() ?: AuthPreference.jwt
 
                     val request = chain.request()
                         .newBuilder()
