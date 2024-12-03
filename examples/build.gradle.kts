@@ -34,18 +34,8 @@ tasks.withType<DokkaTaskPartial>().configureEach {
 }
 
 android {
-    namespace = "si.inova.tws.interstitial"
-
-    buildFeatures {
-        androidResources = true
-    }
+    namespace = "si.inova.tws.examples"
 }
-
-publishLibrary(
-    userFriendlyName = "tws-interstitial",
-    description = "A collection of interstitial utilities",
-    githubPath = "interstitial"
-)
 
 dependencies {
     implementation(projects.core)

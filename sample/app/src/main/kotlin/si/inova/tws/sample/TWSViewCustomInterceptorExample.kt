@@ -14,7 +14,7 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.sample.examples.navigation
+package si.inova.tws.sample
 
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -40,7 +40,6 @@ import javax.inject.Inject
  *
  * @param navController A [NavController] used to handle navigation between screens.
  * @param twsInterceptorViewModel A viewModel that provides access to the list of [TWSSnippet].
- * @sample si.inova.tws.sample.examples.navigation.TWSViewCustomInterceptorExample
  */
 @Composable
 fun TWSViewCustomInterceptorExample(
@@ -71,10 +70,6 @@ fun TWSViewCustomInterceptorExample(
     )
 }
 
-/**
- * @param manager Global instance of [TWSManager].
- * @property twsSnippetsFlow A Flow collecting the list of available [TWSSnippet], either cached or up to date.
- */
 @HiltViewModel
 class TWSInterceptorViewModel @Inject constructor(
     manager: TWSManager
