@@ -122,7 +122,7 @@ internal val FAKE_PROJECT_DTO_2 = ProjectDto(
     listenOn = "wss:someUrl2.com"
 )
 
-internal val FAKE_SHARED_PROJECT = SharedSnippetDto(snippet = FAKE_SNIPPET_ONE)
+internal val FAKE_SHARED_PROJECT = SharedSnippetDto(snippet = FAKE_SNIPPET_ONE, shareToken = "shareToken")
 
 internal fun TWSSnippetDto.toActionBody() = ActionBody(
     id = id,

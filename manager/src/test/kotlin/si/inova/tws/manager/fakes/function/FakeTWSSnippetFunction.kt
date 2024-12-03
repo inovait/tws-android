@@ -35,9 +35,15 @@ internal class FakeTWSSnippetFunction(
         return returnedProject ?: error("Returned project not faked!")
     }
 
-    override suspend fun getSharedSnippetData(shareId: String): SharedSnippetDto {
+    override suspend fun getSharedSnippetToken(shareId: String): SharedSnippetDto {
         helper.intercept()
 
         return returnedSharedSnippet ?: error("Returned shared snippet not faked!")
+    }
+
+    override suspend fun getSharedSnippetData(shareToken: String): Response<ProjectDto> {
+        helper.intercept()
+
+        return returnedProject ?: error("Returned project not faked!")
     }
 }
