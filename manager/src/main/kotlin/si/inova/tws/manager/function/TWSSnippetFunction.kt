@@ -21,6 +21,7 @@ import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Headers
 import retrofit2.http.Path
+import retrofit2.http.Query
 import si.inova.tws.manager.data.ProjectDto
 import si.inova.tws.manager.data.SharedSnippetDto
 
@@ -36,8 +37,14 @@ internal interface TWSSnippetFunction {
 
     @Headers("Accept: application/json")
     @GET("shared/{shareId}")
-    suspend fun getSharedSnippetData(
+    suspend fun getSharedSnippetToken(
         @Path("shareId")
         shareId: String
     ): SharedSnippetDto
+
+    @GET("register-shared")
+    suspend fun getSharedSnippetData(
+        @Query("shareToken")
+        shareToken: String
+    ): Response<ProjectDto>
 }

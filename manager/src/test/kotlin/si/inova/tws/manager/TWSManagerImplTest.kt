@@ -33,10 +33,15 @@ import si.inova.tws.manager.data.ActionType
 import si.inova.tws.manager.data.NetworkStatus
 import si.inova.tws.manager.data.ProjectDto
 import si.inova.tws.manager.data.SnippetUpdateAction
+import si.inova.tws.manager.fakes.FakeCacheManager
+import si.inova.tws.manager.fakes.FakeLocalSnippetHandler
+import si.inova.tws.manager.fakes.FakeNetworkConnectivityService
+import si.inova.tws.manager.fakes.FakeTWSSocket
+import si.inova.tws.manager.fakes.manager.FakeSnippetLoadingManager
 import si.inova.tws.manager.localhandler.LocalSnippetHandler
-import si.inova.tws.manager.service.NetworkConnectivityService
 import si.inova.tws.manager.manager.snippet.ProjectResponse
 import si.inova.tws.manager.manager.snippet.SnippetLoadingManager
+import si.inova.tws.manager.service.NetworkConnectivityService
 import si.inova.tws.manager.utils.FAKE_EXPOSED_SNIPPET_FIVE
 import si.inova.tws.manager.utils.FAKE_EXPOSED_SNIPPET_FOUR
 import si.inova.tws.manager.utils.FAKE_EXPOSED_SNIPPET_ONE
@@ -44,21 +49,15 @@ import si.inova.tws.manager.utils.FAKE_EXPOSED_SNIPPET_THREE
 import si.inova.tws.manager.utils.FAKE_EXPOSED_SNIPPET_TWO
 import si.inova.tws.manager.utils.FAKE_PROJECT_DTO
 import si.inova.tws.manager.utils.FAKE_PROJECT_DTO_2
-import si.inova.tws.manager.utils.FAKE_SHARED_PROJECT
 import si.inova.tws.manager.utils.FAKE_SNIPPET_FIVE
 import si.inova.tws.manager.utils.FAKE_SNIPPET_FOUR
 import si.inova.tws.manager.utils.FAKE_SNIPPET_ONE
 import si.inova.tws.manager.utils.FAKE_SNIPPET_THREE
 import si.inova.tws.manager.utils.FAKE_SNIPPET_TWO
-import si.inova.tws.manager.fakes.FakeCacheManager
-import si.inova.tws.manager.fakes.FakeLocalSnippetHandler
-import si.inova.tws.manager.fakes.FakeNetworkConnectivityService
-import si.inova.tws.manager.fakes.manager.FakeSnippetLoadingManager
-import si.inova.tws.manager.fakes.FakeTWSSocket
-import si.inova.tws.manager.utils.testScopeWithDispatcherProvider
 import si.inova.tws.manager.utils.shouldBeProgressWith
 import si.inova.tws.manager.utils.shouldBeProgressWithData
 import si.inova.tws.manager.utils.shouldBeSuccessWithData
+import si.inova.tws.manager.utils.testScopeWithDispatcherProvider
 import si.inova.tws.manager.utils.toActionBody
 import si.inova.tws.manager.websocket.TWSSocket
 import java.time.Instant
@@ -104,12 +103,11 @@ class TWSManagerImplTest {
 
     @Test
     fun `Loading shared snippet with shared id`() = fakeScope.runTest {
-        webSnippetManager = copyTWSManagerImpl(configuration = TWSConfiguration.Shared("shared", "apiKey"))
+        webSnippetManager = copyTWSManagerImpl(configuration = TWSConfiguration.Shared("shared"))
 
         fakeLoader.loaderResponse = ProjectResponse(
             FAKE_PROJECT_DTO,
-            Instant.MIN,
-            FAKE_SHARED_PROJECT.snippet.id
+            Instant.MIN
         )
 
         webSnippetManager.snippets.test {
@@ -123,11 +121,6 @@ class TWSManagerImplTest {
                     FAKE_EXPOSED_SNIPPET_FIVE
                 )
             )
-        }
-
-        webSnippetManager.mainSnippetIdFlow.test {
-            runCurrent()
-            assert(expectMostRecentItem() == FAKE_SHARED_PROJECT.snippet.id)
         }
     }
 
@@ -632,12 +625,11 @@ class TWSManagerImplTest {
             listOf(FAKE_SNIPPET_ONE, FAKE_SNIPPET_TWO, FAKE_SNIPPET_FOUR, FAKE_SNIPPET_FIVE)
         )
 
-        webSnippetManager = copyTWSManagerImpl(configuration = TWSConfiguration.Shared("shared", "apiKey"))
+        webSnippetManager = copyTWSManagerImpl(configuration = TWSConfiguration.Shared("shared"))
 
         fakeLoader.loaderResponse = ProjectResponse(
             FAKE_PROJECT_DTO,
-            Instant.MIN,
-            FAKE_SHARED_PROJECT.snippet.id
+            Instant.MIN
         )
 
         webSnippetManager.forceRefresh()
@@ -776,7 +768,7 @@ class TWSManagerImplTest {
         return TWSManagerImpl(
             context = context ?: mock(),
             tag = tag ?: "TestManager",
-            configuration = configuration ?: TWSConfiguration.Basic("organization", "project", "apiKey"),
+            configuration = configuration ?: TWSConfiguration.Basic("organization", "project"),
             loader = loader ?: fakeLoader,
             scope = scope ?: fakeScope.backgroundScope,
             twsSocket = twsSocket ?: fakeSocket,

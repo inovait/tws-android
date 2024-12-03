@@ -96,12 +96,6 @@ internal class TWSManagerImpl(
         .stateIn(scope, SharingStarted.WhileSubscribed(5.seconds), TWSOutcome.Progress())
 
     /**
-     * A flow that emits the ID of the main snippet. Available only when opening shared snippet.
-     */
-    private val _mainSnippetIdFlow: MutableStateFlow<String?> = MutableStateFlow(null)
-    override val mainSnippetIdFlow: Flow<String?> = _mainSnippetIdFlow
-
-    /**
      * Retrieves the list of snippets as a flow of data only.
      *
      * @return A [Flow] emitting the current list of snippets or `null` if unavailable.
@@ -119,8 +113,6 @@ internal class TWSManagerImpl(
 
                 val response = loader.load()
                 val project = response.project
-
-                _mainSnippetIdFlow.emit(response.mainSnippet)
 
                 _snippetsFlow.emit(TWSOutcome.Success(project.snippets))
 

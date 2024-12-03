@@ -41,7 +41,7 @@ internal class SnippetLoadingManagerImplTest {
     @Test
     fun `Load project`() = scope.runTest {
         impl = SnippetLoadingManagerImpl(
-            configuration = TWSConfiguration.Basic("org", "proj", "key"),
+            configuration = TWSConfiguration.Basic("org", "proj"),
             functions = fakeFunctions,
         )
 
@@ -51,11 +51,12 @@ internal class SnippetLoadingManagerImplTest {
                 Headers.Builder().set("date", Date(MILLISECONDS_DATE)).build()
             )
 
+        fakeFunctions.getWebSnippets("org", "proj")
+
         assert(
             impl.load() == ProjectResponse(
                 project = FAKE_PROJECT_DTO,
-                responseDate = Instant.ofEpochMilli(MILLISECONDS_DATE),
-                null
+                responseDate = Instant.ofEpochMilli(MILLISECONDS_DATE)
             )
         )
     }
@@ -63,7 +64,7 @@ internal class SnippetLoadingManagerImplTest {
     @Test
     fun `Load shared snippet`() = scope.runTest {
         impl = SnippetLoadingManagerImpl(
-            configuration = TWSConfiguration.Shared("sharedId", "key"),
+            configuration = TWSConfiguration.Shared("sharedId"),
             functions = fakeFunctions,
         )
 
@@ -75,11 +76,12 @@ internal class SnippetLoadingManagerImplTest {
                 Headers.Builder().set("date", Date(MILLISECONDS_DATE)).build()
             )
 
+        fakeFunctions.getSharedSnippetData(FAKE_SHARED_PROJECT.shareToken)
+
         assert(
             impl.load() == ProjectResponse(
                 project = FAKE_PROJECT_DTO,
-                responseDate = Instant.ofEpochMilli(MILLISECONDS_DATE),
-                FAKE_SHARED_PROJECT.snippet.id
+                responseDate = Instant.ofEpochMilli(MILLISECONDS_DATE)
             )
         )
     }
