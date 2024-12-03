@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.thewebsnippet.service</groupId>
+  <artifactId>com.thewebsnippet.service.gradle.plugin</artifactId>
+  <version>0.13.0-develop</version>
+  <packaging>pom</packaging>
+  <dependencies>
+    <dependency>
+      <groupId>com.thewebsnippet</groupId>
+      <artifactId>service</artifactId>
+      <version>0.13.0-develop</version>
+    </dependency>
+  </dependencies>
+</project>

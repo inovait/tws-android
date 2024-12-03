@@ -3,7 +3,7 @@
 Direct gradle usage:
 
 ```kotlin
-implementation("si.inova.tws:core:X.Y.Z")
+implementation("com.thewebsnippet:core:X.Y.Z")
 ```
 
 Version catalogs usage:
@@ -15,7 +15,7 @@ tws = "X.Y.Z"
 
 ```toml
 [libraries]
-tws-core = { module = "si.inova.tws:core", version.ref = "tws" }
+tws-core = { module = "com.thewebsnippet:core", version.ref = "tws" }
 ```
 
 ```kotlin

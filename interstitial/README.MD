@@ -3,7 +3,7 @@
 Direct gradle usage:
 
 ```kotlin
-implementation("si.inova.tws:interstitial:X.Y.Z")
+implementation("com.thewebsnippet:interstitial:X.Y.Z")
 ```
 
 Version catalogs usage:
@@ -15,7 +15,7 @@ tws = "X.Y.Z"
 
 ```toml
 [libraries]
-tws-interstitial = { module = "si.inova.tws:interstitial", version.ref = "tws" }
+tws-interstitial = { module = "com.thewebsnippet:interstitial", version.ref = "tws" }
 ```
 
 ```kotlin

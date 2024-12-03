@@ -54,7 +54,7 @@ afterEvaluate {
 }
 
 android {
-    namespace = "si.inova.tws.data"
+    namespace = "com.thewebsnippet.data"
 }
 
 publishLibrary(

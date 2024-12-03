@@ -38,7 +38,7 @@ afterEvaluate {
 }
 
 android {
-    namespace = "si.inova.tws.manager"
+    namespace = "com.thewebsnippet.manager"
 
     testOptions {
         unitTests.all {

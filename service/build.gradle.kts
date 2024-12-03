@@ -20,7 +20,7 @@ plugins {
     `kotlin-dsl`
 }
 
-group = "si.inova.tws"
+group = "com.thewebsnippet"
 version = File(rootDir, "version.txt").readText().trim()
 
 publishing {
@@ -36,8 +36,8 @@ publishing {
 gradlePlugin {
     plugins {
         create("service") {
-            id = "si.inova.tws.service"
-            implementationClass = "si.inova.tws.service.TWSPlugin"
+            id = "com.thewebsnippet.service"
+            implementationClass = "com.thewebsnippet.service.TWSPlugin"
         }
     }
 }

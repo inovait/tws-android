@@ -34,7 +34,7 @@ tasks.withType<DokkaTaskPartial>().configureEach {
 }
 
 android {
-    namespace = "si.inova.tws.interstitial"
+    namespace = "com.thewebsnippet.interstitial"
 
     buildFeatures {
         androidResources = true

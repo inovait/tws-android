@@ -24,11 +24,11 @@ tasks.withType<DokkaTaskPartial>().configureEach {
 apply(from = "properties.gradle.kts")
 
 android {
-    namespace = "si.inova.tws.sample"
+    namespace = "com.thewebsnippet.sample"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "si.inova.tws.sample"
+        applicationId = "com.thewebsnippet.sample"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
