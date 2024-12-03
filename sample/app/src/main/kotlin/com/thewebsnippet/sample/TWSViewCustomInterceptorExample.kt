@@ -14,7 +14,7 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.thewebsnippet.sample.examples.navigation
+package com.thewebsnippet.sample
 
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -22,25 +22,17 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.thewebsnippet.core.TWSView
-import com.thewebsnippet.core.data.TWSViewInterceptor
 import com.thewebsnippet.data.TWSSnippet
 import com.thewebsnippet.manager.TWSManager
-import com.thewebsnippet.sample.Screen.TWSViewCustomTabsExample
-import com.thewebsnippet.sample.Screen.TWSViewInjectionExample
-import com.thewebsnippet.sample.Screen.TWSViewMustacheExample
-import com.thewebsnippet.sample.Screen.TWSViewPermissionsExample
 import com.thewebsnippet.sample.components.ErrorView
 import com.thewebsnippet.sample.components.LoadingView
+import com.thewebsnippet.sample.ui.Screen
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 /**
- * A composable function that renders a screen used for navigation, showcasing the use of [TWSViewInterceptor] to handle URLs natively.
- *
- * @param navController A [NavController] used to handle navigation between screens.
- * @param twsInterceptorViewModel A viewModel that provides access to the list of [TWSSnippet].
- * @sample com.thewebsnippet.sample.examples.navigation.TWSViewCustomInterceptorExample
+ * A composable function that renders a screen used for navigation, showcasing the use of 'TWSViewInterceptor' to handle URLs natively.
  */
 @Composable
 fun TWSViewCustomInterceptorExample(
@@ -58,10 +50,10 @@ fun TWSViewCustomInterceptorExample(
         interceptUrlCallback = { url ->
             val urlString = url.toString()
             val route = when {
-                urlString.contains("/customTabsExample") -> TWSViewCustomTabsExample.route
-                urlString.contains("/mustacheExample") -> TWSViewMustacheExample.route
-                urlString.contains("/injectionExample") -> TWSViewInjectionExample.route
-                urlString.contains("/permissionsExample") -> TWSViewPermissionsExample.route
+                urlString.contains("/customTabsExample") -> Screen.TWSViewCustomTabsExampleKey.route
+                urlString.contains("/mustacheExample") -> Screen.TWSViewMustacheExampleKey.route
+                urlString.contains("/injectionExample") -> Screen.TWSViewInjectionExampleKey.route
+                urlString.contains("/permissionsExample") -> Screen.TWSViewPermissionsExampleKey.route
                 else -> null
             }
 
@@ -71,10 +63,6 @@ fun TWSViewCustomInterceptorExample(
     )
 }
 
-/**
- * @param manager Global instance of [TWSManager].
- * @property twsSnippetsFlow A Flow collecting the list of available [TWSSnippet], either cached or up to date.
- */
 @HiltViewModel
 class TWSInterceptorViewModel @Inject constructor(
     manager: TWSManager

@@ -14,10 +14,34 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.thewebsnippet.sample
+import org.jetbrains.dokka.gradle.DokkaTaskPartial
+import util.publishLibrary
 
-import android.app.Application
-import dagger.hilt.android.HiltAndroidApp
+plugins {
+    androidLibraryModule
+    alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.dokka)
+}
 
-@HiltAndroidApp
-class SampleApp : Application()
+// configuration specific to this subproject.
+// notice the use of Partial task
+tasks.withType<DokkaTaskPartial>().configureEach {
+    dokkaSourceSets {
+        configureEach {
+            includes.from("Module.md")
+        }
+    }
+}
+
+android {
+    namespace = "com.thewebsnippet.examples"
+}
+
+dependencies {
+    implementation(projects.core)
+    implementation(projects.manager)
+
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.compose.ui.tooling.preview)
+    implementation(libs.androidx.compose.material3)
+}

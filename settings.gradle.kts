@@ -41,8 +41,7 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 rootProject.name = "TheWebSnippetSdk"
 include(":core")
-include(":interstitial")
+include(":examples")
 include(":manager")
 include(":data")
 include(":service")
-includeBuild("sample")

@@ -53,12 +53,6 @@ interface TWSManager {
     val snippets: Flow<TWSOutcome<List<TWSSnippet>>>
 
     /**
-     * A flow that emits the ID of the main snippet. Available only when opening shared snippet.
-     * Use `collectAsStateWithLifecycle` to automatically start and stop data collection based on the lifecycle.
-     */
-    val mainSnippetIdFlow: Flow<String?>
-
-    /**
      * Retrieves the list of snippets as a flow of data only.
      * Use `collectAsStateWithLifecycle` to automatically start and stop data collection based on the lifecycle.
      *

@@ -27,44 +27,22 @@ internal class SnippetLoadingManagerImpl(
     private val configuration: TWSConfiguration,
     private val functions: TWSSnippetFunction = BaseServiceFactory(AuthLoginManagerImpl()).create()
 ) : SnippetLoadingManager {
-    private var orgId: String? = null
-    private var projId: String? = null
 
     override suspend fun load(): ProjectResponse {
-        return if (configuration is TWSConfiguration.Basic) {
-            loadProjectAndSetupWss(organizationId = configuration.organizationId, projectId = configuration.projectId)
-        } else if (configuration is TWSConfiguration.Shared) {
-            val cachedOrgId = orgId
-            val cachedProjId = projId
-
-            if (cachedProjId != null && cachedOrgId != null) {
-                loadProjectAndSetupWss(organizationId = cachedOrgId, projectId = cachedProjId)
-            } else {
-                loadSharedSnippetData(sharedId = configuration.sharedId)
+        val twsProjectResponse = when (configuration) {
+            is TWSConfiguration.Basic -> {
+                functions.getWebSnippets(organizationId = configuration.organizationId, projectId = configuration.projectId)
             }
-        } else {
-            error("Unknown configuration")
+
+            is TWSConfiguration.Shared -> {
+                val sharedSnippet = functions.getSharedSnippetToken(configuration.sharedId)
+                functions.getSharedSnippetData(sharedSnippet.shareToken)
+            }
         }
-    }
 
-    private suspend fun loadSharedSnippetData(sharedId: String): ProjectResponse {
-        val sharedSnippet = functions.getSharedSnippetData(sharedId).snippet
-        return loadProjectAndSetupWss(sharedSnippet.organizationId, sharedSnippet.projectId, sharedSnippet.id)
-    }
-
-    private suspend fun loadProjectAndSetupWss(
-        organizationId: String,
-        projectId: String,
-        sharedId: String? = null
-    ): ProjectResponse {
-        orgId = organizationId
-        projId = projectId
-
-        val twsProjectResponse = functions.getWebSnippets(organizationId, projectId)
         return ProjectResponse(
             twsProjectResponse.body() ?: error("Body not available"),
-            twsProjectResponse.headers().getDate(HEADER_DATE)?.toInstant() ?: Instant.now(),
-            sharedId
+            twsProjectResponse.headers().getDate(HEADER_DATE)?.toInstant() ?: Instant.now()
         )
     }
 

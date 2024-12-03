@@ -14,7 +14,7 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.thewebsnippet.sample.examples.permissions
+package com.thewebsnippet.sample
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
@@ -26,7 +26,6 @@ import com.thewebsnippet.data.TWSSnippet
 import com.thewebsnippet.manager.TWSManager
 import com.thewebsnippet.manager.TWSOutcome
 import com.thewebsnippet.manager.mapData
-import com.thewebsnippet.sample.R
 import com.thewebsnippet.sample.components.ErrorView
 import com.thewebsnippet.sample.components.LoadingView
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -35,19 +34,7 @@ import javax.inject.Inject
 
 /**
  * A composable function that renders a screen showcasing how download, upload, camera and
- * location permissions are handled in [TWSView].
- *
- * Following permissions and features need to be present in the AndroidManifest:
- * - For downloading and uploading files:
- *     `<uses-permission android:name="android.permission.INTERNET" /`>
- * - For camera access:
- *     `<uses-permission android:name="android.permission.CAMERA"/>`
- *     `<uses-feature android:name="android.hardware.camera" android:required="false" />`
- * - For users location:
- *     `<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />`
- *
- * @param twsPermissionsViewModel A viewModel that provides access to the [TWSOutcome].
- * @sample com.thewebsnippet.sample.examples.permissions.TWSViewPermissionsExample
+ * location permissions are handled in 'TWSView'
  */
 @Composable
 fun TWSViewPermissionsExample(

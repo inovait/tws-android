@@ -26,5 +26,4 @@ internal interface SnippetLoadingManager {
 internal data class ProjectResponse(
     val project: ProjectDto,
     val responseDate: Instant,
-    val mainSnippet: String? = null
 )

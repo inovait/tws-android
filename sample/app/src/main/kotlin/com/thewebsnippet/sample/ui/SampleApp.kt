@@ -14,16 +14,10 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.thewebsnippet.sample
+package com.thewebsnippet.sample.ui
 
-/**
- * A sealed class used for navigating between screens.
- * @param route The name of the screen.
- */
-sealed class Screen(val route: String) {
-    data object TWSViewCustomInterceptorExample : Screen("customInterceptorExample")
-    data object TWSViewCustomTabsExample : Screen("customTabsExample")
-    data object TWSViewMustacheExample : Screen("mustacheExample")
-    data object TWSViewInjectionExample : Screen("injectionExample")
-    data object TWSViewPermissionsExample : Screen("permissionsExample")
-}
+import android.app.Application
+import dagger.hilt.android.HiltAndroidApp
+
+@HiltAndroidApp
+class SampleApp : Application()

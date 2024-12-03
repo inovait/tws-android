@@ -45,8 +45,7 @@ object TWSFactory {
     fun get(context: Context): TWSManager {
         val configuration = TWSConfiguration.Basic(
             getMetaData(context, ORGANIZATION_ID_METADATA),
-            getMetaData(context, PROJECT_ID_METADATA),
-            "apiKey"
+            getMetaData(context, PROJECT_ID_METADATA)
         )
 
         return createOrGet(context, "${configuration.organizationId}_${configuration.projectId}", configuration)
@@ -111,33 +110,27 @@ object TWSFactory {
 
 /**
  * Represents configuration for a [TWSManager].
- *
- * @param apiKey The API key used to authenticate requests.
  */
-sealed class TWSConfiguration(open val apiKey: String) {
+sealed class TWSConfiguration {
     /**
      * Basic configuration for a [TWSManager].
      *
      * @param organizationId The ID of the organization.
      * @param projectId The ID of the project.
-     * @param apiKey The API key used to authenticate requests.
      */
     data class Basic(
         val organizationId: String,
         val projectId: String,
-        override val apiKey: String
-    ) : TWSConfiguration(apiKey)
+    ) : TWSConfiguration()
 
     /**
      * Shared configuration for a [TWSManager].
      *
      * @param sharedId The shared identifier for accessing shared snippet.
-     * @param apiKey The API key used to authenticate requests.
      */
     data class Shared(
         val sharedId: String,
-        override val apiKey: String
-    ) : TWSConfiguration(apiKey)
+    ) : TWSConfiguration()
 }
 
 private const val ORGANIZATION_ID_METADATA = "com.thewebsnippet.ORGANIZATION_ID"

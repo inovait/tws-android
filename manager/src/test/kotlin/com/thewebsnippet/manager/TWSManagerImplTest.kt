@@ -42,7 +42,6 @@ import com.thewebsnippet.manager.utils.FAKE_EXPOSED_SNIPPET_THREE
 import com.thewebsnippet.manager.utils.FAKE_EXPOSED_SNIPPET_TWO
 import com.thewebsnippet.manager.utils.FAKE_PROJECT_DTO
 import com.thewebsnippet.manager.utils.FAKE_PROJECT_DTO_2
-import com.thewebsnippet.manager.utils.FAKE_SHARED_PROJECT
 import com.thewebsnippet.manager.utils.FAKE_SNIPPET_FIVE
 import com.thewebsnippet.manager.utils.FAKE_SNIPPET_FOUR
 import com.thewebsnippet.manager.utils.FAKE_SNIPPET_ONE
@@ -104,12 +103,11 @@ class TWSManagerImplTest {
 
     @Test
     fun `Loading shared snippet with shared id`() = fakeScope.runTest {
-        webSnippetManager = copyTWSManagerImpl(configuration = TWSConfiguration.Shared("shared", "apiKey"))
+        webSnippetManager = copyTWSManagerImpl(configuration = TWSConfiguration.Shared("shared"))
 
         fakeLoader.loaderResponse = ProjectResponse(
             FAKE_PROJECT_DTO,
-            Instant.MIN,
-            FAKE_SHARED_PROJECT.snippet.id
+            Instant.MIN
         )
 
         webSnippetManager.snippets.test {
@@ -123,11 +121,6 @@ class TWSManagerImplTest {
                     FAKE_EXPOSED_SNIPPET_FIVE
                 )
             )
-        }
-
-        webSnippetManager.mainSnippetIdFlow.test {
-            runCurrent()
-            assert(expectMostRecentItem() == FAKE_SHARED_PROJECT.snippet.id)
         }
     }
 
@@ -632,12 +625,11 @@ class TWSManagerImplTest {
             listOf(FAKE_SNIPPET_ONE, FAKE_SNIPPET_TWO, FAKE_SNIPPET_FOUR, FAKE_SNIPPET_FIVE)
         )
 
-        webSnippetManager = copyTWSManagerImpl(configuration = TWSConfiguration.Shared("shared", "apiKey"))
+        webSnippetManager = copyTWSManagerImpl(configuration = TWSConfiguration.Shared("shared"))
 
         fakeLoader.loaderResponse = ProjectResponse(
             FAKE_PROJECT_DTO,
-            Instant.MIN,
-            FAKE_SHARED_PROJECT.snippet.id
+            Instant.MIN
         )
 
         webSnippetManager.forceRefresh()
@@ -776,7 +768,7 @@ class TWSManagerImplTest {
         return TWSManagerImpl(
             context = context ?: mock(),
             tag = tag ?: "TestManager",
-            configuration = configuration ?: TWSConfiguration.Basic("organization", "project", "apiKey"),
+            configuration = configuration ?: TWSConfiguration.Basic("organization", "project"),
             loader = loader ?: fakeLoader,
             scope = scope ?: fakeScope.backgroundScope,
             twsSocket = twsSocket ?: fakeSocket,

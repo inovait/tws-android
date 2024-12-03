@@ -14,10 +14,9 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.thewebsnippet.sample.examples.mustache
+package com.thewebsnippet.sample
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
@@ -26,7 +25,6 @@ import com.thewebsnippet.data.TWSSnippet
 import com.thewebsnippet.manager.TWSManager
 import com.thewebsnippet.manager.TWSOutcome
 import com.thewebsnippet.manager.mapData
-import com.thewebsnippet.sample.R
 import com.thewebsnippet.sample.components.ErrorView
 import com.thewebsnippet.sample.components.LoadingView
 import com.thewebsnippet.sample.components.TWSViewComponentWithPager
@@ -37,33 +35,14 @@ import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 /**
- * A composable function that renders a screen showcasing setting of mustache properties and use of mustache syntax.
- *
- * @param twsMustacheViewModel A viewModel that provides access to the [TWSOutcome].
- * @sample com.thewebsnippet.sample.examples.mustache.TWSViewMustacheExample
+ * A composable function that renders a screen showcasing the use of CSS and Javascript injection.
  */
 @Composable
-fun TWSViewMustacheExample(
-    twsMustacheViewModel: TWSMustacheViewModel = hiltViewModel()
+fun TWSViewInjectionExample(
+    twsInjectionViewModel: TWSInjectionViewModel = hiltViewModel()
 ) {
-    // Set local properties
-    LaunchedEffect(Unit) {
-        val localProps =
-            mapOf(
-                "welcome_email" to
-                    mapOf(
-                        "name" to "Alice",
-                        "company" to "TheWebSnippet",
-                        "guide_url" to "https://mustache.github.io",
-                        "community_name" to "TWS dev team",
-                        "support_email" to "support@TWS.com"
-                    )
-            )
-        twsMustacheViewModel.setProps("howToMustache", localProps)
-    }
-
     // Collect snippets for your project
-    val content = twsMustacheViewModel.twsSnippetsFlow.collectAsStateWithLifecycle(null).value
+    val content = twsInjectionViewModel.twsSnippetsFlow.collectAsStateWithLifecycle(null).value
 
     content?.let {
         when {
@@ -83,30 +62,16 @@ fun TWSViewMustacheExample(
     }
 }
 
-/**
- * @param manager Global instance of [TWSManager].
- * @property twsSnippetsFlow A Flow collecting [TWSOutcome] state from the manager, filtered by a custom property "page".
- */
 @HiltViewModel
-class TWSMustacheViewModel @Inject constructor(
-    private val manager: TWSManager
+class TWSInjectionViewModel @Inject constructor(
+    manager: TWSManager
 ) : ViewModel() {
     // Collecting TWSManager.snippets, which returns the current state, which
     // exposes TWSOutcome.Error, TWSOutcome.Progress or TWSOutcome.Success state.
     val twsSnippetsFlow: Flow<TWSOutcome<List<TWSSnippet>>> = manager.snippets
         .map { data ->
-            data.mapData { it.filter { snippet -> snippet.props["page"] == mustachePage } }
+            data.mapData { it.filter { snippet -> snippet.props["page"] == injectionPage } }
         }
 
-    /**
-     * A function that exposes [TWSManager.set], for setting the local properties of a [TWSSnippet].
-     *
-     * @param id Unique id of the snippet.
-     * @param localProps A map of properties that will get added to the [TWSSnippet].
-     */
-    fun setProps(id: String, localProps: Map<String, Any>) {
-        manager.set(id, localProps)
-    }
-
-    private val mustachePage = "mustache"
+    private val injectionPage = "injection"
 }
