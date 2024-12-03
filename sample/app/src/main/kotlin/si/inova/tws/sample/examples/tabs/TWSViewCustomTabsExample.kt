@@ -37,6 +37,7 @@ import javax.inject.Inject
 
 /**
  * @param twsCustomTabsViewModel A viewModel that provides access to the [TWSOutcome].
+ * @sample si.inova.tws.sample.examples.tabs.TWSViewCustomTabsExample
  */
 @Composable
 fun TWSViewCustomTabsExample(

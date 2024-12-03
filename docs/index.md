@@ -130,3 +130,7 @@ When generating App Bundles using CLI, include the optional parameter `--google-
     ```
     https://domain.name/.well-known/assetlinks.json
     ```
+
+# Sample app documentation
+
+See the sample app documentation here: <a href="sample/index.html"> Sample app documentation</a>

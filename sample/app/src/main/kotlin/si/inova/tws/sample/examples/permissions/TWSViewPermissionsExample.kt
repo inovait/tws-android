@@ -37,7 +37,17 @@ import javax.inject.Inject
  * A composable function that renders a screen showcasing how download, upload, camera and
  * location permissions are handled in [TWSView].
  *
+ * Following permissions and features need to be present in the AndroidManifest:
+ * - For downloading and uploading files:
+ *     `<uses-permission android:name="android.permission.INTERNET" /`>
+ * - For camera access:
+ *     `<uses-permission android:name="android.permission.CAMERA"/>`
+ *     `<uses-feature android:name="android.hardware.camera" android:required="false" />`
+ * - For users location:
+ *     `<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />`
+ *
  * @param twsPermissionsViewModel A viewModel that provides access to the [TWSOutcome].
+ * @sample si.inova.tws.sample.examples.permissions.TWSViewPermissionsExample
  */
 @Composable
 fun TWSViewPermissionsExample(

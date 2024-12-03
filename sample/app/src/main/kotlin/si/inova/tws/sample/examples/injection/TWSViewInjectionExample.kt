@@ -39,6 +39,7 @@ import javax.inject.Inject
  * A composable function that renders a screen showcasing the use of CSS and Javascript injection.
  *
  * @param twsInjectionViewModel A viewModel that provides access to the [TWSOutcome].
+ * @sample si.inova.tws.sample.examples.injection.TWSViewInjectionExample
  */
 @Composable
 fun TWSViewInjectionExample(

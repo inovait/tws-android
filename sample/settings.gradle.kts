@@ -9,6 +9,9 @@ pluginManagement {
         }
         mavenCentral()
         gradlePluginPortal()
+        maven {
+            url = uri("${rootProject.projectDir}/libs")
+        }
     }
 }
 dependencyResolutionManagement {
@@ -18,6 +21,11 @@ dependencyResolutionManagement {
         mavenCentral()
         maven {
             url = uri("${rootProject.projectDir}/libs")
+        }
+    }
+    versionCatalogs {
+        create("sampleLibs") {
+            from(files("gradle/libs.versions.toml"))
         }
     }
 }

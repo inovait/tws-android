@@ -40,6 +40,7 @@ import javax.inject.Inject
  *
  * @param navController A [NavController] used to handle navigation between screens.
  * @param twsInterceptorViewModel A viewModel that provides access to the list of [TWSSnippet].
+ * @sample si.inova.tws.sample.examples.navigation.TWSViewCustomInterceptorExample
  */
 @Composable
 fun TWSViewCustomInterceptorExample(

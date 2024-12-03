@@ -54,6 +54,7 @@ import si.inova.tws.sample.ui.theme.SampleTheme
  * A composable function that displays a full screen [HorizontalPager], that holds the list of [TWSSnippet].
  *
  * @param data A list of [TWSSnippet] that will get displayed in a [HorizontalPager].
+ * @sample si.inova.tws.sample.components.TWSViewComponentWithPager
  */
 @Composable
 fun TWSViewComponentWithPager(data: ImmutableList<TWSSnippet>) {
