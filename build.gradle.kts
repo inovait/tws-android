@@ -40,8 +40,6 @@ allprojects {
 tasks.dokkaHtmlMultiModule {
    moduleName.set("TheWebSnippet SDK")
 
-   //includes.from(subprojects.map { it.projectDir.resolve("Module.md") })
-
    // Include custom index.md file
    includes.from("docs/index.md")
    // Include custom assets
