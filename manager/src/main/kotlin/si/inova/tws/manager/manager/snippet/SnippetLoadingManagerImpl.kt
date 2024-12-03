@@ -27,39 +27,17 @@ internal class SnippetLoadingManagerImpl(
     private val configuration: TWSConfiguration,
     private val functions: TWSSnippetFunction = BaseServiceFactory(AuthLoginManagerImpl()).create()
 ) : SnippetLoadingManager {
-    private var orgId: String? = null
-    private var projId: String? = null
 
     override suspend fun load(): ProjectResponse {
-        return if (configuration is TWSConfiguration.Basic) {
-            loadProjectAndSetupWss(organizationId = configuration.organizationId, projectId = configuration.projectId)
-        } else if (configuration is TWSConfiguration.Shared) {
-            loadSharedSnippetData(sharedId = configuration.sharedId)
-        } else {
-            error("Unknown configuration")
-        }
-    }
+        val twsProjectResponse = when (configuration) {
+            is TWSConfiguration.Basic -> {
+                functions.getWebSnippets(organizationId = configuration.organizationId, projectId = configuration.projectId)
+            }
 
-    private suspend fun loadSharedSnippetData(sharedId: String): ProjectResponse {
-        val sharedSnippet = functions.getSharedSnippetToken(sharedId)
-
-        return loadProjectAndSetupWss(shareToken = sharedSnippet.shareToken)
-    }
-
-    private suspend fun loadProjectAndSetupWss(
-        organizationId: String? = null,
-        projectId: String? = null,
-        shareToken: String? = null
-    ): ProjectResponse {
-        orgId = organizationId
-        projId = projectId
-
-        val twsProjectResponse = if (shareToken != null) {
-            functions.getSharedSnippetData(shareToken)
-        } else if (organizationId != null && projectId != null) {
-            functions.getWebSnippets(organizationId, projectId)
-        } else {
-            error("Unknown snippet configuration")
+            is TWSConfiguration.Shared -> {
+                val sharedSnippet = functions.getSharedSnippetToken(configuration.sharedId)
+                functions.getSharedSnippetData(sharedSnippet.shareToken)
+            }
         }
 
         return ProjectResponse(
