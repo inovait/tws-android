@@ -103,7 +103,7 @@ class TWSManagerImplTest {
 
     @Test
     fun `Loading shared snippet with shared id`() = fakeScope.runTest {
-        webSnippetManager = copyTWSManagerImpl(configuration = TWSConfiguration.Shared("shared", "apiKey"))
+        webSnippetManager = copyTWSManagerImpl(configuration = TWSConfiguration.Shared("shared"))
 
         fakeLoader.loaderResponse = ProjectResponse(
             FAKE_PROJECT_DTO,
@@ -625,7 +625,7 @@ class TWSManagerImplTest {
             listOf(FAKE_SNIPPET_ONE, FAKE_SNIPPET_TWO, FAKE_SNIPPET_FOUR, FAKE_SNIPPET_FIVE)
         )
 
-        webSnippetManager = copyTWSManagerImpl(configuration = TWSConfiguration.Shared("shared", "apiKey"))
+        webSnippetManager = copyTWSManagerImpl(configuration = TWSConfiguration.Shared("shared"))
 
         fakeLoader.loaderResponse = ProjectResponse(
             FAKE_PROJECT_DTO,
@@ -768,7 +768,7 @@ class TWSManagerImplTest {
         return TWSManagerImpl(
             context = context ?: mock(),
             tag = tag ?: "TestManager",
-            configuration = configuration ?: TWSConfiguration.Basic("organization", "project", "apiKey"),
+            configuration = configuration ?: TWSConfiguration.Basic("organization", "project"),
             loader = loader ?: fakeLoader,
             scope = scope ?: fakeScope.backgroundScope,
             twsSocket = twsSocket ?: fakeSocket,

@@ -41,7 +41,7 @@ internal class SnippetLoadingManagerImplTest {
     @Test
     fun `Load project`() = scope.runTest {
         impl = SnippetLoadingManagerImpl(
-            configuration = TWSConfiguration.Basic("org", "proj", "key"),
+            configuration = TWSConfiguration.Basic("org", "proj"),
             functions = fakeFunctions,
         )
 
@@ -64,7 +64,7 @@ internal class SnippetLoadingManagerImplTest {
     @Test
     fun `Load shared snippet`() = scope.runTest {
         impl = SnippetLoadingManagerImpl(
-            configuration = TWSConfiguration.Shared("sharedId", "key"),
+            configuration = TWSConfiguration.Shared("sharedId"),
             functions = fakeFunctions,
         )
 
