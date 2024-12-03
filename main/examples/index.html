@@ -1,0 +1,96 @@
+<!doctype html>
+<html class="no-js">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>examples</title>
+<link href="../images/logo-icon.svg" rel="icon" type="image/svg">    <script>var pathToRoot = "../";</script>
+    <script>document.documentElement.classList.replace("no-js","js");</script>
+    <script>const storage = localStorage.getItem("dokka-dark-mode")
+    if (storage == null) {
+        const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (osDarkSchemePreferred === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    } else {
+        const savedDarkMode = JSON.parse(storage)
+        if(savedDarkMode === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    }
+    </script>
+<script type="text/javascript" src="https://unpkg.com/kotlin-playground@1/dist/playground.min.js" async></script>
+<script type="text/javascript" src="../scripts/sourceset_dependencies.js" async></script>
+<link href="../styles/style.css" rel="Stylesheet">
+<link href="../styles/main.css" rel="Stylesheet">
+<link href="../styles/prism.css" rel="Stylesheet">
+<link href="../styles/logo-styles.css" rel="Stylesheet">
+<link href="../styles/font-jb-sans-auto.css" rel="Stylesheet">
+<script type="text/javascript" src="../scripts/clipboard.js" async></script>
+<script type="text/javascript" src="../scripts/navigation-loader.js" async></script>
+<script type="text/javascript" src="../scripts/platform-content-handler.js" async></script>
+<script type="text/javascript" src="../scripts/main.js" defer></script>
+<script type="text/javascript" src="../scripts/prism.js" async></script>
+<script type="text/javascript" src="../scripts/symbol-parameters-wrapper_deferred.js" defer></script></head>
+<body>
+    <div class="root">
+<nav class="navigation" id="navigation-wrapper">
+    <div class="navigation--inner">
+        <div class="navigation-title">
+            <button class="menu-toggle" id="menu-toggle" type="button">toggle menu</button>
+            <div class="library-name">
+<a class="library-name--link" href="../index.html">
+                            TheWebSnippet SDK
+                    </a>            </div>
+            <div class="library-version">
+            </div>
+        </div>
+        <div class="filter-section" id="filter-section">
+                <button class="platform-tag platform-selector jvm-like" data-active="" data-filter=":examples:dokkaHtmlPartial/release">androidJvm</button>
+        </div>
+    </div>
+    <div class="navigation-controls">
+        <button class="navigation-controls--btn navigation-controls--theme" id="theme-toggle-button" type="button">switch theme</button>
+        <div class="navigation-controls--btn navigation-controls--search" id="searchBar" role="button">search in API</div>
+    </div>
+</nav>
+        <div id="container">
+            <div class="sidebar" id="leftColumn">
+                <div class="sidebar--inner" id="sideMenu"></div>
+            </div>
+            <div id="main">
+<div class="main-content" id="content" pageids="examples::////PointingToDeclaration//-1746782742">
+  <div class="breadcrumbs"></div>
+  <div class="cover ">
+    <h1 class="cover"><span><span>examples</span></span></h1>
+    <div class="platform-hinted UnderCoverText" data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":examples:dokkaHtmlPartial/release"><p class="paragraph">The examples module provides you with further description about the features we support, gives you a brief description of our  sample app and provides you with simple samples on how to use our SDK.</p><h2 class="">Sample application</h2><p class="paragraph">For a simpler and clearer understanding of the TWS SDK, we have prepared a sample application to help you get started. It includes several use case examples and implementations that demonstrate how to integrate TWSView with your Android application.</p><p class="paragraph">You can download the sample application for free on our web page <a href="https://thewebsnippet.dev/">TheWebSnippet</a>. The downloaded bundle provides access to a temporary project, allowing you to explore how the snippet dashboard interacts with your application.</p><h4 class="">Snippet properties</h4><p class="paragraph">Snippet properties are set in <strong>Props editor</strong> within your Snippets Dashboard. Properties should be provided in JSON format. They are accessible natively and can be used for various use cases.</p><p class="paragraph">In our sample app we use them to implement custom tab names and icons, by setting "tabName" and "tabIcon" properties. These properties determine the name and icon of the respective tab, as demonstrated in the TWSViewCustomTabsExample.</p><p class="paragraph">Throughout the app, we also use property "page" to group related snippets together. You can find this implementation in each example's viewModel.</p><p class="paragraph">Snippet properties can also be added locally. For instance, if you want to display user-specific information or data fetched from an external source, you can add it to the local snippet properties using TWSManager. See an example of this in the TWSViewMustacheExample.</p><h4 class="">Mustache processing</h4><p class="paragraph">You can enable Mustache processing for your snippets with a {{ Mustache }} button in your Snippets Dashboard. Set the properties in Props editor and use them in your HTML with Mustache templates {{}}.</p><p class="paragraph">Snippet properties:</p><div class="sample-container"><pre><code class="block lang-json" theme="idea">{<br>  "name": "John",<br>  "surname": "Smith",<br>  "address": {<br>    "houseNum": "72",<br>    "streetName": "High Street",<br>    "city": "London"<br>  }<br>}</code></pre><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><p class="paragraph">HTML:</p><div class="sample-container"><pre><code class="block lang-html" theme="idea">&lt;h1&gt;User Information&lt;/h1&gt;<br>&lt;p&gt;full name: {{name}} {{surname}}&lt;/p&gt;<br>&lt;p&gt;full address: {{address.streetName}} {{address.houseNum}}, {{address.city}}&lt;/p&gt;</code></pre><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><p class="paragraph">When the snippets are loaded in to the TWSView, these templates will get replaced by the actual values. Changes are reflected in real time. You can edit properties in your Snippets Dashboard and the values will get changed, without the need to rebuild the entire application.</p><p class="paragraph">End result:</p><div class="sample-container"><pre><code class="block lang-html" theme="idea">&lt;h1&gt;User Information&lt;/h1&gt;<br>&lt;p&gt;full name: John Smith&lt;/p&gt;<br>&lt;p&gt;full address: High Street 72, London&lt;/p&gt;</code></pre><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><p class="paragraph">We also provide you with some of the system properties that can be used without defining them yourself:</p><ul><li><p class="paragraph">version</p></li><li><p class="paragraph">device.vendor</p></li><li><p class="paragraph">device.name</p></li><li><p class="paragraph">os.version</p></li></ul><h4 class="">URL Intercepts</h4><p class="paragraph">By passing a custom TWSViewInterceptor implementation to the TWSView, you can handle URL interceptions natively. In our sample application we use URL interception for navigation, we intercept redirects on the home screen and render the corresponding native screens. You can see our implementation in TWSViewCustomInterceptorExample.</p><h4 class="">Permissions</h4><p class="paragraph">Web permission are handled natively within TWSView. All you need to do is include the required permissions in AndroidManifest, if your web pages requires any of the following permission.</p><ul><li><p class="paragraph">for camera permissions, include: <code class="lang-kotlin">&lt;uses-permission android:name="android.permission.CAMERA"/&gt;</code> and   <code class="lang-kotlin">&lt;uses-feature android:name="android.hardware.camera" android:required="false" /&gt;</code>,</p></li><li><p class="paragraph">for downloading or uploading files, include: <code class="lang-kotlin">&lt;uses-permission android:name="android.permission.INTERNET" /&gt;</code>,</p></li><li><p class="paragraph">and for accessing the users location, include: <code class="lang-kotlin">&lt;uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" /&gt;</code></p></li></ul><p class="paragraph">See the "permissions" Snippets Dashboard for the JavaScript implementation download/upload, camera and location access.</p><p class="paragraph">When any of the permissions is triggered, a native "permissions required" modal will be shown to the user, and the permission settings will be remembered by the application.</p><h4 class="">CSS and JavaScript injection</h4><p class="paragraph">If you are creating a custom web page for your mobile application, you may want to add styling and functionality to it. You can achieve this by injecting CSS or JavaScript into the snippet via your Snippets Dashboard. The injection process is handled internally, so you don’t need to worry about anything except uploading your CSS and JavaScript files.</p></div></div>
+  </div>
+  <h2 class="">Packages</h2>
+  <div class="table"><a data-name="-857333542%2FPackages%2F-1746782742" anchor-label="si.inova.tws.examples" id="-857333542%2FPackages%2F-1746782742" data-filterable-set=":examples:dokkaHtmlPartial/release"></a>
+    <div class="table-row" data-filterable-current=":examples:dokkaHtmlPartial/release" data-filterable-set=":examples:dokkaHtmlPartial/release">
+      <div>
+        <div class="main-subrow ">
+          <div class=""><span class="inline-flex">
+              <div><a href="si.inova.tws.examples/index.html">si.inova.tws.examples</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-857333542%2FPackages%2F-1746782742"></span>
+                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+              </span></span></div>
+          <div class="pull-right">
+            <div class="platform-tags no-gutters">
+              <div class="platform-tag jvm-like">androidJvm</div>
+            </div>
+          </div>
+        </div>
+        <div></div>
+      </div>
+    </div>
+  </div>
+</div>
+      <div class="footer">
+        <span class="go-to-top-icon"><a href="#content" id="go-to-top-link"></a></span><span>© 2024 Copyright</span><span class="pull-right"><span>Generated by </span><a href="https://github.com/Kotlin/dokka"><span>dokka</span><span class="padded-icon"></span></a></span>
+      </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
