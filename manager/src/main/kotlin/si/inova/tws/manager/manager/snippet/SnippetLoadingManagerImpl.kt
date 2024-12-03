@@ -34,37 +34,37 @@ internal class SnippetLoadingManagerImpl(
         return if (configuration is TWSConfiguration.Basic) {
             loadProjectAndSetupWss(organizationId = configuration.organizationId, projectId = configuration.projectId)
         } else if (configuration is TWSConfiguration.Shared) {
-            val cachedOrgId = orgId
-            val cachedProjId = projId
-
-            if (cachedProjId != null && cachedOrgId != null) {
-                loadProjectAndSetupWss(organizationId = cachedOrgId, projectId = cachedProjId)
-            } else {
-                loadSharedSnippetData(sharedId = configuration.sharedId)
-            }
+            loadSharedSnippetData(sharedId = configuration.sharedId)
         } else {
             error("Unknown configuration")
         }
     }
 
     private suspend fun loadSharedSnippetData(sharedId: String): ProjectResponse {
-        val sharedSnippet = functions.getSharedSnippetData(sharedId).snippet
-        return loadProjectAndSetupWss(sharedSnippet.organizationId, sharedSnippet.projectId, sharedSnippet.id)
+        val sharedSnippet = functions.getSharedSnippetToken(sharedId)
+
+        return loadProjectAndSetupWss(shareToken = sharedSnippet.shareToken)
     }
 
     private suspend fun loadProjectAndSetupWss(
-        organizationId: String,
-        projectId: String,
-        sharedId: String? = null
+        organizationId: String? = null,
+        projectId: String? = null,
+        shareToken: String? = null
     ): ProjectResponse {
         orgId = organizationId
         projId = projectId
 
-        val twsProjectResponse = functions.getWebSnippets(organizationId, projectId)
+        val twsProjectResponse = if (shareToken != null) {
+            functions.getSharedSnippetData(shareToken)
+        } else if (organizationId != null && projectId != null) {
+            functions.getWebSnippets(organizationId, projectId)
+        } else {
+            error("Unknown snippet configuration")
+        }
+
         return ProjectResponse(
             twsProjectResponse.body() ?: error("Body not available"),
-            twsProjectResponse.headers().getDate(HEADER_DATE)?.toInstant() ?: Instant.now(),
-            sharedId
+            twsProjectResponse.headers().getDate(HEADER_DATE)?.toInstant() ?: Instant.now()
         )
     }
 
