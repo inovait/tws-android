@@ -40,7 +40,6 @@ allprojects {
 tasks.dokkaHtmlMultiModule {
    moduleName.set("TheWebSnippet SDK")
 
-   dependsOn(gradle.includedBuild("sample").task(":dokkaHtmlMultiModule"))
    // Include custom index.md file
    includes.from("docs/index.md")
    // Include custom assets

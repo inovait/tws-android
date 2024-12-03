@@ -14,7 +14,8 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.sample.examples.tabs
+package si.inova.tws.sample
+
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -30,23 +31,54 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import si.inova.tws.core.TWSView
 import si.inova.tws.data.TWSSnippet
-import si.inova.tws.sample.R
+import si.inova.tws.manager.TWSManager
+import si.inova.tws.manager.TWSOutcome
+import si.inova.tws.manager.mapData
 import si.inova.tws.sample.components.ErrorView
 import si.inova.tws.sample.components.LoadingView
+import javax.inject.Inject
 
 /**
- * A composable function that renders a screen that showcases how custom [TWSSnippet]
- * properties can be utilized in a native application.
- *
- * @param content A list of [TWSSnippet] that gets displayed in a [BottomTabsRow]
+ * A composable function that renders a screen showcasing the use of custom properties defined on snippet
  */
 @Composable
-fun TWSViewComponentWithTabs(
-    content: ImmutableList<TWSSnippet>
+fun TWSViewCustomTabsExample(
+    twsCustomTabsViewModel: TWSCustomTabsViewModel = hiltViewModel()
 ) {
+    // Collect snippets for your project
+    val content = twsCustomTabsViewModel.twsSnippetsFlow.collectAsStateWithLifecycle(null).value
+
+    content?.let {
+        when {
+            !content.data.isNullOrEmpty() -> {
+                val data = content.data ?: return
+                TWSViewComponentWithTabs(data.toImmutableList())
+            }
+
+            content is TWSOutcome.Error -> {
+                ErrorView(content.exception.message ?: stringResource(R.string.error_message))
+            }
+
+            content is TWSOutcome.Progress -> {
+                LoadingView()
+            }
+        }
+    }
+}
+
+@Composable
+fun TWSViewComponentWithTabs(content: ImmutableList<TWSSnippet>) {
     var currentTab by remember { mutableIntStateOf(0) }
     val onClick: (Int) -> Unit = {
         currentTab = it
@@ -65,14 +97,6 @@ fun TWSViewComponentWithTabs(
     }
 }
 
-/**
- * A composable function that extracts "tabName" and "tabIcon" properties from [TWSSnippet.props] and sets them
- * for each tab.
- *
- * @param content A list of [TWSSnippet] used for setting the text and icon for the tabs.
- * @param currentTab A number indicating the index of currently selected tab.
- * @param onClick A function that accepts the index of a clicked tab, used for handling tab switching.
- */
 @Composable
 private fun BottomTabsRow(
     content: ImmutableList<TWSSnippet>,
@@ -114,4 +138,20 @@ private fun String.asTabIconDrawable(): Int {
         "list" -> R.drawable.list
         else -> R.drawable.broken_image
     }
+}
+
+@HiltViewModel
+class TWSCustomTabsViewModel @Inject constructor(
+    manager: TWSManager
+) : ViewModel() {
+    // Collecting TWSManager.snippets, which returns the current state, which
+    // exposes TWSOutcome.Error, TWSOutcome.Progress or TWSOutcome.Success state.
+    val twsSnippetsFlow: Flow<TWSOutcome<List<TWSSnippet>>> = manager.snippets.map { data ->
+        data.mapData { it.filter { snippet -> snippet.props["page"] == propsPage } }
+    }.map { data ->
+        // Sort tabs with custom tabSortKey property
+        data.mapData { it.sortedBy { snippet -> snippet.props["tabSortKey"] as? String } }
+    }
+
+    private val propsPage = "snippetProps"
 }

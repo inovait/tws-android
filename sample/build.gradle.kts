@@ -16,13 +16,3 @@ buildscript {
         classpath(libs.dokka.base)
     }
 }
-tasks.dokkaHtmlMultiModule {
-    moduleName.set("Sample application")
-    outputDirectory.set(file("../build/dokka/htmlMultiModule/sample"))
-    includes.from("../docs/sample.md")
-
-    pluginConfiguration<DokkaBase, DokkaBaseConfiguration> {
-        customAssets = listOf(file("../docs/appIcon.png"))
-        customStyleSheets = listOf(file("../docs/logo-styles.css"))
-    }
-}

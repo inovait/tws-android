@@ -14,7 +14,7 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.sample.examples.permissions
+package si.inova.tws.sample
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource

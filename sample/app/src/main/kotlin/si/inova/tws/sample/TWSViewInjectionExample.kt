@@ -14,7 +14,7 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package si.inova.tws.sample.examples.injection
+package si.inova.tws.sample
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
@@ -37,9 +37,6 @@ import javax.inject.Inject
 
 /**
  * A composable function that renders a screen showcasing the use of CSS and Javascript injection.
- *
- * @param twsInjectionViewModel A viewModel that provides access to the [TWSOutcome].
- * @sample si.inova.tws.sample.examples.injection.TWSViewInjectionExample
  */
 @Composable
 fun TWSViewInjectionExample(
@@ -66,10 +63,6 @@ fun TWSViewInjectionExample(
     }
 }
 
-/**
- * @param manager Global instance of [TWSManager].
- * @property twsSnippetsFlow A Flow collecting [TWSOutcome] state from the manager, filtered by a custom property "page".
- */
 @HiltViewModel
 class TWSInjectionViewModel @Inject constructor(
     manager: TWSManager
