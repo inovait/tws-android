@@ -69,11 +69,7 @@ internal abstract class GenerateTokenTask : DefaultTask() {
             it.exists()
         }
 
-        if (specifiedFile == null) {
-            throw IllegalStateException("No valid tws-service.json in: ${inputFiles.get()}")
-        }
-
-        val jsonContent = specifiedFile.readText()
+        val jsonContent = specifiedFile?.readText()
 
         val service = Gson().fromJson(jsonContent, ServiceAccount::class.java)
         val token = generateJWT(service)
