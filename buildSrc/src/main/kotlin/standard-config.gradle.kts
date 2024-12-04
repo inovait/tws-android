@@ -20,5 +20,5 @@ plugins {
     id("maven-publish")
 }
 
-group = "si.inova.tws"
+group = "com.thewebsnippet"
 version = File(rootDir, "version.txt").readText().trim()

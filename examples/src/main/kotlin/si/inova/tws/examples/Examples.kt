@@ -24,10 +24,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import si.inova.tws.core.TWSView
-import si.inova.tws.data.TWSAttachment
-import si.inova.tws.data.TWSAttachmentType
-import si.inova.tws.data.TWSSnippet
+import com.thewebsnippet.core.TWSView
+import com.thewebsnippet.data.TWSAttachment
+import com.thewebsnippet.data.TWSAttachmentType
+import com.thewebsnippet.data.TWSSnippet
 
 /**
  * Demonstrates how to use a custom `TWSViewInterceptor` with `TWSView` to intercept URL loading.

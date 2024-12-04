@@ -28,7 +28,7 @@ add the SDK dependency:
 
 ```gradle
 dependencies {
-    implementation 'si.inova.tws:core:1.0.0' // Contains UI Composable components for displaying web pages
+    implementation 'com.thewebsnippet:core:1.0.0' // Contains UI Composable components for displaying web pages
 }
 ```
 

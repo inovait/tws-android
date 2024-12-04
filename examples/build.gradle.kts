@@ -34,7 +34,7 @@ tasks.withType<DokkaTaskPartial>().configureEach {
 }
 
 android {
-    namespace = "si.inova.tws.examples"
+    namespace = "com.thewebsnippet.examples"
 }
 
 dependencies {

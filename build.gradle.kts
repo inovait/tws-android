@@ -20,7 +20,7 @@ if (properties.containsKey("ossrhUsername")) {
    nexusStaging {
       username = property("ossrhUsername") as String
       password = property("ossrhPassword") as String
-      packageGroup = "si.inova"
+      packageGroup = "com.thewebsnippet"
       stagingRepositoryId = property("ossrhRepId") as String
    }
 }

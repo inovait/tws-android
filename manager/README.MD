@@ -3,7 +3,7 @@
 Direct gradle usage:
 
 ```kotlin
-implementation("si.inova.tws:manager:X.Y.Z")
+implementation("com.thewebsnippet:manager:X.Y.Z")
 ```
 
 Version catalogs usage:
@@ -15,7 +15,7 @@ tws = "X.Y.Z"
 
 ```toml
 [libraries]
-tws-manager = { module = "si.inova.tws:manager", version.ref = "tws" }
+tws-manager = { module = "com.thewebsnippet:manager", version.ref = "tws" }
 ```
 
 ```kotlin

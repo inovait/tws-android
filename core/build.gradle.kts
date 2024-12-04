@@ -34,7 +34,7 @@ tasks.withType<DokkaTaskPartial>().configureEach {
 }
 
 android {
-    namespace = "si.inova.tws.core"
+    namespace = "com.thewebsnippet.core"
 
     buildFeatures {
         compose = true

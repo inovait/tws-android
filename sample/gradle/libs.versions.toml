@@ -31,13 +31,13 @@ hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltA
 hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltAndroid" }
 kotlin-immutableCollections = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "kotlin-immutableCollections" }
 desugarJdkLibs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugarJdkLibs" }
-tws-core = { group = "si.inova.tws", name = "core", version.ref = "tws" }
-tws-manager = { group = "si.inova.tws", name = "manager", version.ref = "tws" }
-tws-interstitial = { group = "si.inova.tws", name = "interstitial", version.ref = "tws" }
+tws-core = { group = "com.thewebsnippet", name = "core", version.ref = "tws" }
+tws-manager = { group = "com.thewebsnippet", name = "manager", version.ref = "tws" }
+tws-interstitial = { group = "com.thewebsnippet", name = "interstitial", version.ref = "tws" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
-twsService = { id = "si.inova.tws.service", version.ref = "tws" }
+twsService = { id = "com.thewebsnippet.service", version.ref = "tws" }

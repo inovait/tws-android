@@ -12,7 +12,7 @@ plugin to the plugins block:
 
 ```gradle
 plugin {
-   id("si.inova.tws.service") version "1.0.0" apply false
+   id("com.thewebsnippet.service") version "1.0.0" apply false
 }
 ```
 <br>
@@ -22,10 +22,10 @@ add the Service Gradle plugin and SDK dependency:
 
 ```gradle
 plugin {
-   id("si.inova.tws.service")
+   id("com.thewebsnippet")
 }
 
 dependencies {
-    implementation 'si.inova.tws:manager:1.0.0' // Contains TWSManager for loading and refreshing snippets in real time
+    implementation 'com.thewebsnippet:manager:1.0.0' // Contains TWSManager for loading and refreshing snippets in real time
 }
 ```

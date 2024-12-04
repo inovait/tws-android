@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+    <groupId>com.thewebsnippet</groupId>
+    <artifactId>data</artifactId>
+    <versioning>
+        <latest>0.13.0-develop</latest>
+        <release>0.13.0-develop</release>
+        <versions>
+            <version>0.13.0-develop</version>
+        </versions>
+        <lastUpdated>20241203115338</lastUpdated>
+    </versioning>
+</metadata>

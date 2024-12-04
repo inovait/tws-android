@@ -31,27 +31,30 @@ offline, the SDK will still work smoothly, letting users access content without 
 ## Quick Tutorial
 ### Installation
 
-In your <b>root-level (project-level)</b> Gradle file (`<project>/build.gradle.kts` or `<project>/build.gradle`), add the Service Gradle
+In your <b>root-level (project-level)</b> Gradle file (`<project>/build.gradle.kts` or `<project>/build.gradle`), add the Service
+Gradle
 plugin to the plugins block:
 
 ```gradle
 plugin {
-   id("si.inova.tws.service") version "1.0.0" apply false
+   id("com.thewebsnippet.service") version "1.0.0" apply false
 }
 ```
+
 <br>
 
-In your <b>module (app-level)</b> Gradle file (usually `<project>/<app-module>/build.gradle.kts` or `<project>/<app-module>/build.gradle`),
+In your <b>module (app-level)</b> Gradle file (usually `<project>/<app-module>/build.gradle.kts` or
+`<project>/<app-module>/build.gradle`),
 add the Service Gradle plugin and SDK dependencies:
 
 ```gradle
 plugin {
-   id("si.inova.tws.service")
+   id("com.thewebsnippet.service")
 }
 
 dependencies {
-    implementation 'si.inova.tws:core:1.0.0' // Contains UI Composable components for displaying web pages
-    implementation 'si.inova.tws:manager:1.0.0' // Contains TWSManager for loading and refreshing snippets in real time
+    implementation 'com.thewebsnippet:core:1.0.0' // Contains UI Composable components for displaying web pages
+    implementation 'com.thewebsnippet:manager:1.0.0' // Contains TWSManager for loading and refreshing snippets in real time
 }
 ```
 
@@ -67,11 +70,9 @@ These metadata keys allow the SDK to identify the correct organization and proje
 
 ```xml
 <application>
-   <meta-data
-           android:name="si.inova.tws.ORGANIZATION_ID"
+   <meta-data android:name="com.thewebsnippet.ORGANIZATION_ID"
            android:value="your_organization_id" />
-   <meta-data
-           android:name="si.inova.tws.PROJECT_ID"
+   <meta-data android:name="com.thewebsnippet.PROJECT_ID"
            android:value="your_project_id" />
 </application>
 ```

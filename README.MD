@@ -52,5 +52,5 @@ To contribute to this set of libraries:
 
 2. import library
 
-- `implementation("si.inova.tws:core-ui:[version]")`
-- `implementation("si.inova.tws:manager:[version]")`
+- `implementation("com.thewebsnippet:core-ui:[version]")`
+- `implementation("com.thewebsnippet:manager:[version]")`

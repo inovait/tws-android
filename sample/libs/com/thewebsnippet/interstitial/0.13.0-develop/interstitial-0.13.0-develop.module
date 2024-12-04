@@ -1,0 +1,141 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "com.thewebsnippet",
+    "module": "interstitial",
+    "version": "0.13.0-develop",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "8.7"
+    }
+  },
+  "variants": [
+    {
+      "name": "releaseApiElements-published",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.jvm.environment": "android",
+        "org.gradle.usage": "java-api",
+        "org.jetbrains.kotlin.platform.type": "androidJvm"
+      },
+      "dependencies": [
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "2.0.0"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "interstitial-0.13.0-develop.aar",
+          "url": "interstitial-0.13.0-develop.aar",
+          "size": 26030,
+          "sha512": "3130258d5edb52dcfbbf26f9f98fb0376d315b7f72e25f8059ee39f04d9f7609f7dec4dad318ac717f48eb335fba3f93853179d07547a33f5386aaec3be2593b",
+          "sha256": "cb4f49b9445f86c52e5332dbe982d4feb1bf86db8c7c2bc563c8dfc33b738821",
+          "sha1": "f2250a80c0efa5d7ba3363681ed33d9248f10103",
+          "md5": "13d97a15c1ebf71a73c84bbebe7cbcca"
+        }
+      ]
+    },
+    {
+      "name": "releaseRuntimeElements-published",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.jvm.environment": "android",
+        "org.gradle.usage": "java-runtime",
+        "org.jetbrains.kotlin.platform.type": "androidJvm"
+      },
+      "dependencies": [
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-parcelize-runtime",
+          "version": {
+            "requires": "2.0.0"
+          }
+        },
+        {
+          "group": "com.thewebsnippet",
+          "module": "core",
+          "version": {
+            "requires": "0.13.0-develop"
+          }
+        },
+        {
+          "group": "com.thewebsnippet",
+          "module": "manager",
+          "version": {
+            "requires": "0.13.0-develop"
+          }
+        },
+        {
+          "group": "androidx.activity",
+          "module": "activity-compose",
+          "version": {
+            "requires": "1.9.1"
+          }
+        },
+        {
+          "group": "androidx.compose.ui",
+          "module": "ui-tooling-preview",
+          "version": {
+            "requires": "1.6.8"
+          }
+        },
+        {
+          "group": "androidx.compose.material3",
+          "module": "material3",
+          "version": {
+            "requires": "1.3.0"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "2.0.0"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "interstitial-0.13.0-develop.aar",
+          "url": "interstitial-0.13.0-develop.aar",
+          "size": 26030,
+          "sha512": "3130258d5edb52dcfbbf26f9f98fb0376d315b7f72e25f8059ee39f04d9f7609f7dec4dad318ac717f48eb335fba3f93853179d07547a33f5386aaec3be2593b",
+          "sha256": "cb4f49b9445f86c52e5332dbe982d4feb1bf86db8c7c2bc563c8dfc33b738821",
+          "sha1": "f2250a80c0efa5d7ba3363681ed33d9248f10103",
+          "md5": "13d97a15c1ebf71a73c84bbebe7cbcca"
+        }
+      ]
+    },
+    {
+      "name": "releaseSourcesElements-published",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.jvm.environment": "android",
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime",
+        "org.jetbrains.kotlin.platform.type": "androidJvm"
+      },
+      "files": [
+        {
+          "name": "interstitial-0.13.0-develop-sources.jar",
+          "url": "interstitial-0.13.0-develop-sources.jar",
+          "size": 12764,
+          "sha512": "4ddb15ae2accdea53ab674d7d0c75751114fe1a3fe70a9a6d232c7b97f1970af3514164cbc2685ee646014fc6a2f81b4f693165eae86c0d9528ed43dd192c53c",
+          "sha256": "37c2efffb7c8ac028b4e8e15820e172a34997536eea3df86e79c72a4da091b70",
+          "sha1": "b8734d71794605fc1d3ebf849caa16d6045af193",
+          "md5": "f1863fdcf0ee3fd87ced2aaf3d161993"
+        }
+      ]
+    }
+  ]
+}
