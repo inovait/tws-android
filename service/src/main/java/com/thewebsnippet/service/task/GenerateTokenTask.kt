@@ -70,7 +70,7 @@ internal abstract class GenerateTokenTask : DefaultTask() {
         }
 
         if (specifiedFile == null) {
-            throw IllegalStateException("No valid tws-service.json in: ${inputFiles.get()}")
+            return
         }
 
         val jsonContent = specifiedFile.readText()
