@@ -35,6 +35,8 @@ dependencyResolutionManagement {
         mavenCentral()
         mavenLocal()
     }
+
+//    includeBuild("service")
 }
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
@@ -44,4 +46,5 @@ include(":core")
 include(":examples")
 include(":manager")
 include(":data")
-include(":service")
+includeBuild("service")
+include(":sample")

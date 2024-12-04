@@ -1,5 +1,3 @@
-//import util.publishLibrary
-
 /*
  * Copyright 2024 INOVA IT d.o.o.
  *
@@ -16,44 +14,26 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-plugins {
-    `java-gradle-plugin`
-    `maven-publish`
-    `kotlin-dsl`
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
 }
 
-// TODO
-//publishLibrary(
-//    userFriendlyName = "service",
-//    description = "Setup for manager",
-//    githubPath = "service"
-//)
+dependencyResolutionManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
 
-group = "com.thewebsnippet"
-version = File(rootDir, "../version.txt").readText().trim()
-
-publishing {
-    publications {
-        create<MavenPublication>("gradlePlugin") {
-            groupId = project.group.toString()
-            artifactId = "service"
-            version = project.version.toString()
+    versionCatalogs {
+        create("libs") {
+            from(files("../gradle/libs.versions.toml"))
         }
     }
 }
 
-gradlePlugin {
-    plugins {
-        create("service") {
-            id = "com.thewebsnippet.service"
-            implementationClass = "com.thewebsnippet.service.TWSPlugin"
-        }
-    }
-}
-
-dependencies {
-    implementation(libs.android.agp)
-    implementation(libs.google.api.client)
-
-    testImplementation(libs.junit)
-}
+rootProject.name = "service"
