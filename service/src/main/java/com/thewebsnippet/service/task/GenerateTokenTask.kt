@@ -69,7 +69,11 @@ internal abstract class GenerateTokenTask : DefaultTask() {
             it.exists()
         }
 
-        val jsonContent = specifiedFile?.readText()
+        if (specifiedFile == null) {
+            return
+        }
+
+        val jsonContent = specifiedFile.readText()
 
         val service = Gson().fromJson(jsonContent, ServiceAccount::class.java)
         val token = generateJWT(service)
