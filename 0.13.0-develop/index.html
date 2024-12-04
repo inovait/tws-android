@@ -77,13 +77,13 @@
       <h3 class="">Installation</h3>
       <p class="paragraph">In your <b>root-level (project-level)</b> Gradle file (<code class="lang-kotlin">&lt;project&gt;/build.gradle.kts</code> or <code class="lang-kotlin">&lt;project&gt;/build.gradle</code>), add the Service Gradle plugin to the plugins block:</p>
       <div class="sample-container">
-        <pre><code class="block lang-gradle" theme="idea">plugin {<br>   id(&quot;si.inova.tws.service&quot;) version &quot;1.0.0&quot; apply false<br>}</code></pre>
+        <pre><code class="block lang-gradle" theme="idea">plugin {<br>   id(&quot;com.thewebsnippet.service&quot;) version &quot;1.0.0&quot; apply false<br>}</code></pre>
 <span class="top-right-position"><span class="copy-icon"></span>
           <div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div>
         </span></div>
 <br>      <p class="paragraph">In your <b>module (app-level)</b> Gradle file (usually <code class="lang-kotlin">&lt;project&gt;/&lt;app-module&gt;/build.gradle.kts</code> or <code class="lang-kotlin">&lt;project&gt;/&lt;app-module&gt;/build.gradle</code>), add the Service Gradle plugin and SDK dependencies:</p>
       <div class="sample-container">
-        <pre><code class="block lang-gradle" theme="idea">plugin {<br>   id(&quot;si.inova.tws.service&quot;)<br>}<br><br>dependencies {<br>    implementation 'si.inova.tws:core:1.0.0' // Contains UI Composable components for displaying web pages<br>    implementation 'si.inova.tws:manager:1.0.0' // Contains TWSManager for loading and refreshing snippets in real time<br>}</code></pre>
+        <pre><code class="block lang-gradle" theme="idea">plugin {<br>   id(&quot;com.thewebsnippet.service&quot;)<br>}<br><br>dependencies {<br>    implementation 'com.thewebsnippet:core:1.0.0' // Contains UI Composable components for displaying web pages<br>    implementation 'com.thewebsnippet:manager:1.0.0' // Contains TWSManager for loading and refreshing snippets in real time<br>}</code></pre>
 <span class="top-right-position"><span class="copy-icon"></span>
           <div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div>
         </span></div>
@@ -92,7 +92,7 @@
       <h3 class="">Step 2: Provide metadata for TWS SDK</h3>
       <p class="paragraph">Before using the TWS SDK, ensure you set up metadata keys for organization and project in AndroidManifest.xml.  These metadata keys allow the SDK to identify the correct organization and project context when initializing your TWSManager:</p>
       <div class="sample-container">
-        <pre><code class="block lang-xml" theme="idea">&lt;application&gt;<br>   &lt;meta-data<br>           android:name=&quot;si.inova.tws.ORGANIZATION_ID&quot;<br>           android:value=&quot;your_organization_id&quot; /&gt;<br>   &lt;meta-data<br>           android:name=&quot;si.inova.tws.PROJECT_ID&quot;<br>           android:value=&quot;your_project_id&quot; /&gt;<br>&lt;/application&gt;</code></pre>
+        <pre><code class="block lang-xml" theme="idea">&lt;application&gt;<br>   &lt;meta-data android:name=&quot;com.thewebsnippet.ORGANIZATION_ID&quot;<br>           android:value=&quot;your_organization_id&quot; /&gt;<br>   &lt;meta-data android:name=&quot;com.thewebsnippet.PROJECT_ID&quot;<br>           android:value=&quot;your_project_id&quot; /&gt;<br>&lt;/application&gt;</code></pre>
 <span class="top-right-position"><span class="copy-icon"></span>
           <div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div>
         </span></div>

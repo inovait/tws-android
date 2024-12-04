@@ -2,14 +2,14 @@ $dokka.format:html-v1
 $dokka.linkExtension:html
 
 module:core
-si.inova.tws.core
-si.inova.tws.core.data
-si.inova.tws.core.util.compose
+com.thewebsnippet.core
+com.thewebsnippet.core.data
+com.thewebsnippet.core.util.compose
 module:data
-si.inova.tws.data
+com.thewebsnippet.data
 module:examples
 si.inova.tws.examples
 module:manager
-si.inova.tws.manager
+com.thewebsnippet.manager
 module:service
-si.inova.tws.service
+com.thewebsnippet.service
