@@ -16,7 +16,7 @@
 
 import java.util.Properties
 
-val configProperties = loadProperties(rootDir.resolve("config.properties"))
+val configProperties = loadProperties(projectDir.resolve("config.properties"))
 
 // config.properties
 extra["organizationId"] = configProperties.getProperty("organizationId")

@@ -55,9 +55,8 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
 
-        // TODO
-        manifestPlaceholders["twsOrganizationId"] = "samples" //extra.getString("organizationId")
-        manifestPlaceholders["twsProjectId"] = "sample"// extra.getString("projectId")
+        manifestPlaceholders["twsOrganizationId"] = extra.getString("organizationId")
+        manifestPlaceholders["twsProjectId"] = extra.getString("projectId")
     }
 
     buildTypes {
@@ -91,7 +90,6 @@ dependencies {
     implementation(projects.core)
     implementation(projects.manager)
 
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -107,7 +105,6 @@ dependencies {
     implementation(libs.hilt.android)
     kapt(libs.hilt.android.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
-
 
     coreLibraryDesugaring(libs.desugarJdkLibs)
     implementation(libs.kotlin.immutableCollections)
