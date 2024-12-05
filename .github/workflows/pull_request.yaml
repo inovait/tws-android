@@ -35,4 +35,4 @@ jobs:
         run: "./gradlew --parallel compileReleaseUnitTestSources compileDebugUnitTestSources assembleDebugAndroidTest"
 
       - name: "Run Unit Tests"
-        run: "./gradlew --continue test"
+        run: "./gradlew --continue test service:test"
