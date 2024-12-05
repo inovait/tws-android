@@ -20,7 +20,9 @@ dynamically based on app data.
 
 The SDK makes handling files simple, including uploading and downloading files directly
 through the app. It also takes care of permissions for features like location, camera,
-and file storage, so you don’t have to worry about managing them yourself.
+and file storage, so you don’t have to worry about managing them yourself. For secure login,
+it supports Google authentication through Custom Chrome Tabs, redirecting users back to the
+app after logging in.
 
 With an active internet connection, the TWSManager ensures your web snippets are always up-to-date. 
 Developers can change app content on the fly without rebuilding or updating the app. Even 
