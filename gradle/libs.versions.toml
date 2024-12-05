@@ -99,4 +99,5 @@ versions = { id = "com.github.ben-manes.versions", version.ref = "versionsChecke
 nexusPublish = { id = "io.codearte.nexus-staging", version.ref = "nexusPublish" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
+hilt = { id = "com.google.dagger.hilt.android", version.ref = "hiltAndroid" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }

@@ -16,16 +16,15 @@
 
 import org.jetbrains.dokka.gradle.DokkaTaskPartial
 
-// TODO
+
 plugins {
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
+    `kotlin-android`
+    `kotlin-kapt`
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.dokka)
+    alias(libs.plugins.hilt)
     id("com.thewebsnippet.service")
-
-    id("kotlin-kapt")
-    id("com.google.dagger.hilt.android")
 }
 
 // configuration specific to this subproject.
