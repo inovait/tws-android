@@ -49,7 +49,7 @@ import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 /**
- * A composable function that renders a screen showcasing the use of custom properties defined on snippet
+ * A composable function that renders a screen showcasing the use of custom properties defined on a snippet.
  */
 @Composable
 fun TWSViewCustomTabsExample(

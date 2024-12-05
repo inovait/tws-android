@@ -9,7 +9,7 @@ This documentation will guide you through implementing TheWebSnippet SDK into yo
 
 ## Description
 The TWS SDK is a library, designed to make it easier and more powerful to add web
-content to your Android apps with a WebView on a steroids. You can use it to combine web 
+content to your Android apps with a WebView on steroids. You can use it to combine web
 and native features, add web pages to an existing app, build a complete app using web content, 
 or mix web and native screens for a smoother user experience.
 
@@ -20,9 +20,7 @@ dynamically based on app data.
 
 The SDK makes handling files simple, including uploading and downloading files directly
 through the app. It also takes care of permissions for features like location, camera,
-and file storage, so you don’t have to worry about managing them yourself. For secure login,
-it supports Google authentication through Custom Chrome Tabs, redirecting users back to the 
-app after logging in.
+and file storage, so you don’t have to worry about managing them yourself.
 
 With an active internet connection, the TWSManager ensures your web snippets are always up-to-date. 
 Developers can change app content on the fly without rebuilding or updating the app. Even 
@@ -60,7 +58,7 @@ dependencies {
 
 ### Step 1: Add a TWS configuration file
 
-Download and add the TWS configuration file (`tws-services.json`) to your app:
+Download the TWS configuration file (`tws-services.json`) from our web page and add it to your app.
 Move your config file into the module (app-level) root directory of your app or in your desired flavour.
 
 ### Step 2: Provide metadata for TWS SDK
@@ -79,7 +77,7 @@ These metadata keys allow the SDK to identify the correct organization and proje
 
 ### Step 3: Using TWSView to display snippet
 
-Set up WebSnippetComponent to display a specific snippet. Here’s how to collect snippets and display "home" snippet:
+Set up TWSView to display a specific snippet. Here’s how to collect snippets and display "home" snippet:
 
 ```kotlin
 val manager = TWSFactory.get(context)

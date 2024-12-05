@@ -53,7 +53,7 @@ import kotlinx.coroutines.withContext
 
 /**
  * Allows control over the navigation of a WebView from outside the composable. E.g. for performing
- * a back/forward navigation in response to the user clicking the "up" or "down" button in a TopAppBar.
+ * a back/forward navigation in response to the user clicking the "left" or "right" button in a TopAppBar.
  *
  * NOTE: This class is a modified version of the original Accompanist WebView navigator.
  *

@@ -21,7 +21,7 @@ Snippet properties are set in __Props editor__ within your Snippets Dashboard. P
 They are accessible natively and can be used for various use cases.
 
 In our sample app we use them to implement custom tab names and icons, by setting "tabName" and "tabIcon" properties.
-These properties determine the name and icon of the respective tab, as demonstrated in the TWSViewCustomTabsExample.
+These properties determine the name and icon of the respective tab, as demonstrated in the TWSViewCustomPropsExample.
 
 Throughout the app, we also use property "page" to group related snippets together.
 You can find this implementation in each example's viewModel.
@@ -86,11 +86,10 @@ screens. You can see our implementation in TWSViewCustomInterceptorExample.
 #### Permissions
 
 Web permission are handled natively within TWSView. All you need to do is include the required permissions in AndroidManifest,
-if your web pages requires any of the following permission.
+if your web page uses any of the following features:
 
 - for camera permissions, include: `<uses-permission android:name="android.permission.CAMERA"/>` and
   `<uses-feature android:name="android.hardware.camera" android:required="false" />`,
-- for downloading or uploading files, include: `<uses-permission android:name="android.permission.INTERNET" />`,
 - and for accessing the users location, include: `<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />`
 
 See the "permissions" Snippets Dashboard for the JavaScript implementation download/upload, camera and location access.
