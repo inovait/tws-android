@@ -42,7 +42,12 @@ class GenerateTokenTaskTest {
         val content = generatedFile.readText()
         assert(content.contains("<string name=\"com.thewebsnippet.service.jwt\""))
         assert(
-            content.contains("eyJhbGciOiJSUzI1NiIsImtpZCI6IjEyMy1wcml2YXRlX2tleV9pZC0xMjMifQ.eyJleHAiOjk5OTk5OTk5OTk5OTksImlzcyI6InRlc3QiLCJjbGllbnRfaWQiOiJ0ZXN0In0.Li1S4QA3Xvrd5y51i7GwRax8qZSZREv7WGlQYmaDRgOZf61oKKzsDGz1d8Ve5HYOhBxOR_s1qGsolwKG_j_Y2zxqW9GsLxBin2rJ0HMEEF4Sm0Af-LtyOG6Cn_kjA8mHYqft2v7W3Byeja4SBYeXgsz8VpTmnVGlhUpXZhgaxPQ"),
+            content.contains(
+                "eyJhbGciOiJSUzI1NiIsImtpZCI6IjEyMy1wcml2YXRlX2tleV9pZC0xMjMifQ." +
+                    "eyJleHAiOjk5OTk5OTk5OTk5OTksImlzcyI6InRlc3QiLCJjbGllbnRfaWQiOiJ0ZXN0In0." +
+                    "Li1S4QA3Xvrd5y51i7GwRax8qZSZREv7WGlQYmaDRgOZf61oKKzsDGz1d8Ve5HYOhBxOR_s1qGsolwKG_j" +
+                    "_Y2zxqW9GsLxBin2rJ0HMEEF4Sm0Af-LtyOG6Cn_kjA8mHYqft2v7W3Byeja4SBYeXgsz8VpTmnVGlhUpXZhgaxPQ"
+            )
         )
     }
 }

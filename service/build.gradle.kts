@@ -19,6 +19,11 @@ plugins {
     `maven-publish`
     `kotlin-dsl`
     signing
+    alias(libs.plugins.detekt)
+}
+
+detekt {
+    config.setFrom("$projectDir/../config/detekt.yml")
 }
 
 group = "com.thewebsnippet"
@@ -106,4 +111,10 @@ dependencies {
     implementation(libs.google.api.client)
 
     testImplementation(libs.junit)
+
+    compileOnly(libs.detekt.plugin)
+
+    detektPlugins(libs.detekt.formatting)
+    detektPlugins(libs.detekt.compilerWarnings)
+    detektPlugins(libs.detekt.compose)
 }
