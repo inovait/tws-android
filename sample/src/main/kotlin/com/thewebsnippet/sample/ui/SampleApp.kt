@@ -14,34 +14,10 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-pluginManagement {
-    repositories {
-        google {
-            content {
-                includeGroupByRegex("com\\.android.*")
-                includeGroupByRegex("com\\.google.*")
-                includeGroupByRegex("androidx.*")
-            }
-        }
-        mavenCentral()
-        gradlePluginPortal()
-        mavenLocal()
-    }
-}
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        google()
-        mavenCentral()
-        mavenLocal()
-    }
-}
+package com.thewebsnippet.sample.ui
 
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+import android.app.Application
+import dagger.hilt.android.HiltAndroidApp
 
-rootProject.name = "TheWebSnippetSdk"
-include(":core")
-include(":manager")
-include(":data")
-includeBuild("service")
-include(":sample")
+@HiltAndroidApp
+internal class SampleApp : Application()

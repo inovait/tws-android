@@ -14,34 +14,18 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-pluginManagement {
-    repositories {
-        google {
-            content {
-                includeGroupByRegex("com\\.android.*")
-                includeGroupByRegex("com\\.google.*")
-                includeGroupByRegex("androidx.*")
-            }
-        }
-        mavenCentral()
-        gradlePluginPortal()
-        mavenLocal()
-    }
-}
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        google()
-        mavenCentral()
-        mavenLocal()
-    }
-}
+import java.util.Properties
 
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+val configProperties = loadProperties(projectDir.resolve("config.properties"))
 
-rootProject.name = "TheWebSnippetSdk"
-include(":core")
-include(":manager")
-include(":data")
-includeBuild("service")
-include(":sample")
+// config.properties
+extra["organizationId"] = configProperties.getProperty("organizationId")
+extra["projectId"] = configProperties.getProperty("projectId")
+
+fun loadProperties(file: File): Properties {
+    val properties = Properties()
+    if (file.exists()) {
+        properties.load(file.inputStream())
+    }
+    return properties
+}

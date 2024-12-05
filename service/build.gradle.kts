@@ -1,6 +1,3 @@
-import org.jetbrains.dokka.gradle.DokkaTaskPartial
-import util.publishLibrary
-
 /*
  * Copyright 2024 INOVA IT d.o.o.
  *
@@ -21,34 +18,81 @@ plugins {
     `java-gradle-plugin`
     `maven-publish`
     `kotlin-dsl`
-    alias(libs.plugins.dokka)
+    signing
+    alias(libs.plugins.detekt)
 }
 
-publishLibrary(
-    userFriendlyName = "service",
-    description = "Setup for manager",
-    githubPath = "service"
-)
-
-// configuration specific to this subproject.
-// notice the use of Partial task
-tasks.withType<DokkaTaskPartial>().configureEach {
-    dokkaSourceSets {
-        configureEach {
-            includes.from("Module.md")
-        }
-    }
+detekt {
+    config.setFrom("$projectDir/../config/detekt.yml")
 }
 
 group = "com.thewebsnippet"
-version = File(rootDir, "version.txt").readText().trim()
+version = File(rootDir, "../version.txt").readText().trim()
 
 publishing {
+    val userFriendlyName = "service"
+    val description = "Setup for manager"
+    val githubPath = "service"
+
     publications {
         create<MavenPublication>("gradlePlugin") {
             groupId = project.group.toString()
             artifactId = "service"
             version = project.version.toString()
+
+            pom {
+                name.set(userFriendlyName)
+                this.description.set(description)
+                val projectGitUrl = "https://github.com/inovait/tws-android-sdk"
+                url.set("$projectGitUrl/tree/main/$githubPath")
+                inceptionYear.set("2024")
+                licenses {
+                    license {
+                        name.set("MIT")
+                        url.set("https://opensource.org/licenses/MIT")
+                    }
+                }
+                issueManagement {
+                    system.set("GitHub")
+                    url.set("$projectGitUrl/issues")
+                }
+                scm {
+                    connection.set("scm:git:$projectGitUrl")
+                    developerConnection.set("scm:git:$projectGitUrl")
+                    url.set(projectGitUrl)
+                }
+                developers {
+                    developer {
+                        name.set("Inova IT")
+                        url.set("https://inova.si/")
+                    }
+                }
+            }
+        }
+    }
+}
+
+if (properties.containsKey("ossrhUsername")) {
+    signing {
+        sign(publishing.publications)
+    }
+
+    // Workaround for the https://github.com/gradle/gradle/issues/26091
+    tasks.withType<AbstractPublishToMaven>().configureEach {
+        val signingTasks = tasks.withType<Sign>()
+        mustRunAfter(signingTasks)
+    }
+
+    publishing {
+        repositories {
+            maven {
+                val repositoryId = property("ossrhRepId") ?: error("Missing property: ossrhRepId")
+                setUrl("https://oss.sonatype.org/service/local/staging/deployByRepositoryId/$repositoryId/")
+                credentials {
+                    username = property("ossrhUsername") as String
+                    password = property("ossrhPassword") as String
+                }
+            }
         }
     }
 }
@@ -67,4 +111,10 @@ dependencies {
     implementation(libs.google.api.client)
 
     testImplementation(libs.junit)
+
+    compileOnly(libs.detekt.plugin)
+
+    detektPlugins(libs.detekt.formatting)
+    detektPlugins(libs.detekt.compilerWarnings)
+    detektPlugins(libs.detekt.compose)
 }

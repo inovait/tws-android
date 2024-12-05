@@ -14,34 +14,14 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-pluginManagement {
-    repositories {
-        google {
-            content {
-                includeGroupByRegex("com\\.android.*")
-                includeGroupByRegex("com\\.google.*")
-                includeGroupByRegex("androidx.*")
-            }
-        }
-        mavenCentral()
-        gradlePluginPortal()
-        mavenLocal()
-    }
-}
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        google()
-        mavenCentral()
-        mavenLocal()
-    }
-}
+package com.thewebsnippet.sample.ui.theme
 
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+import androidx.compose.ui.graphics.Color
 
-rootProject.name = "TheWebSnippetSdk"
-include(":core")
-include(":manager")
-include(":data")
-includeBuild("service")
-include(":sample")
+internal val Purple80 = Color(0xFFD0BCFF)
+internal val PurpleGrey80 = Color(0xFFCCC2DC)
+internal val Pink80 = Color(0xFFEFB8C8)
+
+internal val Purple40 = Color(0xFF6650a4)
+internal val PurpleGrey40 = Color(0xFF625b71)
+internal val Pink40 = Color(0xFF7D5260)

@@ -63,7 +63,7 @@ jobs:
           # a description to identify your repository in the UI
           description: Created by Automatic Github flow
       - name: 'Publish'
-        run: './gradlew publish
+        run: './gradlew publish service:publish
                 -PossrhUsername=''${{ secrets.OSSRH_USERNAME }}''
                 -PossrhPassword=''${{ secrets.OSSRH_PASSWORD }}''
                 -PossrhRepId=''${{ steps.create_staging_repository.outputs.repository_id }}''

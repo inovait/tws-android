@@ -26,7 +26,7 @@ jobs:
         uses: gradle/wrapper-validation-action@55e685c48d84285a5b0418cd094606e199cca3b6
 
       - name: "Detekt"
-        run: "./gradlew --continue :buildSrc:detekt detektRelease detektDebug detektDebugAndroidTest"
+        run: "./gradlew --continue :buildSrc:detekt detektRelease detektDebug detektDebugAndroidTest :service:detekt"
 
       - name: Compile library
         run: "./gradlew --parallel assemble"
@@ -35,4 +35,4 @@ jobs:
         run: "./gradlew --parallel compileReleaseUnitTestSources compileDebugUnitTestSources assembleDebugAndroidTest"
 
       - name: "Run Unit Tests"
-        run: "./gradlew --continue test"
+        run: "./gradlew --continue test service:test"
