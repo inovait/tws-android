@@ -93,10 +93,7 @@ internal abstract class GenerateTokenTask : DefaultTask() {
         val content = """
             <?xml version="1.0" encoding="utf-8"?>
             <resources xmlns:tools="http://schemas.android.com/tools">
-                <string 
-                    name="com.thewebsnippet.service.jwt" 
-                    tools:ignore="UnusedResources,TypographyDashes" 
-                    translatable="false">
+                <string name="com.thewebsnippet.service.jwt" tools:ignore="UnusedResources,TypographyDashes" translatable="false">
                     $token
                 </string>
             </resources>
