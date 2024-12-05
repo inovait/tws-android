@@ -1,6 +1,9 @@
 # Module sample
 
-The Sample application is designed to help you better understand how to use TheWebSnippetSDK. It provides examples such as
-defining and using custom snippet properties, setting and utilizing Mustache properties,
-handling URL intercepts for navigation in your native application, managing downloads, uploads, camera access and
-location permissions in TWSWebView, and customizing your page with CSS and JavaScript injection.
+For a simpler and clearer understanding of the TWS SDK, we have prepared a sample application to help you get started.
+It includes several use case examples and implementations that demonstrate how to integrate TWSView with your Android application.
+
+You can download the sample application for free on our web page <a href="https://thewebsnippet.dev/">TheWebSnippet</a>.
+The downloaded bundle provides access to a temporary project, allowing you to explore how the snippet
+dashboard interacts with your application.
+

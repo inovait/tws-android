@@ -35,7 +35,20 @@ import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 /**
- * A composable function that renders a screen showcasing the use of CSS and Javascript injection.
+ * Demonstrates how to dynamically inject external resources into a `TWSView` using the `dynamicResources` property.
+ *
+ * The `dynamicResources` field in the `TWSSnippet` allows you to inject external resources (CSS, JavaScript) to your
+ * web page to enhance the behavior or add styling of the rendered content. This provides a powerful mechanism
+ * to customize the appearance or functionality of the content loaded in `TWSView`.
+ *
+ * In this example, we add a CSS and Javascript files to original HTML. The attached resources are specified with a URL and a
+ * content type of `CSS`. All resources are already prepared and added to the snippet on the platform, so no specific code
+ * is required to enable this feature.
+ *
+ * A working example can be found at [here](https://github.com/inovait/tws-android-sdk/blob/develop/sample/app/src/main/kotlin/si/inova/tws/sample/examples/injection/TWSViewInjectionExample.kt).
+ * Download the Sample app from our web page to explore this functionality interactively.
+ *
+ * @sample com.thewebsnippet.sample.TWSViewInjectionExample
  */
 @Composable
 fun TWSViewInjectionExample(
@@ -62,6 +75,7 @@ fun TWSViewInjectionExample(
     }
 }
 
+/** @suppress: viewmodel should not be documented */
 @HiltViewModel
 class TWSInjectionViewModel @Inject constructor(
     manager: TWSManager

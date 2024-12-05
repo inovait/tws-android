@@ -54,10 +54,9 @@ import kotlinx.coroutines.launch
  * A composable function that displays a full screen [HorizontalPager], that holds the list of [TWSSnippet].
  *
  * @param data A list of [TWSSnippet] that will get displayed in a [HorizontalPager].
- * @sample com.thewebsnippet.sample.components.TWSViewComponentWithPager
  */
 @Composable
-fun TWSViewComponentWithPager(data: ImmutableList<TWSSnippet>) {
+internal fun TWSViewComponentWithPager(data: ImmutableList<TWSSnippet>) {
     val pagerState = rememberPagerState { data.size }
     val scope = rememberCoroutineScope()
 

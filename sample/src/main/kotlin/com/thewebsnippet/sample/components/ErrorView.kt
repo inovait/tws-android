@@ -43,7 +43,7 @@ import com.thewebsnippet.sample.ui.theme.SampleTheme
  * @sample com.thewebsnippet.sample.components.ErrorView
  */
 @Composable
-fun ErrorView(
+internal fun ErrorView(
     errorText: String,
     modifier: Modifier = Modifier.fillMaxSize()
 ) {

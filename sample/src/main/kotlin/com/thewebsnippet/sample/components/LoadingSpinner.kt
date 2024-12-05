@@ -35,7 +35,7 @@ import com.thewebsnippet.sample.ui.theme.SampleTheme
  * @sample com.thewebsnippet.sample.components.LoadingView
  */
 @Composable
-fun LoadingView(modifier: Modifier = Modifier.fillMaxSize()) {
+internal fun LoadingView(modifier: Modifier = Modifier.fillMaxSize()) {
     Box(
         modifier = modifier,
         contentAlignment = Alignment.Center

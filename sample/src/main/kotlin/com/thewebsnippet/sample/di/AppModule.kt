@@ -27,7 +27,7 @@ import dagger.hilt.components.SingletonComponent
 
 @Module
 @InstallIn(SingletonComponent::class)
-class AppModule {
+internal class AppModule {
     /**
      * Provides a global instance of TWSManager configured in Manifest.
      *

@@ -33,8 +33,31 @@ import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 /**
- * A composable function that renders a screen showcasing how download, upload, camera and
- * location permissions are handled in 'TWSView'
+ * Demonstrates how to handle web permissions and file upload/download natively within `TWSView`.
+ *
+ * Include the necessary permissions in `AndroidManifest.xml` based on your web page's requirements:
+ * - **Camera**:
+ *   ```
+ *   <uses-permission android:name="android.permission.CAMERA"/>
+ *   <uses-feature android:name="android.hardware.camera" android:required="false"/>
+ *   ```
+ * - **File Upload/Download**:
+ *   ```
+ *   <uses-permission android:name="android.permission.INTERNET"/>
+ *   ```
+ * - **Location**:
+ *   ```
+ *   <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+ *   ```
+ *
+ * In this example, a snippet with all mentioned functionalities is prepared, where you can test
+ * permissions, gallery and file upload/download. Include/exclude permissions from `AndroidManifest.xml`
+ * and see, how behavior changes.
+ *
+ * You can see a working example at [here](https://github.com/inovait/tws-android-sdk/blob/develop/sample/app/src/main/kotlin/si/inova/tws/sample/examples/injection/TWSViewInjectionExample.ktt)
+ * Download the Sample app from our web page to explore this functionality interactively.
+ *
+ * @sample com.thewebsnippet.sample.TWSViewPermissionsExample
  */
 @Composable
 fun TWSViewPermissionsExample(
@@ -65,15 +88,10 @@ fun TWSViewPermissionsExample(
     }
 }
 
-/**
- * @param manager Global instance of [TWSManager].
- * @property twsSnippetsFlow A Flow collecting [TWSOutcome] state from the manager.
- */
+/** @suppress: viewmodel should not be documented */
 @HiltViewModel
 class TWSPermissionsViewModel @Inject constructor(
     manager: TWSManager
 ) : ViewModel() {
-    // Collecting TWSManager.snippets, which returns the current state, which
-    // exposes TWSOutcome.Error, TWSOutcome.Progress or TWSOutcome.Success state.
     val twsSnippetsFlow: Flow<TWSOutcome<List<TWSSnippet>>> = manager.snippets
 }

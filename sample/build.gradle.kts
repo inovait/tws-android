@@ -14,6 +14,7 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+import org.jetbrains.dokka.DokkaConfiguration
 import org.jetbrains.dokka.gradle.DokkaTaskPartial
 
 
@@ -33,6 +34,8 @@ tasks.withType<DokkaTaskPartial>().configureEach {
     dokkaSourceSets {
         configureEach {
             includes.from("Module.md")
+
+            documentedVisibilities = setOf(DokkaConfiguration.Visibility.PUBLIC)
         }
     }
 }

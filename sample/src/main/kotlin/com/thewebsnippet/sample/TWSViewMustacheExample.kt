@@ -36,7 +36,19 @@ import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 /**
- * A composable function that renders a screen showcasing setting of mustache properties and use of mustache syntax.
+ * Demonstrates how to use the `Mustache` engine with `TWSView` in combination with local properties on the snippet.
+ *
+ * If the `TWSSnippet` has its `engine` set to `TWSEngine.Mustache`, all properties defined in the `props`
+ * are used for Mustache template processing. This allows you to dynamically render content based on the provided data.
+ *
+ * In this example, we showcase how to add additional local properties to the snippet using the manager.
+ * All new properties are added to the existing `props`, demonstrating how to extend the snippet's
+ * properties dynamically at runtime.
+ *
+ * You can see a working example at [here](https://github.com/inovait/tws-android-sdk/blob/develop/sample/app/src/main/kotlin/si/inova/tws/sample/examples/mustache/TWSViewMustacheExample.kt).
+ * Download the Sample app from our web page to explore this functionality interactively.
+ *
+ * @sample com.thewebsnippet.sample.TWSViewMustacheExample
  */
 @Composable
 fun TWSViewMustacheExample(
@@ -79,6 +91,7 @@ fun TWSViewMustacheExample(
     }
 }
 
+/** @suppress: viewmodel should not be documented */
 @HiltViewModel
 class TWSMustacheViewModel @Inject constructor(
     private val manager: TWSManager

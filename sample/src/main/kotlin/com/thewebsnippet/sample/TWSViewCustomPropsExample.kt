@@ -49,7 +49,21 @@ import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 /**
- * A composable function that renders a screen showcasing the use of custom properties defined on snippet
+ * Demonstrates how to use `TWSView` with custom properties (`props`) defined in the `TWSSnippet`.
+ * The `props` field in the `TWSSnippet` allows you to attach custom metadata to a snippet in JSON format.
+ * These properties can be used for various purposes, such as configuring the behavior of your app
+ * or providing additional context to your view.
+ *
+ * In this example, we access the custom `tabName` property (if it exists) and display it using a `Text` composable.
+ * The `props` can include values of any type, including classes, allowing you to extend the functionality
+ * of the snippet with complex data structures.
+ *
+ * This flexibility allows you to pass any additional information your app might need to handle the snippet.
+ *
+ * Working example can be found at [here](https://github.com/inovait/tws-android-sdk/blob/develop/sample/app/src/main/kotlin/si/inova/tws/sample/examples/tabs/TWSViewCustomTabsExample.kt).
+ * Download the Sample app from our web page to explore this functionality interactively.
+ *
+ * @sample com.thewebsnippet.sample.BottomTabsRow
  */
 @Composable
 fun TWSViewCustomTabsExample(
@@ -77,7 +91,7 @@ fun TWSViewCustomTabsExample(
 }
 
 @Composable
-fun TWSViewComponentWithTabs(content: ImmutableList<TWSSnippet>) {
+private fun TWSViewComponentWithTabs(content: ImmutableList<TWSSnippet>) {
     var currentTab by remember { mutableIntStateOf(0) }
     val onClick: (Int) -> Unit = {
         currentTab = it
@@ -139,6 +153,7 @@ private fun String.asTabIconDrawable(): Int {
     }
 }
 
+/** @suppress: viewmodel should not be documented */
 @HiltViewModel
 class TWSCustomTabsViewModel @Inject constructor(
     manager: TWSManager

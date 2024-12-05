@@ -32,7 +32,17 @@ import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 /**
- * A composable function that renders a screen used for navigation, showcasing the use of 'TWSViewInterceptor' to handle URLs natively.
+ * Demonstrates how to use a custom `TWSViewInterceptor` with `TWSView` to intercept URL loading.
+ * By implementing the `interceptUrlCallback`, you can override the default web page loading behavior
+ * and open your native application flow (e.g., navigate to a specific screen in your app).
+ *
+ * This is particularly useful when your web content includes links that should trigger in-app navigation
+ * instead of rendering a web page.
+ *
+ * Working example can be found at [here](https://github.com/inovait/tws-android-sdk/blob/develop/sample/app/src/main/kotlin/si/inova/tws/sample/examples/navigation/TWSViewCustomInterceptorExample.kt).
+ * Download the Sample app from our web page to explore this functionality interactively.
+ *
+ * @sample com.thewebsnippet.sample.TWSViewCustomInterceptorExample
  */
 @Composable
 fun TWSViewCustomInterceptorExample(
@@ -63,6 +73,7 @@ fun TWSViewCustomInterceptorExample(
     )
 }
 
+/** @suppress: viewmodel should not be documented */
 @HiltViewModel
 class TWSInterceptorViewModel @Inject constructor(
     manager: TWSManager
