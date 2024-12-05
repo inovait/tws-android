@@ -1,0 +1,116 @@
+<!doctype html>
+<html class="no-js">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>TWSViewInjectionExample</title>
+<link href="../../images/logo-icon.svg" rel="icon" type="image/svg">    <script>var pathToRoot = "../../";</script>
+    <script>document.documentElement.classList.replace("no-js","js");</script>
+    <script>const storage = localStorage.getItem("dokka-dark-mode")
+    if (storage == null) {
+        const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (osDarkSchemePreferred === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    } else {
+        const savedDarkMode = JSON.parse(storage)
+        if(savedDarkMode === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    }
+    </script>
+<script type="text/javascript" src="https://unpkg.com/kotlin-playground@1/dist/playground.min.js" async></script>
+<script type="text/javascript" src="../../scripts/sourceset_dependencies.js" async></script>
+<link href="../../styles/style.css" rel="Stylesheet">
+<link href="../../styles/main.css" rel="Stylesheet">
+<link href="../../styles/prism.css" rel="Stylesheet">
+<link href="../../styles/logo-styles.css" rel="Stylesheet">
+<link href="../../styles/font-jb-sans-auto.css" rel="Stylesheet">
+<script type="text/javascript" src="../../scripts/clipboard.js" async></script>
+<script type="text/javascript" src="../../scripts/navigation-loader.js" async></script>
+<script type="text/javascript" src="../../scripts/platform-content-handler.js" async></script>
+<script type="text/javascript" src="../../scripts/main.js" defer></script>
+<script type="text/javascript" src="../../scripts/prism.js" async></script>
+<script type="text/javascript" src="../../scripts/symbol-parameters-wrapper_deferred.js" defer></script></head>
+<body>
+    <div class="root">
+<nav class="navigation" id="navigation-wrapper">
+    <div class="navigation--inner">
+        <div class="navigation-title">
+            <button class="menu-toggle" id="menu-toggle" type="button">toggle menu</button>
+            <div class="library-name">
+<a class="library-name--link" href="../../index.html">
+                            TheWebSnippet SDK
+                    </a>            </div>
+            <div class="library-version">
+            </div>
+        </div>
+        <div class="filter-section" id="filter-section">
+                <button class="platform-tag platform-selector jvm-like" data-active="" data-filter=":sample:dokkaHtmlPartial/release">androidJvm</button>
+        </div>
+    </div>
+    <div class="navigation-controls">
+        <button class="navigation-controls--btn navigation-controls--theme" id="theme-toggle-button" type="button">switch theme</button>
+        <div class="navigation-controls--btn navigation-controls--search" id="searchBar" role="button">search in API</div>
+    </div>
+</nav>
+        <div id="container">
+            <div class="sidebar" id="leftColumn">
+                <div class="sidebar--inner" id="sideMenu"></div>
+            </div>
+            <div id="main">
+<div class="main-content" data-page-type="member" id="content" pageids="sample::com.thewebsnippet.sample//TWSViewInjectionExample/#com.thewebsnippet.sample.TWSInjectionViewModel/PointingToDeclaration//520483241">
+  <div class="breadcrumbs"><a href="../index.html">sample</a><span class="delimiter">/</span><a href="index.html">com.thewebsnippet.sample</a><span class="delimiter">/</span><span class="current">TWSViewInjectionExample</span></div>
+  <div class="cover ">
+    <h1 class="cover"><span>TWSView</span><wbr><span>Injection</span><wbr><span><span>Example</span></span></h1>
+  </div>
+  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sample:dokkaHtmlPartial/release"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="https://developer.android.com/reference/kotlin/androidx/compose/runtime/Composable.html"><span class="token annotation builtin">Composable</span></a></div></div><span class="token keyword">fun </span><a href="-t-w-s-view-injection-example.html"><span class="token function">TWSViewInjectionExample</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">twsInjectionViewModel<span class="token operator">: </span><a href="../../sample/com.thewebsnippet.sample/-t-w-s-injection-view-model/index.html">TWSInjectionViewModel</a><span class="token operator"> = </span>hiltViewModel()</span></span><span class="token punctuation">)</span></div><p class="paragraph">Demonstrates how to dynamically inject external resources into a <code class="lang-kotlin">TWSView</code> using the <code class="lang-kotlin">dynamicResources</code> property.</p><p class="paragraph">The <code class="lang-kotlin">dynamicResources</code> field in the <code class="lang-kotlin">TWSSnippet</code> allows you to inject external resources (CSS, JavaScript) to your web page to enhance the behavior or add styling of the rendered content. This provides a powerful mechanism to customize the appearance or functionality of the content loaded in <code class="lang-kotlin">TWSView</code>.</p><p class="paragraph">In this example, we add a CSS and Javascript files to original HTML. The attached resources are specified with a URL and a content type of <code class="lang-kotlin">CSS</code>. All resources are already prepared and added to the snippet on the platform, so no specific code is required to enable this feature.</p><p class="paragraph">A working example can be found at <a href="https://github.com/inovait/tws-android-sdk/blob/develop/sample/app/src/main/kotlin/si/inova/tws/sample/examples/injection/TWSViewInjectionExample.kt">here</a>. Download the Sample app from our web page to explore this functionality interactively.</p><h4 class="">Samples</h4><div class="sample-container"><pre><code class="runnablesample monospace block lang-kotlin" theme="idea">import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.thewebsnippet.data.TWSSnippet
+import com.thewebsnippet.manager.TWSManager
+import com.thewebsnippet.manager.TWSOutcome
+import com.thewebsnippet.manager.mapData
+import com.thewebsnippet.sample.components.ErrorView
+import com.thewebsnippet.sample.components.LoadingView
+import com.thewebsnippet.sample.components.TWSViewComponentWithPager
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import javax.inject.Inject
+
+fun main() { 
+   //sampleStart 
+   // Collect snippets for your project
+val content = twsInjectionViewModel.twsSnippetsFlow.collectAsStateWithLifecycle(null).value
+
+content?.let {
+    when {
+        !content.data.isNullOrEmpty() -&gt; {
+            val data = content.data ?: return
+            TWSViewComponentWithPager(data.toImmutableList())
+        }
+
+        content is TWSOutcome.Error -&gt; {
+            ErrorView(content.exception.message ?: stringResource(R.string.error_message))
+        }
+
+        content is TWSOutcome.Progress -&gt; {
+            LoadingView()
+        }
+    }
+} 
+   //sampleEnd
+}</code></pre></div></div></div>
+</div>
+      <div class="footer">
+        <span class="go-to-top-icon"><a href="#content" id="go-to-top-link"></a></span><span>© 2024 Copyright</span><span class="pull-right"><span>Generated by </span><a href="https://github.com/Kotlin/dokka"><span>dokka</span><span class="padded-icon"></span></a></span>
+      </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+

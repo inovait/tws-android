@@ -7,9 +7,7 @@ com.thewebsnippet.core.data
 com.thewebsnippet.core.util.compose
 module:data
 com.thewebsnippet.data
-module:examples
-si.inova.tws.examples
 module:manager
 com.thewebsnippet.manager
-module:service
-com.thewebsnippet.service
+module:sample
+com.thewebsnippet.sample
