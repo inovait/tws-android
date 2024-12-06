@@ -7,8 +7,7 @@ everything from real-time updates to snippet visibility based on their state or 
 
 ## Installation
 
-In your <b>root-level (project-level)</b> Gradle file (`<project>/build.gradle.kts` or `<project>/build.gradle`), add the Service Gradle
-plugin to the plugins block:
+Add Service Gradle plugin to the __root-level__ Gradle file of your project:
 
 ```gradle
 plugin {
@@ -16,13 +15,11 @@ plugin {
 }
 ```
 <br>
-
-In your <b>module (app-level)</b> Gradle file (usually `<project>/<app-module>/build.gradle.kts` or `<project>/<app-module>/build.gradle`),
-add the Service Gradle plugin and SDK dependency:
+Apply Service Gradle plugin and add SDK dependencies to the __app-level__ Gradle file of your project:
 
 ```gradle
 plugin {
-   id("com.thewebsnippet")
+   id("com.thewebsnippet.service")
 }
 
 dependencies {
