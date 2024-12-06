@@ -32,6 +32,10 @@ import androidx.core.content.ContextCompat.startActivity
  * - Use handleUrl to determine if a URL should be handled internally or externally (e.g., deep linking).
  */
 fun interface TWSViewInterceptor {
+    /**
+     * @param url Request received from the web.
+     * @return Should return true if the function handled the url, and false if the url should be handled by the client.
+     */
     fun handleUrl(url: Uri): Boolean
 }
 
