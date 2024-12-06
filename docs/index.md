@@ -57,7 +57,7 @@ dependencies {
 ### Step 1: Add a TWS configuration file
 
 Download the TWS configuration file(`tws-services.json`) from our <a href="https://thewebsnippet.dev">web page</a> and add it to
-your app:
+your app.
 Move your config file into the module (app-level) root directory of your app or in your desired flavour.
 
 ### Step 2: Provide metadata for TWS SDK
@@ -76,7 +76,7 @@ These metadata keys allow the SDK to identify the correct organization and proje
 
 ### Step 3: Using TWSView to display snippet
 
-Set up WebSnippetComponent to display a specific snippet. Here’s how to collect snippets and display "home" snippet:
+Set up TWSView to display a specific snippet. Here’s how to collect snippets and display "home" snippet:
 
 ```kotlin
 val manager = TWSFactory.get(context)
