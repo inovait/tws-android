@@ -47,7 +47,7 @@ tasks.dokkaHtmlMultiModule {
       customAssets = listOf(file("docs/appIcon.png"))
       customStyleSheets = listOf(
          file("docs/logo-styles.css"), file("docs/hide-kotlin-playground.css"),
-         file("docs/hide-filter.css")
+         file("docs/hide-filter.css"), file("docs/fonts.css")
       )
    }
 }
