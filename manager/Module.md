@@ -12,7 +12,7 @@ plugin to the plugins block:
 
 ```gradle
 plugin {
-   id("com.thewebsnippet.service") version "1.0.0" apply false
+   id("com.thewebsnippet.service") version "{{version}}" apply false
 }
 ```
 <br>
@@ -26,6 +26,6 @@ plugin {
 }
 
 dependencies {
-    implementation 'com.thewebsnippet:manager:1.0.0' // Contains TWSManager for loading and refreshing snippets in real time
+    implementation("com.thewebsnippet:manager:{{version}}") // Contains TWSManager for loading and refreshing snippets in real time
 }
 ```
