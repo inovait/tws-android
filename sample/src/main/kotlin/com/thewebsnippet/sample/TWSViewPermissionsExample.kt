@@ -36,17 +36,13 @@ import javax.inject.Inject
  * Demonstrates how to handle web permissions and file upload/download natively within `TWSView`.
  *
  * Include the necessary permissions in `AndroidManifest.xml` based on your web page's requirements:
- * - **Camera**:
- *   ```
+ * For opening Camera from your web page:
+ *   ```xml
  *   <uses-permission android:name="android.permission.CAMERA"/>
  *   <uses-feature android:name="android.hardware.camera" android:required="false"/>
  *   ```
- * - **File Upload/Download**:
- *   ```
- *   <uses-permission android:name="android.permission.INTERNET"/>
- *   ```
- * - **Location**:
- *   ```
+ * For requesting Location permission:
+ *   ```xml
  *   <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
  *   ```
  *
@@ -54,10 +50,9 @@ import javax.inject.Inject
  * permissions, gallery and file upload/download. Include/exclude permissions from `AndroidManifest.xml`
  * and see, how behavior changes.
  *
- * You can see a working example at [here](https://github.com/inovait/tws-android-sdk/blob/develop/sample/app/src/main/kotlin/si/inova/tws/sample/examples/injection/TWSViewInjectionExample.ktt)
+ * You can see a working example [here](https://github.com/inovait/tws-android-sdk/blob/develop/sample/src/main/kotlin/com/thewebsnippet/sample/TWSViewPermissionsExample.kt).
  * Download the Sample app from our web page to explore this functionality interactively.
  *
- * @sample com.thewebsnippet.sample.TWSViewPermissionsExample
  */
 @Composable
 fun TWSViewPermissionsExample(
