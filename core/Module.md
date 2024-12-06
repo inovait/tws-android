@@ -15,7 +15,7 @@ Add core module dependencies to the __app-level__ Gradle file of your project:
 
 ```gradle
 dependencies {
-    implementation 'com.thewebsnippet:core:1.0.0' // Contains UI Composable components for displaying web pages
+    implementation("com.thewebsnippet:core:{{version}}") // Contains UI Composable components for displaying web pages
 }
 ```
 

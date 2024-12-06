@@ -49,5 +49,6 @@ tasks.dokkaHtmlMultiModule {
          file("docs/logo-styles.css"), file("docs/hide-kotlin-playground.css"),
          file("docs/hide-filter.css"), file("docs/fonts.css")
       )
+      footerMessage = "Copyright 2024 INOVA IT d.o.o."
    }
 }

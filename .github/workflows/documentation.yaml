@@ -32,12 +32,18 @@ jobs:
           echo "SDK Version: $VERSION"
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
-      # Step 4: Run the Dokka task
+      # Step 4: Update version in documentation
+      - name: Replace version in index.md
+        run: |
+          sed -i "s/{{version}}/$VERSION/g" docs/index.md
+          sed -i "s/{{version}}/$VERSION/g" core/Module.md
+          sed -i "s/{{version}}/$VERSION/g" manager/Module.md
+
+      # Step 5: Run the Dokka task
       - name: Generate documentation with Dokka
         run: ./gradlew dokkaHtmlMultiModule
 
-
-      # Step 5: Prepare the documentation for deployment
+      # Step 6: Prepare the documentation for deployment
       - name: Prepare documentation for deployment
         run: |
           mkdir -p docs/$VERSION
@@ -45,19 +51,19 @@ jobs:
           mkdir -p docs/main
           cp -r build/dokka/htmlMultiModule/* docs/main/
 
-      # Step 6: Save generated documentation to a temporary location
+      # Step 7: Save generated documentation to a temporary location
       - name: Save generated documentation
         run: |
           mkdir -p /tmp/generated_docs
           cp -r docs/* /tmp/generated_docs/
 
-      # Step 7: Checkout gh-pages branch
+      # Step 8: Checkout gh-pages branch
       - name: Checkout gh-pages
         uses: actions/checkout@v3
         with:
           ref: gh-pages
 
-      # Step 8: Copy generated docs from temporary location to gh-pages
+      # Step 9: Copy generated docs from temporary location to gh-pages
       - name: Copy generated docs to gh-pages
         run: |
           [ -d $VERSION ] && rm -rf $VERSION
@@ -66,7 +72,7 @@ jobs:
           cp -r /tmp/generated_docs/$VERSION ./
           cp -r /tmp/generated_docs/main ./
 
-      # Step 9: Commit and push changes to gh-pages
+      # Step 10: Commit and push changes to gh-pages
       - name: Commit and push changes
         run: |
           touch .nojekyll
