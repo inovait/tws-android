@@ -18,6 +18,8 @@ package com.thewebsnippet.manager
 
 import android.content.Context
 import android.content.pm.PackageManager
+import com.thewebsnippet.manager.TWSConfiguration.Basic
+import com.thewebsnippet.manager.TWSConfiguration.Shared
 import com.thewebsnippet.manager.preference.AuthPreference
 import jakarta.inject.Singleton
 import java.lang.ref.WeakReference
@@ -144,10 +146,14 @@ object TWSFactory {
 
 /**
  * Represents configuration for a [TWSManager].
+ * There are two possible configurations [Basic] and [Shared].
  */
 sealed class TWSConfiguration {
     /**
      * Basic configuration for a [TWSManager].
+     * Configured for a specific project and organization.
+     * [TWSManager] configured with Basic configuration will have access to all snippets in that organizations project,
+     * a valid tws-service.json is provided.
      *
      * @param organizationId The ID of the organization.
      * @param projectId The ID of the project.
@@ -159,6 +165,8 @@ sealed class TWSConfiguration {
 
     /**
      * Shared configuration for a [TWSManager].
+     * Configuration for a single snippet.
+     * [TWSManager] configured with Shared configuration has access to only a single snippet with that sharedId.
      *
      * @param sharedId The shared identifier for accessing shared snippet.
      */
