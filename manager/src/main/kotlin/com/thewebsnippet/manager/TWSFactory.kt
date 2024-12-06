@@ -29,6 +29,26 @@ import java.util.WeakHashMap
  * This factory uses a [WeakHashMap] to cache instances of [TWSManager] associated with specific tags.
  * Instances are stored as weak references, meaning they will be automatically cleared by the garbage
  * collector when they are no longer in use, ensuring memory efficiency.
+ *
+ * #### Prerequisite: `tws-service.json`
+ * To use the [TWSManager], ensure you have the required `tws-service.json` configuration file.
+ *
+ * 1. Generate `tws-service.json` and associate it with your TWS account
+ * 2. Place the `tws-service.json` file in the app module's root directory or the root directory
+ *    of your desired flavor.
+ *
+ * #### Example Directory Structure:
+ * ```
+ * /app
+ * ├── src
+ * │   ├── main
+ * │   │   ├── tws-service.json
+ * │   │   └── AndroidManifest.xml
+ * │   └── flavorName
+ * │       ├── tws-service.json
+ * │       └── AndroidManifest.xml
+ * ```
+ *
  */
 @Singleton
 object TWSFactory {
@@ -37,6 +57,20 @@ object TWSFactory {
     /**
      * Retrieves a [TWSManager] instance for the default configuration, which is created using metadata
      * from the application's manifest.
+     *
+     * To create [TWSManager] without providing configuration manually,
+     * you must define the required metadata in your `AndroidManifest.xml` file:
+     * ```xml
+     * <application>
+     *     <!-- Other application elements -->
+     *     <meta-data
+     *         android:name="com.thewebsnippet.ORGANIZATION_ID"
+     *         android:value="your_organization_id_here" />
+     *     <meta-data
+     *         android:name="com.thewebsnippet.PROJECT_ID"
+     *         android:value="your_project_id_here" />
+     * </application>
+     * ```
      *
      * @param context The application context.
      * @return A [TWSManager] instance associated with the configuration.

@@ -17,15 +17,39 @@
 package com.thewebsnippet.manager
 
 /**
- * Standard wrapper for an operation. It can be either [Progress], [Success] or [Error].
+ * A sealed class representing the outcome of an operation, typically for API calls.
+ * It encapsulates three possible states:
+ *
+ * - [Progress]: Indicates that data is being fetched from the API. If available, it contains cached data.
+ * - [Success]: Indicates that the API call was successful, and the data is up-to-date.
+ * - [Error]: Indicates that the API call failed. It provides the exception details and, if available, the last known data.
  */
 sealed class TWSOutcome<out T> {
+    /**
+     * The data associated with the current state.
+     * - In [Progress], this is cached data, if cache is available.
+     * - In [Success], this is the up-to-date result from the API.
+     * - In [Error], this is the last available data, if any.
+     */
     abstract val data: T?
 
+    /**
+     * Represents the progress state when fetching data from the API.
+     * @param data Cached data, if available, during the fetch process.
+     */
     data class Progress<out T>(override val data: T? = null) : TWSOutcome<T>()
 
+    /**
+     * Represents a successful API response.
+     * @param data The up-to-date data returned by the API.
+     */
     data class Success<out T>(override val data: T) : TWSOutcome<T>()
 
+    /**
+     * Represents an error state when the API call fails.
+     * @param exception The exception that occurred during the API call.
+     * @param data The last available data, if any, before the failure.
+     */
     data class Error<out T>(val exception: Exception, override val data: T? = null) : TWSOutcome<T>()
 }
 

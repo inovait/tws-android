@@ -31,19 +31,6 @@ import kotlinx.coroutines.flow.Flow
  * // Use projectSnippets with TWSView or process them as needed
  * ```
  *
- * ### Defining Metadata in Android Manifest
- * To use [TWSManager], you must define the required metadata in your `AndroidManifest.xml` file:
- * ```xml
- * <application>
- *     <!-- Other application elements -->
- *     <meta-data
- *         android:name="com.thewebsnippet.ORGANIZATION_ID"
- *         android:value="your_organization_id_here" />
- *     <meta-data
- *         android:name="com.thewebsnippet.PROJECT_ID"
- *         android:value="your_project_id_here" />
- * </application>
- * ```
  */
 interface TWSManager {
     /**
