@@ -19,15 +19,30 @@ package com.thewebsnippet.data
 import com.squareup.moshi.Json
 
 /**
- * An enum defining the processing engine for web content,
- * will process snippet with Mustache if [TWSEngine.MUSTACHE] is used.
+ * Represents the processing engine for rendering web content in the TWSView.
+ *
+ * This enum defines the available content processing engines, determining how the input content
+ * is processed and displayed in the SDK's TWSView.
  */
 enum class TWSEngine {
+    /**
+     * Content will be processed using the Mustache templating engine. The content is rendered dynamically
+     * by interpolating the provided properties (`props`) into the Mustache template syntax.
+     * This allows for generating custom HTML content based on the data passed to the engine.
+     * For more details on Mustache syntax, refer to [Mustache Documentation](https://mustache.github.io/).
+     */
     @Json(name = "mustache")
     MUSTACHE,
 
+    /**
+     * Content will be displayed as normal static HTML without any additional processing.
+     */
     @Json(name = "none")
     NONE,
 
+    /**
+     * Indicates that the specified processing engine is not supported by the current SDK version.
+     * If this value is encountered, the behavior will default to the same as `NONE`.
+     */
     OTHER
 }

@@ -85,7 +85,8 @@ import kotlinx.collections.immutable.toImmutableMap
  * @param interceptUrlCallback A [TWSViewInterceptor] invoked for URLs before navigation.
  * Return `true` to prevent navigation, `false` to allow it.
  * @param googleLoginRedirectUrl The URL the app should redirect to after a Google login
- * via Custom Tabs. Allows returning users to the app after authentication.
+ * via [Custom Tabs](https://developer.chrome.com/docs/android/custom-tabs).
+ * Allows returning users to the app after authentication.
  * @param isRefreshable Enables pull-to-refresh functionality when set to `true`.
  * */
 @Composable
@@ -125,7 +126,8 @@ fun TWSView(
  * @param errorViewContent The composable content for rendering error messages.
  * @param loadingPlaceholderContent The composable content for rendering a loading state.
  * @param interceptUrlCallback A [TWSViewInterceptor] for handling intercepted URLs.
- * @param googleLoginRedirectUrl URL to redirect back after Google login via Custom Tabs.
+ * @param googleLoginRedirectUrl URL to redirect back after Google login via
+ * [Custom Tabs](https://developer.chrome.com/docs/android/custom-tabs).
  * @param isRefreshable Enables pull-to-refresh functionality.
  * @param modifier A [Modifier] for layout adjustments.
  */

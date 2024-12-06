@@ -42,11 +42,13 @@ import javax.inject.Inject
  * are used for Mustache template processing. This allows you to dynamically render content based on the provided data.
  *
  * In this example, we showcase how to add additional local properties to the snippet using the manager.
- * All new properties are added to the existing `props`, demonstrating how to extend the snippet's
- * properties dynamically at runtime.
+ * All new properties are added to the existing `props` (which are defined on the snippet details page on
+ * our platform), demonstrating how to extend the snippet's properties dynamically at runtime.
  *
- * You can see a working example at [here](https://github.com/inovait/tws-android-sdk/blob/develop/sample/app/src/main/kotlin/si/inova/tws/sample/examples/mustache/TWSViewMustacheExample.kt).
+ * You can see a working example [here](https://github.com/inovait/tws-android-sdk/blob/develop/sample/src/main/kotlin/com/thewebsnippet/sample/TWSViewMustacheExample.kt).
  * Download the Sample app from our web page to explore this functionality interactively.
+ *
+ *  Hint: try changing the props on howToMustache snippet and observe changes in the app instantly.
  *
  * @sample com.thewebsnippet.sample.TWSViewMustacheExample
  */

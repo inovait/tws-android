@@ -60,8 +60,10 @@ import javax.inject.Inject
  *
  * This flexibility allows you to pass any additional information your app might need to handle the snippet.
  *
- * Working example can be found at [here](https://github.com/inovait/tws-android-sdk/blob/develop/sample/app/src/main/kotlin/si/inova/tws/sample/examples/tabs/TWSViewCustomTabsExample.kt).
+ * Working example can be found [here](https://github.com/inovait/tws-android-sdk/blob/develop/sample/src/main/kotlin/com/thewebsnippet/sample/TWSViewCustomPropsExample.kt).
  * Download the Sample app from our web page to explore this functionality interactively.
+ *
+ * Hint: try changing tabName or tabIcon on customTabs snippet and observe changes in the app instantly.
  *
  * @sample com.thewebsnippet.sample.BottomTabsRow
  */

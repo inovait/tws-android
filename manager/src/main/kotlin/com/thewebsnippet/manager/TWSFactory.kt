@@ -18,6 +18,8 @@ package com.thewebsnippet.manager
 
 import android.content.Context
 import android.content.pm.PackageManager
+import com.thewebsnippet.manager.TWSConfiguration.Basic
+import com.thewebsnippet.manager.TWSConfiguration.Shared
 import com.thewebsnippet.manager.preference.AuthPreference
 import jakarta.inject.Singleton
 import java.lang.ref.WeakReference
@@ -29,6 +31,26 @@ import java.util.WeakHashMap
  * This factory uses a [WeakHashMap] to cache instances of [TWSManager] associated with specific tags.
  * Instances are stored as weak references, meaning they will be automatically cleared by the garbage
  * collector when they are no longer in use, ensuring memory efficiency.
+ *
+ * #### Prerequisite: `tws-service.json`
+ * To use the [TWSManager], ensure you have the required `tws-service.json` configuration file.
+ *
+ * 1. Generate `tws-service.json` and associate it with your TWS account
+ * 2. Place the `tws-service.json` file in the app module's root directory or the root directory
+ *    of your desired flavor.
+ *
+ * #### Example Directory Structure:
+ * ```
+ * /app
+ * ├── src
+ * │   ├── main
+ * │   │   ├── tws-service.json
+ * │   │   └── AndroidManifest.xml
+ * │   └── flavorName
+ * │       ├── tws-service.json
+ * │       └── AndroidManifest.xml
+ * ```
+ *
  */
 @Singleton
 object TWSFactory {
@@ -37,6 +59,20 @@ object TWSFactory {
     /**
      * Retrieves a [TWSManager] instance for the default configuration, which is created using metadata
      * from the application's manifest.
+     *
+     * To create [TWSManager] without providing configuration manually,
+     * you must define the required metadata in your `AndroidManifest.xml` file:
+     * ```xml
+     * <application>
+     *     <!-- Other application elements -->
+     *     <meta-data
+     *         android:name="com.thewebsnippet.ORGANIZATION_ID"
+     *         android:value="your_organization_id_here" />
+     *     <meta-data
+     *         android:name="com.thewebsnippet.PROJECT_ID"
+     *         android:value="your_project_id_here" />
+     * </application>
+     * ```
      *
      * @param context The application context.
      * @return A [TWSManager] instance associated with the configuration.
@@ -110,10 +146,14 @@ object TWSFactory {
 
 /**
  * Represents configuration for a [TWSManager].
+ * There are two possible configurations [Basic] and [Shared].
  */
 sealed class TWSConfiguration {
     /**
      * Basic configuration for a [TWSManager].
+     * Configured for a specific project and organization.
+     * [TWSManager] configured with Basic configuration will have access to all snippets in that organizations project,
+     * a valid tws-service.json is provided.
      *
      * @param organizationId The ID of the organization.
      * @param projectId The ID of the project.
@@ -125,6 +165,8 @@ sealed class TWSConfiguration {
 
     /**
      * Shared configuration for a [TWSManager].
+     * Configuration for a single snippet.
+     * [TWSManager] configured with Shared configuration has access to only a single snippet with that sharedId.
      *
      * @param sharedId The shared identifier for accessing shared snippet.
      */

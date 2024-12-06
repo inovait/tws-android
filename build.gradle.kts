@@ -40,11 +40,17 @@ allprojects {
 tasks.dokkaHtmlMultiModule {
    moduleName.set("TheWebSnippet SDK")
 
+   moduleVersion = File(rootDir, "version.txt").readText().trim()
+
    // Include custom index.md file
    includes.from("docs/index.md")
    // Include custom assets
    pluginConfiguration<DokkaBase, DokkaBaseConfiguration> {
       customAssets = listOf(file("docs/appIcon.png"))
-      customStyleSheets = listOf(file("docs/logo-styles.css"))
+      customStyleSheets = listOf(
+         file("docs/logo-styles.css"), file("docs/hide-kotlin-playground.css"),
+         file("docs/hide-filter.css"), file("docs/fonts.css")
+      )
+      footerMessage = "Copyright 2024 INOVA IT d.o.o."
    }
 }

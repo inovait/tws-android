@@ -90,13 +90,13 @@ if your web pages requires any of the following permission.
 
 - for camera permissions, include: `<uses-permission android:name="android.permission.CAMERA"/>` and
   `<uses-feature android:name="android.hardware.camera" android:required="false" />`,
-- for downloading or uploading files, include: `<uses-permission android:name="android.permission.INTERNET" />`,
 - and for accessing the users location, include: `<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />`
-
-See the "permissions" Snippets Dashboard for the JavaScript implementation download/upload, camera and location access.
 
 When any of the permissions is triggered, a native "permissions required" modal will be shown to the user, and the permission
 settings will be remembered by the application.
+This includes the support for opening gallery as well as downloading and uploading files.
+
+See the "permissions" Snippets Dashboard for the JavaScript implementation download/upload, camera and location access.
 
 #### CSS and JavaScript injection
 

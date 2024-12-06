@@ -9,28 +9,30 @@ With the Core module, you can create, display, and interact with web snippets
 directly in your Compose-based layouts. It is designed to handle dynamic content, 
 error states, loading indicators, and more, ensuring a smooth and polished user experience.
 
-The Core module also includes web permission handling. Permissions requested by web pages, such as downloading/uploading files,
-accessing the device's camera, and determining the user's location, are handled natively.
-
-The following permissions need to be added to AndroidManifest.xml, if your web pages requires any of the following permission:
-
-- For camera permissions, include:
-  `<uses-permission android:name="android.permission.CAMERA"/>`
-  and
-  `<uses-feature android:name="android.hardware.camera" android:required="false"/>`
-- For accessing the user's location, include:
-  `<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>`
-
 ## Installation
 
-In your <b>module (app-level)</b> Gradle file (usually `<project>/<app-module>/build.gradle.kts` or `<project>/<app-module>/build.gradle`),
-add the SDK dependency:
+Add core module dependencies to the __app-level__ Gradle file of your project:
 
 ```gradle
 dependencies {
-    implementation 'com.thewebsnippet:core:1.0.0' // Contains UI Composable components for displaying web pages
+    implementation("com.thewebsnippet:core:{{version}}") // Contains UI Composable components for displaying web pages
 }
 ```
+
+## Permissions
+
+Web permission are handled natively within TWSView. All you need to do is include the required permissions in AndroidManifest,
+if your web pages requires any of the following permission.
+
+- for camera permissions, include: `<uses-permission android:name="android.permission.CAMERA"/>` and
+  `<uses-feature android:name="android.hardware.camera" android:required="false" />`,
+- and for accessing the users location, include: `<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />`
+
+When any of the permissions is triggered, a native "permissions required" modal will be shown to the user, and the permission
+settings will be remembered by the application.
+This includes the support for opening gallery as well as downloading and uploading files.
+
+See the "permissions" Snippets Dashboard for the JavaScript implementation download/upload, camera and location access.
 
 ## How to handle Google Login
 

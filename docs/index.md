@@ -13,13 +13,13 @@ content to your Android apps with a WebView on a steroids. You can use it to com
 and native features, add web pages to an existing app, build a complete app using web content, 
 or mix web and native screens for a smoother user experience.
 
-The TWS SDK goes beyond a standard WebView. It lets you customize content with features like 
+It goes above and beyond a standard WebView, letting you customize content with features like
 custom HTTP headers, CSS, and JavaScript injections, giving you full control over how your
 web content looks and works. It also supports Mustache templates, so you can modify HTML 
 dynamically based on app data.
 
-The SDK makes handling files simple, including uploading and downloading files directly
-through the app. It also takes care of permissions for features like location, camera,
+TWS is designed for your convenience, simplifying file management and permissions, including file uploads and downloads
+directly through the app, and taking care of permissions for features like location, camera
 and file storage, so you don’t have to worry about managing them yourself. For secure login,
 it supports Google authentication through Custom Chrome Tabs, redirecting users back to the 
 app after logging in.
@@ -31,21 +31,17 @@ offline, the SDK will still work smoothly, letting users access content without 
 ## Quick Tutorial
 ### Installation
 
-In your <b>root-level (project-level)</b> Gradle file (`<project>/build.gradle.kts` or `<project>/build.gradle`), add the Service
-Gradle
-plugin to the plugins block:
+Add Service Gradle plugin to the __root-level__ Gradle file of your project:
 
 ```gradle
 plugin {
-   id("com.thewebsnippet.service") version "1.0.0" apply false
+   id("com.thewebsnippet.service") version "{{version}}" apply false
 }
 ```
 
 <br>
 
-In your <b>module (app-level)</b> Gradle file (usually `<project>/<app-module>/build.gradle.kts` or
-`<project>/<app-module>/build.gradle`),
-add the Service Gradle plugin and SDK dependencies:
+Apply Service Gradle plugin and add SDK dependencies to the __app-level__ Gradle file of your project:
 
 ```gradle
 plugin {
@@ -53,14 +49,15 @@ plugin {
 }
 
 dependencies {
-    implementation 'com.thewebsnippet:core:1.0.0' // Contains UI Composable components for displaying web pages
-    implementation 'com.thewebsnippet:manager:1.0.0' // Contains TWSManager for loading and refreshing snippets in real time
+    implementation("com.thewebsnippet:core:{{version}}") // Contains UI Composable components for displaying web pages
+    implementation("com.thewebsnippet:manager:{{version}}") // Contains TWSManager for loading and refreshing snippets in real time
 }
 ```
 
 ### Step 1: Add a TWS configuration file
 
-Download and add the TWS configuration file (`tws-services.json`) to your app:
+Download the TWS configuration file(`tws-services.json`) from our <a href="https://thewebsnippet.dev">web page</a> and add it to
+your app.
 Move your config file into the module (app-level) root directory of your app or in your desired flavour.
 
 ### Step 2: Provide metadata for TWS SDK
@@ -79,7 +76,7 @@ These metadata keys allow the SDK to identify the correct organization and proje
 
 ### Step 3: Using TWSView to display snippet
 
-Set up WebSnippetComponent to display a specific snippet. Here’s how to collect snippets and display "home" snippet:
+Set up TWSView to display a specific snippet. Here’s how to collect snippets and display "home" snippet:
 
 ```kotlin
 val manager = TWSFactory.get(context)

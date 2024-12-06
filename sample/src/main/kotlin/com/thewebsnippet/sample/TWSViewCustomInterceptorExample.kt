@@ -39,7 +39,7 @@ import javax.inject.Inject
  * This is particularly useful when your web content includes links that should trigger in-app navigation
  * instead of rendering a web page.
  *
- * Working example can be found at [here](https://github.com/inovait/tws-android-sdk/blob/develop/sample/app/src/main/kotlin/si/inova/tws/sample/examples/navigation/TWSViewCustomInterceptorExample.kt).
+ * Working example can be found [here](https://github.com/inovait/tws-android-sdk/blob/develop/sample/src/main/kotlin/com/thewebsnippet/sample/TWSViewCustomInterceptorExample.kt).
  * Download the Sample app from our web page to explore this functionality interactively.
  *
  * @sample com.thewebsnippet.sample.TWSViewCustomInterceptorExample
