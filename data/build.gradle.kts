@@ -44,6 +44,7 @@ plugins {
 tasks.withType<DokkaTaskPartial>().configureEach {
     dokkaSourceSets {
         configureEach {
+            suppressInheritedMembers = true
             includes.from("Module.md")
         }
     }
