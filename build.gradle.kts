@@ -45,6 +45,6 @@ tasks.dokkaHtmlMultiModule {
    // Include custom assets
    pluginConfiguration<DokkaBase, DokkaBaseConfiguration> {
       customAssets = listOf(file("docs/appIcon.png"))
-      customStyleSheets = listOf(file("docs/logo-styles.css"))
+      customStyleSheets = listOf(file("docs/logo-styles.css"), file("docs/hide-kotlin-playground.css"))
    }
 }
