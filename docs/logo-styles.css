@@ -1,4 +1,5 @@
 @import url("hide-kotlin-playground.css");
+@import url("hide-filter.css");
 
 :root {
     --dokka-logo-image-url: url('../images/appIcon.png');
