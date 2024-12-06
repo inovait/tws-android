@@ -34,7 +34,7 @@ import androidx.core.content.ContextCompat.startActivity
 fun interface TWSViewInterceptor {
     /**
      * @param url Request received from the web.
-     * @return Should return true if the function handled the url, and false if the url should be handled by the client.
+     * @return Should return true if the function handled the url, and false if the url should loaded in to TWSView.
      */
     fun handleUrl(url: Uri): Boolean
 }
