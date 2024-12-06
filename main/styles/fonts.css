@@ -1,0 +1,9 @@
+/*side bar navigation font size*/
+.sidebar--inner {
+    font-size: 14px;
+}
+
+/*All modules size*/
+.table .w-100 a:not([data-name]){
+    font-size: 24px;
+}

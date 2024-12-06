@@ -33,6 +33,9 @@
 <script type="text/javascript" src="scripts/symbol-parameters-wrapper_deferred.js" defer="defer"></script>
 <link href="images/appIcon.png">
 <link href="styles/logo-styles.css" rel="Stylesheet">
+<link href="styles/hide-kotlin-playground.css" rel="Stylesheet">
+<link href="styles/hide-filter.css" rel="Stylesheet">
+<link href="styles/fonts.css" rel="Stylesheet">
 </head>
 <body>
     <div class="root">
@@ -46,7 +49,7 @@
                     </a>
             </div>
             <div class="library-version">
-            </div>
+0.13.0            </div>
         </div>
     </div>
     <div class="navigation-controls">
@@ -70,73 +73,39 @@
       <p class="paragraph">This documentation will guide you through implementing TheWebSnippet SDK into your own app.</p>
       <h2 class="">Description</h2>
       <p class="paragraph">The TWS SDK is a library, designed to make it easier and more powerful to add web content to your Android apps with a WebView on a steroids. You can use it to combine web  and native features, add web pages to an existing app, build a complete app using web content,  or mix web and native screens for a smoother user experience.</p>
-      <p class="paragraph">The TWS SDK goes beyond a standard WebView. It lets you customize content with features like  custom HTTP headers, CSS, and JavaScript injections, giving you full control over how your web content looks and works. It also supports Mustache templates, so you can modify HTML  dynamically based on app data.</p>
-      <p class="paragraph">The SDK makes handling files simple, including uploading and downloading files directly through the app. It also takes care of permissions for features like location, camera, and file storage, so you don’t have to worry about managing them yourself. For secure login, it supports Google authentication through Custom Chrome Tabs, redirecting users back to the  app after logging in.</p>
+      <p class="paragraph">It goes above and beyond a standard WebView, letting you customize content with features like custom HTTP headers, CSS, and JavaScript injections, giving you full control over how your web content looks and works. It also supports Mustache templates, so you can modify HTML  dynamically based on app data.</p>
+      <p class="paragraph">TWS is designed for your convenience, simplifying file management and permissions, including file uploads and downloads directly through the app, and taking care of permissions for features like location, camera and file storage, so you don’t have to worry about managing them yourself. For secure login, it supports Google authentication through Custom Chrome Tabs, redirecting users back to the  app after logging in.</p>
       <p class="paragraph">With an active internet connection, the TWSManager ensures your web snippets are always up-to-date.  Developers can change app content on the fly without rebuilding or updating the app. Even  offline, the SDK will still work smoothly, letting users access content without interruption.</p>
       <h2 class="">Quick Tutorial</h2>
       <h3 class="">Installation</h3>
-      <p class="paragraph">In your <b>root-level (project-level)</b> Gradle file (<code class="lang-kotlin">&lt;project&gt;/build.gradle.kts</code> or <code class="lang-kotlin">&lt;project&gt;/build.gradle</code>), add the Service Gradle plugin to the plugins block:</p>
+      <p class="paragraph">Add Service Gradle plugin to the <strong>root-level</strong> Gradle file of your project:</p>
       <div class="sample-container">
-        <pre><code class="block lang-gradle" theme="idea">plugin {<br>   id(&quot;si.inova.tws.service&quot;) version &quot;1.0.0&quot; apply false<br>}</code></pre>
+        <pre><code class="block lang-gradle" theme="idea">plugin {<br>   id(&quot;com.thewebsnippet.service&quot;) version &quot;0.13.0&quot; apply false<br>}</code></pre>
 <span class="top-right-position"><span class="copy-icon"></span>
           <div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div>
         </span></div>
-<br>      <p class="paragraph">In your <b>module (app-level)</b> Gradle file (usually <code class="lang-kotlin">&lt;project&gt;/&lt;app-module&gt;/build.gradle.kts</code> or <code class="lang-kotlin">&lt;project&gt;/&lt;app-module&gt;/build.gradle</code>), add the Service Gradle plugin:</p>
+<br>      <p class="paragraph">Apply Service Gradle plugin and add SDK dependencies to the <strong>app-level</strong> Gradle file of your project:</p>
       <div class="sample-container">
-        <pre><code class="block lang-gradle" theme="idea">plugin {<br>   id(&quot;si.inova.tws.service&quot;)<br>}</code></pre>
-<span class="top-right-position"><span class="copy-icon"></span>
-          <div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div>
-        </span></div>
-<br>      <p class="paragraph">In your <b>module (app-level)<b> Gradle file (usually <code class="lang-kotlin">&lt;project&gt;/&lt;app-module&gt;/build.gradle.kts</code> or <code class="lang-kotlin">&lt;project&gt;/&lt;app-module&gt;/build.gradle</code>), add the Core and/or Manager Gradle dependency:</p>
-      <div class="sample-container">
-        <pre><code class="block lang-gradle" theme="idea">dependencies {<br>    implementation 'si.inova.tws:core:1.0.0' // Contains UI Composable components for displaying web pages<br>    implementation 'si.inova.tws:manager:1.0.0' // Contains TWSManager for loading and refreshing snippets in real time<br>}</code></pre>
+        <pre><code class="block lang-gradle" theme="idea">plugin {<br>   id(&quot;com.thewebsnippet.service&quot;)<br>}<br><br>dependencies {<br>    implementation(&quot;com.thewebsnippet:core:0.13.0&quot;) // Contains UI Composable components for displaying web pages<br>    implementation(&quot;com.thewebsnippet:manager:0.13.0&quot;) // Contains TWSManager for loading and refreshing snippets in real time<br>}</code></pre>
 <span class="top-right-position"><span class="copy-icon"></span>
           <div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div>
         </span></div>
       <h3 class="">Step 1: Add a TWS configuration file</h3>
-      <p class="paragraph">Download and then add the TWS configuration file (<code class="lang-kotlin">tws-services.json</code>) to your app: Move your config file into the module (app-level) root directory of your app or in your desired flavour.</p>
+      <p class="paragraph">Download the TWS configuration file(<code class="lang-kotlin">tws-services.json</code>) from our <a href="https://thewebsnippet.dev">web page</a> and add it to your app. Move your config file into the module (app-level) root directory of your app or in your desired flavour.</p>
       <h3 class="">Step 2: Provide metadata for TWS SDK</h3>
       <p class="paragraph">Before using the TWS SDK, ensure you set up metadata keys for organization and project in AndroidManifest.xml.  These metadata keys allow the SDK to identify the correct organization and project context when initializing your TWSManager:</p>
       <div class="sample-container">
-        <pre><code class="block lang-xml" theme="idea">&lt;application&gt;<br>   &lt;meta-data<br>           android:name=&quot;si.inova.tws.ORGANIZATION_ID&quot;<br>           android:value=&quot;your_organization_id&quot; /&gt;<br>   &lt;meta-data<br>           android:name=&quot;si.inova.tws.PROJECT_ID&quot;<br>           android:value=&quot;your_project_id&quot; /&gt;<br>&lt;/application&gt;</code></pre>
+        <pre><code class="block lang-xml" theme="idea">&lt;application&gt;<br>   &lt;meta-data android:name=&quot;com.thewebsnippet.ORGANIZATION_ID&quot;<br>           android:value=&quot;your_organization_id&quot; /&gt;<br>   &lt;meta-data android:name=&quot;com.thewebsnippet.PROJECT_ID&quot;<br>           android:value=&quot;your_project_id&quot; /&gt;<br>&lt;/application&gt;</code></pre>
 <span class="top-right-position"><span class="copy-icon"></span>
           <div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div>
         </span></div>
       <h3 class="">Step 3: Using TWSView to display snippet</h3>
-      <p class="paragraph">Set up WebSnippetComponent to display a specific snippet. Here’s how to collect snippets and display &quot;home&quot; snippet:</p>
+      <p class="paragraph">Set up TWSView to display a specific snippet. Here’s how to collect snippets and display &quot;home&quot; snippet:</p>
       <div class="sample-container">
         <pre><code class="block lang-kotlin" theme="idea">val manager = TWSFactory.get(context)<br><br>setContent {<br>   val projectSnippets = manager.snippets.collectAsStateWithLifecycle(null).value<br><br>   when (projectSnippets) {<br>      is TWSOutcome.Success -&gt; {<br>         val home = projectSnippets.data.first { it.id == &quot;home&quot; }<br>         TWSView(snippet = home)<br>      }<br><br>      else -&gt; {<br>         // Handle errors or loading state here<br>      }<br>   }<br>}</code></pre>
 <span class="top-right-position"><span class="copy-icon"></span>
           <div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div>
         </span></div>
-      <h2 class="">How to handle Google Login</h2>
-      <h4 class="">Define base url while generating apk</h4>
-      <p class="paragraph">When generating App Bundles using CLI, include the optional parameter <code class="lang-kotlin">--google-login-base-url</code>. The URL should follow the format https://domain.name/path and should define the page to where user is redirected after a successful login. <i>(subject of change, will be defined when web implements bundle creating)</i></p>
-      <h4 class="">Declare website associations</h4>
-      <ol>
-        <li>
-          <p class="paragraph">Create an assetlinks.json file from bottom template (note that you can find pregenerated file with your app bundles):</p>
-          <div class="sample-container">
-            <pre><code class="block lang-json" theme="idea"> [{<br>     &quot;relation&quot;: [&quot;delegate_permission/common.handle_all_urls&quot;],<br>     &quot;target&quot;: {<br>       &quot;namespace&quot;: &quot;android_app&quot;,<br>       &quot;package_name&quot;: &quot;com.example&quot;,<br>       &quot;sha256_cert_fingerprints&quot;: [&quot;hash_of_app_certificate&quot;]<br>     }<br> }]</code></pre>
-<span class="top-right-position"><span class="copy-icon"></span>
-              <div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div>
-            </span></div>
-        </li>
-        <li>
-          <p class="paragraph">Replace &quot;com.example&quot; for the &quot;package_name&quot; with the actual package name</p>
-        </li>
-        <li>
-          <p class="paragraph">Replace &quot;hash_of_app_certificate&quot; with the actual hash, that was generated by the CLI while creating your Android apk</p>
-        </li>
-        <li>
-          <p class="paragraph">Publish generated Asset Links JSON file to your website to the following location:</p>
-          <div class="sample-container">
-            <pre><code class="block lang-kotlin" theme="idea"> https://domain.name/.well-known/assetlinks.json</code></pre>
-<span class="top-right-position"><span class="copy-icon"></span>
-              <div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div>
-            </span></div>
-        </li>
-      </ol>
     </div>
     <h2 class="">All modules:</h2>
     <div class="table"><a data-name="-387464810%2FMain%2F0" anchor-label="core" id="-387464810%2FMain%2F0" data-filterable-set=""></a>
@@ -165,19 +134,6 @@
             </span></div>
         </div>
       </div>
-<a data-name="2047823529%2FMain%2F0" anchor-label="interstitial" id="2047823529%2FMain%2F0" data-filterable-set=""></a>
-      <div class="table-row">
-        <div class="main-subrow ">
-          <div class="w-100"><span class="inline-flex">
-              <div><a href="interstitial/index.html">interstitial</a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="2047823529%2FMain%2F0"></span>
-                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-              </span></span></div>
-          <div><span class="brief-comment">
-              <p class="paragraph">The Interstitial module contains an interstitial activity that behaves as a full-screen popup and provides an interface allowing developers to easily open  one or more popups simultaneously. It also includes extension functions for automatically  opening popups when the TheWebSnippetManager detects new unseen popups.</p>
-            </span></div>
-        </div>
-      </div>
 <a data-name="-944712064%2FMain%2F0" anchor-label="manager" id="-944712064%2FMain%2F0" data-filterable-set=""></a>
       <div class="table-row">
         <div class="main-subrow ">
@@ -191,16 +147,16 @@
             </span></div>
         </div>
       </div>
-<a data-name="162306168%2FMain%2F0" anchor-label="service" id="162306168%2FMain%2F0" data-filterable-set=""></a>
+<a data-name="-676178709%2FMain%2F0" anchor-label="sample" id="-676178709%2FMain%2F0" data-filterable-set=""></a>
       <div class="table-row">
         <div class="main-subrow ">
           <div class="w-100"><span class="inline-flex">
-              <div><a href="service/index.html">service</a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="162306168%2FMain%2F0"></span>
+              <div><a href="sample/index.html">sample</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-676178709%2FMain%2F0"></span>
                 <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
               </span></span></div>
           <div><span class="brief-comment">
-              <p class="paragraph">A service plugin is a tool that connects your organization's services to your mobile app seamlessly with manager SDK.</p>
+              <p class="paragraph">For a simpler and clearer understanding of the TWS SDK, we have prepared a sample application to help you get started. It includes several use case examples and implementations that demonstrate how to integrate TWSView with your Android application.</p>
             </span></div>
         </div>
       </div>
@@ -208,7 +164,7 @@
   </div>
 </div>
       <div class="footer">
-        <span class="go-to-top-icon"><a href="#content" id="go-to-top-link"></a></span><span>© 2024 Copyright</span><span
+        <span class="go-to-top-icon"><a href="#content" id="go-to-top-link"></a></span><span>Copyright 2024 INOVA IT d.o.o.</span><span
                 class="pull-right"><span>Generated by </span><a
                 href="https://github.com/Kotlin/dokka"><span>dokka</span><span class="padded-icon"></span></a></span>
       </div>

@@ -41,7 +41,7 @@
 <a class="library-name--link" href="../index.html">
                             TheWebSnippet SDK
                     </a>            </div>
-            <div class="library-version">
+            <div class="library-version">0.13.0
             </div>
         </div>
         <div class="filter-section" id="filter-section">
@@ -62,16 +62,16 @@
   <div class="breadcrumbs"></div>
   <div class="cover ">
     <h1 class="cover"><span><span>core</span></span></h1>
-    <div class="platform-hinted UnderCoverText" data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":core:dokkaHtmlPartial/release"><p class="paragraph">The Core module of the TWS SDK provides a set of tools to seamlessly embed web content into your Android applications using Jetpack Compose. It focuses on simplifying the integration of web-based features and enhancing the user interface with dynamic and customizable web views.</p><p class="paragraph">With the Core module, you can create, display, and interact with web snippets  directly in your Compose-based layouts. It is designed to handle dynamic content,  error states, loading indicators, and more, ensuring a smooth and polished user experience.</p></div></div>
+    <div class="platform-hinted UnderCoverText" data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":core:dokkaHtmlPartial/release"><p class="paragraph">The Core module of the TWS SDK provides a set of tools to seamlessly embed web content into your Android applications using Jetpack Compose. It focuses on simplifying the integration of web-based features and enhancing the user interface with dynamic and customizable web views.</p><p class="paragraph">With the Core module, you can create, display, and interact with web snippets  directly in your Compose-based layouts. It is designed to handle dynamic content,  error states, loading indicators, and more, ensuring a smooth and polished user experience.</p><h2 class="">Installation</h2><p class="paragraph">Add core module dependencies to the <strong>app-level</strong> Gradle file of your project:</p><div class="sample-container"><pre><code class="block lang-gradle" theme="idea">dependencies {<br>    implementation("com.thewebsnippet:core:0.13.0") // Contains UI Composable components for displaying web pages<br>}</code></pre><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><h2 class="">Permissions</h2><p class="paragraph">Web permission are handled natively within TWSView. All you need to do is include the required permissions in AndroidManifest, if your web pages requires any of the following permission.</p><ul><li><p class="paragraph">for camera permissions, include: <code class="lang-kotlin">&lt;uses-permission android:name="android.permission.CAMERA"/&gt;</code> and   <code class="lang-kotlin">&lt;uses-feature android:name="android.hardware.camera" android:required="false" /&gt;</code>,</p></li><li><p class="paragraph">and for accessing the users location, include: <code class="lang-kotlin">&lt;uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" /&gt;</code></p></li></ul><p class="paragraph">When any of the permissions is triggered, a native "permissions required" modal will be shown to the user, and the permission settings will be remembered by the application. This includes the support for opening gallery as well as downloading and uploading files.</p><p class="paragraph">See the "permissions" Snippets Dashboard for the JavaScript implementation download/upload, camera and location access.</p><h2 class="">How to handle Google Login</h2><h4 class="">Define base url while generating apk</h4><p class="paragraph">When generating App Bundles using CLI, include the optional parameter <code class="lang-kotlin">--google-login-base-url</code>. The URL should follow the format https://domain.name/path and should define the page to where user is redirected after a successful login. <i>(subject of change, will be defined when web implements bundle creating)</i></p><h4 class="">Declare website associations</h4><ol><li><p class="paragraph">Create an assetlinks.json file from bottom template (note that you can find pregenerated file with your app bundles):</p><div class="sample-container"><pre><code class="block lang-json" theme="idea"> [{<br>     "relation": ["delegate_permission/common.handle_all_urls"],<br>     "target": {<br>       "namespace": "android_app",<br>       "package_name": "com.example",<br>       "sha256_cert_fingerprints": ["hash_of_app_certificate"]<br>     }<br> }]</code></pre><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></li><li><p class="paragraph">Replace "com.example" for the "package_name" with the actual package name</p></li><li><p class="paragraph">Replace "hash_of_app_certificate" with the actual hash, that was generated by the CLI while creating your Android apk</p></li><li><p class="paragraph">Publish generated Asset Links JSON file to your website to the following location:</p><div class="sample-container"><pre><code class="block lang-kotlin" theme="idea"> https://domain.name/.well-known/assetlinks.json</code></pre><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></li></ol></div></div>
   </div>
   <h2 class="">Packages</h2>
-  <div class="table"><a data-name="-588291024%2FPackages%2F-27209644" anchor-label="si.inova.tws.core" id="-588291024%2FPackages%2F-27209644" data-filterable-set=":core:dokkaHtmlPartial/release"></a>
+  <div class="table"><a data-name="1549657346%2FPackages%2F-27209644" anchor-label="com.thewebsnippet.core" id="1549657346%2FPackages%2F-27209644" data-filterable-set=":core:dokkaHtmlPartial/release"></a>
     <div class="table-row" data-filterable-current=":core:dokkaHtmlPartial/release" data-filterable-set=":core:dokkaHtmlPartial/release">
       <div>
         <div class="main-subrow ">
           <div class=""><span class="inline-flex">
-              <div><a href="si.inova.tws.core/index.html">si.inova.tws.core</a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-588291024%2FPackages%2F-27209644"></span>
+              <div><a href="com.thewebsnippet.core/index.html">com.thewebsnippet.core</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1549657346%2FPackages%2F-27209644"></span>
                 <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
               </span></span></div>
           <div class="pull-right">
@@ -83,13 +83,13 @@
         <div></div>
       </div>
     </div>
-<a data-name="-2024933076%2FPackages%2F-27209644" anchor-label="si.inova.tws.core.data" id="-2024933076%2FPackages%2F-27209644" data-filterable-set=":core:dokkaHtmlPartial/release"></a>
+<a data-name="1330195354%2FPackages%2F-27209644" anchor-label="com.thewebsnippet.core.data" id="1330195354%2FPackages%2F-27209644" data-filterable-set=":core:dokkaHtmlPartial/release"></a>
     <div class="table-row" data-filterable-current=":core:dokkaHtmlPartial/release" data-filterable-set=":core:dokkaHtmlPartial/release">
       <div>
         <div class="main-subrow ">
           <div class=""><span class="inline-flex">
-              <div><a href="si.inova.tws.core.data/index.html">si.inova.tws.core.data</a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2024933076%2FPackages%2F-27209644"></span>
+              <div><a href="com.thewebsnippet.core.data/index.html">com.thewebsnippet.core.data</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1330195354%2FPackages%2F-27209644"></span>
                 <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
               </span></span></div>
           <div class="pull-right">
@@ -101,13 +101,13 @@
         <div></div>
       </div>
     </div>
-<a data-name="847050280%2FPackages%2F-27209644" anchor-label="si.inova.tws.core.util.compose" id="847050280%2FPackages%2F-27209644" data-filterable-set=":core:dokkaHtmlPartial/release"></a>
+<a data-name="-494019946%2FPackages%2F-27209644" anchor-label="com.thewebsnippet.core.util.compose" id="-494019946%2FPackages%2F-27209644" data-filterable-set=":core:dokkaHtmlPartial/release"></a>
     <div class="table-row" data-filterable-current=":core:dokkaHtmlPartial/release" data-filterable-set=":core:dokkaHtmlPartial/release">
       <div>
         <div class="main-subrow ">
           <div class=""><span class="inline-flex">
-              <div><a href="si.inova.tws.core.util.compose/index.html">si.inova.tws.core.util.compose</a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="847050280%2FPackages%2F-27209644"></span>
+              <div><a href="com.thewebsnippet.core.util.compose/index.html">com.thewebsnippet.core.util.compose</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-494019946%2FPackages%2F-27209644"></span>
                 <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
               </span></span></div>
           <div class="pull-right">
