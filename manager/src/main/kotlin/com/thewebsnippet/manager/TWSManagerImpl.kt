@@ -40,6 +40,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onCompletion
@@ -82,18 +83,19 @@ internal class TWSManagerImpl(
     private var collectingLocalHandler: Boolean = false
     private var networkStatusJob: Job? = null
 
-    private val _snippetsFlow: MutableStateFlow<TWSOutcome<List<TWSSnippetDto>>> = MutableStateFlow(TWSOutcome.Progress())
+    private val _snippetsFlow: MutableStateFlow<TWSOutcome<List<TWSSnippetDto>>?> = MutableStateFlow(null)
     private val _localProps: MutableStateFlow<Map<String, Map<String, Any>>> = MutableStateFlow(emptyMap())
 
     /**
      * A flow that combines remote snippets with local properties to keep the data in sync and up-to-date.
      * Use `collectAsStateWithLifecycle` to automatically start and stop data collection based on the lifecycle.
      */
-    override val snippets = combine(_snippetsFlow, _localProps) { outcome, localProps ->
+    override val snippets = combine(_snippetsFlow.filterNotNull(), _localProps) { outcome, localProps ->
         outcome.mapData { it.toTWSSnippetList(localProps) }
     }.onStart { setupCollectingAndLoad() }
         .onCompletion { cancelCollecting() }
-        .stateIn(scope, SharingStarted.WhileSubscribed(5.seconds), TWSOutcome.Progress())
+        .stateIn(scope, SharingStarted.WhileSubscribed(5.seconds), null)
+        .filterNotNull()
 
     /**
      * Retrieves the list of snippets as a flow of data only.
@@ -121,7 +123,7 @@ internal class TWSManagerImpl(
                 twsSocket?.launchAndCollect(project.listenOn)
                 localSnippetHandler?.launchAndCollect(response.responseDate, project.snippets)
             } catch (e: Exception) {
-                _snippetsFlow.emit(TWSOutcome.Error(e, _snippetsFlow.value.data))
+                _snippetsFlow.emit(TWSOutcome.Error(e, _snippetsFlow.value?.data))
             }
         }
     }
@@ -168,7 +170,7 @@ internal class TWSManagerImpl(
         collectingSocket = true
 
         updateActionFlow.onEach {
-            val newList = _snippetsFlow.value.data.orEmpty().updateWith(it)
+            val newList = _snippetsFlow.value?.data.orEmpty().updateWith(it)
 
             localSnippetHandler?.updateAndScheduleCheck(newList)
             _snippetsFlow.emit(TWSOutcome.Success(newList))
@@ -186,7 +188,7 @@ internal class TWSManagerImpl(
         collectingLocalHandler = true
 
         updateActionFlow.onEach {
-            val newList = _snippetsFlow.value.data.orEmpty().updateWith(it)
+            val newList = _snippetsFlow.value?.data.orEmpty().updateWith(it)
 
             _snippetsFlow.emit(TWSOutcome.Success(newList))
             saveToCache(newList)
