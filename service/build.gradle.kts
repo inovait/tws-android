@@ -108,7 +108,9 @@ gradlePlugin {
 
 dependencies {
     implementation(libs.android.agp)
-    implementation(libs.google.api.client)
+    implementation(libs.google.api.client) {
+        exclude("io.grpc")
+    }
 
     testImplementation(libs.junit)
 
