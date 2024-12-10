@@ -50,8 +50,6 @@ import java.io.File
  * - Parses the JSON into a `ServiceAccount` object.
  * - Generates a JWT using the service account's private key.
  * - Writes the token into an XML file in the `values` subdirectory of the specified output directory.
- *
- * @throws IllegalStateException If no valid `tws-service.json` file is found.
  */
 @CacheableTask
 internal abstract class GenerateTokenTask : DefaultTask() {
@@ -70,6 +68,7 @@ internal abstract class GenerateTokenTask : DefaultTask() {
         }
 
         if (specifiedFile == null) {
+            println("ERROR: No valid tws-service.json in: ${inputFiles.get()}")
             return
         }
 
