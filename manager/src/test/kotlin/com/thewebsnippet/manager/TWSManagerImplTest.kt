@@ -425,8 +425,6 @@ class TWSManagerImplTest {
         )
 
         webSnippetManager.snippets.test {
-            awaitItem().shouldBeProgressWith()
-
             val progress = awaitItem() // progress with cached items
             progress.shouldBeProgressWith(listOf(FAKE_EXPOSED_SNIPPET_ONE))
 
@@ -635,8 +633,6 @@ class TWSManagerImplTest {
         webSnippetManager.forceRefresh()
 
         webSnippetManager.snippets.test {
-            awaitItem().shouldBeProgressWith() // initial emit
-
             awaitItem().shouldBeProgressWithData(
                 listOf(
                     FAKE_EXPOSED_SNIPPET_ONE,
@@ -737,8 +733,6 @@ class TWSManagerImplTest {
         )
 
         webSnippetManager.snippets().test {
-            assert(awaitItem() == null) // initial
-
             val progress = awaitItem() // progress with cached items
             assert(progress == listOf(FAKE_EXPOSED_SNIPPET_ONE))
 
