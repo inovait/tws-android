@@ -1,11 +1,41 @@
 # The Web Snippet
 
-Expanded WebView to create your own application from your webpage.
+TWS SDK is a library, designed to make it easier and more powerful to add aweb content to your Android apps, with a WebView on
+steroids.
+You can use it to combine web and native features, add web pages to an existing app, build a complete app using web content,
+or mix web and native screens for a smoother user experience.
 
 ## Modules
 
 ### • [Core](core/README.MD)
 ### • [Manager](manager/README.MD)
+
+### • [Service](service/README.MD)
+
+## Installation
+
+In your `root-level` build.gradle:
+
+```kotlin
+plugin {
+    id("com.thewebsnippet.service") version "X.Y.Z" apply false
+}
+```
+
+In your `app-level` build.gradle:
+
+```kotlin
+plugin {
+    id("com.thewebsnippet.service")
+}
+
+dependencies {
+    implementation("com.thewebsnippet:core:X.Y.Z")
+    implementation("com.thewebsnippet:manager:X.Y.Z")
+}
+```
+
+Replace `X.Y.Z` with latest version. Check out [changelog](CHANGELOG.MD) to see what is the latest version.
 
 ## Versioning
 
@@ -29,28 +59,53 @@ To contribute to this set of libraries:
 6. Create merge request
 7. When your PR is merged, new release will be generated automatically
 
-## How to test locally
+   ## How to test locally
 
-### TheWebSnippetSdk project
+   ### TheWebSnippetSdk project
 
-1. in `version.txt` setup your own version
-2. run `./gradlew publishtomavenlocal`
+    1. In `version.txt` setup your own version
+    2. Run `./gradlew publishtomavenlocal`
 
-### Your own project
+   ### Your own project
 
-1. setup your gradle for local repository use
+    1. Setup your gradle for local repository use:
 
-    ```
-    dependencyResolutionManagement {
+        ```
+        pluginManagement {
         repositories {
-            mavenLocal()
+                mavenLocal()
+                ...
+            }
             ...
         }
-        ...
-    }
-    ```
 
-2. import library
+        dependencyResolutionManagement {
+            repositories {
+                mavenLocal()
+                ...
+            }
+            ...
+        }
+        ```
 
-- `implementation("com.thewebsnippet:core-ui:[version]")`
-- `implementation("com.thewebsnippet:manager:[version]")`
+    2. Add plugin and dependencies
+
+       In your `root-level` build.gradle:
+        ```kotlin
+        plugin {
+            id("com.thewebsnippet.service") version "X.Y.Z" apply false
+        }
+        ```
+
+       In your `app-level` build.gradle:
+        ```kotlin
+        plugin {
+            id("com.thewebsnippet.service")
+        }
+
+        dependencies {
+            implementation("com.thewebsnippet:core:X.Y.Z")
+            implementation("com.thewebsnippet:manager:X.Y.Z")
+        }
+        ```
+       Where `X.Y.Z` is the version you specified in version.txt.
