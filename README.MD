@@ -1,6 +1,6 @@
 # The Web Snippet
 
-TWS SDK is a library, designed to make it easier and more powerful to add aweb content to your Android apps, with a WebView on
+TWS SDK is a library, designed to make it easier and more powerful to add a web content to your Android apps, with a WebView on
 steroids.
 You can use it to combine web and native features, add web pages to an existing app, build a complete app using web content,
 or mix web and native screens for a smoother user experience.

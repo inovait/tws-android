@@ -1,5 +1,10 @@
 # Manager
 
+The Manager module of the TWS SDK is the backbone of dynamic web content handling.
+It is designed to ensure that your web snippets are always up-to-date and seamlessly
+integrated into your app. By leveraging WebSocket connections, the Manager module handles
+everything from real-time updates to snippet visibility based on their state or expiration.
+
 Direct gradle usage:
 
 In your `root-level` build.gradle:
@@ -35,6 +40,12 @@ You can configure your TWSManager via AndroidManifest metadata:
     <meta-data android:name="com.thewebsnippet.ORGANIZATION_ID" android:value="your_organization_id" />
     <meta-data android:name="com.thewebsnippet.PROJECT_ID" android:value="your_project_id" />
 </application>
+```
+
+And get manager instance like this:
+
+```kotlin
+val manager = TWSFactory.get(context)
 ```
 
 Or provide configuration in code:
