@@ -24,7 +24,7 @@ Library is a collection of core web view extension. Notable features include:
 
 - URL intercepting
 
-- Resource injection (eg. JavaScipt, CSS)
+- Resource injection (eg. JavaScript, CSS)
 
 - Mustache template processing
 
