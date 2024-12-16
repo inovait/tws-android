@@ -15,7 +15,7 @@ tws = "X.Y.Z"
 
 ```toml
 [libraries]
-tws-core = { module = "com.thewebsnippet:view", version.ref = "tws" }
+tws-view = { module = "com.thewebsnippet:view", version.ref = "tws" }
 ```
 
 ```kotlin

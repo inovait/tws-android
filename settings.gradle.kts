@@ -37,8 +37,6 @@ dependencyResolutionManagement {
     }
 }
 
-gradle.startParameter.excludedTaskNames.add(":service:testClasses")
-
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 rootProject.name = "TheWebSnippetSdk"
