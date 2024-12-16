@@ -22,8 +22,6 @@ Library is a collection of core web view extension. Notable features include:
 
 - Single Web View Snippet
 
-- Multiple Web View Snippets - Snippets with tabs
-
 - URL intercepting
 
 - Resource injection (eg. JavaScipt, CSS)

@@ -49,11 +49,11 @@ major version change.
 
 To contribute to this set of libraries:
 
-1. Checkout `main`
+1. Checkout `develop`
 2. Create new branch for your contribution
 3. Commit your work. While commiting, use [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/). Scope tag should
    be the name of the module you are updating.
-4. Try to avoid breaking changes, but if it cannot be avoided, you must put `BREAKING CHANGE` in the footer of the commit mesasage
+4. Try to avoid breaking changes, but if it cannot be avoided, you must put `BREAKING CHANGE` in the footer of the commit message
    and explain the change.
 5. Manually run instrumented tests (`./gradlew connectedCheck`) - we do not run those on CI at the moment.
 6. Create merge request
