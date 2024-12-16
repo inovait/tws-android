@@ -14,34 +14,34 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-pluginManagement {
-    repositories {
-        google {
-            content {
-                includeGroupByRegex("com\\.android.*")
-                includeGroupByRegex("com\\.google.*")
-                includeGroupByRegex("androidx.*")
-            }
-        }
-        mavenCentral()
-        gradlePluginPortal()
-        mavenLocal()
+package com.thewebsnippet.view.util
+
+import android.annotation.SuppressLint
+import android.view.View
+import android.webkit.CookieManager
+import android.webkit.WebSettings
+import android.webkit.WebView
+
+@SuppressLint("SetJavaScriptEnabled")
+internal fun WebView.initializeSettings() {
+    CookieManager.getInstance().setAcceptThirdPartyCookies(this, true)
+    CookieManager.getInstance().setAcceptCookie(true)
+    setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY)
+
+    settings.apply {
+        javaScriptEnabled = true
+        javaScriptCanOpenWindowsAutomatically = true
+        setSupportMultipleWindows(true)
+        domStorageEnabled = true
+        databaseEnabled = true
+        loadWithOverviewMode = true
+        useWideViewPort = true
+        allowFileAccess = true
+        allowContentAccess = true
+        setSupportZoom(true)
+        cacheMode = WebSettings.LOAD_DEFAULT
+        mediaPlaybackRequiresUserGesture = false
+        setGeolocationEnabled(true)
+        userAgentString = "$userAgentString TheWebSnippet"
     }
 }
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        google()
-        mavenCentral()
-        mavenLocal()
-    }
-}
-
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
-
-rootProject.name = "TheWebSnippetSdk"
-include(":view")
-include(":manager")
-include(":data")
-includeBuild("service")
-include(":sample")

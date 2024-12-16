@@ -89,7 +89,7 @@ hilt {
 }
 
 dependencies {
-    implementation(projects.core)
+    implementation(projects.view)
     implementation(projects.manager)
 
     implementation(libs.androidx.core.ktx)

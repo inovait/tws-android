@@ -14,34 +14,28 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-pluginManagement {
-    repositories {
-        google {
-            content {
-                includeGroupByRegex("com\\.android.*")
-                includeGroupByRegex("com\\.google.*")
-                includeGroupByRegex("androidx.*")
-            }
+package com.thewebsnippet.view.client.okhttp
+
+import android.webkit.CookieManager
+import okhttp3.Cookie
+import okhttp3.CookieJar
+import okhttp3.HttpUrl
+
+/**
+ * SharedCookieJar manages cookies for OkHttp using a shared CookieManager, allowing synchronization between
+ * OkHttp requests and Android's WebView for consistent session handling.
+ */
+internal class SharedCookieJar(private val cookieManager: CookieManager) : CookieJar {
+    override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
+        cookies.forEach { cookie ->
+            cookieManager.setCookie(url.toString(), cookie.toString())
         }
-        mavenCentral()
-        gradlePluginPortal()
-        mavenLocal()
+    }
+
+    override fun loadForRequest(url: HttpUrl): List<Cookie> {
+        val cookieString = cookieManager.getCookie(url.toString()) ?: return emptyList()
+        return cookieString.split(";").mapNotNull { cookiePart ->
+            Cookie.parse(url, cookiePart.trim())
+        }
     }
 }
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        google()
-        mavenCentral()
-        mavenLocal()
-    }
-}
-
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
-
-rootProject.name = "TheWebSnippetSdk"
-include(":view")
-include(":manager")
-include(":data")
-includeBuild("service")
-include(":sample")

@@ -14,34 +14,22 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-pluginManagement {
-    repositories {
-        google {
-            content {
-                includeGroupByRegex("com\\.android.*")
-                includeGroupByRegex("com\\.google.*")
-                includeGroupByRegex("androidx.*")
-            }
-        }
-        mavenCentral()
-        gradlePluginPortal()
-        mavenLocal()
+package com.thewebsnippet.view.util.compose
+
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
+import com.thewebsnippet.view.R
+import java.net.ConnectException
+import java.net.SocketTimeoutException
+import java.net.UnknownHostException
+
+@Composable
+internal fun Exception.getUserFriendlyMessage(): String? {
+    return when (this) {
+        is UnknownHostException,
+        is ConnectException,
+        is SocketTimeoutException -> stringResource(id = R.string.error_no_network)
+
+        else -> null
     }
 }
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        google()
-        mavenCentral()
-        mavenLocal()
-    }
-}
-
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
-
-rootProject.name = "TheWebSnippetSdk"
-include(":view")
-include(":manager")
-include(":data")
-includeBuild("service")
-include(":sample")

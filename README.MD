@@ -7,9 +7,8 @@ or mix web and native screens for a smoother user experience.
 
 ## Modules
 
-### • [Core](core/README.MD)
+### • [View](view/README.MD)
 ### • [Manager](manager/README.MD)
-
 ### • [Service](service/README.MD)
 
 ## Installation
@@ -30,7 +29,7 @@ plugin {
 }
 
 dependencies {
-    implementation("com.thewebsnippet:core:X.Y.Z")
+    implementation("com.thewebsnippet:view:X.Y.Z")
     implementation("com.thewebsnippet:manager:X.Y.Z")
 }
 ```
@@ -104,7 +103,7 @@ To contribute to this set of libraries:
         }
 
         dependencies {
-            implementation("com.thewebsnippet:core:X.Y.Z")
+            implementation("com.thewebsnippet:view:X.Y.Z")
             implementation("com.thewebsnippet:manager:X.Y.Z")
         }
         ```
