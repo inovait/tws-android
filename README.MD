@@ -4,7 +4,7 @@ Expanded WebView to create your own application from your webpage.
 
 ## Modules
 
-### • [Core](core/README.MD)
+### • [View](view/README.MD)
 ### • [Manager](manager/README.MD)
 
 ## Versioning
@@ -52,5 +52,5 @@ To contribute to this set of libraries:
 
 2. import library
 
-- `implementation("com.thewebsnippet:core-ui:[version]")`
+- `implementation("com.thewebsnippet:view:[version]")`
 - `implementation("com.thewebsnippet:manager:[version]")`

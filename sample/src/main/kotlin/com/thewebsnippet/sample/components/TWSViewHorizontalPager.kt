@@ -43,9 +43,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.thewebsnippet.core.TWSView
 import com.thewebsnippet.data.TWSSnippet
 import com.thewebsnippet.sample.ui.theme.SampleTheme
+import com.thewebsnippet.view.TWSView
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.launch

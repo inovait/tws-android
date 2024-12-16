@@ -36,7 +36,7 @@ jobs:
       - name: Replace version in index.md
         run: |
           sed -i "s/{{version}}/$VERSION/g" docs/index.md
-          sed -i "s/{{version}}/$VERSION/g" core/Module.md
+          sed -i "s/{{version}}/$VERSION/g" view/Module.md
           sed -i "s/{{version}}/$VERSION/g" manager/Module.md
 
       # Step 5: Run the Dokka task

@@ -14,34 +14,29 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-pluginManagement {
-    repositories {
-        google {
-            content {
-                includeGroupByRegex("com\\.android.*")
-                includeGroupByRegex("com\\.google.*")
-                includeGroupByRegex("androidx.*")
+package com.thewebsnippet.view.client.okhttp
+
+import jakarta.inject.Singleton
+import kotlin.coroutines.cancellation.CancellationException
+
+/**
+ * Error reporter that collects all non-fatal (but potentially still bad) exceptions. Can represent an error reporting service
+ * such as Firebase Crashlytics.
+ */
+internal fun interface ErrorReporter {
+    fun report(throwable: Throwable)
+}
+
+@Singleton
+internal val provideErrorReporter = ErrorReporter {
+    object : ErrorReporter {
+        override fun report(throwable: Throwable) {
+            if (throwable is CancellationException) {
+                report(Exception("Got cancellation exception", throwable))
+                return
             }
+
+            throwable.printStackTrace()
         }
-        mavenCentral()
-        gradlePluginPortal()
-        mavenLocal()
     }
 }
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        google()
-        mavenCentral()
-        mavenLocal()
-    }
-}
-
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
-
-rootProject.name = "TheWebSnippetSdk"
-include(":view")
-include(":manager")
-include(":data")
-includeBuild("service")
-include(":sample")

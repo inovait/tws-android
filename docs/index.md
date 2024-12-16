@@ -49,7 +49,7 @@ plugin {
 }
 
 dependencies {
-    implementation("com.thewebsnippet:core:{{version}}") // Contains UI Composable components for displaying web pages
+    implementation("com.thewebsnippet:view:{{version}}") // Contains UI Composable components for displaying web pages
     implementation("com.thewebsnippet:manager:{{version}}") // Contains TWSManager for loading and refreshing snippets in real time
 }
 ```
