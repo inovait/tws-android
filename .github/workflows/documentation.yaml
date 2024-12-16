@@ -1,9 +1,9 @@
 name: Generate Documentation
 
 on:
-  push:
-    branches:
-      - develop
+  workflow_run:
+    workflows: ["publish"]
+    types: [completed]
 
 jobs:
   generate-documentation:
