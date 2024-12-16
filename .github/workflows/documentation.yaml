@@ -2,8 +2,8 @@ name: Generate Documentation
 
 on:
   workflow_run:
-    workflows: ["Pull Request"]
-    types: [completed]
+    workflows: [ 'Pull Request' ]
+    types: [ 'completed' ]
 
 jobs:
   generate-documentation:
