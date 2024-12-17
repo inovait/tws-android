@@ -66,10 +66,6 @@ internal open class AccompanistWebViewClient : WebViewClient() {
         super.onPageStarted(view, url, favicon)
 
         state.webViewErrorsForCurrentRequest.clear()
-        if (state.loadingState !is TWSLoadingState.Loading) {
-            state.loadingState = TWSLoadingState.Loading(0.0f, state.loadingState is TWSLoadingState.ForceRefreshInitiated)
-        }
-
         state.lastLoadedUrl = url
     }
 
