@@ -67,8 +67,6 @@ These metadata keys allow the SDK to identify the correct organization and proje
 
 ```xml
 <application>
-   <meta-data android:name="com.thewebsnippet.ORGANIZATION_ID"
-           android:value="your_organization_id" />
    <meta-data android:name="com.thewebsnippet.PROJECT_ID"
            android:value="your_project_id" />
 </application>
