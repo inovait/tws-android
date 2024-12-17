@@ -37,7 +37,6 @@ You can configure your TWSManager via AndroidManifest metadata:
 ```xml
 
 <application>
-    <meta-data android:name="com.thewebsnippet.ORGANIZATION_ID" android:value="your_organization_id" />
     <meta-data android:name="com.thewebsnippet.PROJECT_ID" android:value="your_project_id" />
 </application>
 ```
@@ -51,7 +50,7 @@ val manager = TWSFactory.get(context)
 Or provide configuration in code:
 
 ```kotlin
-val config = TWSConfiguration.Basic("your_organization_id", "your_project_id")
+val config = TWSConfiguration.Basic("your_project_id")
 val manager = TWSFactory.get(context, config)
 ```
 
