@@ -48,8 +48,8 @@ publishing {
                 inceptionYear.set("2024")
                 licenses {
                     license {
-                        name.set("MIT")
-                        url.set("https://opensource.org/licenses/MIT")
+                        name.set("Apache License 2.0")
+                        url.set("http://www.apache.org/licenses/LICENSE-2.0")
                     }
                 }
                 issueManagement {
