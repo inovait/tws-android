@@ -25,9 +25,6 @@
         See TWSViewCustomInterceptorScreen.kt for usage example.
          -->
         <meta-data
-            android:name="com.thewebsnippet.ORGANIZATION_ID"
-            android:value="${twsOrganizationId}" />
-        <meta-data
             android:name="com.thewebsnippet.PROJECT_ID"
             android:value="${twsProjectId}" />
 

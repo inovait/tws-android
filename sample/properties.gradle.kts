@@ -18,7 +18,6 @@ import java.util.Properties
 val configProperties = loadProperties(projectDir.resolve("config.properties"))
 
 // config.properties
-extra["organizationId"] = configProperties.getProperty("organizationId")
 extra["projectId"] = configProperties.getProperty("projectId")
 
 fun loadProperties(file: File): Properties {
