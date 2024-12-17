@@ -54,3 +54,7 @@ To contribute to this set of libraries:
 
 - `implementation("com.thewebsnippet:view:[version]")`
 - `implementation("com.thewebsnippet:manager:[version]")`
+
+## License
+
+This project is licensed under the Apache License 2.0. See the [LICENSE](LICENSE) file for details.
