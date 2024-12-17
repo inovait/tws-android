@@ -15,6 +15,7 @@ plugin {
 }
 ```
 <br>
+
 Apply Service Gradle plugin and add SDK dependencies to the __app-level__ Gradle file of your project:
 
 ```gradle
