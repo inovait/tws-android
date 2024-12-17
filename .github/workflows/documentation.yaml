@@ -1,14 +1,15 @@
 name: Generate Documentation
 
 on:
-  push:
-    branches:
-      - develop
+  workflow_run:
+    workflows: ['publish']
+    types: [completed]
 
 jobs:
   generate-documentation:
     name: Generate updated documentation
     runs-on: "ubuntu-latest"
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
     steps:
       # Step 1: Checkout the repository
@@ -36,7 +37,7 @@ jobs:
       - name: Replace version in index.md
         run: |
           sed -i "s/{{version}}/$VERSION/g" docs/index.md
-          sed -i "s/{{version}}/$VERSION/g" core/Module.md
+          sed -i "s/{{version}}/$VERSION/g" view/Module.md
           sed -i "s/{{version}}/$VERSION/g" manager/Module.md
 
       # Step 5: Run the Dokka task

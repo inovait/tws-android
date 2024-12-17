@@ -14,36 +14,14 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-pluginManagement {
-    repositories {
-        google {
-            content {
-                includeGroupByRegex("com\\.android.*")
-                includeGroupByRegex("com\\.google.*")
-                includeGroupByRegex("androidx.*")
-            }
-        }
-        mavenCentral()
-        gradlePluginPortal()
-        mavenLocal()
-    }
+package com.thewebsnippet.view.util
+
+import android.content.Context
+import android.content.pm.PackageManager
+
+internal fun Context.hasPermissionInManifest(permission: String): Boolean {
+    val packageInfo = packageManager.getPackageInfo(packageName, PackageManager.GET_PERMISSIONS)
+    val permissions = packageInfo.requestedPermissions
+
+    return permissions?.any { it == permission } == true
 }
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        google()
-        mavenCentral()
-        mavenLocal()
-    }
-}
-
-gradle.startParameter.excludedTaskNames.add(":service:testClasses")
-
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
-
-rootProject.name = "TheWebSnippetSdk"
-include(":view")
-include(":manager")
-include(":data")
-includeBuild("service")
-include(":sample")

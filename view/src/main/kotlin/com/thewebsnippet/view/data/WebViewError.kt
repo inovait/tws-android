@@ -14,36 +14,27 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-pluginManagement {
-    repositories {
-        google {
-            content {
-                includeGroupByRegex("com\\.android.*")
-                includeGroupByRegex("com\\.google.*")
-                includeGroupByRegex("androidx.*")
-            }
-        }
-        mavenCentral()
-        gradlePluginPortal()
-        mavenLocal()
-    }
-}
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        google()
-        mavenCentral()
-        mavenLocal()
-    }
-}
+package com.thewebsnippet.view.data
 
-gradle.startParameter.excludedTaskNames.add(":service:testClasses")
+import android.webkit.WebResourceError
+import android.webkit.WebResourceRequest
+import androidx.compose.runtime.Immutable
 
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
-
-rootProject.name = "TheWebSnippetSdk"
-include(":view")
-include(":manager")
-include(":data")
-includeBuild("service")
-include(":sample")
+/**
+ * A wrapper class to hold errors from the WebView.
+ *
+ * NOTE: This class is a modified version of the original Accompanist WebView error handling class.
+ *
+ * This class helps track errors that occur during the loading of web resources within the WebView.
+ */
+@Immutable
+data class WebViewError(
+    /**
+     * The request the error came from.
+     */
+    val request: WebResourceRequest?,
+    /**
+     * The error that was reported.
+     */
+    val error: WebResourceError
+)
