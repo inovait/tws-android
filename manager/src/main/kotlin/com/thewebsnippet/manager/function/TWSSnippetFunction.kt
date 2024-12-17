@@ -26,10 +26,8 @@ import retrofit2.http.Query
 
 @Singleton
 internal interface TWSSnippetFunction {
-    @GET("organizations/{organizationId}/projects/{projectId}/v2/register")
+    @GET("projects/{projectId}/snippets")
     suspend fun getWebSnippets(
-        @Path("organizationId")
-        organizationId: String,
         @Path("projectId")
         projectId: String
     ): Response<ProjectDto>
@@ -41,7 +39,7 @@ internal interface TWSSnippetFunction {
         shareId: String
     ): SharedSnippetDto
 
-    @GET("register-shared")
+    @GET("snippets/shared")
     suspend fun getSharedSnippetData(
         @Query("shareToken")
         shareToken: String

@@ -30,7 +30,7 @@ internal class SnippetLoadingManagerImpl(
     override suspend fun load(): ProjectResponse {
         val twsProjectResponse = when (configuration) {
             is TWSConfiguration.Basic -> {
-                functions.getWebSnippets(organizationId = configuration.organizationId, projectId = configuration.projectId)
+                functions.getWebSnippets(projectId = configuration.projectId)
             }
 
             is TWSConfiguration.Shared -> {

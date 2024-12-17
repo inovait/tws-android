@@ -65,9 +65,6 @@ object TWSFactory {
      * <application>
      *     <!-- Other application elements -->
      *     <meta-data
-     *         android:name="com.thewebsnippet.ORGANIZATION_ID"
-     *         android:value="your_organization_id_here" />
-     *     <meta-data
      *         android:name="com.thewebsnippet.PROJECT_ID"
      *         android:value="your_project_id_here" />
      * </application>
@@ -78,23 +75,20 @@ object TWSFactory {
      * @throws IllegalStateException if required metadata is missing in the Android Manifest.
      */
     fun get(context: Context): TWSManager {
-        val configuration = TWSConfiguration.Basic(
-            getMetaData(context, ORGANIZATION_ID_METADATA),
-            getMetaData(context, PROJECT_ID_METADATA)
-        )
+        val configuration = Basic(getMetaData(context))
 
-        return createOrGet(context, "${configuration.organizationId}_${configuration.projectId}", configuration)
+        return createOrGet(context, configuration.projectId, configuration)
     }
 
     /**
      * Retrieves a [TWSManager] instance for a custom [TWSConfiguration.Basic].
      *
      * @param context The application context.
-     * @param configuration The basic configuration containing organization and project IDs.
+     * @param configuration The basic configuration containing project ID.
      * @return A [TWSManager] instance associated with the provided configuration.
      */
-    fun get(context: Context, configuration: TWSConfiguration.Basic): TWSManager {
-        return createOrGet(context, "${configuration.organizationId}_${configuration.projectId}", configuration)
+    fun get(context: Context, configuration: Basic): TWSManager {
+        return createOrGet(context, configuration.projectId, configuration)
     }
 
     /**
@@ -104,7 +98,7 @@ object TWSFactory {
      * @param configuration The shared configuration containing the shared ID.
      * @return A [TWSManager] instance associated with the provided configuration.
      */
-    fun get(context: Context, configuration: TWSConfiguration.Shared): TWSManager {
+    fun get(context: Context, configuration: Shared): TWSManager {
         return createOrGet(context, configuration.sharedId, configuration)
     }
 
@@ -136,10 +130,10 @@ object TWSFactory {
         }
     }
 
-    private fun getMetaData(context: Context, key: String): String {
+    private fun getMetaData(context: Context): String {
         val appInfo = context.packageManager.getApplicationInfo(context.packageName, PackageManager.GET_META_DATA)
-        return appInfo.metaData?.getString(key)
-            ?: error("Missing metadata in Android Manifest. Please check if $key is provided.")
+        return appInfo.metaData?.getString(PROJECT_ID_METADATA)
+            ?: error("Missing metadata in Android Manifest. Please check if $PROJECT_ID_METADATA is provided.")
     }
 }
 
@@ -150,17 +144,13 @@ object TWSFactory {
 sealed class TWSConfiguration {
     /**
      * Basic configuration for a [TWSManager].
-     * Configured for a specific project and organization.
+     * Configured for a specific project.
      * [TWSManager] configured with Basic configuration will have access to all snippets in that organizations project,
      * a valid tws-service.json is provided.
      *
-     * @param organizationId The ID of the organization.
      * @param projectId The ID of the project.
      */
-    data class Basic(
-        val organizationId: String,
-        val projectId: String,
-    ) : TWSConfiguration()
+    data class Basic(val projectId: String) : TWSConfiguration()
 
     /**
      * Shared configuration for a [TWSManager].
@@ -169,10 +159,7 @@ sealed class TWSConfiguration {
      *
      * @param sharedId The shared identifier for accessing shared snippet.
      */
-    data class Shared(
-        val sharedId: String,
-    ) : TWSConfiguration()
+    data class Shared(val sharedId: String) : TWSConfiguration()
 }
 
-private const val ORGANIZATION_ID_METADATA = "com.thewebsnippet.ORGANIZATION_ID"
 private const val PROJECT_ID_METADATA = "com.thewebsnippet.PROJECT_ID"
