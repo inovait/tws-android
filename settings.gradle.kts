@@ -37,6 +37,8 @@ dependencyResolutionManagement {
     }
 }
 
+// Excluded due to gradle issue, deadlock occurs with testClasses task
+// https://issuetracker.google.com/issues/328871352
 gradle.startParameter.excludedTaskNames.add(":service:testClasses")
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
