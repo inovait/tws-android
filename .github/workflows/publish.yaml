@@ -43,12 +43,13 @@ jobs:
       - run: "echo \"# Release version ${{ env.VERSION }}\" > $GITHUB_STEP_SUMMARY"
       - name: Compile library
         run: "./gradlew --parallel assemble"
-      - name: Generate Changelog
-        id: changelog
-        uses: inovait/actions-common/changelog-since-last-build@v10
-        with:
-          git_commit_url_prefix: 'https://github.com/inovait/tws-android-sdk/commit/'
-      - run: "old_changelog=$(cat CHANGELOG.MD); echo \"# ${{ env.VERSION }}\n\n${{ steps.changelog.outputs.changelog }}\n\n$old_changelog\" > CHANGELOG.MD"
+#        TODO first release
+#      - name: Generate Changelog
+#        id: changelog
+#        uses: inovait/actions-common/changelog-since-last-build@v10
+#        with:
+#          git_commit_url_prefix: 'https://github.com/inovait/tws-android-sdk/commit/'
+#      - run: "old_changelog=$(cat CHANGELOG.MD); echo \"# ${{ env.VERSION }}\n\n${{ steps.changelog.outputs.changelog }}\n\n$old_changelog\" > CHANGELOG.MD"
       - name: 'Save GPG key'
         run: 'echo "${{ secrets.GPG_SIGNING_KEY }}" | base64 -d > signing_key.gpg'
       - id: create_staging_repository
