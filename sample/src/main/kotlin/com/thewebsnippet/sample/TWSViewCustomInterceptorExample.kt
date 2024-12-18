@@ -108,7 +108,7 @@ class TWSInterceptorViewModel @Inject constructor(
     val twsSnippetsFlow: Flow<TWSOutcome<TWSSnippet?>> = manager.snippets.map { data ->
         data.mapData { snippets ->
             snippets.firstOrNull {
-                it.id == "mustacheExample2"
+                it.id == "customInterceptors"
             }
         }
     }
