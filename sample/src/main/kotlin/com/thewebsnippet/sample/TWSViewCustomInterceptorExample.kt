@@ -54,35 +54,31 @@ fun TWSViewCustomInterceptorExample(
     val homeSnippet = twsInterceptorViewModel.twsSnippetsFlow.collectAsStateWithLifecycle(null).value
         ?.firstOrNull { it.id == "customInterceptors" }
 
-    when (homeSnippet) {
-        null -> {
-            ErrorView(
-                errorText = stringResource(R.string.error_message),
-                modifier = Modifier.fillMaxSize()
-            )
-        }
-
-        else -> {
-            TWSView(
-                snippet = homeSnippet,
-                loadingPlaceholderContent = { LoadingView() },
-                errorViewContent = { ErrorView(it) },
-                // Handling urls natively
-                interceptUrlCallback = { url ->
-                    val urlString = url.toString()
-                    val route = when {
-                        urlString.contains("/customTabsExample") -> Screen.TWSViewCustomTabsExampleKey.route
-                        urlString.contains("/mustacheExample") -> Screen.TWSViewMustacheExampleKey.route
-                        urlString.contains("/injectionExample") -> Screen.TWSViewInjectionExampleKey.route
-                        urlString.contains("/permissionsExample") -> Screen.TWSViewPermissionsExampleKey.route
-                        else -> null
-                    }
-
-                    route?.let { navController.navigate(it) }
-                    route != null
+    if (homeSnippet == null) {
+        ErrorView(
+            errorText = stringResource(R.string.error_message),
+            modifier = Modifier.fillMaxSize()
+        )
+    } else {
+        TWSView(
+            snippet = homeSnippet,
+            loadingPlaceholderContent = { LoadingView() },
+            errorViewContent = { ErrorView(it) },
+            // Handling urls natively
+            interceptUrlCallback = { url ->
+                val urlString = url.toString()
+                val route = when {
+                    urlString.contains("/customTabsExample") -> Screen.TWSViewCustomTabsExampleKey.route
+                    urlString.contains("/mustacheExample") -> Screen.TWSViewMustacheExampleKey.route
+                    urlString.contains("/injectionExample") -> Screen.TWSViewInjectionExampleKey.route
+                    urlString.contains("/permissionsExample") -> Screen.TWSViewPermissionsExampleKey.route
+                    else -> null
                 }
-            )
-        }
+
+                route?.let { navController.navigate(it) }
+                route != null
+            }
+        )
     }
 }
 
