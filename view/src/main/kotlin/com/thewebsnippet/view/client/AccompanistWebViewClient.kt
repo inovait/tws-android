@@ -47,11 +47,7 @@ internal open class AccompanistWebViewClient : WebViewClient() {
     override fun onPageStarted(view: WebView, url: String?, favicon: Bitmap?) {
         super.onPageStarted(view, url, favicon)
 
-        if (state.loadingState !is TWSLoadingState.Loading) {
-            state.loadingState = TWSLoadingState.Loading(0.0f, state.loadingState is TWSLoadingState.ForceRefreshInitiated)
-            state.webViewErrorsForCurrentRequest.clear()
-        }
-
+        state.webViewErrorsForCurrentRequest.clear()
         state.lastLoadedUrl = url
     }
 
