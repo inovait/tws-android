@@ -761,7 +761,7 @@ class TWSManagerImplTest {
         return TWSManagerImpl(
             context = context ?: mock(),
             tag = tag ?: "TestManager",
-            configuration = configuration ?: TWSConfiguration.Basic("organization", "project"),
+            configuration = configuration ?: TWSConfiguration.Basic("project"),
             loader = loader ?: fakeLoader,
             scope = scope ?: fakeScope.backgroundScope,
             twsSocket = twsSocket ?: fakeSocket,
