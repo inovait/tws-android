@@ -15,7 +15,10 @@
  */
 package com.thewebsnippet.sample
 
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -49,27 +52,38 @@ fun TWSViewCustomInterceptorExample(
     twsInterceptorViewModel: TWSInterceptorViewModel = hiltViewModel()
 ) {
     val homeSnippet = twsInterceptorViewModel.twsSnippetsFlow.collectAsStateWithLifecycle(null).value
-        ?.firstOrNull { it.id == "customInterceptors" } ?: return
+        ?.firstOrNull { it.id == "customInterceptors" }
 
-    TWSView(
-        snippet = homeSnippet,
-        loadingPlaceholderContent = { LoadingView() },
-        errorViewContent = { ErrorView(it) },
-        // Handling urls natively
-        interceptUrlCallback = { url ->
-            val urlString = url.toString()
-            val route = when {
-                urlString.contains("/customTabsExample") -> Screen.TWSViewCustomTabsExampleKey.route
-                urlString.contains("/mustacheExample") -> Screen.TWSViewMustacheExampleKey.route
-                urlString.contains("/injectionExample") -> Screen.TWSViewInjectionExampleKey.route
-                urlString.contains("/permissionsExample") -> Screen.TWSViewPermissionsExampleKey.route
-                else -> null
-            }
-
-            route?.let { navController.navigate(it) }
-            route != null
+    when (homeSnippet) {
+        null -> {
+            ErrorView(
+                errorText = stringResource(R.string.error_message),
+                modifier = Modifier.fillMaxSize()
+            )
         }
-    )
+
+        else -> {
+            TWSView(
+                snippet = homeSnippet,
+                loadingPlaceholderContent = { LoadingView() },
+                errorViewContent = { ErrorView(it) },
+                // Handling urls natively
+                interceptUrlCallback = { url ->
+                    val urlString = url.toString()
+                    val route = when {
+                        urlString.contains("/customTabsExample") -> Screen.TWSViewCustomTabsExampleKey.route
+                        urlString.contains("/mustacheExample") -> Screen.TWSViewMustacheExampleKey.route
+                        urlString.contains("/injectionExample") -> Screen.TWSViewInjectionExampleKey.route
+                        urlString.contains("/permissionsExample") -> Screen.TWSViewPermissionsExampleKey.route
+                        else -> null
+                    }
+
+                    route?.let { navController.navigate(it) }
+                    route != null
+                }
+            )
+        }
+    }
 }
 
 /** @suppress: viewmodel should not be documented */
