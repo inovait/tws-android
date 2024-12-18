@@ -54,8 +54,6 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-
-        manifestPlaceholders["twsOrganizationId"] = extra.getString("organizationId")
         manifestPlaceholders["twsProjectId"] = extra.getString("projectId")
     }
 

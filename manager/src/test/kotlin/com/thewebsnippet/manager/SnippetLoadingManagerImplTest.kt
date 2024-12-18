@@ -40,7 +40,7 @@ internal class SnippetLoadingManagerImplTest {
     @Test
     fun `Load project`() = scope.runTest {
         impl = SnippetLoadingManagerImpl(
-            configuration = TWSConfiguration.Basic("org", "proj"),
+            configuration = TWSConfiguration.Basic("proj"),
             functions = fakeFunctions,
         )
 
@@ -50,7 +50,7 @@ internal class SnippetLoadingManagerImplTest {
                 Headers.Builder().set("date", Date(MILLISECONDS_DATE)).build()
             )
 
-        fakeFunctions.getWebSnippets("org", "proj")
+        fakeFunctions.getWebSnippets("proj")
 
         assert(
             impl.load() == ProjectResponse(

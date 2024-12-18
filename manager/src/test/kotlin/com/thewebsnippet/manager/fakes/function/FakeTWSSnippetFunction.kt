@@ -28,7 +28,7 @@ internal class FakeTWSSnippetFunction(
     var returnedProject: Response<ProjectDto>? = null
     var returnedSharedSnippet: SharedSnippetDto? = null
 
-    override suspend fun getWebSnippets(organizationId: String, projectId: String): Response<ProjectDto> {
+    override suspend fun getWebSnippets(projectId: String): Response<ProjectDto> {
         helper.intercept()
 
         return returnedProject ?: error("Returned project not faked!")

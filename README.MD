@@ -63,7 +63,7 @@ To contribute to this set of libraries:
    ### TheWebSnippetSdk project
 
     1. In `version.txt` setup your own version
-    2. Run `./gradlew publishtomavenlocal`
+    2. Run `./gradlew publishtomavenlocal service:publishtomavenlocal`
 
    ### Your own project
 
