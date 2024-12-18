@@ -57,13 +57,6 @@ fun TWSViewCustomInterceptorExample(
     val homeSnippet = twsInterceptorViewModel.twsSnippetsFlow.collectAsStateWithLifecycle(TWSOutcome.Progress()).value
 
     when {
-        homeSnippet.data == null -> {
-            ErrorView(
-                errorText = stringResource(R.string.snippet_not_found),
-                modifier = Modifier.fillMaxSize()
-            )
-        }
-
         homeSnippet.data != null -> {
             val data = homeSnippet.data ?: return
             TWSView(
@@ -96,6 +89,13 @@ fun TWSViewCustomInterceptorExample(
 
         homeSnippet is TWSOutcome.Progress -> {
             LoadingView(modifier = Modifier.fillMaxSize())
+        }
+
+        homeSnippet.data == null -> {
+            ErrorView(
+                errorText = stringResource(R.string.snippet_not_found),
+                modifier = Modifier.fillMaxSize()
+            )
         }
     }
 }
