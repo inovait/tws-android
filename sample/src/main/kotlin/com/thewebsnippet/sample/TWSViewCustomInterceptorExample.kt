@@ -25,12 +25,15 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.thewebsnippet.data.TWSSnippet
 import com.thewebsnippet.manager.TWSManager
+import com.thewebsnippet.manager.TWSOutcome
+import com.thewebsnippet.manager.mapData
 import com.thewebsnippet.sample.components.ErrorView
 import com.thewebsnippet.sample.components.LoadingView
 import com.thewebsnippet.sample.ui.Screen
 import com.thewebsnippet.view.TWSView
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 /**
@@ -51,34 +54,42 @@ fun TWSViewCustomInterceptorExample(
     navController: NavController,
     twsInterceptorViewModel: TWSInterceptorViewModel = hiltViewModel()
 ) {
-    val homeSnippet = twsInterceptorViewModel.twsSnippetsFlow.collectAsStateWithLifecycle(null).value
-        ?.firstOrNull { it.id == "customInterceptors" }
+    val homeSnippet = twsInterceptorViewModel.twsSnippetsFlow.collectAsStateWithLifecycle(TWSOutcome.Progress()).value
 
-    if (homeSnippet == null) {
-        ErrorView(
-            errorText = stringResource(R.string.error_message),
-            modifier = Modifier.fillMaxSize()
-        )
-    } else {
-        TWSView(
-            snippet = homeSnippet,
-            loadingPlaceholderContent = { LoadingView() },
-            errorViewContent = { ErrorView(it) },
-            // Handling urls natively
-            interceptUrlCallback = { url ->
-                val urlString = url.toString()
-                val route = when {
-                    urlString.contains("/customTabsExample") -> Screen.TWSViewCustomTabsExampleKey.route
-                    urlString.contains("/mustacheExample") -> Screen.TWSViewMustacheExampleKey.route
-                    urlString.contains("/injectionExample") -> Screen.TWSViewInjectionExampleKey.route
-                    urlString.contains("/permissionsExample") -> Screen.TWSViewPermissionsExampleKey.route
-                    else -> null
+    when {
+        homeSnippet.data != null -> {
+            val data = homeSnippet.data ?: return
+            TWSView(
+                snippet = data,
+                loadingPlaceholderContent = { LoadingView() },
+                errorViewContent = { ErrorView(it) },
+                // Handling urls natively
+                interceptUrlCallback = { url ->
+                    val urlString = url.toString()
+                    val route = when {
+                        urlString.contains("/customTabsExample") -> Screen.TWSViewCustomTabsExampleKey.route
+                        urlString.contains("/mustacheExample") -> Screen.TWSViewMustacheExampleKey.route
+                        urlString.contains("/injectionExample") -> Screen.TWSViewInjectionExampleKey.route
+                        urlString.contains("/permissionsExample") -> Screen.TWSViewPermissionsExampleKey.route
+                        else -> null
+                    }
+
+                    route?.let { navController.navigate(it) }
+                    route != null
                 }
+            )
+        }
 
-                route?.let { navController.navigate(it) }
-                route != null
-            }
-        )
+        homeSnippet is TWSOutcome.Error -> {
+            ErrorView(
+                errorText = stringResource(R.string.error_message),
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+
+        homeSnippet is TWSOutcome.Progress -> {
+            LoadingView(modifier = Modifier.fillMaxSize())
+        }
     }
 }
 
@@ -87,5 +98,11 @@ fun TWSViewCustomInterceptorExample(
 class TWSInterceptorViewModel @Inject constructor(
     manager: TWSManager
 ) : ViewModel() {
-    val twsSnippetsFlow: Flow<List<TWSSnippet>?> = manager.snippets()
+    val twsSnippetsFlow: Flow<TWSOutcome<TWSSnippet?>> = manager.snippets.map { data ->
+        data.mapData { snippets ->
+            snippets.firstOrNull {
+                it.id == "customInterceptors"
+            }
+        }
+    }
 }
