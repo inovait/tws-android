@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Sample</string>
     <string name="error_message">Oooops, loading failed</string>
+    <string name="snippet_not_found">Snippet not found</string>
 </resources>

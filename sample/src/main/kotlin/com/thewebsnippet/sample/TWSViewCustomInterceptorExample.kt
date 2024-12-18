@@ -57,6 +57,13 @@ fun TWSViewCustomInterceptorExample(
     val homeSnippet = twsInterceptorViewModel.twsSnippetsFlow.collectAsStateWithLifecycle(TWSOutcome.Progress()).value
 
     when {
+        homeSnippet.data == null -> {
+            ErrorView(
+                errorText = stringResource(R.string.snippet_not_found),
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+
         homeSnippet.data != null -> {
             val data = homeSnippet.data ?: return
             TWSView(
@@ -101,7 +108,7 @@ class TWSInterceptorViewModel @Inject constructor(
     val twsSnippetsFlow: Flow<TWSOutcome<TWSSnippet?>> = manager.snippets.map { data ->
         data.mapData { snippets ->
             snippets.firstOrNull {
-                it.id == "customInterceptors"
+                it.id == "mustacheExample2"
             }
         }
     }
