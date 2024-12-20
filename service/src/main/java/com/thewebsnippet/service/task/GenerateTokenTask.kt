@@ -101,6 +101,6 @@ internal abstract class GenerateTokenTask : DefaultTask() {
     }
 
     internal companion object {
-        private const val FILE_NAME = "si_inova_tws_service_mappingfield.xml"
+        private const val FILE_NAME = "com_thewebsnippet_service_mappingfield.xml"
     }
 }

@@ -21,4 +21,4 @@ jobs:
           destination_branch: "develop"
           pr_title: "Draft: ${{env.OWNER_MESSAGE}} - ${{env.OWNER_NAME}}"
           pr_body: "Owner ${{env.OWNER_NAME}}"
-          pr_reviewer: "zbezjak,tilenp-inova"
+          pr_reviewer: "zbezjak,tilenp-inova,SvenKotnik"
