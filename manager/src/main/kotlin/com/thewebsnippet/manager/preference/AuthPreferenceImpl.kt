@@ -16,88 +16,73 @@
 
 package com.thewebsnippet.manager.preference
 
-import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
 
-internal object AuthPreferenceImpl : AuthPreference {
-    private lateinit var appContext: Context
+internal class AuthPreferenceImpl(private val authPreferences: DataStore<Preferences>) : AuthPreference {
 
-    private val Context.authPreferences: DataStore<Preferences> by preferencesDataStore(name = DATASTORE_NAME)
-
-    override fun safeInit(context: Context) {
-        if (::appContext.isInitialized) return
-
-        appContext = context
-
+    init {
         runBlocking {
-            if (storedJwt.first() != jwt && storedJwt.first().isNotEmpty()) {
+            if (storedJwt.first() != JWT.token && storedJwt.first().isNotEmpty()) {
                 clearPreferences()
             }
 
-            setJWT(jwt)
+            setJWT(JWT.token)
         }
     }
 
-    override val jwt: String by lazy {
-        appContext.getString(appContext.resources.getIdentifier(RESOURCE_VALUE_NAME, "string", appContext.packageName))
-    }
-
     override val refreshToken: Flow<String> by lazy {
-        appContext.authPreferences.data
+        authPreferences.data
             .map { preferences ->
-                preferences[REFRESH_TOKEN] ?: ""
+                preferences[DATASTORE_REFRESH_TOKEN] ?: ""
             }
     }
 
     override val accessToken: Flow<String> by lazy {
-        appContext.authPreferences.data
+        authPreferences.data
             .map { preferences ->
-                preferences[ACCESS_TOKEN] ?: ""
+                preferences[DATASTORE_ACCESS_TOKEN] ?: ""
             }
     }
 
     override suspend fun setRefreshToken(refreshToken: String) {
-        appContext.authPreferences.edit { settings ->
-            settings[REFRESH_TOKEN] = refreshToken
+        authPreferences.edit { settings ->
+            settings[DATASTORE_REFRESH_TOKEN] = refreshToken
         }
     }
 
     override suspend fun setAccessToken(accessToken: String) {
-        appContext.authPreferences.edit { settings ->
-            settings[ACCESS_TOKEN] = accessToken
+        authPreferences.edit { settings ->
+            settings[DATASTORE_ACCESS_TOKEN] = accessToken
         }
     }
 
     private val storedJwt: Flow<String> by lazy {
-        appContext.authPreferences.data
+        authPreferences.data
             .map { preferences ->
-                preferences[JWT] ?: ""
+                preferences[DATASTORE_JWT] ?: ""
             }
     }
 
     private suspend fun setJWT(jwt: String) {
-        appContext.authPreferences.edit { settings ->
-            settings[JWT] = jwt
+        authPreferences.edit { settings ->
+            settings[DATASTORE_JWT] = jwt
         }
     }
 
     private suspend fun clearPreferences() {
-        appContext.authPreferences.edit {
+        authPreferences.edit {
             it.clear()
         }
     }
 }
 
-private const val RESOURCE_VALUE_NAME = "com.thewebsnippet.service.jwt"
-private const val DATASTORE_NAME = "authPreferences"
-private val JWT = stringPreferencesKey("jwt")
-private val REFRESH_TOKEN = stringPreferencesKey("refreshToken")
-private val ACCESS_TOKEN = stringPreferencesKey("accessToken")
+private val DATASTORE_JWT = stringPreferencesKey("jwt")
+private val DATASTORE_REFRESH_TOKEN = stringPreferencesKey("refreshToken")
+private val DATASTORE_ACCESS_TOKEN = stringPreferencesKey("accessToken")

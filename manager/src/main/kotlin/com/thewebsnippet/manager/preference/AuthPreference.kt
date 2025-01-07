@@ -15,13 +15,9 @@
  */
 package com.thewebsnippet.manager.preference
 
-import android.content.Context
 import kotlinx.coroutines.flow.Flow
 
 internal interface AuthPreference {
-    fun safeInit(context: Context)
-
-    val jwt: String
     val refreshToken: Flow<String>
     val accessToken: Flow<String>
 
