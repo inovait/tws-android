@@ -20,11 +20,13 @@ import com.thewebsnippet.manager.factory.BaseServiceFactory
 import com.thewebsnippet.manager.factory.create
 import com.thewebsnippet.manager.function.TWSSnippetFunction
 import com.thewebsnippet.manager.manager.auth.AuthLoginManagerImpl
+import com.thewebsnippet.manager.preference.AuthPreference
 import java.time.Instant
 
 internal class SnippetLoadingManagerImpl(
+    auth: AuthPreference,
     private val configuration: TWSConfiguration,
-    private val functions: TWSSnippetFunction = BaseServiceFactory(AuthLoginManagerImpl()).create()
+    private val functions: TWSSnippetFunction = BaseServiceFactory(AuthLoginManagerImpl(auth)).create()
 ) : SnippetLoadingManager {
 
     override suspend fun load(): ProjectResponse {

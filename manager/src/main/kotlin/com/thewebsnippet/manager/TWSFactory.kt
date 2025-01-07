@@ -128,9 +128,12 @@ object TWSFactory {
             existingInstance
         } else {
             JWT.safeInit(context)
-            AuthPreferenceImpl(context.authPreferences)
 
-            val newInstance = TWSManagerImpl(context, tag, configuration)
+            val newInstance = TWSManagerImpl(
+                context = context,
+                tag = tag, configuration = configuration,
+                auth = AuthPreferenceImpl(context.authPreferences)
+            )
             instances[tag] = WeakReference(newInstance)
             newInstance
         }

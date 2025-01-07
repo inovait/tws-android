@@ -27,6 +27,13 @@ import kotlinx.coroutines.runBlocking
 
 internal class AuthPreferenceImpl(private val authPreferences: DataStore<Preferences>) : AuthPreference {
 
+    private val storedJwt: Flow<String> by lazy {
+        authPreferences.data
+            .map { preferences ->
+                preferences[DATASTORE_JWT] ?: ""
+            }
+    }
+
     init {
         runBlocking {
             if (storedJwt.first() != JWT.token && storedJwt.first().isNotEmpty()) {
@@ -61,13 +68,6 @@ internal class AuthPreferenceImpl(private val authPreferences: DataStore<Prefere
         authPreferences.edit { settings ->
             settings[DATASTORE_ACCESS_TOKEN] = accessToken
         }
-    }
-
-    private val storedJwt: Flow<String> by lazy {
-        authPreferences.data
-            .map { preferences ->
-                preferences[DATASTORE_JWT] ?: ""
-            }
     }
 
     private suspend fun setJWT(jwt: String) {

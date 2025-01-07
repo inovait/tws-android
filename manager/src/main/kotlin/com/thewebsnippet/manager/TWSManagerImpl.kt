@@ -26,6 +26,7 @@ import com.thewebsnippet.manager.localhandler.LocalSnippetHandler
 import com.thewebsnippet.manager.localhandler.LocalSnippetHandlerImpl
 import com.thewebsnippet.manager.manager.snippet.SnippetLoadingManager
 import com.thewebsnippet.manager.manager.snippet.SnippetLoadingManagerImpl
+import com.thewebsnippet.manager.preference.AuthPreference
 import com.thewebsnippet.manager.service.NetworkConnectivityService
 import com.thewebsnippet.manager.service.NetworkConnectivityServiceImpl
 import com.thewebsnippet.manager.websocket.TWSSocket
@@ -59,6 +60,7 @@ import kotlin.time.Duration.Companion.seconds
  * @param context The application context, used for cache management and connectivity services.
  * @param tag A unique tag used for cache management and identification.
  * @param configuration The configuration for the manager, defining source of the snippets.
+ * @param auth DataStore with saved auth tokens.
  * @param scope A [CoroutineScope] used for asynchronous operations and lifecycle management.
  * @param loader A [SnippetLoadingManager] responsible for loading snippets from a remote source.
  * @param twsSocket An optional WebSocket connection to receive live updates.
@@ -70,8 +72,9 @@ internal class TWSManagerImpl(
     context: Context,
     tag: String = "",
     private val configuration: TWSConfiguration,
+    private val auth: AuthPreference,
     scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO),
-    private val loader: SnippetLoadingManager = SnippetLoadingManagerImpl(configuration),
+    private val loader: SnippetLoadingManager = SnippetLoadingManagerImpl(auth, configuration),
     private val twsSocket: TWSSocket? = TWSSocketImpl(scope),
     private val localSnippetHandler: LocalSnippetHandler? = LocalSnippetHandlerImpl(scope),
     private val cacheManager: CacheManager? = FileCacheManager(context, tag),
