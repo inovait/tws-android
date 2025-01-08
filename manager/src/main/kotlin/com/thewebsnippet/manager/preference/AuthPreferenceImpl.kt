@@ -20,12 +20,17 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import dispatch.core.IOCoroutineScope
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
 
-internal class AuthPreferenceImpl(private val authPreferences: DataStore<Preferences>) : AuthPreference {
+internal class AuthPreferenceImpl(
+    private val authPreferences: DataStore<Preferences>,
+    scope: CoroutineScope = IOCoroutineScope()
+) : AuthPreference {
 
     private val storedJwt: Flow<String> by lazy {
         authPreferences.data
@@ -35,8 +40,9 @@ internal class AuthPreferenceImpl(private val authPreferences: DataStore<Prefere
     }
 
     init {
-        runBlocking {
-            if (storedJwt.first() != JWT.token && storedJwt.first().isNotEmpty()) {
+        scope.launch {
+            val currentJwt = storedJwt.first()
+            if (currentJwt != JWT.token && currentJwt.isNotEmpty()) {
                 clearPreferences()
             }
 
@@ -81,8 +87,10 @@ internal class AuthPreferenceImpl(private val authPreferences: DataStore<Prefere
             it.clear()
         }
     }
-}
 
-private val DATASTORE_JWT = stringPreferencesKey("jwt")
-private val DATASTORE_REFRESH_TOKEN = stringPreferencesKey("refreshToken")
-private val DATASTORE_ACCESS_TOKEN = stringPreferencesKey("accessToken")
+    internal companion object {
+        val DATASTORE_JWT = stringPreferencesKey("jwt")
+        val DATASTORE_REFRESH_TOKEN = stringPreferencesKey("refreshToken")
+        val DATASTORE_ACCESS_TOKEN = stringPreferencesKey("accessToken")
+    }
+}
