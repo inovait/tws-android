@@ -35,8 +35,6 @@ class GenerateTokenTaskTest {
 
         task.taskAction()
 
-        println("dsdsd: uwu")
-
         val generatedFile = File(outputDir.asFile, "values/com_thewebsnippet_service_mappingfield.xml")
         assert(generatedFile.exists())
 
@@ -45,9 +43,9 @@ class GenerateTokenTaskTest {
         assert(
             content.contains(
                 "eyJhbGciOiJSUzI1NiIsImtpZCI6IjEyMy1wcml2YXRlX2tleV9pZC0xMjMifQ." +
-                    "eyJleHAiOjk5OTk5OTk5OTk5OTksImlzcyI6InRlc3QiLCJjbGllbnRfaWQiOiJ0ZXN0In0." +
-                    "Li1S4QA3Xvrd5y51i7GwRax8qZSZREv7WGlQYmaDRgOZf61oKKzsDGz1d8Ve5HYOhBxOR_s1qGsolwKG_j" +
-                    "_Y2zxqW9GsLxBin2rJ0HMEEF4Sm0Af-LtyOG6Cn_kjA8mHYqft2v7W3Byeja4SBYeXgsz8VpTmnVGlhUpXZhgaxPQ"
+                    "eyJleHAiOjk5OTk5OTk5OTk5OTksImlzcyI6InRlc3QifQ." +
+                    "f-BLTvOzyiJ02TvEbQPK89exoqDUE-AP4WRUWry9McIBdyS3lMcLYMhV-GFuP7WA8OvwB5NrosqKS6X4-" +
+                    "kDe8gTwuxA4UgPsE_p28rF05Lw9-VU-i31gKHt1tPeoJzYhVE8RlyucEMbbSd6xDesDuWaA63xZEnb8-qIp45s74B0"
             )
         )
     }
