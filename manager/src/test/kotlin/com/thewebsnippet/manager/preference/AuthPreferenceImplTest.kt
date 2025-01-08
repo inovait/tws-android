@@ -72,7 +72,7 @@ class AuthPreferenceImplTest {
         }
         runCurrent()
 
-        AuthPreferenceImpl(testDataStore, this)
+        AuthPreferenceImpl(this, testDataStore)
         advanceUntilIdle()
 
         // Verify that preferences were cleared and JWT was updated
@@ -97,7 +97,7 @@ class AuthPreferenceImplTest {
         }
         runCurrent()
 
-        AuthPreferenceImpl(testDataStore, this)
+        AuthPreferenceImpl(this, testDataStore)
         advanceUntilIdle()
 
         // Verify that preferences were cleared and JWT was updated

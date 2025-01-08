@@ -25,6 +25,9 @@ import com.thewebsnippet.manager.TWSConfiguration.Shared
 import com.thewebsnippet.manager.preference.AuthPreferenceImpl
 import com.thewebsnippet.manager.preference.JWT
 import jakarta.inject.Singleton
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import java.lang.ref.WeakReference
 import java.util.WeakHashMap
 
@@ -129,11 +132,14 @@ object TWSFactory {
         } else {
             JWT.safeInit(context)
 
+            val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
             val newInstance = TWSManagerImpl(
                 context = context,
-                tag = tag, configuration = configuration,
-                auth = AuthPreferenceImpl(context.authPreferences)
+                tag = tag,
+                configuration = configuration,
+                auth = AuthPreferenceImpl(applicationScope, context.authPreferences)
             )
+
             instances[tag] = WeakReference(newInstance)
             newInstance
         }
