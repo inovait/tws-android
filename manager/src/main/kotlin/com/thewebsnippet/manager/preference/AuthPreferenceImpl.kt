@@ -21,6 +21,8 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -28,8 +30,8 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 internal class AuthPreferenceImpl(
-    scope: CoroutineScope,
-    private val authPreferences: DataStore<Preferences>
+    private val authPreferences: DataStore<Preferences>,
+    scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 ) : AuthPreference {
 
     private val storedJwt: Flow<String> by lazy {
@@ -49,7 +51,7 @@ internal class AuthPreferenceImpl(
             setJWT(JWT.token)
 
             // scope is no longer needed.
-            scope.cancel()
+            cancel()
         }
     }
 
