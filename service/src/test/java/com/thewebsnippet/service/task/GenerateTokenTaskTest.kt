@@ -35,8 +35,6 @@ class GenerateTokenTaskTest {
 
         task.taskAction()
 
-        println("dsdsd: uwu")
-
         val generatedFile = File(outputDir.asFile, "values/com_thewebsnippet_service_mappingfield.xml")
         assert(generatedFile.exists())
 
