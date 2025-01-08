@@ -16,6 +16,7 @@
 package com.thewebsnippet.manager
 
 import com.thewebsnippet.manager.fakes.function.FakeTWSSnippetFunction
+import com.thewebsnippet.manager.fakes.preference.FakeAuthPreference
 import com.thewebsnippet.manager.manager.snippet.ProjectResponse
 import com.thewebsnippet.manager.manager.snippet.SnippetLoadingManager
 import com.thewebsnippet.manager.manager.snippet.SnippetLoadingManagerImpl
@@ -42,6 +43,7 @@ internal class SnippetLoadingManagerImplTest {
         impl = SnippetLoadingManagerImpl(
             configuration = TWSConfiguration.Basic("proj"),
             functions = fakeFunctions,
+            auth = FakeAuthPreference()
         )
 
         fakeFunctions.returnedProject =
@@ -65,6 +67,7 @@ internal class SnippetLoadingManagerImplTest {
         impl = SnippetLoadingManagerImpl(
             configuration = TWSConfiguration.Shared("sharedId"),
             functions = fakeFunctions,
+            auth = FakeAuthPreference()
         )
 
         fakeFunctions.returnedSharedSnippet = FAKE_SHARED_PROJECT
