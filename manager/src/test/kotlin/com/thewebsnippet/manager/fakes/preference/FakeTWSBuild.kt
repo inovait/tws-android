@@ -14,22 +14,15 @@
  * limitations under the License.
  */
 
-package com.thewebsnippet.manager.preference
+package com.thewebsnippet.manager.fakes.preference
 
 import android.content.Context
+import com.thewebsnippet.manager.preference.TWSBuild
 
-internal object JWT {
-    private lateinit var appContext: Context
-
-    fun safeInit(context: Context) {
-        if (::appContext.isInitialized) return
-
-        appContext = context
+object FakeTWSBuild : TWSBuild {
+    override fun safeInit(context: Context) {
+        // Unused in testing
     }
 
-    val token: String by lazy {
-        appContext.getString(appContext.resources.getIdentifier(RESOURCE_VALUE_NAME, "string", appContext.packageName))
-    }
-
-    private const val RESOURCE_VALUE_NAME = "com.thewebsnippet.service.jwt"
+    override val token: String = "JWT-test"
 }

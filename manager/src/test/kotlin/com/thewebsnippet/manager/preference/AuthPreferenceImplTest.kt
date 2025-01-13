@@ -16,16 +16,13 @@
 
 package com.thewebsnippet.manager.preference
 
-import android.content.Context
-import android.content.res.Resources
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import app.cash.turbine.test
+import com.thewebsnippet.manager.fakes.preference.FakeTWSBuild
 import com.thewebsnippet.manager.utils.testScopeWithDispatcherProvider
-import io.mockk.every
-import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -38,11 +35,7 @@ import org.junit.rules.TemporaryFolder
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class AuthPreferenceImplTest {
-    private val testContext: Context = mockk()
-
     private val testScope = testScopeWithDispatcherProvider()
-
-    private val mockResources: Resources = mockk()
 
     @get:Rule
     val tmpFolder: TemporaryFolder = TemporaryFolder.builder().assureDeletion().build()
@@ -51,17 +44,10 @@ class AuthPreferenceImplTest {
 
     @Before
     fun setUp() {
-        every { testContext.resources } returns mockResources
-        every { testContext.packageName } returns "com.thewebsnippet"
-        every { mockResources.getIdentifier("com.thewebsnippet.service.jwt", "string", "com.thewebsnippet") } returns 123
-        every { testContext.getString(123) } returns "JWT-test"
-
         testDataStore = PreferenceDataStoreFactory.create(
             scope = testScope,
             produceFile = { tmpFolder.newFile("test_store.preferences_pb") }
         )
-
-        JWT.safeInit(testContext)
     }
 
     @Test
@@ -72,14 +58,14 @@ class AuthPreferenceImplTest {
         }
         runCurrent()
 
-        AuthPreferenceImpl(testDataStore, this)
+        AuthPreferenceImpl(testDataStore, this, FakeTWSBuild)
         advanceUntilIdle()
 
         // Verify that preferences were cleared and JWT was updated
         testDataStore.data.test {
             val preferences = awaitItem()
 
-            assert(preferences[AuthPreferenceImpl.DATASTORE_JWT] == JWT.token)
+            assert(preferences[AuthPreferenceImpl.DATASTORE_JWT] == FakeTWSBuild.token)
             assert(preferences[AuthPreferenceImpl.DATASTORE_REFRESH_TOKEN] == null)
 
             cancelAndIgnoreRemainingEvents()
@@ -97,14 +83,14 @@ class AuthPreferenceImplTest {
         }
         runCurrent()
 
-        AuthPreferenceImpl(testDataStore, this)
+        AuthPreferenceImpl(testDataStore, this, FakeTWSBuild)
         advanceUntilIdle()
 
         // Verify that preferences were cleared and JWT was updated
         testDataStore.data.test {
             val preferences = awaitItem()
 
-            assert(preferences[AuthPreferenceImpl.DATASTORE_JWT] == JWT.token)
+            assert(preferences[AuthPreferenceImpl.DATASTORE_JWT] == FakeTWSBuild.token)
             assert(preferences[AuthPreferenceImpl.DATASTORE_REFRESH_TOKEN] == "existing_refresh_token")
 
             cancelAndIgnoreRemainingEvents()

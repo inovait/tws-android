@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.thewebsnippet.manager
 
 import android.content.Context
@@ -23,7 +24,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.thewebsnippet.manager.TWSConfiguration.Basic
 import com.thewebsnippet.manager.TWSConfiguration.Shared
 import com.thewebsnippet.manager.preference.AuthPreferenceImpl
-import com.thewebsnippet.manager.preference.JWT
+import com.thewebsnippet.manager.preference.TWSBuildImpl
 import jakarta.inject.Singleton
 import java.lang.ref.WeakReference
 import java.util.WeakHashMap
@@ -127,7 +128,7 @@ object TWSFactory {
         return if (existingInstance != null) {
             existingInstance
         } else {
-            JWT.safeInit(context)
+            TWSBuildImpl.safeInit(context)
 
             val newInstance = TWSManagerImpl(
                 context = context,

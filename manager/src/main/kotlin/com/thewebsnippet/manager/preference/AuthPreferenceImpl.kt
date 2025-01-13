@@ -30,7 +30,8 @@ import kotlinx.coroutines.launch
 
 internal class AuthPreferenceImpl(
     private val authPreferences: DataStore<Preferences>,
-    scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO),
+    twsBuild: TWSBuild = TWSBuildImpl
 ) : AuthPreference {
 
     private val storedJwt: Flow<String> by lazy {
@@ -43,11 +44,11 @@ internal class AuthPreferenceImpl(
     init {
         scope.launch {
             val currentJwt = storedJwt.first()
-            if (currentJwt != JWT.token && currentJwt.isNotEmpty()) {
+            if (currentJwt != twsBuild.token && currentJwt.isNotEmpty()) {
                 clearPreferences()
             }
 
-            setJWT(JWT.token)
+            setJWT(twsBuild.token)
         }
     }
 
