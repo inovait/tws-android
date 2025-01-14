@@ -20,7 +20,7 @@ import android.util.Log
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
 import com.thewebsnippet.manager.data.TWSSnippetDto
-import com.thewebsnippet.manager.singleton.twsMoshi
+import com.thewebsnippet.manager.setup.twsMoshi
 import java.io.File
 
 internal class FileCacheManager(context: Context, tag: String) : CacheManager {

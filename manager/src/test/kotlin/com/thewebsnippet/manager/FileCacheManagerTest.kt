@@ -21,7 +21,7 @@ import com.squareup.moshi.Types
 import com.thewebsnippet.manager.cache.FileCacheManager
 import com.thewebsnippet.manager.cache.FileCacheManager.Companion.CACHE_DIR
 import com.thewebsnippet.manager.data.TWSSnippetDto
-import com.thewebsnippet.manager.singleton.twsMoshi
+import com.thewebsnippet.manager.setup.twsMoshi
 import com.thewebsnippet.manager.utils.FAKE_PROJECT_DTO
 import org.junit.After
 import org.junit.Before
