@@ -30,7 +30,6 @@ import com.thewebsnippet.manager.fakes.FakeLocalSnippetHandler
 import com.thewebsnippet.manager.fakes.FakeNetworkConnectivityService
 import com.thewebsnippet.manager.fakes.FakeTWSSocket
 import com.thewebsnippet.manager.fakes.manager.FakeSnippetLoadingManager
-import com.thewebsnippet.manager.fakes.preference.FakeAuthPreference
 import com.thewebsnippet.manager.localhandler.LocalSnippetHandler
 import com.thewebsnippet.manager.manager.snippet.ProjectResponse
 import com.thewebsnippet.manager.manager.snippet.SnippetLoadingManager
@@ -768,8 +767,7 @@ class TWSManagerImplTest {
             twsSocket = twsSocket ?: fakeSocket,
             localSnippetHandler = localSnippetHandler ?: fakeHandler,
             cacheManager = cacheManager ?: fakeCache,
-            networkConnectivityService = networkConnectivityService ?: fakeNetworkConnectivityService,
-            auth = FakeAuthPreference()
+            networkConnectivityService = networkConnectivityService ?: fakeNetworkConnectivityService
         )
     }
 }
