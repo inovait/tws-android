@@ -72,5 +72,5 @@ kq3OZFnQSV+oB8WFevf9QC8=
 -----END PRIVATE KEY-----""",
     privateKeyId = "test-key-id",
     clientId = "test-client-id",
-    organizationId = "test ODG"
+    baseUrl = "www.test.url"
 )

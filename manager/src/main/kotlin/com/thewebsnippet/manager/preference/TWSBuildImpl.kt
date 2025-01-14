@@ -31,5 +31,10 @@ internal object TWSBuildImpl : TWSBuild {
         appContext.getString(appContext.resources.getIdentifier(RESOURCE_VALUE_JWT, "string", appContext.packageName))
     }
 
+    override val baseUrl: String by lazy {
+        appContext.getString(appContext.resources.getIdentifier(RESOURCE_VALUE_BASE_URL, "string", appContext.packageName))
+    }
+
     private const val RESOURCE_VALUE_JWT = "com.thewebsnippet.service.jwt"
+    private const val RESOURCE_VALUE_BASE_URL = "com.thewebsnippet.service.base.url"
 }
