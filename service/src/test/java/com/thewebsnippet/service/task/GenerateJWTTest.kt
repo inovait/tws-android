@@ -37,7 +37,6 @@ class GenerateJWTTest {
         assertEquals("RS256", parsedJwt.header.algorithm)
         assertEquals("test-key-id", parsedJwt.header.keyId)
         assertEquals("test-client-id", parsedJwt.payload.issuer)
-        assertEquals("test-client-id", parsedJwt.payload["client_id"])
     }
 }
 

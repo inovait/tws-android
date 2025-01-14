@@ -19,7 +19,7 @@ import android.util.Log
 import com.squareup.moshi.Moshi
 import com.thewebsnippet.manager.data.SnippetUpdateAction
 import com.thewebsnippet.manager.data.WebSocketStatus
-import com.thewebsnippet.manager.singleton.twsMoshi
+import com.thewebsnippet.manager.setup.twsMoshi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow

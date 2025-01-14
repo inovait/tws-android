@@ -17,37 +17,30 @@
 package com.thewebsnippet.manager.preference
 
 import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.emptyPreferences
 import app.cash.turbine.test
 import com.thewebsnippet.manager.fakes.preference.FakeTWSBuild
 import com.thewebsnippet.manager.utils.testScopeWithDispatcherProvider
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.TemporaryFolder
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class AuthPreferenceImplTest {
     private val testScope = testScopeWithDispatcherProvider()
 
-    @get:Rule
-    val tmpFolder: TemporaryFolder = TemporaryFolder.builder().assureDeletion().build()
-
     private lateinit var testDataStore: DataStore<Preferences>
 
     @Before
     fun setUp() {
-        testDataStore = PreferenceDataStoreFactory.create(
-            scope = testScope,
-            produceFile = { tmpFolder.newFile("test_store.preferences_pb") }
-        )
+        testDataStore = MemoryDataStore(defaultValue = emptyPreferences())
     }
 
     @Test
@@ -98,5 +91,14 @@ class AuthPreferenceImplTest {
 
         // To destroy DataStore scope.
         coroutineContext.cancelChildren()
+    }
+}
+
+class MemoryDataStore<T>(defaultValue: T) : DataStore<T> {
+    override val data = MutableStateFlow(defaultValue)
+
+    override suspend fun updateData(transform: suspend (t: T) -> T): T {
+        data.value = transform(data.value)
+        return data.value
     }
 }

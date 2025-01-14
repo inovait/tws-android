@@ -42,7 +42,6 @@ internal fun generateJWT(serviceAccount: ServiceAccount): String {
 
     val payload = JsonWebToken.Payload()
         .setIssuer(serviceAccount.clientId)
-        .set(PROPERTY_CLIENT, serviceAccount.clientId)
         .setExpirationTimeSeconds(EXP_TIME_SECONDS)
 
     val jsonFactory: JsonFactory = GsonFactory.getDefaultInstance()
@@ -70,4 +69,3 @@ private fun loadPrivateKeyFromPEM(pemKey: String): PrivateKey {
 private const val EXP_TIME_SECONDS = 9_999_999_999_999
 private const val ALG_RS = "RS256"
 private const val KEY_RSA = "RSA"
-private const val PROPERTY_CLIENT = "client_id"

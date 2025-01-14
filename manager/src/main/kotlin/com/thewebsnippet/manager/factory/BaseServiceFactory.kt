@@ -18,8 +18,8 @@ package com.thewebsnippet.manager.factory
 import com.squareup.moshi.Moshi
 import com.thewebsnippet.manager.manager.auth.Auth
 import com.thewebsnippet.manager.preference.TWSBuildImpl
-import com.thewebsnippet.manager.singleton.twsMoshi
-import com.thewebsnippet.manager.singleton.twsOkHttpClient
+import com.thewebsnippet.manager.setup.twsMoshi
+import com.thewebsnippet.manager.setup.twsOkHttpClient
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory

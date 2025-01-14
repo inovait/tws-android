@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thewebsnippet.manager.singleton
+package com.thewebsnippet.manager.setup
 
 import com.appmattus.certificatetransparency.certificateTransparencyInterceptor
 import com.squareup.moshi.FromJson
