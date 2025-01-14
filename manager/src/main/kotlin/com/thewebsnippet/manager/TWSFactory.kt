@@ -18,12 +18,8 @@ package com.thewebsnippet.manager
 
 import android.content.Context
 import android.content.pm.PackageManager
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.preferencesDataStore
 import com.thewebsnippet.manager.TWSConfiguration.Basic
 import com.thewebsnippet.manager.TWSConfiguration.Shared
-import com.thewebsnippet.manager.preference.AuthPreferenceImpl
 import com.thewebsnippet.manager.preference.TWSBuildImpl
 import jakarta.inject.Singleton
 import java.lang.ref.WeakReference
@@ -59,7 +55,6 @@ import java.util.WeakHashMap
 @Singleton
 object TWSFactory {
     private val instances = WeakHashMap<String, WeakReference<TWSManager>>()
-    private val Context.authPreferences: DataStore<Preferences> by preferencesDataStore(name = DATASTORE_NAME)
 
     /**
      * Retrieves a [TWSManager] instance for the default configuration, which is created using metadata
@@ -133,8 +128,7 @@ object TWSFactory {
             val newInstance = TWSManagerImpl(
                 context = context,
                 tag = tag,
-                configuration = configuration,
-                auth = AuthPreferenceImpl(context.authPreferences)
+                configuration = configuration
             )
 
             instances[tag] = WeakReference(newInstance)
@@ -175,4 +169,3 @@ sealed class TWSConfiguration {
 }
 
 private const val PROJECT_ID_METADATA = "com.thewebsnippet.PROJECT_ID"
-private const val DATASTORE_NAME = "authPreferences"
