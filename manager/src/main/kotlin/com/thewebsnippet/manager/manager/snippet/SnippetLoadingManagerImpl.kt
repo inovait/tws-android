@@ -15,16 +15,24 @@
  */
 package com.thewebsnippet.manager.manager.snippet
 
+import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.preferencesDataStore
 import com.thewebsnippet.manager.TWSConfiguration
 import com.thewebsnippet.manager.factory.BaseServiceFactory
 import com.thewebsnippet.manager.factory.create
 import com.thewebsnippet.manager.function.TWSSnippetFunction
 import com.thewebsnippet.manager.manager.auth.AuthLoginManagerImpl
+import com.thewebsnippet.manager.preference.AuthPreferenceImpl
 import java.time.Instant
 
 internal class SnippetLoadingManagerImpl(
+    context: Context,
     private val configuration: TWSConfiguration,
-    private val functions: TWSSnippetFunction = BaseServiceFactory(AuthLoginManagerImpl()).create()
+    private val functions: TWSSnippetFunction = BaseServiceFactory(
+        AuthLoginManagerImpl(AuthPreferenceImpl(context.authPreferences))
+    ).create()
 ) : SnippetLoadingManager {
 
     override suspend fun load(): ProjectResponse {
@@ -49,3 +57,6 @@ internal class SnippetLoadingManagerImpl(
         private const val HEADER_DATE = "date"
     }
 }
+
+private const val DATASTORE_NAME = "authPreferences"
+private val Context.authPreferences: DataStore<Preferences> by preferencesDataStore(name = DATASTORE_NAME)

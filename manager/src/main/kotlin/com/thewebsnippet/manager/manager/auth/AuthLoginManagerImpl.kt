@@ -22,13 +22,14 @@ import com.thewebsnippet.manager.preference.AuthPreference
 import kotlinx.coroutines.flow.Flow
 
 internal class AuthLoginManagerImpl(
-    private val twsAuth: TWSAuthFunction = BaseServiceFactory(AuthRegisterManagerImpl()).create()
+    private val auth: AuthPreference,
+    private val twsAuth: TWSAuthFunction = BaseServiceFactory(AuthRegisterManagerImpl(auth)).create()
 ) : Auth {
     override val getToken: Flow<String>
-        get() = AuthPreference.accessToken
+        get() = auth.accessToken
 
     override suspend fun refreshToken() {
         val response = twsAuth.login()
-        AuthPreference.setAccessToken(response.accessToken)
+        auth.setAccessToken(response.accessToken)
     }
 }

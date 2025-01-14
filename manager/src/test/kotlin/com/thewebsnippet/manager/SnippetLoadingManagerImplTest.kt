@@ -15,6 +15,7 @@
  */
 package com.thewebsnippet.manager
 
+import android.content.Context
 import com.thewebsnippet.manager.fakes.function.FakeTWSSnippetFunction
 import com.thewebsnippet.manager.manager.snippet.ProjectResponse
 import com.thewebsnippet.manager.manager.snippet.SnippetLoadingManager
@@ -26,6 +27,7 @@ import com.thewebsnippet.manager.utils.testScopeWithDispatcherProvider
 import kotlinx.coroutines.test.runTest
 import okhttp3.Headers
 import org.junit.Test
+import org.mockito.Mockito
 import retrofit2.Response
 import java.time.Instant
 import java.util.Date
@@ -37,11 +39,14 @@ internal class SnippetLoadingManagerImplTest {
 
     private lateinit var impl: SnippetLoadingManager
 
+    private val context = Mockito.mock(Context::class.java)
+
     @Test
     fun `Load project`() = scope.runTest {
         impl = SnippetLoadingManagerImpl(
+            context = context,
             configuration = TWSConfiguration.Basic("proj"),
-            functions = fakeFunctions,
+            functions = fakeFunctions
         )
 
         fakeFunctions.returnedProject =
@@ -63,8 +68,9 @@ internal class SnippetLoadingManagerImplTest {
     @Test
     fun `Load shared snippet`() = scope.runTest {
         impl = SnippetLoadingManagerImpl(
+            context = context,
             configuration = TWSConfiguration.Shared("sharedId"),
-            functions = fakeFunctions,
+            functions = fakeFunctions
         )
 
         fakeFunctions.returnedSharedSnippet = FAKE_SHARED_PROJECT

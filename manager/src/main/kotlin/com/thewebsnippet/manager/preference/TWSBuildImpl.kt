@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 INOVA IT d.o.o.
+ * Copyright 2025 INOVA IT d.o.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * You may not use this file except in compliance with the License.
@@ -13,14 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.thewebsnippet.manager.preference
 
-import kotlinx.coroutines.flow.Flow
+import android.content.Context
 
-internal interface AuthPreference {
-    val refreshToken: Flow<String>
-    val accessToken: Flow<String>
+internal object TWSBuildImpl : TWSBuild {
+    private lateinit var appContext: Context
 
-    suspend fun setRefreshToken(refreshToken: String)
-    suspend fun setAccessToken(accessToken: String)
+    override fun safeInit(context: Context) {
+        if (::appContext.isInitialized) return
+
+        appContext = context
+    }
+
+    override val token: String by lazy {
+        appContext.getString(appContext.resources.getIdentifier(RESOURCE_VALUE_JWT, "string", appContext.packageName))
+    }
+
+    private const val RESOURCE_VALUE_JWT = "com.thewebsnippet.service.jwt"
 }

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thewebsnippet.manager.singleton
+package com.thewebsnippet.manager.setup
 
 import com.appmattus.certificatetransparency.certificateTransparencyInterceptor
 import com.squareup.moshi.FromJson
@@ -23,7 +23,7 @@ import com.squareup.moshi.adapters.EnumJsonAdapter
 import com.thewebsnippet.data.TWSAttachmentType
 import com.thewebsnippet.data.TWSEngine
 import com.thewebsnippet.manager.manager.auth.Auth
-import com.thewebsnippet.manager.preference.AuthPreference
+import com.thewebsnippet.manager.preference.TWSBuildImpl
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
@@ -60,7 +60,7 @@ internal fun prepareBaseOkHttpClient(auth: Auth?): OkHttpClient.Builder {
         .apply {
             addInterceptor { chain ->
                 runBlocking {
-                    val token = auth?.getToken?.first() ?: AuthPreference.jwt
+                    val token = auth?.getToken?.first() ?: TWSBuildImpl.token
 
                     val request = chain.request()
                         .newBuilder()

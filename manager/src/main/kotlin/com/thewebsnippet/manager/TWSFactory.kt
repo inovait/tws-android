@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.thewebsnippet.manager
 
 import android.content.Context
 import android.content.pm.PackageManager
 import com.thewebsnippet.manager.TWSConfiguration.Basic
 import com.thewebsnippet.manager.TWSConfiguration.Shared
-import com.thewebsnippet.manager.preference.AuthPreference
+import com.thewebsnippet.manager.preference.TWSBuildImpl
 import jakarta.inject.Singleton
 import java.lang.ref.WeakReference
 import java.util.WeakHashMap
@@ -122,9 +123,14 @@ object TWSFactory {
         return if (existingInstance != null) {
             existingInstance
         } else {
-            AuthPreference.safeInit(context)
+            TWSBuildImpl.safeInit(context)
 
-            val newInstance = TWSManagerImpl(context, tag, configuration)
+            val newInstance = TWSManagerImpl(
+                context = context,
+                tag = tag,
+                configuration = configuration
+            )
+
             instances[tag] = WeakReference(newInstance)
             newInstance
         }

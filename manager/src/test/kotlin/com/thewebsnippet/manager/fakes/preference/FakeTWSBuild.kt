@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 INOVA IT d.o.o.
+ * Copyright 2025 INOVA IT d.o.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * You may not use this file except in compliance with the License.
@@ -13,14 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thewebsnippet.manager.preference
 
-import kotlinx.coroutines.flow.Flow
+package com.thewebsnippet.manager.fakes.preference
 
-internal interface AuthPreference {
-    val refreshToken: Flow<String>
-    val accessToken: Flow<String>
+import android.content.Context
+import com.thewebsnippet.manager.preference.TWSBuild
 
-    suspend fun setRefreshToken(refreshToken: String)
-    suspend fun setAccessToken(accessToken: String)
+object FakeTWSBuild : TWSBuild {
+    override fun safeInit(context: Context) {
+        // Unused in testing
+    }
+
+    override val token: String = "JWT-test"
 }
