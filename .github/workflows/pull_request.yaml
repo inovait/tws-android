@@ -25,6 +25,22 @@ jobs:
       - name: Validate Gradle Wrapper
         uses: gradle/actions/wrapper-validation@v3
 
+      - name: Generate Changelog
+        id: changelog
+        uses: inovait/actions-common/changelog-since-last-build@v10
+        with:
+          git_commit_url_prefix: 'https://github.com/inovait/tws-android-sdk/commit/'
+      - run: "old_changelog=$(cat CHANGELOG.MD); echo \"# ${{ env.VERSION }}\n\n${{ steps.changelog.outputs.changelog }}\n\n$old_changelog\" > CHANGELOG.MD"
+
+      - name: 'Add changelog and version'
+        run: 'git add version.txt CHANGELOG.MD'
+      - run: 'git config --global user.email "ci@inova.si"'
+      - run: 'git config --global user.name "Build Bot"'
+      - name: 'Commit changelog and version'
+        run: 'git commit -m "chore: release ${{ env.VERSION }}"'
+      - name: 'Push changelog and version'
+        run: 'git push'
+
       - name: "Detekt"
         run: "./gradlew --continue :buildSrc:detekt detektRelease detektDebug detektDebugAndroidTest :service:detekt"
 
