@@ -40,6 +40,7 @@ composeBom = "2024.04.01"
 hiltAndroid = "2.51.1"
 hiltNavigationCompose = "1.2.0"
 lifecycleRuntimeComposeAndroid = "2.8.7"
+# testing revert
 
 [libraries]
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
