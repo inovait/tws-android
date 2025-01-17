@@ -25,6 +25,13 @@ jobs:
       - name: Validate Gradle Wrapper
         uses: gradle/actions/wrapper-validation@v3
 
+      - run: "v=$(cat version.txt);echo \"OLD_VERSION=$v\" > $GITHUB_ENV"
+      - name: Check if there were any new fix or feature commits
+        id: version-check
+        uses: inovait/actions-common/bump-version-since-last-build@v10
+        with:
+          version: '${{ env.OLD_VERSION }}'
+
       - name: Generate Changelog
         id: changelog
         uses: inovait/actions-common/changelog-since-last-build@v10
