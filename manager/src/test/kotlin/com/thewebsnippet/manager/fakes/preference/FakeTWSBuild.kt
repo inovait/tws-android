@@ -25,4 +25,5 @@ object FakeTWSBuild : TWSBuild {
     }
 
     override val token: String = "JWT-test"
+    override val baseUrl: String = "https://tws.test.dev/"
 }

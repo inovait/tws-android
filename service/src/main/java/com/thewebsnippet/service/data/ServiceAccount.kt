@@ -20,10 +20,10 @@ import com.google.gson.annotations.SerializedName
 internal data class ServiceAccount(
     @SerializedName("client_id")
     val clientId: String,
-    @SerializedName("organization_id")
-    val organizationId: String,
     @SerializedName("private_key_id")
     val privateKeyId: String,
     @SerializedName("private_key")
-    val privateKey: String
+    val privateKey: String,
+    @SerializedName("tws_base_url")
+    val baseUrl: String
 )

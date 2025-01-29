@@ -48,5 +48,7 @@ class GenerateTokenTaskTest {
                     "kDe8gTwuxA4UgPsE_p28rF05Lw9-VU-i31gKHt1tPeoJzYhVE8RlyucEMbbSd6xDesDuWaA63xZEnb8-qIp45s74B0"
             )
         )
+        assert(content.contains("<string name=\"com.thewebsnippet.service.base.url\""))
+        assert(content.contains("https://tws.test/"))
     }
 }

@@ -83,16 +83,19 @@ internal abstract class GenerateTokenTask : DefaultTask() {
         }
 
         val valuesFile = File(twsDir, FILE_NAME)
-        writeTokenToXml(valuesFile, token)
+        writeTokenToXml(valuesFile, token, service.baseUrl)
     }
 
     @Suppress("StringTemplateIndent") // for not complex XML we can just write directly in file
-    private fun writeTokenToXml(file: File, token: String) {
+    private fun writeTokenToXml(file: File, token: String, baseUrl: String) {
         val content = """
             <?xml version="1.0" encoding="utf-8"?>
             <resources xmlns:tools="http://schemas.android.com/tools">
                 <string name="com.thewebsnippet.service.jwt" tools:ignore="UnusedResources,TypographyDashes" translatable="false">
                     $token
+                </string>
+                <string name="com.thewebsnippet.service.base.url" tools:ignore="UnusedResources,TypographyDashes" translatable="false">
+                    $baseUrl
                 </string>
             </resources>
         """.trimIndent()

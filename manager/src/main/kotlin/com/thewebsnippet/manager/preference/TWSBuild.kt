@@ -21,4 +21,5 @@ import android.content.Context
 internal interface TWSBuild {
     fun safeInit(context: Context)
     val token: String
+    val baseUrl: String
 }

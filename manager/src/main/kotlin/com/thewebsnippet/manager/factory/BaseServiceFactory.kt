@@ -17,6 +17,7 @@ package com.thewebsnippet.manager.factory
 
 import com.squareup.moshi.Moshi
 import com.thewebsnippet.manager.manager.auth.Auth
+import com.thewebsnippet.manager.preference.TWSBuildImpl
 import com.thewebsnippet.manager.setup.twsMoshi
 import com.thewebsnippet.manager.setup.twsOkHttpClient
 import okhttp3.OkHttpClient
@@ -47,12 +48,10 @@ internal class BaseServiceFactory(private val fallbackAuthentication: Auth? = nu
 
         return Retrofit.Builder()
             .callFactory { updatedClient.value.newCall(it) }
-            .baseUrl(TWS_API)
+            .baseUrl(TWSBuildImpl.baseUrl)
             .addConverterFactory(ScalarsConverterFactory.create())
             .addConverterFactory(LazyRetrofitConverterFactory(moshiConverter))
             .build()
             .create(klass)
     }
 }
-
-private const val TWS_API = "https://api.thewebsnippet.dev/"
