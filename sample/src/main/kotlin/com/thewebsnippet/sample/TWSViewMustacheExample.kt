@@ -99,10 +99,12 @@ class TWSMustacheViewModel @Inject constructor(
 ) : ViewModel() {
     // Collecting TWSManager.snippets, which returns the current state, which
     // exposes TWSOutcome.Error, TWSOutcome.Progress or TWSOutcome.Success state.
-    val twsSnippetsFlow: Flow<TWSOutcome<List<TWSSnippet>>> = manager.snippets
-        .map { data ->
-            data.mapData { it.filter { snippet -> snippet.props["page"] == mustachePage } }
+    val twsSnippetsFlow: Flow<TWSOutcome<List<TWSSnippet>>> = manager.snippets.map { data ->
+        data.mapData { outcome ->
+            outcome.filter { it.props["page"] == mustachePage }
+                .sortedBy { it.props["tabSortKey"] as? String }
         }
+    }
 
     /**
      * A function that exposes [TWSManager.set], for setting the local properties of a [TWSSnippet].
