@@ -162,10 +162,10 @@ class TWSCustomTabsViewModel @Inject constructor(
     // Collecting TWSManager.snippets, which returns the current state, which
     // exposes TWSOutcome.Error, TWSOutcome.Progress or TWSOutcome.Success state.
     val twsSnippetsFlow: Flow<TWSOutcome<List<TWSSnippet>>> = manager.snippets.map { data ->
-        data.mapData { it.filter { snippet -> snippet.props["page"] == propsPage } }
-    }.map { data ->
-        // Sort tabs with custom tabSortKey property
-        data.mapData { it.sortedBy { snippet -> snippet.props["tabSortKey"] as? String } }
+        data.mapData { outcome ->
+            outcome.filter { it.props["page"] == propsPage }
+                .sortedBy { it.props["tabSortKey"] as? String }
+        }
     }
 
     private val propsPage = "snippetProps"

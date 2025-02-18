@@ -80,10 +80,12 @@ class TWSInjectionViewModel @Inject constructor(
 ) : ViewModel() {
     // Collecting TWSManager.snippets, which returns the current state, which
     // exposes TWSOutcome.Error, TWSOutcome.Progress or TWSOutcome.Success state.
-    val twsSnippetsFlow: Flow<TWSOutcome<List<TWSSnippet>>> = manager.snippets
-        .map { data ->
-            data.mapData { it.filter { snippet -> snippet.props["page"] == injectionPage } }
+    val twsSnippetsFlow: Flow<TWSOutcome<List<TWSSnippet>>> = manager.snippets.map { data ->
+        data.mapData { outcome ->
+            outcome.filter { it.props["page"] == injectionPage }
+                .sortedBy { it.props["tabSortKey"] as? String }
         }
+    }
 
     private val injectionPage = "injection"
 }

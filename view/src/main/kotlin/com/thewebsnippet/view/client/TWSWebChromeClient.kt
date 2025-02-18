@@ -18,6 +18,8 @@ package com.thewebsnippet.view.client
 import android.Manifest
 import android.content.Context
 import android.net.Uri
+import android.os.Handler
+import android.os.Looper
 import android.os.Message
 import android.webkit.GeolocationPermissions
 import android.webkit.PermissionRequest
@@ -92,7 +94,15 @@ internal open class TWSWebChromeClient(
 
         if (context?.hasPermissionInManifest(Manifest.permission.ACCESS_COARSE_LOCATION) == true) {
             showPermissionRequest(Manifest.permission.ACCESS_COARSE_LOCATION) { isGranted ->
-                callback?.invoke(origin, isGranted, false)
+                callback?.invoke(origin, isGranted, true)
+
+                if (!isGranted) {
+                    // clear permission state, so the user can request permission again
+                    // https://stackoverflow.com/questions/53090545/why-is-ongeolocationpermissionsshowprompt-being-called-continuously
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        GeolocationPermissions.getInstance().clear(origin)
+                    }, CLEAR_PERMISSION_DELAY_MS)
+                }
             }
         } else {
             callback?.invoke(origin, false, false)
@@ -118,3 +128,5 @@ internal open class TWSWebChromeClient(
         }
     }
 }
+
+private const val CLEAR_PERMISSION_DELAY_MS = 500L
