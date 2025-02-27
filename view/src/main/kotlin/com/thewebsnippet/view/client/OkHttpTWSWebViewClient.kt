@@ -60,8 +60,7 @@ internal class OkHttpTWSWebViewClient(
     private val mustacheProps: Map<String, Any>,
     private val engine: TWSEngine,
     interceptUrlCallback: TWSViewInterceptor,
-    popupStateCallback: ((TWSViewState, Boolean) -> Unit)? = null,
-    private val doUpdateVisitedHistory: (String?) -> Unit
+    popupStateCallback: ((TWSViewState, Boolean) -> Unit)? = null
 ) : TWSWebViewClient(interceptUrlCallback, popupStateCallback) {
 
     private lateinit var okHttpClient: OkHttpClient
@@ -73,12 +72,6 @@ internal class OkHttpTWSWebViewClient(
         if (state.loadingState !is TWSLoadingState.Loading) {
             state.customErrorsForCurrentRequest.clear()
         }
-    }
-
-    override fun doUpdateVisitedHistory(view: WebView, url: String?, isReload: Boolean) {
-        super.doUpdateVisitedHistory(view, url, isReload)
-
-        doUpdateVisitedHistory(url)
     }
 
     override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse? {

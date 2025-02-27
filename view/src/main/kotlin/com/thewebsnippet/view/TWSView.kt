@@ -90,8 +90,7 @@ import kotlinx.collections.immutable.toImmutableMap
  * @param onCreated Called when the WebView is first created, this can be used to set additional
  * settings on the WebView. WebChromeClient and WebViewClient should not be set here as they will be
  * subsequently overwritten after this lambda is called.
- * @param doUpdateVisitedHistory Called when navigation is updated.
- * */
+ */
 @Composable
 fun TWSView(
     snippet: TWSSnippet,
@@ -103,8 +102,7 @@ fun TWSView(
     interceptUrlCallback: TWSViewInterceptor = TWSViewDeepLinkInterceptor(LocalContext.current),
     googleLoginRedirectUrl: String? = null,
     isRefreshable: Boolean = true,
-    onCreated: (WebView) -> Unit = {},
-    doUpdateVisitedHistory: (String?) -> Unit = {}
+    onCreated: (WebView) -> Unit = {}
 ) {
     key(snippet) {
         SnippetContentWithPopup(
@@ -117,8 +115,7 @@ fun TWSView(
             googleLoginRedirectUrl,
             isRefreshable,
             modifier,
-            onCreated,
-            doUpdateVisitedHistory
+            onCreated
         )
     }
 }
@@ -140,7 +137,6 @@ fun TWSView(
  * @param onCreated Called when the WebView is first created, this can be used to set additional
  * settings on the WebView. WebChromeClient and WebViewClient should not be set here as they will be
  * subsequently overwritten after this lambda is called.
- * @param doUpdateVisitedHistory Called when navigation is updated.
  */
 @Composable
 private fun SnippetContentWithPopup(
@@ -153,8 +149,7 @@ private fun SnippetContentWithPopup(
     googleLoginRedirectUrl: String?,
     isRefreshable: Boolean,
     modifier: Modifier = Modifier,
-    onCreated: (WebView) -> Unit = {},
-    doUpdateVisitedHistory: (String?) -> Unit = {}
+    onCreated: (WebView) -> Unit = {}
 ) {
     LaunchedEffect(navigator) {
         if (viewState.viewState?.isEmpty != false && viewState.content is WebContent.NavigatorOnly) {
@@ -201,8 +196,7 @@ private fun SnippetContentWithPopup(
         mustacheProps = target.props.toImmutableMap(),
         engine = target.engine,
         isRefreshable = isRefreshable,
-        onCreated = onCreated,
-        doUpdateVisitedHistory = doUpdateVisitedHistory
+        onCreated = onCreated
     )
 
     popupStates.value.forEach { state ->
@@ -238,8 +232,7 @@ private fun SnippetContentWithLoadingAndError(
     engine: TWSEngine,
     isRefreshable: Boolean,
     modifier: Modifier = Modifier,
-    onCreated: (WebView) -> Unit = {},
-    doUpdateVisitedHistory: (String?) -> Unit = {}
+    onCreated: (WebView) -> Unit = {}
 ) {
     // https://github.com/google/accompanist/issues/1326 - WebView settings does not work in compose preview
     val isPreviewMode = LocalInspectionMode.current
@@ -249,8 +242,7 @@ private fun SnippetContentWithLoadingAndError(
             mustacheProps,
             engine,
             interceptUrlCallback,
-            popupStateCallback,
-            doUpdateVisitedHistory
+            popupStateCallback
         )
     }
     val chromeClient = remember(key1 = key) { TWSWebChromeClient(popupStateCallback) }
