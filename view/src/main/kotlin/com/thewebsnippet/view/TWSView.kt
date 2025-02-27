@@ -87,6 +87,10 @@ import kotlinx.collections.immutable.toImmutableMap
  * via [Custom Tabs](https://developer.chrome.com/docs/android/custom-tabs).
  * Allows returning users to the app after authentication.
  * @param isRefreshable Enables pull-to-refresh functionality when set to `true`.
+ * @param onCreated Called when the WebView is first created, this can be used to set additional
+ * settings on the WebView. WebChromeClient and WebViewClient should not be set here as they will be
+ * subsequently overwritten after this lambda is called.
+ * @param doUpdateVisitedHistory Called when navigation is updated.
  * */
 @Composable
 fun TWSView(
@@ -98,7 +102,9 @@ fun TWSView(
     loadingPlaceholderContent: @Composable () -> Unit = { SnippetLoadingView(modifier) },
     interceptUrlCallback: TWSViewInterceptor = TWSViewDeepLinkInterceptor(LocalContext.current),
     googleLoginRedirectUrl: String? = null,
-    isRefreshable: Boolean = true
+    isRefreshable: Boolean = true,
+    onCreated: (WebView) -> Unit = {},
+    doUpdateVisitedHistory: (String?) -> Unit = {}
 ) {
     key(snippet) {
         SnippetContentWithPopup(
@@ -110,7 +116,9 @@ fun TWSView(
             interceptUrlCallback,
             googleLoginRedirectUrl,
             isRefreshable,
-            modifier
+            modifier,
+            onCreated,
+            doUpdateVisitedHistory
         )
     }
 }
@@ -128,7 +136,11 @@ fun TWSView(
  * @param googleLoginRedirectUrl URL to redirect back after Google login via
  * [Custom Tabs](https://developer.chrome.com/docs/android/custom-tabs).
  * @param isRefreshable Enables pull-to-refresh functionality.
- * @param modifier A [Modifier] for layout adjustments.
+ * @param modifier A [Modifier] to configure the layout or styling of the error view.
+ * @param onCreated Called when the WebView is first created, this can be used to set additional
+ * settings on the WebView. WebChromeClient and WebViewClient should not be set here as they will be
+ * subsequently overwritten after this lambda is called.
+ * @param doUpdateVisitedHistory Called when navigation is updated.
  */
 @Composable
 private fun SnippetContentWithPopup(
@@ -140,7 +152,9 @@ private fun SnippetContentWithPopup(
     interceptUrlCallback: TWSViewInterceptor,
     googleLoginRedirectUrl: String?,
     isRefreshable: Boolean,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onCreated: (WebView) -> Unit = {},
+    doUpdateVisitedHistory: (String?) -> Unit = {}
 ) {
     LaunchedEffect(navigator) {
         if (viewState.viewState?.isEmpty != false && viewState.content is WebContent.NavigatorOnly) {
@@ -186,7 +200,9 @@ private fun SnippetContentWithPopup(
         dynamicModifiers = target.dynamicResources.toImmutableList(),
         mustacheProps = target.props.toImmutableMap(),
         engine = target.engine,
-        isRefreshable = isRefreshable
+        isRefreshable = isRefreshable,
+        onCreated = onCreated,
+        doUpdateVisitedHistory = doUpdateVisitedHistory
     )
 
     popupStates.value.forEach { state ->
@@ -222,7 +238,8 @@ private fun SnippetContentWithLoadingAndError(
     engine: TWSEngine,
     isRefreshable: Boolean,
     modifier: Modifier = Modifier,
-    onCreated: (WebView) -> Unit = {}
+    onCreated: (WebView) -> Unit = {},
+    doUpdateVisitedHistory: (String?) -> Unit = {}
 ) {
     // https://github.com/google/accompanist/issues/1326 - WebView settings does not work in compose preview
     val isPreviewMode = LocalInspectionMode.current
@@ -232,7 +249,8 @@ private fun SnippetContentWithLoadingAndError(
             mustacheProps,
             engine,
             interceptUrlCallback,
-            popupStateCallback
+            popupStateCallback,
+            doUpdateVisitedHistory
         )
     }
     val chromeClient = remember(key1 = key) { TWSWebChromeClient(popupStateCallback) }

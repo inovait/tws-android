@@ -22,7 +22,6 @@ import android.webkit.WebView
 import com.samskivert.mustache.MustacheException
 import com.thewebsnippet.data.TWSAttachment
 import com.thewebsnippet.data.TWSEngine
-import com.thewebsnippet.view.client.okhttp.webViewHttpClient
 import com.thewebsnippet.view.data.TWSLoadingState
 import com.thewebsnippet.view.data.TWSViewInterceptor
 import com.thewebsnippet.view.data.TWSViewState
@@ -61,7 +60,8 @@ internal class OkHttpTWSWebViewClient(
     private val mustacheProps: Map<String, Any>,
     private val engine: TWSEngine,
     interceptUrlCallback: TWSViewInterceptor,
-    popupStateCallback: ((TWSViewState, Boolean) -> Unit)? = null
+    popupStateCallback: ((TWSViewState, Boolean) -> Unit)? = null,
+    private val doUpdateVisitedHistory: (String?) -> Unit
 ) : TWSWebViewClient(interceptUrlCallback, popupStateCallback) {
 
     private lateinit var okHttpClient: OkHttpClient
@@ -73,6 +73,12 @@ internal class OkHttpTWSWebViewClient(
         if (state.loadingState !is TWSLoadingState.Loading) {
             state.customErrorsForCurrentRequest.clear()
         }
+    }
+
+    override fun doUpdateVisitedHistory(view: WebView, url: String?, isReload: Boolean) {
+        super.doUpdateVisitedHistory(view, url, isReload)
+
+        doUpdateVisitedHistory(url)
     }
 
     override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse? {

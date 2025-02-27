@@ -346,12 +346,11 @@ private fun createWebView(
     chromeClient: WebChromeClient
 ): WebView {
     return WebView(context).apply {
-        onCreated(this)
-
         webChromeClient = chromeClient
         webViewClient = client
 
         state.viewState?.let { this.restoreState(it) }
+        onCreated(this)
 
         addJavascriptInterface(JavaScriptDownloadInterface(context), JAVASCRIPT_INTERFACE_NAME)
     }.also { state.webView = it }
