@@ -22,6 +22,7 @@ import android.webkit.WebView
 import com.samskivert.mustache.MustacheException
 import com.thewebsnippet.data.TWSAttachment
 import com.thewebsnippet.data.TWSEngine
+import com.thewebsnippet.view.client.okhttp.webViewHttpClient
 import com.thewebsnippet.view.data.TWSLoadingState
 import com.thewebsnippet.view.data.TWSViewInterceptor
 import com.thewebsnippet.view.data.TWSViewState
