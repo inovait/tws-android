@@ -42,7 +42,7 @@ jobs:
       - run: "v=$(cat version.txt);echo \"VERSION=$v\" > $GITHUB_ENV"
       - run: "echo \"# Release version ${{ env.VERSION }}\" > $GITHUB_STEP_SUMMARY"
       - name: Compile library
-        run: "./gradlew --parallel assemble"
+        run: "./gradlew --parallel assemble :service:jar"
 #        TODO first release
 #      - name: Generate Changelog
 #        id: changelog
@@ -60,7 +60,7 @@ jobs:
           username: ${{ secrets.OSSRH_USERNAME }}
           password: ${{ secrets.OSSRH_PASSWORD }}
           # Your staging profile ID. You can get it at https://oss.sonatype.org/#stagingProfiles;$staginProfileId
-          staging_profile_id: ${{ secrets.OSSRH_STAGING_PROFILE_ID }}
+#          staging_profile_id: ${{ secrets.OSSRH_STAGING_PROFILE_ID }} remove after first - TODO
           # a description to identify your repository in the UI
           description: Created by Automatic Github flow
       - name: 'Publish'
