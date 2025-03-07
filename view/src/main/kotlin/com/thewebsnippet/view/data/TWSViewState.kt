@@ -43,7 +43,19 @@ import com.thewebsnippet.data.TWSSnippet
  */
 @Stable
 class TWSViewState(webContent: WebContent) {
+    /**
+     * The URL of the last page that started loading.
+     * This is updated when a new page load begins.
+     */
     var lastLoadedUrl: String? by mutableStateOf(null)
+        internal set
+
+    /**
+     * The URL of the most recently visited page in the browsing history.
+     * This is updated as the user navigates, including when a page is reloaded.
+     * Used in Single Page Applications (SPA) to reflect URL changes.
+     */
+    var currentUrl: String? by mutableStateOf(null)
         internal set
 
     /**
