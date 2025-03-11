@@ -30,6 +30,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -57,6 +59,12 @@ class TWSViewNavigator(private val coroutineScope: CoroutineScope) {
         internal set
 
     /**
+     * User history of SPA navigation events
+     */
+    private val _historyState = MutableStateFlow<List<String>>(emptyList())
+    val historyState = _historyState.asStateFlow()
+
+    /**
      * Navigates the webview back to the previous page.
      */
     fun goBack() {
@@ -68,6 +76,20 @@ class TWSViewNavigator(private val coroutineScope: CoroutineScope) {
      */
     fun goForward() {
         coroutineScope.launch { navigationEvents.emit(NavigationEvent.Forward) }
+    }
+
+    /**
+     * Pushes a new URL to the browser history and triggers a navigation event.
+     */
+    fun pushState(path: String) {
+        coroutineScope.launch { navigationEvents.emit(NavigationEvent.PushState(path)) }
+    }
+
+    /**
+     * Navigates back in the browser history.
+     */
+    fun popState() {
+        coroutineScope.launch { navigationEvents.emit(NavigationEvent.PopState) }
     }
 
     /**
@@ -114,6 +136,27 @@ class TWSViewNavigator(private val coroutineScope: CoroutineScope) {
                 is NavigationEvent.Back -> goBack()
                 is NavigationEvent.Forward -> goForward()
                 is NavigationEvent.Reload -> reload()
+                is NavigationEvent.PopState -> {
+                    @Suppress("StringTemplateIndent") // JavaScript
+                    val jsScript = """
+                        history.back();
+                    """.trimIndent()
+                    evaluateJavascript(jsScript, null)
+
+                    _historyState.value -= _historyState.value.last()
+                }
+
+                is NavigationEvent.PushState -> {
+                    @Suppress("StringTemplateIndent") // JavaScript
+                    val jsScript = """
+                        history.pushState(null, "", '${event.path}');
+                        window.dispatchEvent(new Event("popstate"));
+                    """.trimIndent()
+                    evaluateJavascript(jsScript, null)
+
+                    _historyState.value += event.path
+                }
+
                 is NavigationEvent.LoadHtml -> loadDataWithBaseURL(
                     event.baseUrl,
                     event.html,
@@ -135,6 +178,9 @@ class TWSViewNavigator(private val coroutineScope: CoroutineScope) {
         data object Back : NavigationEvent
         data object Forward : NavigationEvent
         data object Reload : NavigationEvent
+
+        data object PopState : NavigationEvent
+        data class PushState(val path: String) : NavigationEvent
 
         data class LoadUrl(
             val url: String,
