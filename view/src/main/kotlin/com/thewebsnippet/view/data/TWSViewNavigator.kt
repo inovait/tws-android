@@ -30,8 +30,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -57,12 +55,6 @@ class TWSViewNavigator(private val coroutineScope: CoroutineScope) {
      */
     var canGoForward: Boolean by mutableStateOf(false)
         internal set
-
-    /**
-     * User history of SPA navigation events
-     */
-    private val _historyState = MutableStateFlow<List<String>>(emptyList())
-    val historyState = _historyState.asStateFlow()
 
     /**
      * Navigates the webview back to the previous page.
@@ -142,8 +134,6 @@ class TWSViewNavigator(private val coroutineScope: CoroutineScope) {
                         history.back();
                     """.trimIndent()
                     evaluateJavascript(jsScript, null)
-
-                    _historyState.value -= _historyState.value.last()
                 }
 
                 is NavigationEvent.PushState -> {
@@ -153,8 +143,6 @@ class TWSViewNavigator(private val coroutineScope: CoroutineScope) {
                         window.dispatchEvent(new Event("popstate"));
                     """.trimIndent()
                     evaluateJavascript(jsScript, null)
-
-                    _historyState.value += event.path
                 }
 
                 is NavigationEvent.LoadHtml -> loadDataWithBaseURL(
