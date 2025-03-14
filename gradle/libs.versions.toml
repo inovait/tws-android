@@ -28,7 +28,7 @@ kotlin-coroutines = "1.7.3"
 mockito = "5.13.0"
 mustache = "1.15"
 turbine = "1.0.0"
-lifecycle = "2.8.5"
+lifecycle = "2.8.7"
 swiperefreshlayout = "1.1.0"
 dokka = "1.9.20"
 detekt = "1.23.7"
@@ -39,7 +39,6 @@ data-store = "1.1.1"
 composeBom = "2024.04.01"
 hiltAndroid = "2.51.1"
 hiltNavigationCompose = "1.2.0"
-lifecycleRuntimeComposeAndroid = "2.8.7"
 
 [libraries]
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
@@ -74,6 +73,7 @@ mockito = { module = "org.mockito:mockito-core", version.ref = "mockito" }
 mustache = { module = "com.samskivert:jmustache", version.ref = "mustache" }
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 androidx-lifecycle-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose-android", version.ref = "lifecycle" }
+androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycle" }
 androidx-swiperefreshlayout = { group = "androidx.swiperefreshlayout", name = "swiperefreshlayout", version.ref = "swiperefreshlayout" }
 detekt-plugin = { module = "io.gitlab.arturbosch.detekt:detekt-gradle-plugin", version.ref = "detekt" }
 detekt-formatting = { module = "io.gitlab.arturbosch.detekt:detekt-formatting", version.ref = "detekt" }
@@ -81,7 +81,6 @@ detekt-compilerWarnings = { module = "com.braisgabin.detekt:kotlin-compiler-wrap
 detekt-compose = { module = "io.nlopez.compose.rules:detekt", version.ref = "detekt-compose" }
 google-api-client = { group = "com.google.api-client", name = "google-api-client", version.ref = "google-api" }
 data-store = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "data-store" }
-androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
 androidx-ui = { group = "androidx.compose.ui", name = "ui" }
 androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
@@ -92,7 +91,6 @@ androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-man
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
 hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltAndroid" }
 androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
-androidx-lifecycle-runtime-compose-android = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose-android", version.ref = "lifecycleRuntimeComposeAndroid" }
 
 [plugins]
 versions = { id = "com.github.ben-manes.versions", version.ref = "versionsChecker" }
