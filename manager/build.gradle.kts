@@ -20,6 +20,7 @@ plugins {
     androidLibraryModule
     kotlin("kapt")
     alias(libs.plugins.dokka)
+    id(libs.plugins.jreleaser.get().pluginId)
 }
 
 // configuration specific to this subproject.
