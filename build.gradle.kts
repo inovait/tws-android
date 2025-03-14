@@ -21,22 +21,12 @@ import org.jetbrains.dokka.gradle.DokkaTaskPartial
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 plugins {
-    alias(libs.plugins.nexusPublish)
     alias(libs.plugins.dokka)
 }
 
 buildscript {
     dependencies {
         classpath(libs.dokka.base)
-    }
-}
-
-if (properties.containsKey("ossrhUsername")) {
-    nexusStaging {
-        username = property("ossrhUsername") as String
-        password = property("ossrhPassword") as String
-        packageGroup = "com.thewebsnippet"
-        stagingRepositoryId = property("ossrhRepId") as String
     }
 }
 
