@@ -55,7 +55,7 @@ jobs:
       - name: 'Save private key'
         run: 'echo "${{ secrets.PGP_PRIVATE }}" | base64 -d > private_key.pgp'
       - name: 'Verify release'
-        run: './gradlew jreleaserConfig'
+        run: './gradlew jreleaserConfig -Djreleaser.github.token=fakeToken --git-root-search'
       - name: 'Ensure a clean deployment'
         run: './gradlew clean'
       - name: 'Publish'
@@ -78,10 +78,6 @@ jobs:
         run: 'git tag ${{ env.VERSION }}'
       - name: 'Push tag'
         run: 'git push origin ${{ env.VERSION }}'
-      - name: Create a Release
-        uses: ncipollo/release-action@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           name: ${{ env.VERSION }}
           tag: ${{ env.VERSION }}
