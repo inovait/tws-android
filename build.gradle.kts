@@ -51,11 +51,12 @@ tasks.dokkaHtmlMultiModule {
     includes.from("docs/index.md")
     // Include custom assets
     pluginConfiguration<DokkaBase, DokkaBaseConfiguration> {
-        customAssets = listOf(file("docs/appIcon.png"))
+        customAssets = listOf(file("docs/appIcon.png"), file("docs/homepage.svg"))
         customStyleSheets = listOf(
             file("docs/logo-styles.css"), file("docs/hide-kotlin-playground.css"),
             file("docs/hide-filter.css"), file("docs/fonts.css")
         )
+        homepageLink = "https://github.com/inovait/tws-android"
         footerMessage = "Copyright 2024 INOVA IT d.o.o."
     }
 }
