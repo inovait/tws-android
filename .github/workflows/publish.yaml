@@ -64,6 +64,8 @@ jobs:
                 -PmavenPassword=''${{ secrets.MAVEN_CENTRAL_PASSWORD }}''
                 -PpublicKeyPath=$(pwd)/public_key.pgp
                 -PprivateKeyPath=$(pwd)/private_key.pgp'
+      - name: 'Deploy'
+        run: './gradlew jreleaserDeploy service:jreleaserDeploy'
       - name: 'Add changelog and version'
         run: 'git add version.txt CHANGELOG.MD'
       - run: 'git config --global user.email "ci@inova.si"'
