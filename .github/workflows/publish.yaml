@@ -78,10 +78,6 @@ jobs:
         run: 'git tag ${{ env.VERSION }}'
       - name: 'Push tag'
         run: 'git push origin ${{ env.VERSION }}'
-        with:
-          name: ${{ env.VERSION }}
-          tag: ${{ env.VERSION }}
-          body: ${{ steps.changelog.outputs.changelog }}
   #      - name: Publish Test Results
   #        uses: EnricoMi/publish-unit-test-result-action/composite@v2
   #        if: always()
