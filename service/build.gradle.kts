@@ -1,3 +1,8 @@
+import org.jreleaser.gradle.plugin.JReleaserExtension
+import org.jreleaser.model.Active
+import org.jreleaser.model.Http
+import org.jreleaser.model.Signing
+
 /*
  * Copyright 2024 INOVA IT d.o.o.
  *
@@ -19,6 +24,7 @@ plugins {
     `kotlin-dsl`
     signing
     alias(libs.plugins.detekt)
+    alias(libs.plugins.jreleaser)
 }
 
 detekt {
@@ -42,7 +48,7 @@ publishing {
             pom {
                 name.set(userFriendlyName)
                 this.description.set(description)
-                val projectGitUrl = "https://github.com/inovait/tws-android-sdk"
+                val projectGitUrl = "https://github.com/inovait/tws-android"
                 url.set("$projectGitUrl/tree/main/$githubPath")
                 inceptionYear.set("2024")
                 licenses {
@@ -69,27 +75,40 @@ publishing {
             }
         }
     }
+
+    repositories {
+        maven {
+            setUrl(layout.buildDirectory.dir("staging-deploy"))
+        }
+    }
 }
 
-if (properties.containsKey("ossrhUsername")) {
-    signing {
-        sign(publishing.publications)
-    }
+if (properties.containsKey("mavenUsername")) {
+    extensions.configure<JReleaserExtension>("jreleaser") {
+        signing {
+            active.set(Active.ALWAYS)
+            armored.set(true)
+            mode.set(Signing.Mode.FILE)
+            publicKey.set(property("publicKeyPath") as String)
+            secretKey.set(property("privateKeyPath") as String)
+        }
 
-    // Workaround for the https://github.com/gradle/gradle/issues/26091
-    tasks.withType<AbstractPublishToMaven>().configureEach {
-        val signingTasks = tasks.withType<Sign>()
-        mustRunAfter(signingTasks)
-    }
-
-    publishing {
-        repositories {
+        deploy {
             maven {
-                val repositoryId = property("ossrhRepId") ?: error("Missing property: ossrhRepId")
-                setUrl("https://oss.sonatype.org/service/local/staging/deployByRepositoryId/$repositoryId/")
-                credentials {
-                    username = property("ossrhUsername") as String
-                    password = property("ossrhPassword") as String
+                mavenCentral {
+                    register("maven-central") {
+                        active.set(Active.ALWAYS)
+
+                        namespace.set("com.thewebsnippet")
+                        url.set("https://s01.oss.sonatype.org/service/local")
+                        stagingRepository("target/staging-deploy")
+
+                        authorization.set(Http.Authorization.BASIC)
+                        username.set(property("mavenUsername") as String)
+                        password.set(property("mavenPassword") as String)
+
+                        applyMavenCentralRules.set(true)
+                    }
                 }
             }
         }

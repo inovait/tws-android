@@ -83,7 +83,8 @@ fun TWSViewCustomInterceptorExample(
         homeSnippet is TWSOutcome.Error -> {
             ErrorView(
                 errorText = stringResource(R.string.error_message),
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
+                refresh = twsInterceptorViewModel::forceRefresh
             )
         }
 
@@ -103,7 +104,7 @@ fun TWSViewCustomInterceptorExample(
 /** @suppress: viewmodel should not be documented */
 @HiltViewModel
 class TWSInterceptorViewModel @Inject constructor(
-    manager: TWSManager
+    private val manager: TWSManager
 ) : ViewModel() {
     val twsSnippetsFlow: Flow<TWSOutcome<TWSSnippet?>> = manager.snippets.map { data ->
         data.mapData { snippets ->
@@ -111,5 +112,9 @@ class TWSInterceptorViewModel @Inject constructor(
                 it.id == "customInterceptors"
             }
         }
+    }
+
+    fun forceRefresh() {
+        manager.forceRefresh()
     }
 }

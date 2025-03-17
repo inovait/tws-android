@@ -17,10 +17,11 @@ package util
 
 import org.gradle.api.Project
 import org.gradle.api.publish.maven.MavenPublication
-import org.gradle.api.publish.maven.tasks.AbstractPublishToMaven
-import org.gradle.kotlin.dsl.getByName
 import org.gradle.kotlin.dsl.withType
-import org.gradle.plugins.signing.Sign
+import org.jreleaser.gradle.plugin.JReleaserExtension
+import org.jreleaser.model.Active
+import org.jreleaser.model.Http
+import org.jreleaser.model.Signing
 
 fun Project.publishLibrary(
     userFriendlyName: String,
@@ -29,7 +30,7 @@ fun Project.publishLibrary(
     artifactName: String = project.name
 ) {
     setProjectMetadata(userFriendlyName, description, githubPath)
-    configureForMavenCentral()
+    configureForJReleaser()
     forceArtifactName(artifactName)
 }
 
@@ -43,7 +44,7 @@ private fun Project.setProjectMetadata(
             pom {
                 name.set(userFriendlyName)
                 this.description.set(description)
-                val projectGitUrl = "https://github.com/inovait/tws-android-sdk"
+                val projectGitUrl = "https://github.com/inovait/tws-android"
                 url.set("$projectGitUrl/tree/main/$githubPath")
                 inceptionYear.set("2024")
                 licenses {
@@ -69,30 +70,42 @@ private fun Project.setProjectMetadata(
                 }
             }
         }
+
+        repositories {
+            maven {
+                setUrl(layout.buildDirectory.dir("staging-deploy"))
+            }
+        }
     }
 }
 
-private fun Project.configureForMavenCentral() {
-    if (properties.containsKey("ossrhUsername")) {
-        extensions.configure<org.gradle.plugins.signing.SigningExtension>("signing") {
-            sign(extensions.getByName<org.gradle.api.publish.PublishingExtension>("publishing").publications)
+fun Project.configureForJReleaser() {
+    if (!properties.containsKey("mavenUsername")) return
+
+    extensions.configure<JReleaserExtension>("jreleaser") {
+        signing {
+            active.set(Active.ALWAYS)
+            armored.set(true)
+            mode.set(Signing.Mode.FILE)
+            publicKey.set(property("publicKeyPath") as String)
+            secretKey.set(property("privateKeyPath") as String)
         }
 
-        // Workaround for the https://github.com/gradle/gradle/issues/26091
-        tasks.withType<AbstractPublishToMaven>().configureEach {
-            val signingTasks = tasks.withType<Sign>()
-            mustRunAfter(signingTasks)
-        }
+        deploy {
+            maven {
+                mavenCentral {
+                    register("maven-central") {
+                        active.set(Active.ALWAYS)
 
-        extensions.configure<org.gradle.api.publish.PublishingExtension>("publishing") {
-            repositories {
-                maven {
-                    val repositoryId =
-                        property("ossrhRepId") ?: error("Missing property: ossrhRepId")
-                    setUrl("https://oss.sonatype.org/service/local/staging/deployByRepositoryId/$repositoryId/")
-                    credentials {
-                        username = property("ossrhUsername") as String
-                        password = property("ossrhPassword") as String
+                        namespace.set("com.thewebsnippet")
+                        url.set("https://s01.oss.sonatype.org/service/local")
+                        stagingRepository("target/staging-deploy")
+
+                        authorization.set(Http.Authorization.BASIC)
+                        username.set(property("mavenUsername") as String)
+                        password.set(property("mavenPassword") as String)
+
+                        applyMavenCentralRules.set(true)
                     }
                 }
             }

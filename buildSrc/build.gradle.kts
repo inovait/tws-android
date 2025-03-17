@@ -37,6 +37,7 @@ dependencies {
     implementation(libs.kotlin.plugin)
     implementation(libs.v.checker.plugin)
     implementation(libs.detekt.plugin)
+    implementation(libs.org.jreleaser.gradle.plugin)
 
     // Workaround to have libs accessible (from https://github.com/gradle/gradle/issues/15383)
     compileOnly(files(libs.javaClass.superclass.protectionDomain.codeSource.location))
