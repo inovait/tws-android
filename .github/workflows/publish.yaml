@@ -38,51 +38,34 @@ jobs:
       - name: "Wait for cancel to stick"
         run: "sleep 99999"
         if: "${{ steps.version-check.outputs.version == env.OLD_VERSION }}"
-#      - run: "./bump_version.sh ${{ steps.version-check.outputs.version }}" TODO first release
+      #      - run: "./bump_version.sh ${{ steps.version-check.outputs.version }}" TODO first release
       - run: "v=$(cat version.txt);echo \"VERSION=$v\" > $GITHUB_ENV"
       - run: "echo \"# Release version ${{ env.VERSION }}\" > $GITHUB_STEP_SUMMARY"
       - name: Compile library
         run: "./gradlew --parallel assemble :service:jar"
-#        TODO first release
-#      - name: Generate Changelog
-#        id: changelog
-#        uses: inovait/actions-common/changelog-since-last-build@v10
-#        with:
-#          git_commit_url_prefix: 'https://github.com/inovait/tws-android-sdk/commit/'
-#      - run: "old_changelog=$(cat CHANGELOG.MD); echo \"# ${{ env.VERSION }}\n\n${{ steps.changelog.outputs.changelog }}\n\n$old_changelog\" > CHANGELOG.MD"
-      - name: 'Save GPG key'
-        run: 'echo "${{ secrets.GPG_SIGNING_KEY }}" | base64 -d > signing_key.gpg'
-      - id: create_staging_repository
-        name: "Create nexus staging repository"
-        uses: nexus-actions/create-nexus-staging-repo@v1.3.0
-        with:
-          # The username you use to connect to Sonatype's Jira
-          username: ${{ secrets.OSSRH_USERNAME }}
-          password: ${{ secrets.OSSRH_PASSWORD }}
-          # Your staging profile ID. You can get it at https://oss.sonatype.org/#stagingProfiles;$staginProfileId
-          staging_profile_id: ${{ secrets.OSSRH_STAGING_PROFILE_ID }}
-          # a description to identify your repository in the UI
-          description: Created by Automatic Github flow
+      #        TODO first release
+      #      - name: Generate Changelog
+      #        id: changelog
+      #        uses: inovait/actions-common/changelog-since-last-build@v10
+      #        with:
+      #          git_commit_url_prefix: 'https://github.com/inovait/tws-android-sdk/commit/'
+      #      - run: "old_changelog=$(cat CHANGELOG.MD); echo \"# ${{ env.VERSION }}\n\n${{ steps.changelog.outputs.changelog }}\n\n$old_changelog\" > CHANGELOG.MD"
+      - name: 'Save public key'
+        run: 'echo "${{ secrets.PGP_PUBLIC }}" | base64 -d > public_key.pgp'
+      - name: 'Save private key'
+        run: 'echo "${{ secrets.PGP_PRIVATE }}" | base64 -d > private_key.pgp'
+      - name: 'Verify release'
+        run: './gradlew jreleaserConfig'
+      - name: 'Ensure a clean deployment'
+        run: './gradlew clean'
       - name: 'Publish'
         run: './gradlew publish service:publish
-                -PossrhUsername=''${{ secrets.OSSRH_USERNAME }}''
-                -PossrhPassword=''${{ secrets.OSSRH_PASSWORD }}''
-                -PossrhRepId=''${{ steps.create_staging_repository.outputs.repository_id }}''
-                -Psigning.secretKeyRingFile=$(pwd)/signing_key.gpg
-                -Psigning.password=''${{ secrets.GPG_SIGNING_PASSPHRASE }}''
-                -Psigning.keyId=${{ secrets.GPG_SIGNING_ID }}'
-      - name: 'Release staging repository'
-        run: './gradlew closeAndReleaseRepository
-                -PossrhRepId=''${{ steps.create_staging_repository.outputs.repository_id }}''
-                -PossrhUsername=''${{ secrets.OSSRH_USERNAME }}''
-                -PossrhPassword=''${{ secrets.OSSRH_PASSWORD }}'''
-      - name: Discard nexus staging repository
-        if: ${{ failure() && steps.create_staging_repository.outputs.repository_id != null }}
-        uses: nexus-actions/drop-nexus-staging-repo@v1
-        with:
-          username: ${{ secrets.SONATYPE_USERNAME }}
-          password: ${{ secrets.SONATYPE_PASSWORD }}
-          staging_repository_id: ${{ steps.create_staging_repository.outputs.repository_id }}
+                -PmavenUsername=''${{ secrets.MAVEN_CENTRAL_USERNAME }}''
+                -PmavenPassword=''${{ secrets.MAVEN_CENTRAL_PASSWORD }}''
+                -PpublicKeyPath=$(pwd)/public_key.pgp
+                -PprivateKeyPath=$(pwd)/private_key.pgp'
+      - name: 'Deploy'
+        run: './gradlew jreleaserDeploy service:jreleaserDeploy'
       - name: 'Add changelog and version'
         run: 'git add version.txt CHANGELOG.MD'
       - run: 'git config --global user.email "ci@inova.si"'
@@ -103,11 +86,13 @@ jobs:
           name: ${{ env.VERSION }}
           tag: ${{ env.VERSION }}
           body: ${{ steps.changelog.outputs.changelog }}
-#      - name: Publish Test Results
-#        uses: EnricoMi/publish-unit-test-result-action/composite@v2
-#        if: always()
-#        with:
-#          comment_mode: failures
-#          junit_files: |
-#            **/build/outputs/*-results/**/*.xml
-#            **/build/*-results/**/*.xml
+  #      - name: Publish Test Results
+  #        uses: EnricoMi/publish-unit-test-result-action/composite@v2
+  #        if: always()
+  #        with:
+  #          comment_mode: failures
+  #          junit_files: |
+  #            **/build/outputs/*-results/**/*.xml
+  #            **/build/*-results/**/*.xml
+
+
