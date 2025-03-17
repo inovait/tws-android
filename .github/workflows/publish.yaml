@@ -60,8 +60,8 @@ jobs:
         run: './gradlew clean'
       - name: 'Publish'
         run: './gradlew publish service:publish
-                -Pusername=''${{ secrets.MAVEN_CENTRAL_USERNAME }}''
-                -Ppassword=''${{ secrets.MAVEN_CENTRAL_PASSWORD }}''
+                -PmavenUsername=''${{ secrets.MAVEN_CENTRAL_USERNAME }}''
+                -PmavenPassword=''${{ secrets.MAVEN_CENTRAL_PASSWORD }}''
                 -PpublicKeyPath=$(pwd)/public_key.pgp
                 -PprivateKeyPath=$(pwd)/private_key.pgp'
       - name: 'Add changelog and version'

@@ -44,7 +44,7 @@ private fun Project.setProjectMetadata(
             pom {
                 name.set(userFriendlyName)
                 this.description.set(description)
-                val projectGitUrl = "https://github.com/inovait/tws-android-sdk"
+                val projectGitUrl = "https://github.com/inovait/tws-android"
                 url.set("$projectGitUrl/tree/main/$githubPath")
                 inceptionYear.set("2024")
                 licenses {
@@ -80,7 +80,7 @@ private fun Project.setProjectMetadata(
 }
 
 fun Project.configureForJReleaser() {
-    if (!properties.containsKey("username")) return
+    if (!properties.containsKey("mavenUsername")) return
 
     extensions.configure<JReleaserExtension>("jreleaser") {
         signing {
@@ -102,8 +102,8 @@ fun Project.configureForJReleaser() {
                         stagingRepository("target/staging-deploy")
 
                         authorization.set(Http.Authorization.BASIC)
-                        username.set(property("username") as String)
-                        password.set(property("password") as String)
+                        username.set(property("mavenUsername") as String)
+                        password.set(property("mavenPassword") as String)
 
                         applyMavenCentralRules.set(true)
                     }
