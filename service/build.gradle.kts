@@ -75,6 +75,12 @@ publishing {
             }
         }
     }
+
+    repositories {
+        maven {
+            setUrl(layout.buildDirectory.dir("staging-deploy"))
+        }
+    }
 }
 
 if (properties.containsKey("mavenUsername")) {
