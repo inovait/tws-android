@@ -65,7 +65,8 @@ jobs:
                 -PpublicKeyPath=$(pwd)/public_key.pgp
                 -PprivateKeyPath=$(pwd)/private_key.pgp'
       - name: 'Deploy and Release'
-        run: './gradlew jreleaserFullRelease service:jreleaserFullRelease'
+        run: './gradlew jreleaserFullRelease service:jreleaserFullRelease
+                -Djreleaser.github.token=fakeToken --git-root-search'
   #      - name: 'Add changelog and version'
   #        run: 'git add version.txt CHANGELOG.MD'
   #      - run: 'git config --global user.email "ci@inova.si"'
