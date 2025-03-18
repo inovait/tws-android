@@ -30,7 +30,7 @@ fun Project.publishLibrary(
     artifactName: String = project.name
 ) {
     setProjectMetadata(userFriendlyName, description, githubPath)
-    configureForJReleaser()
+    configureForJReleaser(userFriendlyName)
     forceArtifactName(artifactName)
 }
 
@@ -79,21 +79,27 @@ private fun Project.setProjectMetadata(
     }
 }
 
-fun Project.configureForJReleaser() {
+fun Project.configureForJReleaser(userFriendlyName: String) {
     if (!properties.containsKey("mavenUsername")) return
 
     extensions.configure<JReleaserExtension>("jreleaser") {
+        println("dsdsdsd: $userFriendlyName: release")
         release {
+            println("dsdsdsd: $userFriendlyName: release")
             github {
+                println("dsdsdsd: $userFriendlyName: github")
                 enabled.set(false)
                 skipRelease.set(true)
                 skipTag.set(true)
+                overwrite.set(true)
+                tagName.set("{{projectVersion}}")
             }
         }
 
         gitRootSearch.set(true)
 
         signing {
+            println("dsdsdsd: $userFriendlyName: signing")
             active.set(Active.ALWAYS)
             armored.set(true)
             mode.set(Signing.Mode.FILE)
@@ -105,6 +111,7 @@ fun Project.configureForJReleaser() {
             maven {
                 mavenCentral {
                     create("sonatype") {
+                        println("dsdsdsd: $userFriendlyName: sonatype")
                         active.set(Active.ALWAYS)
 
                         namespace.set("com.thewebsnippet")
