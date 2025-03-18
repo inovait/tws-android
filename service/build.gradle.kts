@@ -85,14 +85,6 @@ publishing {
 
 if (properties.containsKey("mavenUsername")) {
     extensions.configure<JReleaserExtension>("jreleaser") {
-        release {
-            github {
-                enabled.set(false)
-                skipRelease.set(true)
-                skipTag.set(true)
-            }
-        }
-
         signing {
             active.set(Active.ALWAYS)
             armored.set(true)
@@ -109,7 +101,7 @@ if (properties.containsKey("mavenUsername")) {
                         active.set(Active.ALWAYS)
 
                         namespace.set("com.thewebsnippet")
-                        url.set("https://s01.oss.sonatype.org/service/local")
+                        url.set("https://central.sonatype.com/api/v1/publisher")
                         stagingRepository("target/staging-deploy")
 
                         authorization.set(Http.Authorization.BASIC)
