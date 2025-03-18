@@ -44,7 +44,7 @@ import javax.inject.Inject
  * content type of `CSS`. All resources are already prepared and added to the snippet on the platform (can be found on snippet
  * details page, under the dynamic resources), so no specific code is required to enable this feature.
  *
- * A working example can be found [here](https://github.com/inovait/tws-android-sdk/blob/develop/sample/src/main/kotlin/com/thewebsnippet/sample/TWSViewInjectionExample.kt).
+ * A working example can be found [here](https://github.com/inovait/tws-android/blob/develop/sample/src/main/kotlin/com/thewebsnippet/sample/TWSViewInjectionExample.kt).
  * Download the Sample app from our web page to explore this functionality interactively.
  *
  */
