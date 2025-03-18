@@ -55,8 +55,8 @@ jobs:
       - name: 'Save private key'
         run: 'echo "${{ secrets.PGP_PRIVATE }}" | base64 -d > private_key.pgp'
       - name: 'Verify release'
-        run: './gradlew jreleaserConfig -Djreleaser.github.token=fakeToken --git-root-search
-                  service:jreleaserConfig -Djreleaser.github.token=fakeToken --git-root-search'
+        run: './gradlew jreleaserConfig -Djreleaser.github.token=${{ secrets.GITHUB_TOKEN }} --git-root-search
+                  service:jreleaserConfig -Djreleaser.github.token=${{ secrets.GITHUB_TOKEN }} --git-root-search'
       - name: 'Ensure a clean deployment'
         run: './gradlew clean'
       - name: 'Publish'
@@ -66,8 +66,8 @@ jobs:
                 -PpublicKeyPath=$(pwd)/public_key.pgp
                 -PprivateKeyPath=$(pwd)/private_key.pgp'
       - name: 'Deploy and Release'
-        run: './gradlew jreleaserFullRelease -Djreleaser.github.token=fakeToken --git-root-search
-                service:jreleaserFullRelease -Djreleaser.github.token=fakeToken --git-root-search'
+        run: './gradlew jreleaserFullRelease -Djreleaser.github.token=${{ secrets.GITHUB_TOKEN }} --git-root-search --stacktrace
+                service:jreleaserFullRelease -Djreleaser.github.token=${{ secrets.GITHUB_TOKEN }} --git-root-search --stacktrace'
   #      - name: 'Add changelog and version'
   #        run: 'git add version.txt CHANGELOG.MD'
   #      - run: 'git config --global user.email "ci@inova.si"'
