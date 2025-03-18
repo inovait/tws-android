@@ -48,15 +48,12 @@ jobs:
       #        id: changelog
       #        uses: inovait/actions-common/changelog-since-last-build@v10
       #        with:
-      #          git_commit_url_prefix: 'https://github.com/inovait/tws-android-sdk/commit/'
+      #          git_commit_url_prefix: 'https://github.com/inovait/tws-android/commit/'
       #      - run: "old_changelog=$(cat CHANGELOG.MD); echo \"# ${{ env.VERSION }}\n\n${{ steps.changelog.outputs.changelog }}\n\n$old_changelog\" > CHANGELOG.MD"
       - name: 'Save public key'
         run: 'echo "${{ secrets.PGP_PUBLIC }}" | base64 -d > public_key.pgp'
       - name: 'Save private key'
         run: 'echo "${{ secrets.PGP_PRIVATE }}" | base64 -d > private_key.pgp'
-      - name: 'Verify release'
-        run: './gradlew jreleaserConfig -Djreleaser.github.token=${{ secrets.GITHUB_TOKEN }} --git-root-search
-                  service:jreleaserConfig -Djreleaser.github.token=${{ secrets.GITHUB_TOKEN }} --git-root-search'
       - name: 'Ensure a clean deployment'
         run: './gradlew clean'
       - name: 'Publish'
@@ -66,8 +63,7 @@ jobs:
                 -PpublicKeyPath=$(pwd)/public_key.pgp
                 -PprivateKeyPath=$(pwd)/private_key.pgp'
       - name: 'Deploy and Release'
-        run: './gradlew jreleaserFullRelease -Djreleaser.github.token=${{ secrets.GITHUB_TOKEN }} --git-root-search --stacktrace
-                service:jreleaserFullRelease -Djreleaser.github.token=${{ secrets.GITHUB_TOKEN }} --git-root-search --stacktrace'
+        run: './gradlew deployCentralPortal'
   #      - name: 'Add changelog and version'
   #        run: 'git add version.txt CHANGELOG.MD'
   #      - run: 'git config --global user.email "ci@inova.si"'
