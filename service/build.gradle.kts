@@ -87,17 +87,18 @@ if (properties.containsKey("mavenUsername")) {
     extensions.configure<JReleaserExtension>("jreleaser") {
         release {
             github {
-                enabled.set(true)
+                enabled.set(false)
                 skipRelease.set(true)
                 skipTag.set(true)
             }
         }
 
+        gitRootSearch.set(true)
+
         signing {
             active.set(Active.ALWAYS)
             armored.set(true)
             mode.set(Signing.Mode.FILE)
-            gitRootSearch.set(true)
             publicKey.set(property("publicKeyPath") as String)
             secretKey.set(property("privateKeyPath") as String)
         }
@@ -105,7 +106,7 @@ if (properties.containsKey("mavenUsername")) {
         deploy {
             maven {
                 mavenCentral {
-                    register("maven-central") {
+                    create("sonatype") {
                         active.set(Active.ALWAYS)
 
                         namespace.set("com.thewebsnippet")
