@@ -1,4 +1,3 @@
-import org.jreleaser.gradle.plugin.JReleaserExtension
 import org.jreleaser.model.Active
 import org.jreleaser.model.Http
 import org.jreleaser.model.Signing
@@ -84,18 +83,28 @@ publishing {
 }
 
 if (properties.containsKey("mavenUsername")) {
-    extensions.configure<JReleaserExtension>("jreleaser") {
+    jreleaser {
+        println("dsdsdsd: service: jreleaser")
+
         release {
+            println("dsdsdsd: service: release")
+
             github {
+                println("dsdsdsd: service: github")
+
                 enabled.set(false)
                 skipRelease.set(true)
                 skipTag.set(true)
+                tagName.set("{{projectVersion}}")
+                overwrite.set(true)
             }
         }
 
         gitRootSearch.set(true)
 
         signing {
+            println("dsdsdsd: service: signing")
+
             active.set(Active.ALWAYS)
             armored.set(true)
             mode.set(Signing.Mode.FILE)
@@ -107,6 +116,8 @@ if (properties.containsKey("mavenUsername")) {
             maven {
                 mavenCentral {
                     create("sonatype") {
+                        println("dsdsdsd: service: sonatype")
+
                         active.set(Active.ALWAYS)
 
                         namespace.set("com.thewebsnippet")
