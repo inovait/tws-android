@@ -83,6 +83,14 @@ fun Project.configureForJReleaser() {
     if (!properties.containsKey("mavenUsername")) return
 
     extensions.configure<JReleaserExtension>("jreleaser") {
+        release {
+            github {
+                enabled.set(true)
+                skipRelease.set(true)
+                skipTag.set(true)
+            }
+        }
+
         signing {
             active.set(Active.ALWAYS)
             armored.set(true)
