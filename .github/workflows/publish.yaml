@@ -74,7 +74,16 @@ jobs:
                 jreleaserPrepare --git-root-search \
                 jreleaserPackage --git-root-search \
                 jreleaserPublish --git-root-search \
-                jreleaserAnnounce --git-root-search'
+                jreleaserAnnounce --git-root-search \
+                service:jreleaserChecksum --git-root-search \
+                service:jreleaserCatalog --git-root-search \
+                service:jreleaserSign --git-root-search  \
+                service:jreleaserDeploy --git-root-search \
+                service:jreleaserUpload --git-root-search \
+                service:jreleaserPrepare --git-root-search \
+                service:jreleaserPackage --git-root-search \
+                service:jreleaserPublish --git-root-search \
+                service:jreleaserAnnounce --git-root-search'
   #      - name: 'Add changelog and version'
   #        run: 'git add version.txt CHANGELOG.MD'
   #      - run: 'git config --global user.email "ci@inova.si"'
