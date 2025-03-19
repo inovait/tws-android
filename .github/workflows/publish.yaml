@@ -70,7 +70,7 @@ jobs:
             -PpublicKeyPath=$(pwd)/public_key.pgp \
             -PprivateKeyPath=$(pwd)/private_key.pgp 
           
-          ./gradlew jreleaserFullrelease --git-root-search service:jreleaserFullrelease --git-root-search
+          ./gradlew jreleaserFullrelease --git-root-search --stacktrace service:jreleaserFullrelease --git-root-search --stacktrace
   #      - name: 'Add changelog and version'
   #        run: 'git add version.txt CHANGELOG.MD'
   #      - run: 'git config --global user.email "ci@inova.si"'
