@@ -49,7 +49,7 @@ import javax.inject.Inject
  * permissions, gallery and file upload/download. Include/exclude permissions from `AndroidManifest.xml`
  * and see, how behavior changes.
  *
- * You can see a working example [here](https://github.com/inovait/tws-android-sdk/blob/develop/sample/src/main/kotlin/com/thewebsnippet/sample/TWSViewPermissionsExample.kt).
+ * You can see a working example [here](https://github.com/inovait/tws-android/blob/develop/sample/src/main/kotlin/com/thewebsnippet/sample/TWSViewPermissionsExample.kt).
  * Download the Sample app from our web page to explore this functionality interactively.
  *
  */

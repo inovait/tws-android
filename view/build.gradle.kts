@@ -20,7 +20,7 @@ plugins {
     androidLibraryModule
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.dokka)
-    id(libs.plugins.jreleaser.get().pluginId)
+    id("io.deepmedia.tools.deployer") version "0.17.0"
 }
 
 // configuration specific to this subproject.
@@ -58,6 +58,17 @@ publishLibrary(
     description = "A collection of core webview utilities",
     githubPath = "view"
 )
+
+deployer {
+    centralPortalSpec {
+        auth.user.set(secret("MAVEN_CENTRAL_USERNAME"))
+        auth.password.set(secret("MAVEN_CENTRAL_PASSWORD"))
+
+        signing.key.set(secret("PGP_PUBLIC"))
+        signing.password.set(secret("PGP_PRIVATE"))
+        allowMavenCentralSync = false
+    }
+}
 
 dependencies {
     api(projects.data)

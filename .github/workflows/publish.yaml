@@ -48,7 +48,7 @@ jobs:
       #        id: changelog
       #        uses: inovait/actions-common/changelog-since-last-build@v10
       #        with:
-      #          git_commit_url_prefix: 'https://github.com/inovait/tws-android-sdk/commit/'
+      #          git_commit_url_prefix: 'https://github.com/inovait/tws-android/commit/'
       #      - run: "old_changelog=$(cat CHANGELOG.MD); echo \"# ${{ env.VERSION }}\n\n${{ steps.changelog.outputs.changelog }}\n\n$old_changelog\" > CHANGELOG.MD"
       - name: 'Save public key'
         run: 'echo "${{ secrets.PGP_PUBLIC }}" | base64 -d > public_key.pgp'
