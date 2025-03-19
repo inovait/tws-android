@@ -85,8 +85,9 @@ fun Project.configureForJReleaser() {
     extensions.configure<JReleaserExtension>("jreleaser") {
         release {
             github {
-                enabled.set(false)
+                enabled.set(true)
                 skipRelease.set(true)
+                skipTag.set(true)
             }
         }
 
@@ -102,19 +103,24 @@ fun Project.configureForJReleaser() {
 
         deploy {
             maven {
+                pomchecker {
+                    version.set("1.14.0")
+                    failOnWarning.set(true)
+                    failOnError.set(true)
+                }
                 mavenCentral {
                     create("sonatype") {
                         active.set(Active.ALWAYS)
 
                         namespace.set("com.thewebsnippet")
                         url.set("https://central.sonatype.com/api/v1/publisher")
-                        stagingRepository("target/staging-deploy")
+                        stagingRepository("build/staging-deploy")
 
                         authorization.set(Http.Authorization.BASIC)
                         username.set(property("mavenUsername") as String)
                         password.set(property("mavenPassword") as String)
 
-                        applyMavenCentralRules.set(true)
+                        applyMavenCentralRules.set(false)
                     }
                 }
             }
