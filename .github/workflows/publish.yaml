@@ -60,6 +60,8 @@ jobs:
       - name: 'Ensure a clean deployment'
         run: './gradlew clean'
       - name: 'Publish, deploy and release'
+        env:
+          JRELEASER_GPG_PASSPHRASE: ${{ secrets.GPG_SIGNING_PASSPHRASE }}
         run: |
           ./gradlew publish service:publish
             -PmavenUsername=''${{ secrets.MAVEN_CENTRAL_USERNAME }}''
