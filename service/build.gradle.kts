@@ -39,7 +39,7 @@ publishing {
     val githubPath = "service"
 
     publications {
-        create<MavenPublication>("gradlePlugin") {
+        create<MavenPublication>("pluginMaven") {
             groupId = project.group.toString()
             artifactId = "service"
             version = project.version.toString()
