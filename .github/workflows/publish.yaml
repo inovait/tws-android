@@ -66,24 +66,24 @@ jobs:
                 -PpublicKeyPath=$(pwd)/public_key.pgp
                 -PprivateKeyPath=$(pwd)/private_key.pgp'
       - name: 'Deploy and Release'
-        run: './gradlew jreleaserChecksum --git-root-search \
-                jreleaserCatalog --git-root-search \
-                jreleaserSign --git-root-search  \
-                jreleaserDeploy --git-root-search \
-                jreleaserUpload --git-root-search \
-                jreleaserPrepare --git-root-search \
-                jreleaserPackage --git-root-search \
-                jreleaserPublish --git-root-search \
-                jreleaserAnnounce --git-root-search \
-                service:jreleaserChecksum --git-root-search \
-                service:jreleaserCatalog --git-root-search \
-                service:jreleaserSign --git-root-search  \
-                service:jreleaserDeploy --git-root-search \
-                service:jreleaserUpload --git-root-search \
-                service:jreleaserPrepare --git-root-search \
-                service:jreleaserPackage --git-root-search \
-                service:jreleaserPublish --git-root-search \
-                service:jreleaserAnnounce --git-root-search'
+        run: './gradlew jreleaserChecksum -Djreleaser.github.token=${{ secrets.GITHUB_TOKEN }} --git-root-search \
+                jreleaserCatalog -Djreleaser.github.token=${{ secrets.GITHUB_TOKEN }} --git-root-search \
+                jreleaserSign -Djreleaser.github.token=${{ secrets.GITHUB_TOKEN }} --git-root-search  \
+                jreleaserDeploy -Djreleaser.github.token=${{ secrets.GITHUB_TOKEN }} --git-root-search \
+                jreleaserUpload -Djreleaser.github.token=${{ secrets.GITHUB_TOKEN }} --git-root-search \
+                jreleaserPrepare -Djreleaser.github.token=${{ secrets.GITHUB_TOKEN }} --git-root-search \
+                jreleaserPackage -Djreleaser.github.token=${{ secrets.GITHUB_TOKEN }} --git-root-search \
+                jreleaserPublish -Djreleaser.github.token=${{ secrets.GITHUB_TOKEN }} --git-root-search \
+                jreleaserAnnounce -Djreleaser.github.token=${{ secrets.GITHUB_TOKEN }} --git-root-search \
+                service:jreleaserChecksum -Djreleaser.github.token=${{ secrets.GITHUB_TOKEN }} --git-root-search \
+                service:jreleaserCatalog -Djreleaser.github.token=${{ secrets.GITHUB_TOKEN }} --git-root-search \
+                service:jreleaserSign -Djreleaser.github.token=${{ secrets.GITHUB_TOKEN }} --git-root-search  \
+                service:jreleaserDeploy -Djreleaser.github.token=${{ secrets.GITHUB_TOKEN }} --git-root-search \
+                service:jreleaserUpload -Djreleaser.github.token=${{ secrets.GITHUB_TOKEN }} --git-root-search \
+                service:jreleaserPrepare -Djreleaser.github.token=${{ secrets.GITHUB_TOKEN }} --git-root-search \
+                service:jreleaserPackage -Djreleaser.github.token=${{ secrets.GITHUB_TOKEN }} --git-root-search \
+                service:jreleaserPublish -Djreleaser.github.token=${{ secrets.GITHUB_TOKEN }} --git-root-search \
+                service:jreleaserAnnounce -Djreleaser.github.token=${{ secrets.GITHUB_TOKEN }} --git-root-search'
   #      - name: 'Add changelog and version'
   #        run: 'git add version.txt CHANGELOG.MD'
   #      - run: 'git config --global user.email "ci@inova.si"'
