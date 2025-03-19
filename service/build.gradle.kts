@@ -84,14 +84,8 @@ publishing {
 
 if (properties.containsKey("mavenUsername")) {
     jreleaser {
-        println("dsdsdsd: service: jreleaser")
-
         release {
-            println("dsdsdsd: service: release")
-
             github {
-                println("dsdsdsd: service: github")
-
                 enabled.set(false)
                 skipRelease.set(true)
                 skipTag.set(true)
@@ -103,8 +97,6 @@ if (properties.containsKey("mavenUsername")) {
         gitRootSearch.set(true)
 
         signing {
-            println("dsdsdsd: service: signing")
-
             active.set(Active.ALWAYS)
             armored.set(true)
             mode.set(Signing.Mode.FILE)
@@ -116,8 +108,6 @@ if (properties.containsKey("mavenUsername")) {
             maven {
                 mavenCentral {
                     create("sonatype") {
-                        println("dsdsdsd: service: sonatype")
-
                         active.set(Active.ALWAYS)
 
                         namespace.set("com.thewebsnippet")
