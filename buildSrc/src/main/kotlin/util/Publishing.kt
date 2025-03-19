@@ -18,6 +18,10 @@ package util
 import org.gradle.api.Project
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.kotlin.dsl.withType
+import org.jreleaser.gradle.plugin.JReleaserExtension
+import org.jreleaser.model.Active
+import org.jreleaser.model.Http
+import org.jreleaser.model.Signing
 
 fun Project.publishLibrary(
     userFriendlyName: String,
@@ -26,6 +30,7 @@ fun Project.publishLibrary(
     artifactName: String = project.name
 ) {
     setProjectMetadata(userFriendlyName, description, githubPath)
+    configureForJReleaser()
     forceArtifactName(artifactName)
 }
 
@@ -69,6 +74,49 @@ private fun Project.setProjectMetadata(
         repositories {
             maven {
                 setUrl(layout.buildDirectory.dir("staging-deploy"))
+            }
+        }
+    }
+}
+
+fun Project.configureForJReleaser() {
+    if (!properties.containsKey("mavenUsername")) return
+
+    extensions.configure<JReleaserExtension>("jreleaser") {
+        release {
+            github {
+                enabled.set(false)
+                skipRelease.set(true)
+            }
+        }
+
+        gitRootSearch.set(true)
+
+        signing {
+            active.set(Active.ALWAYS)
+            armored.set(true)
+            mode.set(Signing.Mode.FILE)
+            publicKey.set(property("publicKeyPath") as String)
+            secretKey.set(property("privateKeyPath") as String)
+        }
+
+        deploy {
+            maven {
+                mavenCentral {
+                    create("sonatype") {
+                        active.set(Active.ALWAYS)
+
+                        namespace.set("com.thewebsnippet")
+                        url.set("https://central.sonatype.com/api/v1/publisher")
+                        stagingRepository("target/staging-deploy")
+
+                        authorization.set(Http.Authorization.BASIC)
+                        username.set(property("mavenUsername") as String)
+                        password.set(property("mavenPassword") as String)
+
+                        applyMavenCentralRules.set(true)
+                    }
+                }
             }
         }
     }
