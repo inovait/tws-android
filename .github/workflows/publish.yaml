@@ -66,8 +66,9 @@ jobs:
                 -PpublicKeyPath=$(pwd)/public_key.pgp
                 -PprivateKeyPath=$(pwd)/private_key.pgp'
       - name: 'Deploy and Release'
+        env:
+          JRELEASER_GITHUB_TOKEN: secrets.GITHUB_TOKEN
         run: |
-          export ORG_GRADLE_PROJECT_jreleaser_github_token=${{ secrets.GITHUB_TOKEN }}
           ./gradlew \
             jreleaserChecksum --git-root-search \
             jreleaserSign --git-root-search \
