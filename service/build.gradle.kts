@@ -84,27 +84,17 @@ publishing {
 
 if (properties.containsKey("mavenUsername")) {
     jreleaser {
-        println("dsdsdsd: service: jreleaser")
-
         release {
-            println("dsdsdsd: service: release")
-
             github {
-                println("dsdsdsd: service: github")
-
-                enabled.set(false)
+                enabled.set(true)
                 skipRelease.set(true)
                 skipTag.set(true)
-                tagName.set("{{projectVersion}}")
-                overwrite.set(true)
             }
         }
 
         gitRootSearch.set(true)
 
         signing {
-            println("dsdsdsd: service: signing")
-
             active.set(Active.ALWAYS)
             armored.set(true)
             mode.set(Signing.Mode.FILE)
@@ -114,21 +104,24 @@ if (properties.containsKey("mavenUsername")) {
 
         deploy {
             maven {
+                pomchecker {
+                    version.set("1.14.0")
+                    failOnWarning.set(true)
+                    failOnError.set(true)
+                }
                 mavenCentral {
                     create("sonatype") {
-                        println("dsdsdsd: service: sonatype")
-
                         active.set(Active.ALWAYS)
 
                         namespace.set("com.thewebsnippet")
                         url.set("https://central.sonatype.com/api/v1/publisher")
-                        stagingRepository("target/staging-deploy")
+                        stagingRepository("build/staging-deploy")
 
                         authorization.set(Http.Authorization.BASIC)
                         username.set(property("mavenUsername") as String)
                         password.set(property("mavenPassword") as String)
 
-                        applyMavenCentralRules.set(true)
+                        applyMavenCentralRules.set(false)
                     }
                 }
             }
