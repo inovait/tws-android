@@ -63,12 +63,11 @@ jobs:
         env:
           JRELEASER_GPG_PASSPHRASE: ${{ secrets.GPG_SIGNING_PASSPHRASE }}
         run: |
-          ./gradlew publish service:publish
-            -PmavenUsername=''${{ secrets.MAVEN_CENTRAL_USERNAME }}''
-            -PmavenPassword=''${{ secrets.MAVEN_CENTRAL_PASSWORD }}''
-            -PpublicKeyPath=$(pwd)/public_key.pgp
-            -PprivateKeyPath=$(pwd)/private_key.pgp
-          
+          ./gradlew publish service:publish \
+          -PmavenUsername=''${{ secrets.MAVEN_CENTRAL_USERNAME }}'' \
+          -PmavenPassword=''${{ secrets.MAVEN_CENTRAL_PASSWORD }}'' \
+          -PpublicKeyPath=$(pwd)/public_key.pgp \
+          -PprivateKeyPath=$(pwd)/private_key.pgp \
           ./gradlew jreleaserFullrelease service:jreleaserFullrelease
   #      - name: 'Add changelog and version'
   #        run: 'git add version.txt CHANGELOG.MD'
