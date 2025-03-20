@@ -1,6 +1,7 @@
 import org.jreleaser.model.Active
 import org.jreleaser.model.Http
-import org.jreleaser.model.Signing as JSigning
+import org.jreleaser.model.Signing
+
 /*
  * Copyright 2024 INOVA IT d.o.o.
  *
@@ -111,7 +112,7 @@ if (properties.containsKey("mavenUsername")) {
         signing {
             active.set(Active.ALWAYS)
             armored.set(true)
-            mode.set(JSigning.Mode.FILE)
+            mode.set(Signing.Mode.FILE)
             publicKey.set(property("publicKeyPath") as String)
             secretKey.set(property("privateKeyPath") as String)
         }
@@ -143,6 +144,7 @@ if (properties.containsKey("mavenUsername")) {
     }
 }
 
+// TODO make a workaround to not build when we creating release on maven
 gradlePlugin {
     plugins {
         create("service") {
