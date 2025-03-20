@@ -1,7 +1,6 @@
 import org.jreleaser.model.Active
 import org.jreleaser.model.Http
-import org.jreleaser.model.Signing
-
+import org.jreleaser.model.Signing as JSigning
 /*
  * Copyright 2024 INOVA IT d.o.o.
  *
