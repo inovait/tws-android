@@ -33,6 +33,11 @@ detekt {
 group = "com.thewebsnippet"
 version = File(rootDir, "../version.txt").readText().trim()
 
+java {
+    withSourcesJar()
+    withJavadocJar()
+}
+
 publishing {
     val userFriendlyName = "service"
     val description = "Setup for manager"
@@ -83,6 +88,16 @@ publishing {
 }
 
 if (properties.containsKey("mavenUsername")) {
+    signing {
+        sign(publishing.publications)
+    }
+
+    // Workaround for the https://github.com/gradle/gradle/issues/26091
+    tasks.withType<AbstractPublishToMaven>().configureEach {
+        val signingTasks = tasks.withType<Sign>()
+        mustRunAfter(signingTasks)
+    }
+
     jreleaser {
         release {
             github {
@@ -97,7 +112,7 @@ if (properties.containsKey("mavenUsername")) {
         signing {
             active.set(Active.ALWAYS)
             armored.set(true)
-            mode.set(Signing.Mode.FILE)
+            mode.set(JSigning.Mode.FILE)
             publicKey.set(property("publicKeyPath") as String)
             secretKey.set(property("privateKeyPath") as String)
         }
