@@ -73,9 +73,11 @@ jobs:
             -PprivateKeyPath=$(pwd)/private_key.pgp \
             -Psigning.secretKeyRingFile=$(pwd)/signing_key.gpg \
             -Psigning.password=''${{ secrets.GPG_SIGNING_PASSPHRASE }}'' \
-            -Psigning.keyId=${{ secrets.GPG_SIGNING_ID }} \
-            jreleaserFullrelease --git-root-search --stacktrace
-  #  TODO service is already released :service:jreleaserFullrelease --git-root-search --stacktrace
+            -Psigning.keyId=${{ secrets.GPG_SIGNING_ID }}
+          
+            ./gradlew jreleaserFullrelease --git-root-search --stacktrace
+        #  TODO service is already released
+        # ./gradlew service:jreleaserFullrelease --git-root-search --stacktrace
   #      - name: 'Add changelog and version'
   #        run: 'git add version.txt CHANGELOG.MD'
   #      - run: 'git config --global user.email "ci@inova.si"'
