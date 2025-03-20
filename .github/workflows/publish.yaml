@@ -58,7 +58,7 @@ jobs:
         run: './gradlew jreleaserConfig -Djreleaser.github.token=${{ secrets.GITHUB_TOKEN }} --git-root-search
                   service:jreleaserConfig -Djreleaser.github.token=${{ secrets.GITHUB_TOKEN }} --git-root-search'
       - name: 'Ensure a clean deployment'
-        run: './gradlew clean'
+        run: './gradlew clean service:clean'
       - name: 'Publish, deploy and release'
         env:
           JRELEASER_GPG_PASSPHRASE: ${{ secrets.GPG_SIGNING_PASSPHRASE }}
@@ -70,7 +70,7 @@ jobs:
             -PpublicKeyPath=$(pwd)/public_key.pgp \
             -PprivateKeyPath=$(pwd)/private_key.pgp 
           
-          ./gradlew jreleaserFullrelease --git-root-search --stacktrace service:jreleaserFullrelease --git-root-search --stacktrace
+          ./gradlew --stacktrace service:jreleaserFullrelease --git-root-search --stacktrace
   #      - name: 'Add changelog and version'
   #        run: 'git add version.txt CHANGELOG.MD'
   #      - run: 'git config --global user.email "ci@inova.si"'
