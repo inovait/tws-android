@@ -54,6 +54,8 @@ jobs:
         run: 'echo "${{ secrets.PGP_PUBLIC }}" | base64 -d > public_key.pgp'
       - name: 'Save private key'
         run: 'echo "${{ secrets.PGP_PRIVATE }}" | base64 -d > private_key.pgp'
+      - name: 'Save GPG secret key'
+        run: 'echo "${{ secrets.GPG_SIGNING_KEY }}" | base64 -d > signing_key.gpg'
       - name: 'Verify release'
         run: './gradlew jreleaserConfig -Djreleaser.github.token=${{ secrets.GITHUB_TOKEN }} --git-root-search
                   service:jreleaserConfig -Djreleaser.github.token=${{ secrets.GITHUB_TOKEN }} --git-root-search'
@@ -68,9 +70,12 @@ jobs:
             -PmavenUsername=''${{ secrets.MAVEN_CENTRAL_USERNAME }}'' \
             -PmavenPassword=''${{ secrets.MAVEN_CENTRAL_PASSWORD }}'' \
             -PpublicKeyPath=$(pwd)/public_key.pgp \
-            -PprivateKeyPath=$(pwd)/private_key.pgp 
+            -PprivateKeyPath=$(pwd)/private_key.pgp \
+            -Psigning.secretKeyRingFile=$(pwd)/signing_key.gpg \
+            -Psigning.password=''${{ secrets.GPG_SIGNING_PASSPHRASE }}'' \
+            -Psigning.keyId=${{ secrets.GPG_SIGNING_ID }} \
           
-          ./gradlew --stacktrace service:jreleaserFullrelease --git-root-search --stacktrace
+          ./gradlew jreleaserFullrelease --git-root-search --stacktrace | ./gradlew service:jreleaserFullrelease --git-root-search --stacktrace
   #      - name: 'Add changelog and version'
   #        run: 'git add version.txt CHANGELOG.MD'
   #      - run: 'git config --global user.email "ci@inova.si"'
