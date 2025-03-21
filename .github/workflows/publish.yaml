@@ -62,37 +62,25 @@ jobs:
           JRELEASER_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           JRELEASER_GIT_ROOT_SEARCH: true
         run: |
-          ./gradlew jreleaserConfig service:jreleaserConfig \
-              -PmavenUsername=''${{ secrets.MAVEN_CENTRAL_USERNAME }}'' \
-              -PmavenPassword=''${{ secrets.MAVEN_CENTRAL_PASSWORD }}'' \
-              -PpublicKeyPath=$(pwd)/public_key.pgp \
-              -PprivateKeyPath=$(pwd)/private_key.pgp \
-              -Psigning.secretKeyRingFile=$(pwd)/signing_key.gpg \
-              -Psigning.password=''${{ secrets.GPG_SIGNING_PASSPHRASE }}'' \
-              -Psigning.keyId=${{ secrets.GPG_SIGNING_ID }}
-           
-           ./gradlew clean service:clean
-           
-           ./gradlew publish service:publish \
-              -PmavenUsername=''${{ secrets.MAVEN_CENTRAL_USERNAME }}'' \
-              -PmavenPassword=''${{ secrets.MAVEN_CENTRAL_PASSWORD }}'' \
-              -PpublicKeyPath=$(pwd)/public_key.pgp \
-              -PprivateKeyPath=$(pwd)/private_key.pgp \
-              -Psigning.secretKeyRingFile=$(pwd)/signing_key.gpg \
-              -Psigning.password=''${{ secrets.GPG_SIGNING_PASSPHRASE }}'' \
-              -Psigning.keyId=${{ secrets.GPG_SIGNING_ID }}
-           
-           ./gradlew jreleaserFullrelease \
-              -PmavenUsername=''${{ secrets.MAVEN_CENTRAL_USERNAME }}'' \
-              -PmavenPassword=''${{ secrets.MAVEN_CENTRAL_PASSWORD }}'' \
-              -PpublicKeyPath=$(pwd)/public_key.pgp \
-              -PprivateKeyPath=$(pwd)/private_key.pgp \
-              -Psigning.secretKeyRingFile=$(pwd)/signing_key.gpg \
-              -Psigning.password=''${{ secrets.GPG_SIGNING_PASSPHRASE }}'' \
-              -Psigning.keyId=${{ secrets.GPG_SIGNING_ID }}
-
-        #  TODO service is already released
-        # ./gradlew service:jreleaserFullrelease --stacktrace
+          GRADLE_PROPS=" \
+            -PmavenUsername='${{ secrets.MAVEN_CENTRAL_USERNAME }}'' \
+            -PmavenPassword=''${{ secrets.MAVEN_CENTRAL_PASSWORD }}'' \
+            -PpublicKeyPath=$(pwd)/public_key.pgp \
+            -PprivateKeyPath=$(pwd)/private_key.pgp \
+            -Psigning.secretKeyRingFile=$(pwd)/signing_key.gpg \
+            -Psigning.password=''${{ secrets.GPG_SIGNING_PASSPHRASE }}'' \
+            -Psigning.keyId=${{ secrets.GPG_SIGNING_ID }}"
+          
+          ./gradlew jreleaserConfig service:jreleaserConfig $GRADLE_PROPS
+          
+          ./gradlew clean service:clean
+          
+          ./gradlew publish service:publish $GRADLE_PROPS
+          
+          ./gradlew manager:jreleaserFullrelease $GRADLE_PROPS
+          ./gradlew view:jreleaserFullrelease $GRADLE_PROPS
+      #          ./gradlew data:jreleaserFullrelease $GRADLE_PROPS TODO already published
+      #          ./gradlew service:jreleaserFullrelease $GRADLE_PROPS TODO already published
 
       #      - name: 'Add changelog and version'
       #        run: 'git add version.txt CHANGELOG.MD'
