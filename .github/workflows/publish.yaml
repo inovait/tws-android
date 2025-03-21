@@ -62,23 +62,16 @@ jobs:
           JRELEASER_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           JRELEASER_GIT_ROOT_SEARCH: true
         run: |
-          GRADLE_PROPS=" \
+          ./gradlew jreleaserConfig service:jreleaserConfig publish service:publish manager:jreleaserFullrelease view:jreleaserFullrelease \
             -PmavenUsername='${{ secrets.MAVEN_CENTRAL_USERNAME }}'' \
             -PmavenPassword=''${{ secrets.MAVEN_CENTRAL_PASSWORD }}'' \
             -PpublicKeyPath=$(pwd)/public_key.pgp \
             -PprivateKeyPath=$(pwd)/private_key.pgp \
             -Psigning.secretKeyRingFile=$(pwd)/signing_key.gpg \
             -Psigning.password=''${{ secrets.GPG_SIGNING_PASSPHRASE }}'' \
-            -Psigning.keyId=${{ secrets.GPG_SIGNING_ID }}"
-          
-          ./gradlew jreleaserConfig service:jreleaserConfig $GRADLE_PROPS
-          
-          ./gradlew clean service:clean
-          
-          ./gradlew publish service:publish $GRADLE_PROPS
-          
-          ./gradlew manager:jreleaserFullrelease $GRADLE_PROPS
-          ./gradlew view:jreleaserFullrelease $GRADLE_PROPS
+            -Psigning.keyId=${{ secrets.GPG_SIGNING_ID }}" \
+            --stacktrace
+
       #          ./gradlew data:jreleaserFullrelease $GRADLE_PROPS TODO already published
       #          ./gradlew service:jreleaserFullrelease $GRADLE_PROPS TODO already published
 
