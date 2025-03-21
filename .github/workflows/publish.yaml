@@ -56,17 +56,13 @@ jobs:
         run: 'echo "${{ secrets.PGP_PRIVATE }}" | base64 -d > private_key.pgp'
       - name: 'Save GPG secret key'
         run: 'echo "${{ secrets.GPG_SIGNING_KEY }}" | base64 -d > signing_key.gpg'
-      - name: 'Verify release'
-        run: './gradlew jreleaserConfig -Djreleaser.github.token=${{ secrets.GITHUB_TOKEN }} --git-root-search
-                  service:jreleaserConfig -Djreleaser.github.token=${{ secrets.GITHUB_TOKEN }} --git-root-search'
-      - name: 'Ensure a clean deployment'
-        run: './gradlew clean service:clean'
       - name: 'Publish, deploy and release'
         env:
           JRELEASER_GPG_PASSPHRASE: ${{ secrets.GPG_SIGNING_PASSPHRASE }}
-          JRELEASER_GITHUB_TOKEN: fakeToken
+          JRELEASER_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          JRELEASER_GIT_ROOT_SEARCH: true
         run: |
-          ./gradlew publish service:publish \
+          ./gradlew jreleaserConfig service:jreleaserConfig \
             -PmavenUsername=''${{ secrets.MAVEN_CENTRAL_USERNAME }}'' \
             -PmavenPassword=''${{ secrets.MAVEN_CENTRAL_PASSWORD }}'' \
             -PpublicKeyPath=$(pwd)/public_key.pgp \
@@ -75,9 +71,13 @@ jobs:
             -Psigning.password=''${{ secrets.GPG_SIGNING_PASSPHRASE }}'' \
             -Psigning.keyId=${{ secrets.GPG_SIGNING_ID }}
           
-            ./gradlew jreleaserFullrelease --git-root-search --stacktrace
+          ./gradlew clean service:clean
+          
+          ./gradlew publish service:publish
+          
+          ./gradlew jreleaserFullrelease --stacktrace
         #  TODO service is already released
-        # ./gradlew service:jreleaserFullrelease --git-root-search --stacktrace
+        # ./gradlew service:jreleaserFullrelease --stacktrace
   #      - name: 'Add changelog and version'
   #        run: 'git add version.txt CHANGELOG.MD'
   #      - run: 'git config --global user.email "ci@inova.si"'
