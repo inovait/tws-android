@@ -63,13 +63,13 @@ jobs:
           JRELEASER_GIT_ROOT_SEARCH: true
         run: |
           ./gradlew jreleaserConfig service:jreleaserConfig publish service:publish manager:jreleaserFullrelease view:jreleaserFullrelease \
-            -PmavenUsername='${{ secrets.MAVEN_CENTRAL_USERNAME }}'' \
+            -PmavenUsername=''${{ secrets.MAVEN_CENTRAL_USERNAME }}'' \
             -PmavenPassword=''${{ secrets.MAVEN_CENTRAL_PASSWORD }}'' \
             -PpublicKeyPath=$(pwd)/public_key.pgp \
             -PprivateKeyPath=$(pwd)/private_key.pgp \
             -Psigning.secretKeyRingFile=$(pwd)/signing_key.gpg \
             -Psigning.password=''${{ secrets.GPG_SIGNING_PASSPHRASE }}'' \
-            -Psigning.keyId=${{ secrets.GPG_SIGNING_ID }}" \
+            -Psigning.keyId=${{ secrets.GPG_SIGNING_ID }} \
             --stacktrace
 
       #          ./gradlew data:jreleaserFullrelease $GRADLE_PROPS TODO already published
