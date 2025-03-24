@@ -128,6 +128,9 @@ if (properties.containsKey("mavenUsername")) {
                     create("sonatype") {
                         active.set(Active.ALWAYS)
 
+                        retryDelay.set(20)
+                        maxRetries.set(100)
+
                         namespace.set("com.thewebsnippet")
                         url.set("https://central.sonatype.com/api/v1/publisher")
                         stagingRepository("build/staging-deploy")
