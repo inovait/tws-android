@@ -44,7 +44,7 @@ import javax.inject.Inject
  * This is particularly useful when your web content includes links that should trigger in-app navigation
  * instead of rendering a web page.
  *
- * Working example can be found [here](https://github.com/inovait/tws-android-sdk/blob/develop/sample/src/main/kotlin/com/thewebsnippet/sample/TWSViewCustomInterceptorExample.kt).
+ * Working example can be found [here](https://github.com/inovait/tws-android/blob/develop/sample/src/main/kotlin/com/thewebsnippet/sample/TWSViewCustomInterceptorExample.kt).
  * Download the Sample app from our web page to explore this functionality interactively.
  *
  * @sample com.thewebsnippet.sample.TWSViewCustomInterceptorExample
@@ -83,7 +83,8 @@ fun TWSViewCustomInterceptorExample(
         homeSnippet is TWSOutcome.Error -> {
             ErrorView(
                 errorText = stringResource(R.string.error_message),
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
+                refresh = twsInterceptorViewModel::forceRefresh
             )
         }
 
@@ -103,7 +104,7 @@ fun TWSViewCustomInterceptorExample(
 /** @suppress: viewmodel should not be documented */
 @HiltViewModel
 class TWSInterceptorViewModel @Inject constructor(
-    manager: TWSManager
+    private val manager: TWSManager
 ) : ViewModel() {
     val twsSnippetsFlow: Flow<TWSOutcome<TWSSnippet?>> = manager.snippets.map { data ->
         data.mapData { snippets ->
@@ -111,5 +112,9 @@ class TWSInterceptorViewModel @Inject constructor(
                 it.id == "customInterceptors"
             }
         }
+    }
+
+    fun forceRefresh() {
+        manager.forceRefresh()
     }
 }

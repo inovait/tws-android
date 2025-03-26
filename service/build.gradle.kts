@@ -1,3 +1,7 @@
+import org.jreleaser.model.Active
+import org.jreleaser.model.Http
+import org.jreleaser.model.Signing
+
 /*
  * Copyright 2024 INOVA IT d.o.o.
  *
@@ -19,6 +23,7 @@ plugins {
     `kotlin-dsl`
     signing
     alias(libs.plugins.detekt)
+    alias(libs.plugins.jreleaser)
 }
 
 detekt {
@@ -28,13 +33,18 @@ detekt {
 group = "com.thewebsnippet"
 version = File(rootDir, "../version.txt").readText().trim()
 
+java {
+    withSourcesJar()
+    withJavadocJar()
+}
+
 publishing {
     val userFriendlyName = "service"
     val description = "Setup for manager"
     val githubPath = "service"
 
     publications {
-        create<MavenPublication>("gradlePlugin") {
+        create<MavenPublication>("pluginMaven") {
             groupId = project.group.toString()
             artifactId = "service"
             version = project.version.toString()
@@ -42,7 +52,7 @@ publishing {
             pom {
                 name.set(userFriendlyName)
                 this.description.set(description)
-                val projectGitUrl = "https://github.com/inovait/tws-android-sdk"
+                val projectGitUrl = "https://github.com/inovait/tws-android"
                 url.set("$projectGitUrl/tree/main/$githubPath")
                 inceptionYear.set("2024")
                 licenses {
@@ -69,9 +79,15 @@ publishing {
             }
         }
     }
+
+    repositories {
+        maven {
+            setUrl(layout.buildDirectory.dir("staging-deploy"))
+        }
+    }
 }
 
-if (properties.containsKey("ossrhUsername")) {
+if (properties.containsKey("mavenUsername")) {
     signing {
         sign(publishing.publications)
     }
@@ -82,20 +98,53 @@ if (properties.containsKey("ossrhUsername")) {
         mustRunAfter(signingTasks)
     }
 
-    publishing {
-        repositories {
+    jreleaser {
+        release {
+            github {
+                enabled.set(true)
+                skipRelease.set(true)
+                skipTag.set(true)
+            }
+        }
+
+        gitRootSearch.set(true)
+
+        signing {
+            active.set(Active.ALWAYS)
+            armored.set(true)
+            mode.set(Signing.Mode.FILE)
+            publicKey.set(property("publicKeyPath") as String)
+            secretKey.set(property("privateKeyPath") as String)
+        }
+
+        deploy {
             maven {
-                val repositoryId = property("ossrhRepId") ?: error("Missing property: ossrhRepId")
-                setUrl("https://oss.sonatype.org/service/local/staging/deployByRepositoryId/$repositoryId/")
-                credentials {
-                    username = property("ossrhUsername") as String
-                    password = property("ossrhPassword") as String
+                pomchecker {
+                    version.set("1.14.0")
+                    failOnWarning.set(true)
+                    failOnError.set(true)
+                }
+                mavenCentral {
+                    create("sonatype") {
+                        active.set(Active.ALWAYS)
+
+                        namespace.set("com.thewebsnippet")
+                        url.set("https://central.sonatype.com/api/v1/publisher")
+                        stagingRepository("build/staging-deploy")
+
+                        authorization.set(Http.Authorization.BASIC)
+                        username.set(property("mavenUsername") as String)
+                        password.set(property("mavenPassword") as String)
+
+                        applyMavenCentralRules.set(false)
+                    }
                 }
             }
         }
     }
 }
 
+// TODO make a workaround to not build when we creating release on maven
 gradlePlugin {
     plugins {
         create("service") {

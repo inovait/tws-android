@@ -21,22 +21,12 @@ import org.jetbrains.dokka.gradle.DokkaTaskPartial
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 plugins {
-    alias(libs.plugins.nexusPublish)
     alias(libs.plugins.dokka)
 }
 
 buildscript {
     dependencies {
         classpath(libs.dokka.base)
-    }
-}
-
-if (properties.containsKey("ossrhUsername")) {
-    nexusStaging {
-        username = property("ossrhUsername") as String
-        password = property("ossrhPassword") as String
-        packageGroup = "com.thewebsnippet"
-        stagingRepositoryId = property("ossrhRepId") as String
     }
 }
 
@@ -61,11 +51,12 @@ tasks.dokkaHtmlMultiModule {
     includes.from("docs/index.md")
     // Include custom assets
     pluginConfiguration<DokkaBase, DokkaBaseConfiguration> {
-        customAssets = listOf(file("docs/appIcon.png"))
+        customAssets = listOf(file("docs/appIcon.png"), file("docs/homepage.svg"))
         customStyleSheets = listOf(
             file("docs/logo-styles.css"), file("docs/hide-kotlin-playground.css"),
             file("docs/hide-filter.css"), file("docs/fonts.css")
         )
+        homepageLink = "https://github.com/inovait/tws-android"
         footerMessage = "Copyright 2024 INOVA IT d.o.o."
     }
 }
