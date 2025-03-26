@@ -124,6 +124,9 @@ fun Project.configureForJReleaser() {
                     create("sonatype") {
                         active.set(Active.ALWAYS)
 
+                        retryDelay.set(JRELEASER_RETRIES_SECONDS)
+                        maxRetries.set(JRELEASER_MAX_RETRIES)
+
                         namespace.set("com.thewebsnippet")
                         url.set("https://central.sonatype.com/api/v1/publisher")
                         stagingRepository("build/staging-deploy")
@@ -149,3 +152,6 @@ private fun Project.forceArtifactName(artifactName: String) {
         }
     }
 }
+
+private const val JRELEASER_RETRIES_SECONDS = 20
+private const val JRELEASER_MAX_RETRIES = 100
