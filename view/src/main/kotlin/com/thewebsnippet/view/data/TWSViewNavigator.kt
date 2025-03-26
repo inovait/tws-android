@@ -71,6 +71,20 @@ class TWSViewNavigator(private val coroutineScope: CoroutineScope) {
     }
 
     /**
+     * Pushes a new URL to the browser history and triggers a navigation event.
+     */
+    fun pushState(path: String) {
+        coroutineScope.launch { navigationEvents.emit(NavigationEvent.PushState(path)) }
+    }
+
+    /**
+     * Navigates back in the browser history.
+     */
+    fun popState() {
+        coroutineScope.launch { navigationEvents.emit(NavigationEvent.PopState) }
+    }
+
+    /**
      * Reloads the current page in the webview.
      */
     fun reload() {
@@ -114,6 +128,23 @@ class TWSViewNavigator(private val coroutineScope: CoroutineScope) {
                 is NavigationEvent.Back -> goBack()
                 is NavigationEvent.Forward -> goForward()
                 is NavigationEvent.Reload -> reload()
+                is NavigationEvent.PopState -> {
+                    @Suppress("StringTemplateIndent") // JavaScript
+                    val jsScript = """
+                        history.back();
+                    """.trimIndent()
+                    evaluateJavascript(jsScript, null)
+                }
+
+                is NavigationEvent.PushState -> {
+                    @Suppress("StringTemplateIndent") // JavaScript
+                    val jsScript = """
+                        history.pushState(null, "", '${event.path}');
+                        window.dispatchEvent(new Event("popstate"));
+                    """.trimIndent()
+                    evaluateJavascript(jsScript, null)
+                }
+
                 is NavigationEvent.LoadHtml -> loadDataWithBaseURL(
                     event.baseUrl,
                     event.html,
@@ -135,6 +166,9 @@ class TWSViewNavigator(private val coroutineScope: CoroutineScope) {
         data object Back : NavigationEvent
         data object Forward : NavigationEvent
         data object Reload : NavigationEvent
+
+        data object PopState : NavigationEvent
+        data class PushState(val path: String) : NavigationEvent
 
         data class LoadUrl(
             val url: String,
