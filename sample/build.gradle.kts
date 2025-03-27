@@ -23,7 +23,7 @@ plugins {
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.dokka)
     alias(libs.plugins.hilt)
-    id("com.thewebsnippet.service")
+    id("service")
 }
 
 // configuration specific to this subproject.

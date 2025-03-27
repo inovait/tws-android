@@ -133,7 +133,7 @@ if (properties.containsKey("mavenUsername")) {
 
                         namespace.set("com.thewebsnippet")
                         url.set("https://central.sonatype.com/api/v1/publisher")
-                        stagingRepository("build/staging-deploy")
+                        stagingRepository("build/staging-deploy/com/thewebsnippet/service")
 
                         authorization.set(Http.Authorization.BASIC)
                         username.set(property("mavenUsername") as String)
@@ -147,11 +147,10 @@ if (properties.containsKey("mavenUsername")) {
     }
 }
 
-// TODO make a workaround to not build when we creating release on maven
 gradlePlugin {
     plugins {
         create("service") {
-            id = "com.thewebsnippet.service"
+            id = "service"
             implementationClass = "com.thewebsnippet.service.TWSPlugin"
         }
     }
