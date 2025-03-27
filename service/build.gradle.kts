@@ -133,7 +133,7 @@ if (properties.containsKey("mavenUsername")) {
 
                         namespace.set("com.thewebsnippet")
                         url.set("https://central.sonatype.com/api/v1/publisher")
-                        stagingRepository("build/staging-deploy/com/thewebsnippet/service")
+                        stagingRepository("build/staging-deploy")
 
                         authorization.set(Http.Authorization.BASIC)
                         username.set(property("mavenUsername") as String)
@@ -148,6 +148,8 @@ if (properties.containsKey("mavenUsername")) {
 }
 
 gradlePlugin {
+    isAutomatedPublishing = false
+
     plugins {
         create("service") {
             id = "service"
