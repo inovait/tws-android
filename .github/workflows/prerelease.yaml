@@ -1,0 +1,74 @@
+name: Bump version and generate changelog
+
+on:
+  pull_request:
+    types: [ opened ]
+    branches:
+      - main
+
+jobs:
+  prerelease:
+    name: Increase SDk version
+    runs-on: ubuntu-latest
+    if: ${{ github.base_ref == 'main' && github.head_ref == 'develop' }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: develop
+          ssh-key: ${{ secrets.DEPLOY_KEY }}
+
+      - name: Save old version to environment variable
+        run: "v=$(cat version.txt);echo \"OLD_VERSION=$v\" > $GITHUB_ENV"
+
+      - name: Check if there were any new fix or feature commits
+        id: version-check
+        uses: inovait/actions-common/bump-version-since-last-build@v10
+        with:
+          version: '${{ env.OLD_VERSION }}'
+
+      - name: Check if version has increased
+        run: "echo \"No feature or fix commits. Skipping build...\""
+        if: "${{ steps.version-check.outputs.version == env.OLD_VERSION }}"
+
+      - name: Cancel action if version has not increased
+        uses: andymckay/cancel-action@0.3
+        if: "${{ steps.version-check.outputs.version == env.OLD_VERSION }}"
+
+      - name: Wait for cancel to stick
+        run: "sleep 99999"
+        if: "${{ steps.version-check.outputs.version == env.OLD_VERSION }}"
+
+      - name: Update version.txt with new version
+        run: "./bump_version.sh ${{ steps.version-check.outputs.version }}"
+
+      - name: Save new version to environment variable
+        run: "v=$(cat version.txt);echo \"VERSION=$v\" > $GITHUB_ENV"
+
+      - name: Print new version to console
+        run: "echo \"# Release version ${{ env.VERSION }}\" > $GITHUB_STEP_SUMMARY"
+
+      - name: Generate Changelog
+        id: changelog
+        uses: inovait/actions-common/changelog-since-last-build@v10
+        with:
+          git_commit_url_prefix: 'https://github.com/inovait/tws-android/commit/'
+
+      - name: Append Changelog to existing CHANGELOG.MD
+        run: "old_changelog=$(cat CHANGELOG.MD); echo \"# ${{ env.VERSION }}\n\n${{ steps.changelog.outputs.changelog }}\n\n$old_changelog\" > CHANGELOG.MD"
+
+      - name: Add changelog and version
+        run: 'git add version.txt CHANGELOG.MD'
+
+      - name: Setup user email for git
+        run: 'git config --global user.email "ci@inova.si"'
+
+      - name: Setup user name for git
+        run: 'git config --global user.name "Build Bot"'
+
+      - name: Commit changelog and version
+        run: 'git commit -m "chore: release ${{ env.VERSION }}"'
+
+      - name: Push changelog and version
+        run: 'git push'
