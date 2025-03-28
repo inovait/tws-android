@@ -95,14 +95,6 @@ fun Project.configureForJReleaser() {
     }
 
     extensions.configure<JReleaserExtension>("jreleaser") {
-        release {
-            github {
-                enabled.set(true)
-                skipRelease.set(true)
-                skipTag.set(true)
-            }
-        }
-
         gitRootSearch.set(true)
 
         signing {

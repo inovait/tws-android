@@ -60,12 +60,6 @@ jobs:
             -Psigning.password=''${{ secrets.GPG_SIGNING_PASSPHRASE }}'' \
             -Psigning.keyId=${{ secrets.GPG_SIGNING_ID }}
 
-      - name: 'Create tag'
-        run: 'git tag ${{ env.VERSION }}'
-
-      - name: 'Push tag'
-        run: 'git push origin ${{ env.VERSION }}'
-
       - name: Publish Test Results
         uses: EnricoMi/publish-unit-test-result-action/composite@v2
         if: always()
