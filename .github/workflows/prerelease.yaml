@@ -28,17 +28,17 @@ jobs:
         with:
           version: '${{ env.OLD_VERSION }}'
 
-      - name: Check if version has increased
-        run: "echo \"No feature or fix commits. Skipping build...\""
-        if: "${{ steps.version-check.outputs.version == env.OLD_VERSION }}"
+      #- name: Check if version has increased
+      #  run: "echo \"No feature or fix commits. Skipping build...\""
+      #  if: "${{ steps.version-check.outputs.version == env.OLD_VERSION }}"
 
-      - name: Cancel action if version has not increased
-        uses: andymckay/cancel-action@0.3
-        if: "${{ steps.version-check.outputs.version == env.OLD_VERSION }}"
+      #- name: Cancel action if version has not increased
+      #  uses: andymckay/cancel-action@0.3
+      #  if: "${{ steps.version-check.outputs.version == env.OLD_VERSION }}"
 
-      - name: Wait for cancel to stick
-        run: "sleep 99999"
-        if: "${{ steps.version-check.outputs.version == env.OLD_VERSION }}"
+      #- name: Wait for cancel to stick
+      #  run: "sleep 99999"
+      #  if: "${{ steps.version-check.outputs.version == env.OLD_VERSION }}"
 
       - name: Update version.txt with new version
         run: "./bump_version.sh ${{ steps.version-check.outputs.version }}"
