@@ -58,8 +58,9 @@ jobs:
       #- name: Append Changelog to existing CHANGELOG.MD
       #  run: "old_changelog=$(cat CHANGELOG.MD); echo \"# ${{ env.VERSION }}\n\n${{ steps.changelog.outputs.changelog }}\n\n$old_changelog\" > CHANGELOG.MD"
 
-      #- name: Add changelog and version
-      #  run: 'git add version.txt CHANGELOG.MD'
+      - name: Add changelog and version
+        #run: 'git add version.txt CHANGELOG.MD'
+        run: 'git add version.txt'
 
       - name: Setup user email for git
         run: 'git config --global user.email "ci@inova.si"'
@@ -68,7 +69,17 @@ jobs:
         run: 'git config --global user.name "Build Bot"'
 
       - name: Commit changelog and version
-        run: 'git commit -m "chore: release ${{ env.VERSION }}"'
+        run: |
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "chore: release ${{ env.VERSION }}"
+          fi
 
       - name: Push changelog and version
-        run: 'git push'
+        run: |
+          if git log origin/develop..HEAD --oneline | grep .; then
+            git push
+          else
+            echo "No new commits to push."
+          fi
