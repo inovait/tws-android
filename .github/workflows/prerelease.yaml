@@ -28,17 +28,17 @@ jobs:
         with:
           version: '${{ env.OLD_VERSION }}'
 
-      #- name: Check if version has increased
-      #  run: "echo \"No feature or fix commits. Skipping build...\""
-      #  if: "${{ steps.version-check.outputs.version == env.OLD_VERSION }}"
+      - name: Check if version has increased
+        run: "echo \"No feature or fix commits. Skipping build...\""
+        if: "${{ steps.version-check.outputs.version == env.OLD_VERSION }}"
 
-      #- name: Cancel action if version has not increased
-      #  uses: andymckay/cancel-action@0.3
-      #  if: "${{ steps.version-check.outputs.version == env.OLD_VERSION }}"
+      - name: Cancel action if version has not increased
+        uses: andymckay/cancel-action@0.3
+        if: "${{ steps.version-check.outputs.version == env.OLD_VERSION }}"
 
-      #- name: Wait for cancel to stick
-      #  run: "sleep 99999"
-      #  if: "${{ steps.version-check.outputs.version == env.OLD_VERSION }}"
+      - name: Wait for cancel to stick
+        run: "sleep 99999"
+        if: "${{ steps.version-check.outputs.version == env.OLD_VERSION }}"
 
       - name: Update version.txt with new version
         run: "./bump_version.sh ${{ steps.version-check.outputs.version }}"
@@ -49,18 +49,17 @@ jobs:
       - name: Print new version to console
         run: "echo \"# Release version ${{ env.VERSION }}\" > $GITHUB_STEP_SUMMARY"
 
-      #- name: Generate Changelog
-      #  id: changelog
-      #  uses: inovait/actions-common/changelog-since-last-build@v10
-      #  with:
-      #    git_commit_url_prefix: 'https://github.com/inovait/tws-android/commit/'
+      - name: Generate Changelog
+        id: changelog
+        uses: inovait/actions-common/changelog-since-last-build@v10
+        with:
+          git_commit_url_prefix: 'https://github.com/inovait/tws-android/commit/'
 
-      #- name: Append Changelog to existing CHANGELOG.MD
-      #  run: "old_changelog=$(cat CHANGELOG.MD); echo \"# ${{ env.VERSION }}\n\n${{ steps.changelog.outputs.changelog }}\n\n$old_changelog\" > CHANGELOG.MD"
+      - name: Append Changelog to existing CHANGELOG.MD
+        run: "old_changelog=$(cat CHANGELOG.MD); echo \"# ${{ env.VERSION }}\n\n${{ steps.changelog.outputs.changelog }}\n\n$old_changelog\" > CHANGELOG.MD"
 
       - name: Add changelog and version
-        #run: 'git add version.txt CHANGELOG.MD'
-        run: 'git add version.txt'
+        run: 'git add version.txt CHANGELOG.MD'
 
       - name: Setup user email for git
         run: 'git config --global user.email "ci@inova.si"'
