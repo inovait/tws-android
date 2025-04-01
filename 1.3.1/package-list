@@ -1,0 +1,13 @@
+$dokka.format:html-v1
+$dokka.linkExtension:html
+
+module:data
+com.thewebsnippet.data
+module:manager
+com.thewebsnippet.manager
+module:sample
+com.thewebsnippet.sample
+module:view
+com.thewebsnippet.view
+com.thewebsnippet.view.data
+com.thewebsnippet.view.util.compose
