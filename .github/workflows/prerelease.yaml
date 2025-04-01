@@ -1,0 +1,89 @@
+name: Bump version and generate changelog
+
+on:
+  pull_request:
+    types: [ opened ]
+    branches:
+      - main
+
+jobs:
+  prerelease:
+    name: Increase SDk version
+    runs-on: ubuntu-latest
+    if: ${{ github.base_ref == 'main' && github.head_ref == 'develop' }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: develop
+          ssh-key: ${{ secrets.DEPLOY_KEY }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Save old version to environment variable
+        run: "v=$(cat version.txt);echo \"OLD_VERSION=$v\" > $GITHUB_ENV"
+
+      - name: Derive appropriate SHAs for base and head for `nx affected` commands
+        uses: nrwl/nx-set-shas@177b48373c6dc583ce0d9257ffb484bdd232fedf
+        with:
+          main-branch-name: "main"
+
+      - name: Get version
+        uses: inovait/actions-common/bump-version@v10
+        id: version-check
+        with:
+          version: '${{ env.OLD_VERSION }}'
+          increment: 'auto'
+          from: '${{ env.NX_BASE }}'
+          to: '${{ env.NX_HEAD }}'
+
+      - name: Check if version has increased
+        run: "echo \"No feature or fix commits. Skipping build...\""
+        if: "${{ steps.version-check.outputs.version == env.OLD_VERSION }}"
+
+      - name: Cancel action if version has not increased
+        uses: andymckay/cancel-action@0.3
+        if: "${{ steps.version-check.outputs.version == env.OLD_VERSION }}"
+
+      - name: Wait for cancel to stick
+        run: "sleep 99999"
+        if: "${{ steps.version-check.outputs.version == env.OLD_VERSION }}"
+
+      - name: Update version.txt with new version
+        run: "./bump_version.sh ${{ steps.version-check.outputs.version }}"
+
+      - name: Save new version to environment variable
+        run: "v=$(cat version.txt);echo \"VERSION=$v\" > $GITHUB_ENV"
+
+      - name: Print new version to console
+        run: "echo \"# Release version ${{ env.VERSION }}\" > $GITHUB_STEP_SUMMARY"
+
+      - name: Add version
+        run: 'git add version.txt'
+
+      - name: Setup user email for git
+        run: 'git config --global user.email "ci@inova.si"'
+
+      - name: Setup user name for git
+        run: 'git config --global user.name "Build Bot"'
+
+      - name: Commit version
+        run: |
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "chore: release ${{ env.VERSION }}"
+          fi
+
+      - name: Push version
+        run: |
+          if git log origin/develop..HEAD --oneline | grep .; then
+            git push
+          else
+            echo "No new commits to push."
+          fi
