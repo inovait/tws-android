@@ -98,8 +98,9 @@ fun Project.configureForJReleaser() {
         release {
             github {
                 enabled.set(true)
-                skipRelease.set(true)
-                skipTag.set(true)
+                skipRelease.set(false)
+                skipTag.set(false)
+                overwrite.set(true)
             }
         }
 
