@@ -1,6 +1,3 @@
-import org.jreleaser.model.Active
-import org.jreleaser.model.Http
-import org.jreleaser.model.Signing
 
 /*
  * Copyright 2024 INOVA IT d.o.o.
@@ -22,8 +19,9 @@ plugins {
     `maven-publish`
     `kotlin-dsl`
     signing
+
     alias(libs.plugins.detekt)
-    alias(libs.plugins.jreleaser)
+    alias(libs.plugins.gradle.publish)
 }
 
 detekt {
@@ -87,74 +85,15 @@ publishing {
     }
 }
 
-if (properties.containsKey("mavenUsername")) {
-    signing {
-        sign(publishing.publications)
-    }
-
-    // Workaround for the https://github.com/gradle/gradle/issues/26091
-    tasks.withType<AbstractPublishToMaven>().configureEach {
-        val signingTasks = tasks.withType<Sign>()
-        mustRunAfter(signingTasks)
-    }
-
-    jreleaser {
-        release {
-            github {
-                enabled.set(true)
-                skipRelease.set(false)
-                skipTag.set(false)
-                overwrite.set(true)
-            }
-        }
-
-        gitRootSearch.set(true)
-
-        signing {
-            active.set(Active.ALWAYS)
-            armored.set(true)
-            mode.set(Signing.Mode.FILE)
-            publicKey.set(property("publicKeyPath") as String)
-            secretKey.set(property("privateKeyPath") as String)
-        }
-
-        deploy {
-            maven {
-                pomchecker {
-                    version.set("1.14.0")
-                    failOnWarning.set(true)
-                    failOnError.set(true)
-                }
-                mavenCentral {
-                    create("sonatype") {
-                        active.set(Active.ALWAYS)
-
-                        retryDelay.set(20)
-                        maxRetries.set(100)
-
-                        namespace.set("com.thewebsnippet")
-                        url.set("https://central.sonatype.com/api/v1/publisher")
-                        stagingRepository("build/staging-deploy")
-
-                        authorization.set(Http.Authorization.BASIC)
-                        username.set(property("mavenUsername") as String)
-                        password.set(property("mavenPassword") as String)
-
-                        applyMavenCentralRules.set(false)
-                    }
-                }
-            }
-        }
-    }
-}
-
 gradlePlugin {
-    isAutomatedPublishing = false
+    website = "https://www.thewebsnippet.com"
+    vcsUrl = "https://github.com/inovait/tws-android"
 
     plugins {
         create("service") {
-            id = "service"
+            id = "com.thewebsnippet.service"
             implementationClass = "com.thewebsnippet.service.TWSPlugin"
+            displayName = "Plugin for parsing tws-service.json"
         }
     }
 }
