@@ -18,8 +18,6 @@ plugins {
     `java-gradle-plugin`
     `maven-publish`
     `kotlin-dsl`
-    signing
-
     alias(libs.plugins.detekt)
     alias(libs.plugins.gradle.publish)
 }
@@ -77,12 +75,6 @@ publishing {
             }
         }
     }
-
-    repositories {
-        maven {
-            setUrl(layout.buildDirectory.dir("staging-deploy"))
-        }
-    }
 }
 
 gradlePlugin {
@@ -93,7 +85,9 @@ gradlePlugin {
         create("service") {
             id = "com.thewebsnippet.service"
             implementationClass = "com.thewebsnippet.service.TWSPlugin"
-            displayName = "Plugin for parsing tws-service.json"
+            displayName = "TWS Service gradle plugin"
+            description = "Plugin for parsing tws-service.json, works along with com.thewebsnippet dependency"
+            tags = listOf("tws", "service", "parser", "json")
         }
     }
 }
