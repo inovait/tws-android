@@ -20,17 +20,18 @@ import com.thewebsnippet.data.TWSAttachment
 import com.thewebsnippet.data.TWSAttachmentType
 import com.thewebsnippet.data.TWSEngine
 import com.thewebsnippet.view.BuildConfig
+import com.thewebsnippet.view.util.modifier.HtmlModifierHelperImpl
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 
-class HtmlModifierHelperTest {
+class HtmlModifierHelperImplTest {
 
-    private lateinit var helper: HtmlModifierHelper
+    private lateinit var helper: HtmlModifierHelperImpl
 
     @Before
     fun setUp() {
-        helper = HtmlModifierHelper()
+        helper = HtmlModifierHelperImpl()
     }
 
     @Test

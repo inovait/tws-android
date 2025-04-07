@@ -26,7 +26,8 @@ import com.thewebsnippet.view.client.okhttp.webViewHttpClient
 import com.thewebsnippet.view.data.TWSLoadingState
 import com.thewebsnippet.view.data.TWSViewInterceptor
 import com.thewebsnippet.view.data.TWSViewState
-import com.thewebsnippet.view.util.HtmlModifierHelper
+import com.thewebsnippet.view.util.modifier.HtmlModifierHelper
+import com.thewebsnippet.view.util.modifier.HtmlModifierHelperImpl
 import okhttp3.CacheControl
 import okhttp3.Headers
 import okhttp3.OkHttpClient
@@ -55,17 +56,19 @@ import java.util.concurrent.TimeUnit
  * @param interceptUrlCallback A function for intercepting and handling specific URL requests before
  * they are passed to OkHttp.
  * @param popupStateCallback An optional callback to manage visibility of popups or custom tabs within the WebView.
+ * @param htmlModifier A helper used to inject CSS, JavaScript, and process HTML content through Mustache templates.
+ * This enables dynamic customization of the HTML content before it's displayed in the WebView.
  */
 internal class OkHttpTWSWebViewClient(
     private val dynamicModifiers: List<TWSAttachment>,
     private val mustacheProps: Map<String, Any>,
     private val engine: TWSEngine,
     interceptUrlCallback: TWSViewInterceptor,
-    popupStateCallback: ((TWSViewState, Boolean) -> Unit)? = null
+    popupStateCallback: ((TWSViewState, Boolean) -> Unit)? = null,
+    private val htmlModifier: HtmlModifierHelper = HtmlModifierHelperImpl()
 ) : TWSWebViewClient(interceptUrlCallback, popupStateCallback) {
 
     private lateinit var okHttpClient: OkHttpClient
-    private val htmlModifier = HtmlModifierHelper()
 
     override fun onPageStarted(view: WebView, url: String?, favicon: Bitmap?) {
         super.onPageStarted(view, url, favicon)
