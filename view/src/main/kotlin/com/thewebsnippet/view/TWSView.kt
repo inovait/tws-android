@@ -45,8 +45,10 @@ import com.samskivert.mustache.MustacheException
 import com.thewebsnippet.data.TWSAttachment
 import com.thewebsnippet.data.TWSEngine
 import com.thewebsnippet.data.TWSSnippet
+import com.thewebsnippet.view.client.NoOpInjectionFilter
 import com.thewebsnippet.view.client.OkHttpTWSWebViewClient
 import com.thewebsnippet.view.client.TWSWebChromeClient
+import com.thewebsnippet.view.client.okhttp.InjectionFilterCallback
 import com.thewebsnippet.view.data.TWSLoadingState
 import com.thewebsnippet.view.data.TWSViewDeepLinkInterceptor
 import com.thewebsnippet.view.data.TWSViewInterceptor
@@ -63,6 +65,8 @@ import com.thewebsnippet.view.util.compose.getUserFriendlyMessage
 import com.thewebsnippet.view.util.initializeSettings
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.ImmutableMap
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toImmutableMap
 
@@ -196,6 +200,7 @@ private fun SnippetContentWithPopup(
         mustacheProps = target.props.toImmutableMap(),
         engine = target.engine,
         isRefreshable = isRefreshable,
+        injectionFilterCallback = { it.url.toString() == target.target },
         onCreated = onCreated
     )
 
@@ -209,9 +214,6 @@ private fun SnippetContentWithPopup(
             popupStateCallback = popupStateCallback,
             interceptUrlCallback = interceptUrlCallback,
             googleLoginRedirectUrl = googleLoginRedirectUrl,
-            dynamicModifiers = target.dynamicResources.toImmutableList(),
-            mustacheProps = target.props.toImmutableMap(),
-            engine = target.engine,
             isFullscreen = !msgState.isDialog,
             isRefreshable = isRefreshable
         )
@@ -227,22 +229,24 @@ private fun SnippetContentWithLoadingAndError(
     errorViewContent: @Composable (String) -> Unit,
     interceptUrlCallback: TWSViewInterceptor,
     popupStateCallback: ((TWSViewState, Boolean) -> Unit)?,
-    dynamicModifiers: ImmutableList<TWSAttachment>,
-    mustacheProps: ImmutableMap<String, Any>,
-    engine: TWSEngine,
     isRefreshable: Boolean,
     modifier: Modifier = Modifier,
+    dynamicModifiers: ImmutableList<TWSAttachment> = persistentListOf(),
+    mustacheProps: ImmutableMap<String, Any> = persistentMapOf(),
+    engine: TWSEngine = TWSEngine.NONE,
+    injectionFilterCallback: InjectionFilterCallback = NoOpInjectionFilter,
     onCreated: (WebView) -> Unit = {}
 ) {
     // https://github.com/google/accompanist/issues/1326 - WebView settings does not work in compose preview
     val isPreviewMode = LocalInspectionMode.current
     val client = remember(key1 = key) {
         OkHttpTWSWebViewClient(
-            dynamicModifiers,
-            mustacheProps,
-            engine,
-            interceptUrlCallback,
-            popupStateCallback
+            dynamicModifiers = dynamicModifiers,
+            mustacheProps = mustacheProps,
+            engine = engine,
+            interceptUrlCallback = interceptUrlCallback,
+            popupStateCallback = popupStateCallback,
+            injectionFilterCallback = injectionFilterCallback
         )
     }
     val chromeClient = remember(key1 = key) { TWSWebChromeClient(popupStateCallback) }
@@ -308,9 +312,6 @@ private fun PopUpWebView(
     errorViewContent: @Composable (String) -> Unit,
     onDismissRequest: () -> Unit,
     interceptUrlCallback: TWSViewInterceptor,
-    dynamicModifiers: ImmutableList<TWSAttachment>,
-    mustacheProps: ImmutableMap<String, Any>,
-    engine: TWSEngine,
     popupStateCallback: ((TWSViewState, Boolean) -> Unit)?,
     googleLoginRedirectUrl: String?,
     isRefreshable: Boolean,
@@ -348,9 +349,6 @@ private fun PopUpWebView(
                 errorViewContent = errorViewContent,
                 popupStateCallback = popupStateCallback,
                 interceptUrlCallback = interceptUrlCallback,
-                dynamicModifiers = dynamicModifiers,
-                mustacheProps = mustacheProps,
-                engine = engine,
                 isRefreshable = isRefreshable,
                 onCreated = (popupState.content as WebContent.MessageOnly)::onCreateWindowStatus
             )

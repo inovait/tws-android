@@ -22,6 +22,7 @@ import android.webkit.WebView
 import com.samskivert.mustache.MustacheException
 import com.thewebsnippet.data.TWSAttachment
 import com.thewebsnippet.data.TWSEngine
+import com.thewebsnippet.view.client.okhttp.InjectionFilterCallback
 import com.thewebsnippet.view.client.okhttp.webViewHttpClient
 import com.thewebsnippet.view.data.TWSLoadingState
 import com.thewebsnippet.view.data.TWSViewInterceptor
@@ -58,6 +59,8 @@ import java.util.concurrent.TimeUnit
  * @param popupStateCallback An optional callback to manage visibility of popups or custom tabs within the WebView.
  * @param htmlModifier A helper used to inject CSS, JavaScript, and process HTML content through Mustache templates.
  * This enables dynamic customization of the HTML content before it's displayed in the WebView.
+ * @param injectionFilterCallback A filter to determine which GET requests should be intercepted and modified.
+ * Defaults to [NoOpInjectionFilter], which allows injection by default.
  */
 internal class OkHttpTWSWebViewClient(
     private val dynamicModifiers: List<TWSAttachment>,
@@ -65,7 +68,8 @@ internal class OkHttpTWSWebViewClient(
     private val engine: TWSEngine,
     interceptUrlCallback: TWSViewInterceptor,
     popupStateCallback: ((TWSViewState, Boolean) -> Unit)? = null,
-    private val htmlModifier: HtmlModifierHelper = HtmlModifierHelperImpl()
+    private val htmlModifier: HtmlModifierHelper = HtmlModifierHelperImpl(),
+    private val injectionFilterCallback: InjectionFilterCallback = NoOpInjectionFilter
 ) : TWSWebViewClient(interceptUrlCallback, popupStateCallback) {
 
     private lateinit var okHttpClient: OkHttpClient
@@ -83,7 +87,7 @@ internal class OkHttpTWSWebViewClient(
             okHttpClient = webViewHttpClient(view.context)
         }
 
-        if (request.method == "GET" && request.isForMainFrame) {
+        if (request.method == "GET" && request.isForMainFrame && injectionFilterCallback.invoke(request)) {
             return try {
                 // Get cached or web response, depending on headers
                 val response = okHttpClient.duplicateAndExecuteRequest(request)
@@ -186,3 +190,6 @@ internal class OkHttpTWSWebViewClient(
 
     private fun WebResourceRequest.buildUrl(): String = url.toString()
 }
+
+// NoOp default injection filter, which allows all requests to be injected and modified
+val NoOpInjectionFilter = InjectionFilterCallback { true }
