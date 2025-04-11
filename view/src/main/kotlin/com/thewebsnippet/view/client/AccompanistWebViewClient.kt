@@ -53,7 +53,7 @@ internal open class AccompanistWebViewClient : WebViewClient() {
 
     override fun onPageFinished(view: WebView, url: String?) {
         super.onPageFinished(view, url)
-        state.loadingState = TWSLoadingState.Finished
+        state.mainLoadingState = TWSLoadingState.Finished
     }
 
     override fun doUpdateVisitedHistory(view: WebView, url: String?, isReload: Boolean) {

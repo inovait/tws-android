@@ -44,18 +44,29 @@ internal open class AccompanistWebChromeClient : WebChromeClient() {
 
     override fun onProgressChanged(view: WebView, newProgress: Int) {
         super.onProgressChanged(view, newProgress)
-        val loadingState = state.loadingState
+        val mainLoadingState = state.mainLoadingState
+        val backgroundLoadingState = state.backgroundLoadingState
+        state.backgroundLoadingState = if (newProgress <= LOADING_PERCENT) {
+            TWSLoadingState.Loading(
+                progress = newProgress / PERCENTAGE_DIVISOR,
+                isUserForceRefresh = backgroundLoadingState is TWSLoadingState.ForceRefreshInitiated ||
+                    (backgroundLoadingState as? TWSLoadingState.Loading)?.isUserForceRefresh == true
+            )
+        } else {
+            TWSLoadingState.Finished
+        }
 
-        if (loadingState is TWSLoadingState.Finished) return
-
-        state.loadingState = TWSLoadingState.Loading(
-            progress = newProgress / PERCENTAGE_DIVISOR,
-            isUserForceRefresh = loadingState is TWSLoadingState.ForceRefreshInitiated ||
-                (loadingState as? TWSLoadingState.Loading)?.isUserForceRefresh == true
-        )
+        if (mainLoadingState !is TWSLoadingState.Finished) {
+            state.mainLoadingState = TWSLoadingState.Loading(
+                progress = newProgress / PERCENTAGE_DIVISOR,
+                isUserForceRefresh = mainLoadingState is TWSLoadingState.ForceRefreshInitiated ||
+                    (mainLoadingState as? TWSLoadingState.Loading)?.isUserForceRefresh == true
+            )
+        }
     }
 
     companion object {
         private const val PERCENTAGE_DIVISOR = 100.0f
+        private const val LOADING_PERCENT = 99
     }
 }

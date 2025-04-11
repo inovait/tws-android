@@ -232,7 +232,7 @@ internal fun WebView(
         },
         update = {
             if (isRefreshable) {
-                it.isRefreshing = (state.loadingState as? TWSLoadingState.Loading)?.isUserForceRefresh == true
+                it.isRefreshing = (state.mainLoadingState as? TWSLoadingState.Loading)?.isUserForceRefresh == true
             }
         }
     )
@@ -364,7 +364,7 @@ private fun createSwipeRefreshLayout(
 ): SwipeRefreshLayout {
     return SwipeRefreshLayout(context).apply {
         setOnRefreshListener {
-            state.loadingState = TWSLoadingState.ForceRefreshInitiated
+            state.mainLoadingState = TWSLoadingState.ForceRefreshInitiated
             navigator.reload()
         }
         addView(webView)
