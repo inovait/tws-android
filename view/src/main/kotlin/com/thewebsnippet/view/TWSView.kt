@@ -87,6 +87,8 @@ import kotlinx.collections.immutable.toImmutableMap
  * via [Custom Tabs](https://developer.chrome.com/docs/android/custom-tabs).
  * Allows returning users to the app after authentication.
  * @param isRefreshable Enables pull-to-refresh functionality when set to `true`.
+ * @param captureBackPresses Set to true to have this Composable capture back presses and navigate
+ * the WebView back.
  * @param onCreated Called when the WebView is first created, this can be used to set additional
  * settings on the WebView. WebChromeClient and WebViewClient should not be set here as they will be
  * subsequently overwritten after this lambda is called.
@@ -102,6 +104,7 @@ fun TWSView(
     interceptUrlCallback: TWSViewInterceptor = TWSViewDeepLinkInterceptor(LocalContext.current),
     googleLoginRedirectUrl: String? = null,
     isRefreshable: Boolean = true,
+    captureBackPresses: Boolean = true,
     onCreated: (WebView) -> Unit = {}
 ) {
     key(snippet) {
@@ -114,6 +117,7 @@ fun TWSView(
             interceptUrlCallback,
             googleLoginRedirectUrl,
             isRefreshable,
+            captureBackPresses,
             modifier,
             onCreated
         )
@@ -133,6 +137,8 @@ fun TWSView(
  * @param googleLoginRedirectUrl URL to redirect back after Google login via
  * [Custom Tabs](https://developer.chrome.com/docs/android/custom-tabs).
  * @param isRefreshable Enables pull-to-refresh functionality.
+ * @param captureBackPresses Set to true to have this Composable capture back presses and navigate
+ * the WebView back.
  * @param modifier A [Modifier] to configure the layout or styling of the error view.
  * @param onCreated Called when the WebView is first created, this can be used to set additional
  * settings on the WebView. WebChromeClient and WebViewClient should not be set here as they will be
@@ -148,6 +154,7 @@ private fun SnippetContentWithPopup(
     interceptUrlCallback: TWSViewInterceptor,
     googleLoginRedirectUrl: String?,
     isRefreshable: Boolean,
+    captureBackPresses: Boolean,
     modifier: Modifier = Modifier,
     onCreated: (WebView) -> Unit = {}
 ) {
@@ -196,7 +203,8 @@ private fun SnippetContentWithPopup(
         mustacheProps = target.props.toImmutableMap(),
         engine = target.engine,
         isRefreshable = isRefreshable,
-        onCreated = onCreated
+        onCreated = onCreated,
+        captureBackPresses = captureBackPresses
     )
 
     popupStates.value.forEach { state ->
@@ -213,7 +221,8 @@ private fun SnippetContentWithPopup(
             mustacheProps = target.props.toImmutableMap(),
             engine = target.engine,
             isFullscreen = !msgState.isDialog,
-            isRefreshable = isRefreshable
+            isRefreshable = isRefreshable,
+            captureBackPresses = true
         )
     }
 }
@@ -231,6 +240,7 @@ private fun SnippetContentWithLoadingAndError(
     mustacheProps: ImmutableMap<String, Any>,
     engine: TWSEngine,
     isRefreshable: Boolean,
+    captureBackPresses: Boolean,
     modifier: Modifier = Modifier,
     onCreated: (WebView) -> Unit = {}
 ) {
@@ -258,7 +268,8 @@ private fun SnippetContentWithLoadingAndError(
             },
             client = client,
             chromeClient = chromeClient,
-            isRefreshable = isRefreshable
+            isRefreshable = isRefreshable,
+            captureBackPresses = captureBackPresses
         )
 
         SnippetLoading(viewState, loadingPlaceholderContent)
@@ -314,6 +325,7 @@ private fun PopUpWebView(
     popupStateCallback: ((TWSViewState, Boolean) -> Unit)?,
     googleLoginRedirectUrl: String?,
     isRefreshable: Boolean,
+    captureBackPresses: Boolean,
     isFullscreen: Boolean,
     popupNavigator: TWSViewNavigator = rememberTWSViewNavigator()
 ) {
@@ -352,6 +364,7 @@ private fun PopUpWebView(
                 mustacheProps = mustacheProps,
                 engine = engine,
                 isRefreshable = isRefreshable,
+                captureBackPresses = captureBackPresses,
                 onCreated = (popupState.content as WebContent.MessageOnly)::onCreateWindowStatus
             )
         }
