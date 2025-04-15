@@ -35,12 +35,16 @@ sealed class TWSLoadingState {
     /**
      * Describes a WebView that has not yet loaded for the first time.
      */
-    data class Initializing(override val mainFrameLoaded: Boolean = false) : TWSLoadingState()
+    data object Initializing : TWSLoadingState() {
+        override val mainFrameLoaded: Boolean = false
+    }
 
     /**
      * Describes a WebView that will be reloaded as a result of a users pull to refresh action.
      */
-    data class ForceRefreshInitiated(override val mainFrameLoaded: Boolean = false) : TWSLoadingState()
+    data object ForceRefreshInitiated : TWSLoadingState() {
+        override val mainFrameLoaded: Boolean = false
+    }
 
     /**
      * Describes a WebView.progress for all resources and page
@@ -58,7 +62,9 @@ sealed class TWSLoadingState {
     /**
      * Describes a webview that has finished loading content.
      */
-    data class Finished(override val mainFrameLoaded: Boolean = true) : TWSLoadingState()
+    data object Finished : TWSLoadingState() {
+        override val mainFrameLoaded: Boolean = true
+    }
 }
 
 @CheckReturnValue
@@ -66,9 +72,9 @@ internal fun TWSLoadingState.copyMainFrame(loaded: Boolean): TWSLoadingState {
     if (mainFrameLoaded == loaded) return this
 
     return when (this) {
-        is TWSLoadingState.Finished -> copy(mainFrameLoaded = loaded)
-        is TWSLoadingState.ForceRefreshInitiated -> copy(mainFrameLoaded = loaded)
-        is TWSLoadingState.Initializing -> copy(mainFrameLoaded = loaded)
         is TWSLoadingState.Loading -> copy(mainFrameLoaded = loaded)
+        is TWSLoadingState.Finished,
+        is TWSLoadingState.ForceRefreshInitiated,
+        is TWSLoadingState.Initializing -> this
     }
 }

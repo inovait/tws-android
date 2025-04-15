@@ -364,7 +364,7 @@ private fun createSwipeRefreshLayout(
 ): SwipeRefreshLayout {
     return SwipeRefreshLayout(context).apply {
         setOnRefreshListener {
-            state.loadingState = TWSLoadingState.ForceRefreshInitiated()
+            state.loadingState = TWSLoadingState.ForceRefreshInitiated
             navigator.reload()
         }
         addView(webView)

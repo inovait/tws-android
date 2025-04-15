@@ -73,7 +73,7 @@ class TWSViewState(webContent: WebContent) {
      * Whether the WebView is currently loading resources and loading its main frame (along with
      * progress). See [TWSLoadingState]
      */
-    var loadingState: TWSLoadingState by mutableStateOf(TWSLoadingState.Initializing())
+    var loadingState: TWSLoadingState by mutableStateOf(TWSLoadingState.Initializing)
 
     /**
      * A list for errors captured in the last load. Reset when a new page is loaded.

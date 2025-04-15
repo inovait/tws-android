@@ -54,7 +54,7 @@ internal open class AccompanistWebChromeClient : WebChromeClient() {
                     (loadingState as? TWSLoadingState.Loading)?.isUserForceRefresh == true
             )
         } else {
-            TWSLoadingState.Finished()
+            TWSLoadingState.Finished
         }
     }
 

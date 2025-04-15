@@ -427,7 +427,7 @@ private fun WebSnippetLoadingPlaceholderFinishedComponentPreview() {
 }
 
 private val webStateInitializing = TWSViewState(WebContent.NavigatorOnly).apply {
-    loadingState = TWSLoadingState.Initializing()
+    loadingState = TWSLoadingState.Initializing
 }
 private val webStateLoading = TWSViewState(WebContent.NavigatorOnly).apply {
     loadingState = TWSLoadingState.Loading(0.5f, mainFrameLoaded = false, false)
@@ -435,4 +435,4 @@ private val webStateLoading = TWSViewState(WebContent.NavigatorOnly).apply {
 private val webStateLoadingForceRefresh = TWSViewState(WebContent.NavigatorOnly).apply {
     loadingState = TWSLoadingState.Loading(0.5f, mainFrameLoaded = false, true)
 }
-private val webStateLoadingFinished = TWSViewState(WebContent.NavigatorOnly).apply { loadingState = TWSLoadingState.Finished() }
+private val webStateLoadingFinished = TWSViewState(WebContent.NavigatorOnly).apply { loadingState = TWSLoadingState.Finished }
