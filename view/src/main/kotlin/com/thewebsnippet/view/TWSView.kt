@@ -306,7 +306,7 @@ private fun SnippetLoading(
     viewState: TWSViewState,
     loadingPlaceholderContent: @Composable () -> Unit
 ) {
-    val state = viewState.mainLoadingState
+    val state = viewState.loadingState
     if (state is TWSLoadingState.Loading && !state.isUserForceRefresh) {
         loadingPlaceholderContent()
     }
@@ -427,12 +427,12 @@ private fun WebSnippetLoadingPlaceholderFinishedComponentPreview() {
 }
 
 private val webStateInitializing = TWSViewState(WebContent.NavigatorOnly).apply {
-    mainLoadingState = TWSLoadingState.Initializing
+    loadingState = TWSLoadingState.Initializing()
 }
 private val webStateLoading = TWSViewState(WebContent.NavigatorOnly).apply {
-    mainLoadingState = TWSLoadingState.Loading(0.5f, false)
+    loadingState = TWSLoadingState.Loading(0.5f, mainFrameLoaded = false, false)
 }
 private val webStateLoadingForceRefresh = TWSViewState(WebContent.NavigatorOnly).apply {
-    mainLoadingState = TWSLoadingState.Loading(0.5f, true)
+    loadingState = TWSLoadingState.Loading(0.5f, mainFrameLoaded = false, true)
 }
-private val webStateLoadingFinished = TWSViewState(WebContent.NavigatorOnly).apply { mainLoadingState = TWSLoadingState.Finished }
+private val webStateLoadingFinished = TWSViewState(WebContent.NavigatorOnly).apply { loadingState = TWSLoadingState.Finished() }

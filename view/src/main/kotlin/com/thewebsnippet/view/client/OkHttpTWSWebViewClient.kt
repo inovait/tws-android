@@ -70,7 +70,7 @@ internal class OkHttpTWSWebViewClient(
     override fun onPageStarted(view: WebView, url: String?, favicon: Bitmap?) {
         super.onPageStarted(view, url, favicon)
 
-        if (state.mainLoadingState !is TWSLoadingState.Loading) {
+        if (state.loadingState !is TWSLoadingState.Loading) {
             state.customErrorsForCurrentRequest.clear()
         }
     }

@@ -44,24 +44,17 @@ internal open class AccompanistWebChromeClient : WebChromeClient() {
 
     override fun onProgressChanged(view: WebView, newProgress: Int) {
         super.onProgressChanged(view, newProgress)
-        val mainLoadingState = state.mainLoadingState
-        val backgroundLoadingState = state.backgroundLoadingState
-        state.backgroundLoadingState = if (newProgress <= LOADING_PERCENT) {
+        val loadingState = state.loadingState
+
+        state.loadingState = if (newProgress <= LOADING_PERCENT) {
             TWSLoadingState.Loading(
                 progress = newProgress / PERCENTAGE_DIVISOR,
-                isUserForceRefresh = backgroundLoadingState is TWSLoadingState.ForceRefreshInitiated ||
-                    (backgroundLoadingState as? TWSLoadingState.Loading)?.isUserForceRefresh == true
+                mainFrameLoaded = loadingState.mainFrameLoaded,
+                isUserForceRefresh = loadingState is TWSLoadingState.ForceRefreshInitiated ||
+                    (loadingState as? TWSLoadingState.Loading)?.isUserForceRefresh == true
             )
         } else {
-            TWSLoadingState.Finished
-        }
-
-        if (mainLoadingState !is TWSLoadingState.Finished) {
-            state.mainLoadingState = TWSLoadingState.Loading(
-                progress = newProgress / PERCENTAGE_DIVISOR,
-                isUserForceRefresh = mainLoadingState is TWSLoadingState.ForceRefreshInitiated ||
-                    (mainLoadingState as? TWSLoadingState.Loading)?.isUserForceRefresh == true
-            )
+            TWSLoadingState.Finished()
         }
     }
 
