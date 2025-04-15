@@ -30,6 +30,9 @@ import org.jetbrains.annotations.CheckReturnValue
  * See [Loading] and [Finished].
  */
 sealed class TWSLoadingState {
+    /**
+     * @property mainFrameLoaded Describes a loading state between `onPageStarted` and `onPageFinished` events
+     */
     abstract val mainFrameLoaded: Boolean
 
     /**
@@ -67,6 +70,11 @@ sealed class TWSLoadingState {
     }
 }
 
+/**
+ * Updates the [TWSLoadingState.mainFrameLoaded] flag, returning a new [TWSLoadingState.Loading] instance
+ * only if the state is currently [TWSLoadingState.Loading] and the value needs changing.
+ * Otherwise (no change or not in Loading state), returns the original instance.
+ */
 @CheckReturnValue
 internal fun TWSLoadingState.copyMainFrame(loaded: Boolean): TWSLoadingState {
     if (mainFrameLoaded == loaded) return this
