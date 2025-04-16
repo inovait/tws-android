@@ -70,8 +70,8 @@ class TWSViewState(webContent: WebContent) {
         internal set
 
     /**
-     * Whether the WebView is currently [TWSLoadingState.Loading] data in its main frame (along with
-     * progress) or the data loading has [TWSLoadingState.Finished]. See [TWSLoadingState]
+     * Whether the WebView is currently loading resources and loading its main frame (along with
+     * progress). See [TWSLoadingState]
      */
     var loadingState: TWSLoadingState by mutableStateOf(TWSLoadingState.Initializing)
 
@@ -168,7 +168,7 @@ fun rememberTWSViewStateWithHTMLData(
  * To load new URLs, use a TWSViewNavigator.
  */
 @Composable
-fun rememberSaveableTWSViewState(vararg inputs: Any?, key: String = ""): TWSViewState =
+fun rememberSavableTWSViewState(vararg inputs: Any?, key: String = ""): TWSViewState =
     rememberSaveable(saver = createTWSViewStateSaver(key), key = key.takeIf { it.isNotEmpty() }, inputs = inputs) {
         TWSViewState(WebContent.NavigatorOnly)
     }

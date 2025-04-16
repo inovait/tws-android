@@ -39,11 +39,17 @@ sealed class TWSLoadingState {
     data object ForceRefreshInitiated : TWSLoadingState()
 
     /**
-     * Describes a webview between `onPageStarted` and `onPageFinished` events, contains a
-     * [progress] property which is updated by the webview and [isUserForceRefresh] property
-     * which marks if page is refreshed because of the user action.
+     * Describes a WebView.progress for all resources and page
+     *
+     * @property progress Current load progress (typically 0.0 to 1.0), provided by the webview.
+     * @property mainFrameLoaded Describes a loading state between `onPageStarted` and `onPageFinished` events
+     * @property isUserForceRefresh True if the load was initiated by the user explicitly refreshing the page.
      */
-    data class Loading(val progress: Float, val isUserForceRefresh: Boolean) : TWSLoadingState()
+    data class Loading(
+        val progress: Float,
+        val mainFrameLoaded: Boolean,
+        val isUserForceRefresh: Boolean
+    ) : TWSLoadingState()
 
     /**
      * Describes a webview that has finished loading content.
