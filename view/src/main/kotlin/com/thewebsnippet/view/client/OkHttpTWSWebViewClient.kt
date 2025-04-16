@@ -15,6 +15,8 @@
  */
 package com.thewebsnippet.view.client
 
+import android.content.ActivityNotFoundException
+import android.content.Intent
 import android.graphics.Bitmap
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
@@ -78,6 +80,21 @@ internal class OkHttpTWSWebViewClient(
     override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse? {
         if (!::okHttpClient.isInitialized) {
             okHttpClient = webViewHttpClient(view.context)
+        }
+
+        if (request.url.scheme?.contains("intent") == true) {
+            val intent = Intent.parseUri(request.buildUrl(), Intent.URI_INTENT_SCHEME)
+            @Suppress("SwallowedException") // ActivityNotFoundException is already handled
+            try {
+                view.context.startActivity(intent) // TODO
+            } catch (e: ActivityNotFoundException) {
+                val fallbackUrl = intent.getStringExtra("browser_fallback_url")
+
+                fallbackUrl?.let {
+                    view.loadUrl(fallbackUrl) // TODO
+                }
+            }
+            return null
         }
 
         if (request.method == "GET" && request.isForMainFrame) {
