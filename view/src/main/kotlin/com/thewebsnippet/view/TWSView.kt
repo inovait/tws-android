@@ -307,7 +307,7 @@ private fun SnippetLoading(
     loadingPlaceholderContent: @Composable () -> Unit
 ) {
     val state = viewState.loadingState
-    if (state is TWSLoadingState.Loading && !state.isUserForceRefresh) {
+    if ((state as? TWSLoadingState.Loading)?.mainFrameLoaded == false && !state.isUserForceRefresh) {
         loadingPlaceholderContent()
     }
 }

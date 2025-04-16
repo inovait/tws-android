@@ -74,7 +74,6 @@ dependencies {
     implementation(libs.inject)
     implementation(libs.androidx.swiperefreshlayout)
     implementation(libs.mustache)
-    implementation(libs.annotations)
 
     debugImplementation(libs.androidx.compose.ui.tooling)
 

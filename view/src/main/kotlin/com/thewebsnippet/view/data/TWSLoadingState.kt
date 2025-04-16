@@ -18,8 +18,6 @@
  */
 package com.thewebsnippet.view.data
 
-import org.jetbrains.annotations.CheckReturnValue
-
 /**
  * TWSLoadingState is a sealed class for constraining possible loading states.
  *
@@ -31,23 +29,14 @@ import org.jetbrains.annotations.CheckReturnValue
  */
 sealed class TWSLoadingState {
     /**
-     * @property mainFrameLoaded Describes a loading state between `onPageStarted` and `onPageFinished` events
-     */
-    abstract val mainFrameLoaded: Boolean
-
-    /**
      * Describes a WebView that has not yet loaded for the first time.
      */
-    data object Initializing : TWSLoadingState() {
-        override val mainFrameLoaded: Boolean = false
-    }
+    data object Initializing : TWSLoadingState()
 
     /**
      * Describes a WebView that will be reloaded as a result of a users pull to refresh action.
      */
-    data object ForceRefreshInitiated : TWSLoadingState() {
-        override val mainFrameLoaded: Boolean = false
-    }
+    data object ForceRefreshInitiated : TWSLoadingState()
 
     /**
      * Describes a WebView.progress for all resources and page
@@ -58,31 +47,12 @@ sealed class TWSLoadingState {
      */
     data class Loading(
         val progress: Float,
-        override val mainFrameLoaded: Boolean,
+        val mainFrameLoaded: Boolean,
         val isUserForceRefresh: Boolean
     ) : TWSLoadingState()
 
     /**
      * Describes a webview that has finished loading content.
      */
-    data object Finished : TWSLoadingState() {
-        override val mainFrameLoaded: Boolean = true
-    }
-}
-
-/**
- * Updates the [TWSLoadingState.mainFrameLoaded] flag, returning a new [TWSLoadingState.Loading] instance
- * only if the state is currently [TWSLoadingState.Loading] and the value needs changing.
- * Otherwise (no change or not in Loading state), returns the original instance.
- */
-@CheckReturnValue
-internal fun TWSLoadingState.copyMainFrame(loaded: Boolean): TWSLoadingState {
-    if (mainFrameLoaded == loaded) return this
-
-    return when (this) {
-        is TWSLoadingState.Loading -> copy(mainFrameLoaded = loaded)
-        is TWSLoadingState.Finished,
-        is TWSLoadingState.ForceRefreshInitiated,
-        is TWSLoadingState.Initializing -> this
-    }
+    data object Finished : TWSLoadingState()
 }

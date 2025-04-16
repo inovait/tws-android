@@ -23,10 +23,10 @@ import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import com.thewebsnippet.view.data.TWSLoadingState
 import com.thewebsnippet.view.data.TWSViewNavigator
 import com.thewebsnippet.view.data.TWSViewState
 import com.thewebsnippet.view.data.WebViewError
-import com.thewebsnippet.view.data.copyMainFrame
 
 /**
  * A custom implementation of [WebViewClient] designed to manage the state and navigation of a WebView.
@@ -49,12 +49,16 @@ internal open class AccompanistWebViewClient : WebViewClient() {
 
         state.webViewErrorsForCurrentRequest.clear()
         state.lastLoadedUrl = url
-        state.loadingState = state.loadingState.copyMainFrame(false)
+        (state.loadingState as? TWSLoadingState.Loading)?.let {
+            state.loadingState = it.copy(mainFrameLoaded = false)
+        }
     }
 
     override fun onPageFinished(view: WebView, url: String?) {
         super.onPageFinished(view, url)
-        state.loadingState = state.loadingState.copyMainFrame(true)
+        (state.loadingState as? TWSLoadingState.Loading)?.let {
+            state.loadingState = it.copy(mainFrameLoaded = true)
+        }
     }
 
     override fun doUpdateVisitedHistory(view: WebView, url: String?, isReload: Boolean) {
