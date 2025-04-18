@@ -91,6 +91,7 @@ internal class OkHttpTWSWebViewClient(
                     response.modifyResponseAndServe() ?: super.shouldInterceptRequest(view, request)
                 }
             } catch (e: MustacheException) {
+                // Fallback to default behavior in case of mustache exception and expose mustache exception to developer
                 state.customErrorsForCurrentRequest.add(e)
                 super.shouldInterceptRequest(view, request)
             } catch (e: Exception) {
