@@ -91,6 +91,8 @@ import kotlinx.collections.immutable.toImmutableMap
  * via [Custom Tabs](https://developer.chrome.com/docs/android/custom-tabs).
  * Allows returning users to the app after authentication.
  * @param isRefreshable Enables pull-to-refresh functionality when set to `true`.
+ * @param captureBackPresses Set to true to have this Composable capture back presses and navigate
+ * the WebView back.
  * @param onCreated Called when the WebView is first created, this can be used to set additional
  * settings on the WebView. WebChromeClient and WebViewClient should not be set here as they will be
  * subsequently overwritten after this lambda is called.
@@ -106,6 +108,7 @@ fun TWSView(
     interceptUrlCallback: TWSViewInterceptor = TWSViewDeepLinkInterceptor(LocalContext.current),
     googleLoginRedirectUrl: String? = null,
     isRefreshable: Boolean = true,
+    captureBackPresses: Boolean = true,
     onCreated: (WebView) -> Unit = {}
 ) {
     key(snippet) {
@@ -118,6 +121,7 @@ fun TWSView(
             interceptUrlCallback,
             googleLoginRedirectUrl,
             isRefreshable,
+            captureBackPresses,
             modifier,
             onCreated
         )
@@ -137,6 +141,8 @@ fun TWSView(
  * @param googleLoginRedirectUrl URL to redirect back after Google login via
  * [Custom Tabs](https://developer.chrome.com/docs/android/custom-tabs).
  * @param isRefreshable Enables pull-to-refresh functionality.
+ * @param captureBackPresses Set to true to have this Composable capture back presses and navigate
+ * the WebView back.
  * @param modifier A [Modifier] to configure the layout or styling of the error view.
  * @param onCreated Called when the WebView is first created, this can be used to set additional
  * settings on the WebView. WebChromeClient and WebViewClient should not be set here as they will be
@@ -152,6 +158,7 @@ private fun SnippetContentWithPopup(
     interceptUrlCallback: TWSViewInterceptor,
     googleLoginRedirectUrl: String?,
     isRefreshable: Boolean,
+    captureBackPresses: Boolean,
     modifier: Modifier = Modifier,
     onCreated: (WebView) -> Unit = {}
 ) {
@@ -201,7 +208,8 @@ private fun SnippetContentWithPopup(
         engine = target.engine,
         isRefreshable = isRefreshable,
         injectionFilterCallback = { it.url.toString() == target.target },
-        onCreated = onCreated
+        onCreated = onCreated,
+        captureBackPresses = captureBackPresses
     )
 
     popupStates.value.forEach { state ->
@@ -215,7 +223,8 @@ private fun SnippetContentWithPopup(
             interceptUrlCallback = interceptUrlCallback,
             googleLoginRedirectUrl = googleLoginRedirectUrl,
             isFullscreen = !msgState.isDialog,
-            isRefreshable = isRefreshable
+            isRefreshable = isRefreshable,
+            captureBackPresses = true
         )
     }
 }
@@ -230,6 +239,7 @@ private fun SnippetContentWithLoadingAndError(
     interceptUrlCallback: TWSViewInterceptor,
     popupStateCallback: ((TWSViewState, Boolean) -> Unit)?,
     isRefreshable: Boolean,
+    captureBackPresses: Boolean,
     modifier: Modifier = Modifier,
     dynamicModifiers: ImmutableList<TWSAttachment> = persistentListOf(),
     mustacheProps: ImmutableMap<String, Any> = persistentMapOf(),
@@ -262,7 +272,8 @@ private fun SnippetContentWithLoadingAndError(
             },
             client = client,
             chromeClient = chromeClient,
-            isRefreshable = isRefreshable
+            isRefreshable = isRefreshable,
+            captureBackPresses = captureBackPresses
         )
 
         SnippetLoading(viewState, loadingPlaceholderContent)
@@ -299,8 +310,8 @@ private fun SnippetLoading(
     viewState: TWSViewState,
     loadingPlaceholderContent: @Composable () -> Unit
 ) {
-    val state = viewState.loadingState
-    if (state is TWSLoadingState.Loading && !state.isUserForceRefresh) {
+    val state = viewState.loadingState as? TWSLoadingState.Loading ?: return
+    if (!state.mainFrameLoaded && !state.isUserForceRefresh) {
         loadingPlaceholderContent()
     }
 }
@@ -315,6 +326,7 @@ private fun PopUpWebView(
     popupStateCallback: ((TWSViewState, Boolean) -> Unit)?,
     googleLoginRedirectUrl: String?,
     isRefreshable: Boolean,
+    captureBackPresses: Boolean,
     isFullscreen: Boolean,
     popupNavigator: TWSViewNavigator = rememberTWSViewNavigator()
 ) {
@@ -350,6 +362,7 @@ private fun PopUpWebView(
                 popupStateCallback = popupStateCallback,
                 interceptUrlCallback = interceptUrlCallback,
                 isRefreshable = isRefreshable,
+                captureBackPresses = captureBackPresses,
                 onCreated = (popupState.content as WebContent.MessageOnly)::onCreateWindowStatus
             )
         }
@@ -411,11 +424,13 @@ private fun WebSnippetLoadingPlaceholderFinishedComponentPreview() {
     )
 }
 
-private val webStateInitializing = TWSViewState(WebContent.NavigatorOnly).apply { loadingState = TWSLoadingState.Initializing }
+private val webStateInitializing = TWSViewState(WebContent.NavigatorOnly).apply {
+    loadingState = TWSLoadingState.Initializing
+}
 private val webStateLoading = TWSViewState(WebContent.NavigatorOnly).apply {
-    loadingState = TWSLoadingState.Loading(0.5f, false)
+    loadingState = TWSLoadingState.Loading(0.5f, mainFrameLoaded = false, false)
 }
 private val webStateLoadingForceRefresh = TWSViewState(WebContent.NavigatorOnly).apply {
-    loadingState = TWSLoadingState.Loading(0.5f, true)
+    loadingState = TWSLoadingState.Loading(0.5f, mainFrameLoaded = false, true)
 }
 private val webStateLoadingFinished = TWSViewState(WebContent.NavigatorOnly).apply { loadingState = TWSLoadingState.Finished }

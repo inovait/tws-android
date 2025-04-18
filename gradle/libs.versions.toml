@@ -40,6 +40,7 @@ hiltAndroid = "2.51.1"
 hiltNavigationCompose = "1.2.0"
 lifecycleRuntimeComposeAndroid = "2.8.7"
 jreleaser = "1.17.0"
+gradlePublish = "1.2.1"
 
 [libraries]
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
@@ -101,3 +102,4 @@ dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hiltAndroid" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 jreleaser = { id = "org.jreleaser", version.ref = "jreleaser"}
+gradle-publish = { id = "com.gradle.plugin-publish", version.ref = "gradlePublish" }

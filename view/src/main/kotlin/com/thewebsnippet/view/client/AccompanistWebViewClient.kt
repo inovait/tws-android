@@ -49,11 +49,16 @@ internal open class AccompanistWebViewClient : WebViewClient() {
 
         state.webViewErrorsForCurrentRequest.clear()
         state.lastLoadedUrl = url
+        (state.loadingState as? TWSLoadingState.Loading)?.let {
+            state.loadingState = it.copy(mainFrameLoaded = false)
+        }
     }
 
     override fun onPageFinished(view: WebView, url: String?) {
         super.onPageFinished(view, url)
-        state.loadingState = TWSLoadingState.Finished
+        (state.loadingState as? TWSLoadingState.Loading)?.let {
+            state.loadingState = it.copy(mainFrameLoaded = true)
+        }
     }
 
     override fun doUpdateVisitedHistory(view: WebView, url: String?, isReload: Boolean) {
