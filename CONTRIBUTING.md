@@ -8,14 +8,15 @@ To contribute to this set of libraries:
    be the name of the module you are updating.
 4. Try to avoid breaking changes, but if it cannot be avoided, you must put `BREAKING CHANGE` in the footer of the commit message
    and explain the change.
-5. Create merge request.
-6. When your PR is merged, new release will be generated automatically.
+5. Push your new branch and PR will be created automatically with github actions on `develop`.
+6. We will check your PR and when it is approved you can merge PR.
+7. When we merge `develop` into `main`, new release will be generated automatically.
 
    ## How to test locally
 
       ### TheWebSnippetSdk project
 
-          1. In `version.txt` setup your own version - do not push new versions to the PR (it will be automaticly updated by github action)
+          1. In `version.txt` setup your own version - do *not* push new versions to the PR (it will be automaticly updated by github action)
           2. Run `./gradlew publishtomavenlocal service:publishtomavenlocal`
 
       ### Your own project
