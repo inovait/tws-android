@@ -90,17 +90,14 @@ internal class OkHttpTWSWebViewClient(
                 } else {
                     response.modifyResponseAndServe() ?: super.shouldInterceptRequest(view, request)
                 }
+            } catch (e: MustacheException) {
+                state.customErrorsForCurrentRequest.add(e)
+                super.shouldInterceptRequest(view, request)
             } catch (e: Exception) {
-                if (e is MustacheException) {
-                    // Fallback to default behavior in case of mustache exception and expose mustache exception to developer
+                // Exception, get stale-if-error header and check if cache is still valid
+                okHttpClient.duplicateAndExecuteCachedRequest(request)?.modifyResponseAndServe()?.also {
                     state.customErrorsForCurrentRequest.add(e)
-                    super.shouldInterceptRequest(view, request)
-                } else {
-                    // Exception, get stale-if-error header and check if cache is still valid
-                    okHttpClient.duplicateAndExecuteCachedRequest(request)?.modifyResponseAndServe()?.also {
-                        state.customErrorsForCurrentRequest.add(e)
-                    } ?: super.shouldInterceptRequest(view, request)
-                }
+                } ?: super.shouldInterceptRequest(view, request)
             }
         }
 
