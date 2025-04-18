@@ -44,6 +44,10 @@ built.
 When updating, it is recommended that you check out [changelog](CHANGELOG.MD) first to see the changes, especially if there was
 major version change.
 
+## Contributing
+
+Contributions are always welcome! To learn how you can contribute, please see the [Contributing Guide](CONTRIBUTING.md).
+
 ## License
 
 This project is licensed under the Apache License 2.0. See the [LICENSE](LICENSE) file for details.
