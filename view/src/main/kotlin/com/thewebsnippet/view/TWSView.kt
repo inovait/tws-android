@@ -55,6 +55,7 @@ import com.thewebsnippet.view.data.TWSViewInterceptor
 import com.thewebsnippet.view.data.TWSViewNavigator
 import com.thewebsnippet.view.data.TWSViewState
 import com.thewebsnippet.view.data.WebContent
+import com.thewebsnippet.view.data.getSnippet
 import com.thewebsnippet.view.data.onCreateWindowStatus
 import com.thewebsnippet.view.data.rememberTWSViewNavigator
 import com.thewebsnippet.view.data.rememberTWSViewState
@@ -76,11 +77,74 @@ import kotlinx.collections.immutable.toImmutableMap
  * allowing dynamic loading and interaction with web content. It provides various customizable options
  * to handle loading states, error handling, and URL interception.
  *
+ * @param viewState The current [TWSViewState] representing the state of the WebView.
+ * @param modifier A [Modifier] to additionally customize the layout of the WebView.
+ * @param navigator The current [TWSViewNavigator] to control WebView navigation externally.
+ * @param errorViewContent A custom composable displayed when there is an error loading content.
+ * Defaults to a [SnippetErrorView] with the same modifier as [TWSView].
+ * @param loadingPlaceholderContent A custom composable displayed during loading.
+ * Defaults to a [SnippetLoadingView] with the same modifier as [TWSView].
+ * @param interceptUrlCallback A [TWSViewInterceptor] invoked for URLs before navigation.
+ * Return `true` to prevent navigation, `false` to allow it.
+ * @param googleLoginRedirectUrl The URL the app should redirect to after a Google login
+ * via [Custom Tabs](https://developer.chrome.com/docs/android/custom-tabs).
+ * Allows returning users to the app after authentication.
+ * @param isRefreshable Enables pull-to-refresh functionality when set to `true`.
+ * @param captureBackPresses Set to true to have this Composable capture back presses and navigate
+ * the WebView back.
+ * @param onCreated Called when the WebView is first created, this can be used to set additional
+ * settings on the WebView. WebChromeClient and WebViewClient should not be set here as they will be
+ * subsequently overwritten after this lambda is called.
+ */
+@Composable
+fun TWSView(
+    viewState: TWSViewState,
+    modifier: Modifier = Modifier,
+    navigator: TWSViewNavigator = rememberTWSViewNavigator(),
+    errorViewContent: @Composable (String) -> Unit = { SnippetErrorView(it, modifier) },
+    loadingPlaceholderContent: @Composable () -> Unit = { SnippetLoadingView(modifier) },
+    interceptUrlCallback: TWSViewInterceptor = TWSViewDeepLinkInterceptor(LocalContext.current),
+    googleLoginRedirectUrl: String? = null,
+    isRefreshable: Boolean = true,
+    captureBackPresses: Boolean = true,
+    onCreated: (WebView) -> Unit = {}
+) {
+    key(viewState.content) {
+        LaunchedEffect(navigator) {
+            val content = viewState.content as? WebContent.NavigatorOnly
+            if (viewState.viewState?.isEmpty != false && content?.default != null) {
+                // Handle first time load for navigator only state, other loads will be handled with state restoration
+                navigator.loadUrl(
+                    url = content.default.target,
+                    additionalHttpHeaders = content.default.headers
+                )
+            }
+        }
+
+        SnippetContentWithPopup(
+            navigator = navigator,
+            viewState = viewState,
+            errorViewContent = errorViewContent,
+            loadingPlaceholderContent = loadingPlaceholderContent,
+            interceptUrlCallback = interceptUrlCallback,
+            googleLoginRedirectUrl = googleLoginRedirectUrl,
+            isRefreshable = isRefreshable,
+            captureBackPresses = captureBackPresses,
+            modifier = modifier,
+            onCreated = onCreated
+        )
+    }
+}
+
+/**
+ *
+ * TWSView is a composable function that renders a WebView within a specified context,
+ * allowing dynamic loading and interaction with web content. It provides various customizable options
+ * to handle loading states, error handling, and URL interception.
+ *
  * @param snippet A [TWSSnippet] containing the URL, custom HTTP headers, and modifiers
  * for the web snippet to be rendered.
  * @param modifier A [Modifier] to additionally customize the layout of the WebView.
- * @param navigator The current [TWSViewNavigator] to control WebView navigation externally.
- * @param viewState The current [TWSViewState] representing the state of the WebView.
  * @param errorViewContent A custom composable displayed when there is an error loading content.
  * Defaults to a [SnippetErrorView] with the same modifier as [TWSView].
  * @param loadingPlaceholderContent A custom composable displayed during loading.
@@ -101,8 +165,6 @@ import kotlinx.collections.immutable.toImmutableMap
 fun TWSView(
     snippet: TWSSnippet,
     modifier: Modifier = Modifier,
-    navigator: TWSViewNavigator = rememberTWSViewNavigator(snippet),
-    viewState: TWSViewState = rememberTWSViewState(snippet),
     errorViewContent: @Composable (String) -> Unit = { SnippetErrorView(it, modifier) },
     loadingPlaceholderContent: @Composable () -> Unit = { SnippetLoadingView(modifier) },
     interceptUrlCallback: TWSViewInterceptor = TWSViewDeepLinkInterceptor(LocalContext.current),
@@ -111,28 +173,27 @@ fun TWSView(
     captureBackPresses: Boolean = true,
     onCreated: (WebView) -> Unit = {}
 ) {
-    key(snippet) {
-        SnippetContentWithPopup(
-            snippet,
-            navigator,
-            viewState,
-            errorViewContent,
-            loadingPlaceholderContent,
-            interceptUrlCallback,
-            googleLoginRedirectUrl,
-            isRefreshable,
-            captureBackPresses,
-            modifier,
-            onCreated
-        )
-    }
+    val navigator = rememberTWSViewNavigator(snippet)
+    val viewState = rememberTWSViewState(snippet)
+
+    TWSView(
+        viewState = viewState,
+        modifier = modifier,
+        navigator = navigator,
+        errorViewContent = errorViewContent,
+        loadingPlaceholderContent = loadingPlaceholderContent,
+        interceptUrlCallback = interceptUrlCallback,
+        googleLoginRedirectUrl = googleLoginRedirectUrl,
+        isRefreshable = isRefreshable,
+        captureBackPresses = captureBackPresses,
+        onCreated = onCreated
+    )
 }
 
 /**
  * Renders a WebView with popup support for handling separate web views in dialog-like containers.
  * Popups are displayed in dialogs, and navigation can be controlled externally.
  *
- * @param target The [TWSSnippet] to load in the WebView.
  * @param navigator The [TWSViewNavigator] for controlling navigation in the WebView.
  * @param viewState The [TWSViewState] representing the state of the WebView.
  * @param errorViewContent The composable content for rendering error messages.
@@ -150,7 +211,6 @@ fun TWSView(
  */
 @Composable
 private fun SnippetContentWithPopup(
-    target: TWSSnippet,
     navigator: TWSViewNavigator,
     viewState: TWSViewState,
     errorViewContent: @Composable (String) -> Unit,
@@ -162,16 +222,6 @@ private fun SnippetContentWithPopup(
     modifier: Modifier = Modifier,
     onCreated: (WebView) -> Unit = {}
 ) {
-    LaunchedEffect(navigator) {
-        if (viewState.viewState?.isEmpty != false && viewState.content is WebContent.NavigatorOnly) {
-            // Handle first time load for navigator only state, other loads will be handled with state restoration
-            navigator.loadUrl(
-                url = target.target,
-                additionalHttpHeaders = target.headers
-            )
-        }
-    }
-
     val popupStates = remember { mutableStateOf<List<TWSViewState>>(emptyList()) }
     val popupStateCallback: (TWSViewState, Boolean) -> Unit = { state, isAdd ->
         popupStates.value = if (isAdd) {
@@ -194,20 +244,24 @@ private fun SnippetContentWithPopup(
         }
     }
 
+    val target = viewState.content.getSnippet()
+
     SnippetContentWithLoadingAndError(
         modifier = modifier,
-        key = "${target.id}-${target.target}",
+        key = "${target?.id}-${target?.target}",
         navigator = navigator,
         viewState = viewState,
         loadingPlaceholderContent = loadingPlaceholderContent,
         errorViewContent = errorViewContent,
         interceptUrlCallback = interceptUrlCallback,
         popupStateCallback = popupStateCallback,
-        dynamicModifiers = target.dynamicResources.toImmutableList(),
-        mustacheProps = target.props.toImmutableMap(),
-        engine = target.engine,
+        dynamicModifiers = target?.dynamicResources?.toImmutableList() ?: persistentListOf(),
+        mustacheProps = target?.props?.toImmutableMap() ?: persistentMapOf(),
+        engine = target?.engine ?: TWSEngine.NONE,
         isRefreshable = isRefreshable,
-        injectionFilterCallback = { it.url.toString() == target.target },
+        injectionFilterCallback = { request ->
+            target?.target?.let { it == request.url.toString() } ?: false
+        },
         onCreated = onCreated,
         captureBackPresses = captureBackPresses
     )
@@ -391,46 +445,36 @@ private const val WEB_VIEW_POPUP_HEIGHT_PERCENTAGE = 0.8f
 @Composable
 @Preview
 private fun WebSnippetLoadingPlaceholderComponentPreview() {
-    TWSView(
-        TWSSnippet(id = "id", target = "https://www.google.com/"),
-        viewState = webStateLoading
-    )
+    TWSView(viewState = webStateLoading)
 }
 
 @Composable
 @Preview
 private fun WebSnippetLoadingForceRefreshComponentPreview() {
-    TWSView(
-        TWSSnippet(id = "id", target = "https://www.google.com/"),
-        viewState = webStateLoadingForceRefresh
-    )
+    TWSView(viewState = webStateLoadingForceRefresh)
 }
 
 @Composable
 @Preview
 private fun WebSnippetLoadingPlaceholderInitComponentPreview() {
-    TWSView(
-        TWSSnippet(id = "id", target = "https://www.google.com/"),
-        viewState = webStateInitializing
-    )
+    TWSView(viewState = webStateInitializing)
 }
 
 @Composable
 @Preview
 private fun WebSnippetLoadingPlaceholderFinishedComponentPreview() {
-    TWSView(
-        TWSSnippet(id = "id", target = "https://www.google.com/"),
-        viewState = webStateLoadingFinished
-    )
+    TWSView(viewState = webStateLoadingFinished)
 }
 
-private val webStateInitializing = TWSViewState(WebContent.NavigatorOnly).apply {
+private val webStateInitializing = TWSViewState(WebContent.NavigatorOnly(TWSSnippet("id", "url"))).apply {
     loadingState = TWSLoadingState.Initializing
 }
-private val webStateLoading = TWSViewState(WebContent.NavigatorOnly).apply {
+private val webStateLoading = TWSViewState(WebContent.NavigatorOnly(TWSSnippet("id", "url"))).apply {
     loadingState = TWSLoadingState.Loading(0.5f, mainFrameLoaded = false, false)
 }
-private val webStateLoadingForceRefresh = TWSViewState(WebContent.NavigatorOnly).apply {
+private val webStateLoadingForceRefresh = TWSViewState(WebContent.NavigatorOnly(TWSSnippet("id", "url"))).apply {
     loadingState = TWSLoadingState.Loading(0.5f, mainFrameLoaded = false, true)
 }
-private val webStateLoadingFinished = TWSViewState(WebContent.NavigatorOnly).apply { loadingState = TWSLoadingState.Finished }
+private val webStateLoadingFinished = TWSViewState(WebContent.NavigatorOnly(TWSSnippet("id", "url"))).apply {
+    loadingState = TWSLoadingState.Finished
+}
