@@ -260,7 +260,6 @@ private fun SnippetContentWithPopup(
         engine = target?.engine ?: TWSEngine.NONE,
         isRefreshable = isRefreshable,
         injectionFilterCallback = { request ->
-            target?.target?.let { it == request.url.toString() } ?: false
             target?.target?.let { it == request.url.toString() } == true
         },
         onCreated = onCreated,
