@@ -248,7 +248,7 @@ private fun SnippetContentWithPopup(
 
     SnippetContentWithLoadingAndError(
         modifier = modifier,
-        key = "${target?.id}-${target?.target}",
+        key = target?.let { "${target.id}-${target.target}" },
         navigator = navigator,
         viewState = viewState,
         loadingPlaceholderContent = loadingPlaceholderContent,
@@ -261,6 +261,7 @@ private fun SnippetContentWithPopup(
         isRefreshable = isRefreshable,
         injectionFilterCallback = { request ->
             target?.target?.let { it == request.url.toString() } ?: false
+            target?.target?.let { it == request.url.toString() } == true
         },
         onCreated = onCreated,
         captureBackPresses = captureBackPresses
@@ -285,7 +286,6 @@ private fun SnippetContentWithPopup(
 
 @Composable
 private fun SnippetContentWithLoadingAndError(
-    key: String,
     navigator: TWSViewNavigator,
     viewState: TWSViewState,
     loadingPlaceholderContent: @Composable () -> Unit,
@@ -299,7 +299,8 @@ private fun SnippetContentWithLoadingAndError(
     mustacheProps: ImmutableMap<String, Any> = persistentMapOf(),
     engine: TWSEngine = TWSEngine.NONE,
     injectionFilterCallback: InjectionFilterCallback = NoOpInjectionFilter,
-    onCreated: (WebView) -> Unit = {}
+    onCreated: (WebView) -> Unit = {},
+    key: String? = null,
 ) {
     // https://github.com/google/accompanist/issues/1326 - WebView settings does not work in compose preview
     val isPreviewMode = LocalInspectionMode.current
