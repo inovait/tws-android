@@ -95,6 +95,7 @@ import kotlinx.collections.immutable.toImmutableMap
  * @param onCreated Called when the WebView is first created, this can be used to set additional
  * settings on the WebView. WebChromeClient and WebViewClient should not be set here as they will be
  * subsequently overwritten after this lambda is called.
+ * @param injectionFilterCallback check if you want to inject CSS or JS on specific webpage.
  */
 @Composable
 fun TWSView(
@@ -107,7 +108,10 @@ fun TWSView(
     googleLoginRedirectUrl: String? = null,
     isRefreshable: Boolean = true,
     captureBackPresses: Boolean = true,
-    onCreated: (WebView) -> Unit = {}
+    onCreated: (WebView) -> Unit = {},
+    injectionFilterCallback: InjectionFilterCallback = InjectionFilterCallback { request ->
+        viewState.content.getSnippet()?.target?.let { it == request.url.toString() } == true
+    }
 ) {
     key(viewState.content) {
         LaunchedEffect(navigator) {
@@ -131,7 +135,8 @@ fun TWSView(
             isRefreshable = isRefreshable,
             captureBackPresses = captureBackPresses,
             modifier = modifier,
-            onCreated = onCreated
+            onCreated = onCreated,
+            injectionFilterCallback = injectionFilterCallback
         )
     }
 }
@@ -160,6 +165,7 @@ fun TWSView(
  * @param onCreated Called when the WebView is first created, this can be used to set additional
  * settings on the WebView. WebChromeClient and WebViewClient should not be set here as they will be
  * subsequently overwritten after this lambda is called.
+ * @param injectionFilterCallback check if you want to inject CSS or JS on specific webpage.
  */
 @Composable
 fun TWSView(
@@ -171,7 +177,10 @@ fun TWSView(
     googleLoginRedirectUrl: String? = null,
     isRefreshable: Boolean = true,
     captureBackPresses: Boolean = true,
-    onCreated: (WebView) -> Unit = {}
+    onCreated: (WebView) -> Unit = {},
+    injectionFilterCallback: InjectionFilterCallback = InjectionFilterCallback { request ->
+        snippet.target == request.url.toString()
+    }
 ) {
     val navigator = rememberTWSViewNavigator(snippet)
     val viewState = rememberTWSViewState(snippet)
@@ -186,7 +195,8 @@ fun TWSView(
         googleLoginRedirectUrl = googleLoginRedirectUrl,
         isRefreshable = isRefreshable,
         captureBackPresses = captureBackPresses,
-        onCreated = onCreated
+        onCreated = onCreated,
+        injectionFilterCallback = injectionFilterCallback
     )
 }
 
@@ -204,6 +214,7 @@ fun TWSView(
  * @param isRefreshable Enables pull-to-refresh functionality.
  * @param captureBackPresses Set to true to have this Composable capture back presses and navigate
  * the WebView back.
+ * @param injectionFilterCallback check if you want to inject CSS or JS on specific webpage.
  * @param modifier A [Modifier] to configure the layout or styling of the error view.
  * @param onCreated Called when the WebView is first created, this can be used to set additional
  * settings on the WebView. WebChromeClient and WebViewClient should not be set here as they will be
@@ -219,6 +230,7 @@ private fun SnippetContentWithPopup(
     googleLoginRedirectUrl: String?,
     isRefreshable: Boolean,
     captureBackPresses: Boolean,
+    injectionFilterCallback: InjectionFilterCallback,
     modifier: Modifier = Modifier,
     onCreated: (WebView) -> Unit = {}
 ) {
@@ -259,9 +271,7 @@ private fun SnippetContentWithPopup(
         mustacheProps = target?.props?.toImmutableMap() ?: persistentMapOf(),
         engine = target?.engine ?: TWSEngine.NONE,
         isRefreshable = isRefreshable,
-        injectionFilterCallback = { request ->
-            target?.target?.let { it == request.url.toString() } == true
-        },
+        injectionFilterCallback = injectionFilterCallback,
         onCreated = onCreated,
         captureBackPresses = captureBackPresses
     )
