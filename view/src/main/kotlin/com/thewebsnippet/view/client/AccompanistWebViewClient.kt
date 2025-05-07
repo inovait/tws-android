@@ -64,7 +64,10 @@ internal open class AccompanistWebViewClient : WebViewClient() {
     override fun doUpdateVisitedHistory(view: WebView, url: String?, isReload: Boolean) {
         super.doUpdateVisitedHistory(view, url, isReload)
 
-        state.currentUrl = url
+        view.evaluateJavascript("window.location.href") { result ->
+            state.currentUrl = result.trim('"')
+        }
+
         navigator.canGoBack = view.canGoBack()
         navigator.canGoForward = view.canGoForward()
     }

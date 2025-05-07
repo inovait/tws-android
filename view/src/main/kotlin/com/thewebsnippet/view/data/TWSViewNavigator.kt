@@ -26,12 +26,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import com.thewebsnippet.data.TWSSnippet
+import com.thewebsnippet.view.util.modifier.HtmlModifierHelper
+import com.thewebsnippet.view.util.modifier.HtmlModifierHelperImpl
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import okhttp3.OkHttpClient
+import okhttp3.Request
 
 /**
  * Allows control over the navigation of a WebView from outside the composable. E.g. for performing
@@ -41,7 +46,10 @@ import kotlinx.coroutines.withContext
  *
  */
 @Stable
-class TWSViewNavigator(private val coroutineScope: CoroutineScope) {
+class TWSViewNavigator(
+    private val coroutineScope: CoroutineScope,
+    private val htmlModifier: HtmlModifierHelper = HtmlModifierHelperImpl(),
+) {
     private val navigationEvents: MutableSharedFlow<NavigationEvent> = MutableSharedFlow(replay = 1)
 
     /**
@@ -91,12 +99,15 @@ class TWSViewNavigator(private val coroutineScope: CoroutineScope) {
         coroutineScope.launch { navigationEvents.emit(NavigationEvent.Reload) }
     }
 
-    internal fun loadUrl(
-        url: String,
-        additionalHttpHeaders: Map<String, String> = emptyMap()
-    ) {
+    internal fun loadUrl(snippet: TWSSnippet) {
         coroutineScope.launch {
-            navigationEvents.emit(NavigationEvent.LoadUrl(url, additionalHttpHeaders))
+            navigationEvents.emit(NavigationEvent.LoadDataWithBaseURL(snippet))
+        }
+    }
+
+    internal fun loadUrl(url: String) {
+        coroutineScope.launch {
+            navigationEvents.emit(NavigationEvent.LoadUrl(url))
         }
     }
 
@@ -128,6 +139,7 @@ class TWSViewNavigator(private val coroutineScope: CoroutineScope) {
                 is NavigationEvent.Back -> goBack()
                 is NavigationEvent.Forward -> goForward()
                 is NavigationEvent.Reload -> reload()
+                is NavigationEvent.LoadUrl -> loadUrl(event.url)
                 is NavigationEvent.PopState -> {
                     @Suppress("StringTemplateIndent") // JavaScript
                     val jsScript = """
@@ -153,14 +165,48 @@ class TWSViewNavigator(private val coroutineScope: CoroutineScope) {
                     event.historyUrl
                 )
 
-                is NavigationEvent.LoadUrl -> {
-                    loadUrl(event.url, event.additionalHttpHeaders)
+                is NavigationEvent.LoadDataWithBaseURL -> {
+                    val (newUrl, newHtml) = withContext(Dispatchers.IO) {
+                        val client = OkHttpClient.Builder() // TODO add auth token and move out
+                            .followRedirects(true)
+                            .followSslRedirects(true)
+                            .build()
+
+                        val request = buildRequestWithHeaders(event.snippet.target, event.snippet.headers)
+
+                        val response = client.newCall(request).execute()
+                        val finalUrl = response.request.url.toString()
+
+                        val updatedHtml = htmlModifier.modifyContent(
+                            response.body?.string() ?: "",
+                            event.snippet.dynamicResources,
+                            event.snippet.props,
+                            event.snippet.engine
+                        )
+                        Pair(finalUrl, updatedHtml)
+                    }
+
+                    loadDataWithBaseURL( // TODO
+                        newUrl,
+                        newHtml,
+                        "text/html",
+                        "UTF-8",
+                        newUrl
+                    )
                 }
             }
 
             navigationEvents.resetReplayCache()
         }
     }
+
+    private fun buildRequestWithHeaders(url: String, headers: Map<String, String>): Request {
+        val builder = Request.Builder().url(url)
+        for ((key, value) in headers) {
+            builder.addHeader(key, value)
+        }
+        return builder.build()
+    } // TODO move out
 
     private sealed interface NavigationEvent {
         data object Back : NavigationEvent
@@ -170,10 +216,8 @@ class TWSViewNavigator(private val coroutineScope: CoroutineScope) {
         data object PopState : NavigationEvent
         data class PushState(val path: String) : NavigationEvent
 
-        data class LoadUrl(
-            val url: String,
-            val additionalHttpHeaders: Map<String, String> = emptyMap()
-        ) : NavigationEvent
+        data class LoadDataWithBaseURL(val snippet: TWSSnippet) : NavigationEvent
+        data class LoadUrl(val url: String) : NavigationEvent
 
         data class LoadHtml(
             val html: String,

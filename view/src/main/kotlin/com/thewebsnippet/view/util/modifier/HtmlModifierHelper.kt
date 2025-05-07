@@ -19,7 +19,7 @@ package com.thewebsnippet.view.util.modifier
 import com.thewebsnippet.data.TWSAttachment
 import com.thewebsnippet.data.TWSEngine
 
-internal interface HtmlModifierHelper {
+interface HtmlModifierHelper {
     fun modifyContent(
         htmlContent: String,
         dynamicModifiers: List<TWSAttachment>,
