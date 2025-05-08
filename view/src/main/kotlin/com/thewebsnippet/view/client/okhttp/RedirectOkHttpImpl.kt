@@ -1,0 +1,58 @@
+/*
+ * Copyright 2025 INOVA IT d.o.o.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation
+ * files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy,
+ * modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software
+ *  is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ *  OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+ *   BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+package com.thewebsnippet.view.client.okhttp
+
+import android.content.Context
+import android.webkit.CookieManager
+import jakarta.inject.Singleton
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.Response
+
+@Singleton
+class RedirectOkHttpImpl(private val context: Context) : RedirectOkHttp {
+    private val okHttpClient: OkHttpClient
+        get() {
+            if (Thread.currentThread().name == "main") {
+                error("OkHttp should not be initialized on the main thread")
+            }
+
+            val manager = GlobalOkHttpDiskCacheManager(context, provideErrorReporter)
+            val cookieManager = CookieManager.getInstance().also { it.setAcceptCookie(true) }
+
+            return OkHttpClient.Builder()
+                .cache(manager.cache)
+                .cookieJar(SharedCookieJar(cookieManager))
+                .followRedirects(true)
+                .followSslRedirects(true)
+                .build()
+        }
+
+    override fun response(url: String, headers: Map<String, String>): Response {
+        val request = buildRequestWithHeaders(url, headers)
+
+        return okHttpClient.newCall(request).execute()
+    }
+
+    private fun buildRequestWithHeaders(url: String, headers: Map<String, String>): Request {
+        val builder = Request.Builder().url(url)
+        for ((key, value) in headers) {
+            builder.addHeader(key, value)
+        }
+        return builder.build()
+    }
+}

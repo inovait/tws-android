@@ -48,6 +48,13 @@ internal class HtmlModifierHelperImpl : HtmlModifierHelper {
             .insertJs(jsModifiers)
     }
 
+    override fun getMimeTypeAndEncoding(contentType: String): Pair<String, String> {
+        val mimeType = contentType.substringBefore(";").trim()
+        val encoding = contentType.substringAfter("charset=", "UTF-8").trim()
+
+        return Pair(mimeType, encoding)
+    }
+
     private fun String.insertCss(cssModifiers: List<TWSAttachment>): String {
         val combinedCssInjection = cssModifiers.joinToString(separator = "") { it.inject.orEmpty() }.trimIndent()
 
