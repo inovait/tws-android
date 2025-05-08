@@ -17,15 +17,19 @@ package com.thewebsnippet.manager
 
 import android.content.Context
 import com.thewebsnippet.manager.fakes.function.FakeTWSSnippetFunction
+import com.thewebsnippet.manager.fakes.preference.FakeAuthPreference
 import com.thewebsnippet.manager.manager.snippet.ProjectResponse
 import com.thewebsnippet.manager.manager.snippet.SnippetLoadingManager
 import com.thewebsnippet.manager.manager.snippet.SnippetLoadingManagerImpl
 import com.thewebsnippet.manager.utils.FAKE_PROJECT_DTO
+import com.thewebsnippet.manager.utils.FAKE_PROJECT_DTO_INJECTED_TOKEN
 import com.thewebsnippet.manager.utils.FAKE_SHARED_PROJECT
 import com.thewebsnippet.manager.utils.MILLISECONDS_DATE
 import com.thewebsnippet.manager.utils.testScopeWithDispatcherProvider
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import okhttp3.Headers
+import org.junit.After
 import org.junit.Test
 import org.mockito.Mockito
 import retrofit2.Response
@@ -36,16 +40,24 @@ internal class SnippetLoadingManagerImplTest {
     private val scope = testScopeWithDispatcherProvider()
 
     private val fakeFunctions = FakeTWSSnippetFunction()
+    private val fakeAuthPref = FakeAuthPreference()
 
     private lateinit var impl: SnippetLoadingManager
 
     private val context = Mockito.mock(Context::class.java)
 
+    @After
+    fun tearDown() = runBlocking {
+        fakeAuthPref.setAccessToken("")
+        fakeAuthPref.setRefreshToken("")
+    }
+
     @Test
-    fun `Load project`() = scope.runTest {
+    fun `Load project without auth token`() = scope.runTest {
         impl = SnippetLoadingManagerImpl(
             context = context,
             configuration = TWSConfiguration.Basic("proj"),
+            authPreference = fakeAuthPref,
             functions = fakeFunctions
         )
 
@@ -66,10 +78,11 @@ internal class SnippetLoadingManagerImplTest {
     }
 
     @Test
-    fun `Load shared snippet`() = scope.runTest {
+    fun `Load shared snippet without auth token`() = scope.runTest {
         impl = SnippetLoadingManagerImpl(
             context = context,
             configuration = TWSConfiguration.Shared("sharedId"),
+            authPreference = fakeAuthPref,
             functions = fakeFunctions
         )
 
@@ -86,6 +99,62 @@ internal class SnippetLoadingManagerImplTest {
         assert(
             impl.load() == ProjectResponse(
                 project = FAKE_PROJECT_DTO,
+                responseDate = Instant.ofEpochMilli(MILLISECONDS_DATE)
+            )
+        )
+    }
+
+    @Test
+    fun `Load project and inject auth header`() = scope.runTest {
+        fakeAuthPref.setAccessToken("fakeAccessToken")
+
+        impl = SnippetLoadingManagerImpl(
+            context = context,
+            configuration = TWSConfiguration.Basic("proj"),
+            authPreference = fakeAuthPref,
+            functions = fakeFunctions
+        )
+
+        fakeFunctions.returnedProject =
+            Response.success(
+                FAKE_PROJECT_DTO,
+                Headers.Builder().set("date", Date(MILLISECONDS_DATE)).build()
+            )
+
+        fakeFunctions.getWebSnippets("proj")
+
+        assert(
+            impl.load() == ProjectResponse(
+                project = FAKE_PROJECT_DTO_INJECTED_TOKEN,
+                responseDate = Instant.ofEpochMilli(MILLISECONDS_DATE)
+            )
+        )
+    }
+
+    @Test
+    fun `Load shared snippet and inject auth token`() = scope.runTest {
+        fakeAuthPref.setAccessToken("fakeAccessToken")
+
+        impl = SnippetLoadingManagerImpl(
+            context = context,
+            configuration = TWSConfiguration.Shared("sharedId"),
+            authPreference = fakeAuthPref,
+            functions = fakeFunctions
+        )
+
+        fakeFunctions.returnedSharedSnippet = FAKE_SHARED_PROJECT
+
+        fakeFunctions.returnedProject =
+            Response.success(
+                FAKE_PROJECT_DTO,
+                Headers.Builder().set("date", Date(MILLISECONDS_DATE)).build()
+            )
+
+        fakeFunctions.getSharedSnippetData(FAKE_SHARED_PROJECT.shareToken)
+
+        assert(
+            impl.load() == ProjectResponse(
+                project = FAKE_PROJECT_DTO_INJECTED_TOKEN,
                 responseDate = Instant.ofEpochMilli(MILLISECONDS_DATE)
             )
         )

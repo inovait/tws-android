@@ -20,19 +20,21 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import com.thewebsnippet.manager.TWSConfiguration
+import com.thewebsnippet.manager.data.ProjectDto
 import com.thewebsnippet.manager.factory.BaseServiceFactory
 import com.thewebsnippet.manager.factory.create
 import com.thewebsnippet.manager.function.TWSSnippetFunction
 import com.thewebsnippet.manager.manager.auth.AuthLoginManagerImpl
+import com.thewebsnippet.manager.preference.AuthPreference
 import com.thewebsnippet.manager.preference.AuthPreferenceImpl
+import kotlinx.coroutines.flow.firstOrNull
 import java.time.Instant
 
 internal class SnippetLoadingManagerImpl(
     context: Context,
     private val configuration: TWSConfiguration,
-    private val functions: TWSSnippetFunction = BaseServiceFactory(
-        AuthLoginManagerImpl(AuthPreferenceImpl(context.authPreferences))
-    ).create()
+    private val authPreference: AuthPreference = AuthPreferenceImpl(context.authPreferences),
+    private val functions: TWSSnippetFunction = BaseServiceFactory(AuthLoginManagerImpl(authPreference)).create()
 ) : SnippetLoadingManager {
 
     override suspend fun load(): ProjectResponse {
@@ -47,14 +49,33 @@ internal class SnippetLoadingManagerImpl(
             }
         }
 
+        val body = twsProjectResponse.body() ?: error("Body not available")
+
         return ProjectResponse(
-            twsProjectResponse.body() ?: error("Body not available"),
+            body.injectAuthHeader(),
             twsProjectResponse.headers().getDate(HEADER_DATE)?.toInstant() ?: Instant.now()
         )
     }
 
+    private suspend fun ProjectDto.injectAuthHeader(): ProjectDto {
+        authPreference.accessToken.firstOrNull()?.takeIf { it.isNotBlank() }?.let { token ->
+            val header = HEADER_TWS_AUTH to token
+
+            val injectedSnippets = snippets.map { snippet ->
+                snippet.copy(
+                    headers = snippet.headers?.let {
+                        it + header
+                    } ?: mapOf(header)
+                )
+            }
+
+            return copy(snippets = injectedSnippets)
+        } ?: return this
+    }
+
     companion object {
         private const val HEADER_DATE = "date"
+        private const val HEADER_TWS_AUTH = "x-tws-access-token"
     }
 }
 

@@ -22,10 +22,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.filterNotNull
 
 class FakeAuthPreference : AuthPreference {
-    private val _refreshToken: MutableStateFlow<String?> = MutableStateFlow(null)
+    private val _refreshToken: MutableStateFlow<String?> = MutableStateFlow("")
     override val refreshToken: Flow<String> = _refreshToken.filterNotNull()
 
-    private val _accessToken: MutableStateFlow<String?> = MutableStateFlow(null)
+    private val _accessToken: MutableStateFlow<String?> = MutableStateFlow("")
     override val accessToken: Flow<String> = _accessToken.filterNotNull()
 
     override suspend fun setRefreshToken(refreshToken: String) {
