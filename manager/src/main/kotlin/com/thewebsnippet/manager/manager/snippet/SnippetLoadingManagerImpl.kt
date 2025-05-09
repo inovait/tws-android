@@ -59,7 +59,7 @@ internal class SnippetLoadingManagerImpl(
 
     private suspend fun ProjectDto.injectAuthHeader(): ProjectDto {
         authPreference.accessToken.firstOrNull()?.takeIf { it.isNotBlank() }?.let { token ->
-            val header = HEADER_TWS_AUTH to token
+            val header = HEADER_TWS_AUTH to token.convertToBearerToken()
 
             val injectedSnippets = snippets.map { snippet ->
                 snippet.copy(
@@ -73,9 +73,12 @@ internal class SnippetLoadingManagerImpl(
         } ?: return this
     }
 
+    private fun String.convertToBearerToken() = "$BEARER $this"
+
     companion object {
         private const val HEADER_DATE = "date"
         private const val HEADER_TWS_AUTH = "x-tws-access-token"
+        private const val BEARER = "Bearer"
     }
 }
 

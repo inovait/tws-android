@@ -123,10 +123,10 @@ internal val FAKE_PROJECT_DTO = ProjectDto(
 
 internal val FAKE_PROJECT_DTO_INJECTED_TOKEN = ProjectDto(
     snippets = listOf(
-        FAKE_SNIPPET_ONE.copy(headers = mapOf("x-tws-access-token" to "fakeAccessToken")),
-        FAKE_SNIPPET_TWO.copy(headers = mapOf("x-tws-access-token" to "fakeAccessToken")),
-        FAKE_SNIPPET_FOUR.copy(headers = mapOf("x-tws-access-token" to "fakeAccessToken")),
-        FAKE_SNIPPET_FIVE.copy(headers = mapOf("x-tws-access-token" to "fakeAccessToken"))
+        FAKE_SNIPPET_ONE.copy(headers = mapOf("x-tws-access-token" to "Bearer fakeAccessToken")),
+        FAKE_SNIPPET_TWO.copy(headers = mapOf("x-tws-access-token" to "Bearer fakeAccessToken")),
+        FAKE_SNIPPET_FOUR.copy(headers = mapOf("x-tws-access-token" to "Bearer fakeAccessToken")),
+        FAKE_SNIPPET_FIVE.copy(headers = mapOf("x-tws-access-token" to "Bearer fakeAccessToken"))
     ),
     listenOn = "wss:someUrl.com"
 )
