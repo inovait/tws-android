@@ -167,9 +167,7 @@ class TWSViewNavigator(
                 )
 
                 is NavigationEvent.LoadSnippet -> {
-                    val response = withContext(Dispatchers.IO) {
-                        redirectOkHttp.response(event.snippet)
-                    }
+                    val response = redirectOkHttp.response(event.snippet)
 
                     loadDataWithBaseURL(
                         response.url,

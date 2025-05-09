@@ -20,5 +20,5 @@ import com.thewebsnippet.data.TWSSnippet
 import com.thewebsnippet.view.data.ResponseMetaData
 
 interface SnippetWebLoad {
-    fun response(snippet: TWSSnippet): ResponseMetaData
+    suspend fun response(snippet: TWSSnippet): ResponseMetaData
 }

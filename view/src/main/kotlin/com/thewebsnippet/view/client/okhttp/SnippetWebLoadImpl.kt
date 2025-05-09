@@ -20,15 +20,19 @@ import com.thewebsnippet.data.TWSSnippet
 import com.thewebsnippet.view.data.ResponseMetaData
 import com.thewebsnippet.view.util.modifier.HtmlModifierHelper
 import jakarta.inject.Singleton
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 
 @Singleton
 internal class SnippetWebLoadImpl(
     private val okHttpClient: Lazy<OkHttpClient>,
-    private val htmlModifier: HtmlModifierHelper
+    private val htmlModifier: HtmlModifierHelper,
+    private val dispatcherIO: CoroutineDispatcher = Dispatchers.IO
 ) : SnippetWebLoad {
-    override fun response(snippet: TWSSnippet): ResponseMetaData {
+    override suspend fun response(snippet: TWSSnippet): ResponseMetaData = withContext(dispatcherIO) {
         val request = buildRequestWithHeaders(snippet.target, snippet.headers)
 
         val response = okHttpClient.value.newCall(request).execute()
@@ -40,7 +44,7 @@ internal class SnippetWebLoadImpl(
         )
 
         val updatedHtml = htmlModifier.modifyContent(
-            response.body?.string() ?: "",
+            response.body?.string().orEmpty(),
             snippet.dynamicResources,
             snippet.props,
             snippet.engine
@@ -48,7 +52,7 @@ internal class SnippetWebLoadImpl(
 
         response.close()
 
-        return ResponseMetaData(
+        ResponseMetaData(
             url = finalUrl,
             mimeType = mimeType,
             encode = encode,
