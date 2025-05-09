@@ -14,10 +14,11 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.thewebsnippet.view.client.okhttp
+package com.thewebsnippet.view.data
 
-import okhttp3.Response
-
-interface RedirectOkHttp {
-    fun response(url: String, headers: Map<String, String>): Response
-}
+data class ResponseMetaData(
+    val url: String,
+    val mimeType: String,
+    val encode: String,
+    val html: String
+)

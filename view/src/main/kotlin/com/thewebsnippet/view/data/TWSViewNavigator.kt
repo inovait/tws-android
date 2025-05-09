@@ -28,9 +28,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import com.thewebsnippet.data.TWSSnippet
-import com.thewebsnippet.view.client.okhttp.RedirectOkHttp
-import com.thewebsnippet.view.client.okhttp.RedirectOkHttpImpl
-import com.thewebsnippet.view.util.modifier.HtmlModifierHelper
+import com.thewebsnippet.view.client.okhttp.SnippetWebLoad
+import com.thewebsnippet.view.client.okhttp.SnippetWebLoadImpl
+import com.thewebsnippet.view.client.okhttp.webViewHttpClient
 import com.thewebsnippet.view.util.modifier.HtmlModifierHelperImpl
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -49,8 +49,7 @@ import kotlinx.coroutines.withContext
 @Stable
 class TWSViewNavigator(
     private val coroutineScope: CoroutineScope,
-    private val htmlModifier: HtmlModifierHelper,
-    private val redirectOkHttp: RedirectOkHttp
+    private val redirectOkHttp: SnippetWebLoad
 ) {
     private val navigationEvents: MutableSharedFlow<NavigationEvent> = MutableSharedFlow(replay = 1)
 
@@ -103,7 +102,7 @@ class TWSViewNavigator(
 
     internal fun loadUrl(snippet: TWSSnippet) {
         coroutineScope.launch {
-            navigationEvents.emit(NavigationEvent.LoadDataWithBaseURL(snippet))
+            navigationEvents.emit(NavigationEvent.LoadSnippet(snippet))
         }
     }
 
@@ -167,28 +166,17 @@ class TWSViewNavigator(
                     event.historyUrl
                 )
 
-                is NavigationEvent.LoadDataWithBaseURL -> {
+                is NavigationEvent.LoadSnippet -> {
                     val response = withContext(Dispatchers.IO) {
-                        redirectOkHttp.response(event.snippet.target, event.snippet.headers)
+                        redirectOkHttp.response(event.snippet)
                     }
-                    val finalUrl = response.request.url.toString()
-
-                    val (mimeType, encode) = htmlModifier.getMimeTypeAndEncoding(
-                        response.header("Content-Type") ?: "text/html; charset=UTF-8"
-                    )
-                    val updatedHtml = htmlModifier.modifyContent(
-                        response.body?.string() ?: "",
-                        event.snippet.dynamicResources,
-                        event.snippet.props,
-                        event.snippet.engine
-                    )
 
                     loadDataWithBaseURL(
-                        finalUrl,
-                        updatedHtml,
-                        mimeType,
-                        encode,
-                        finalUrl
+                        response.url,
+                        response.html,
+                        response.mimeType,
+                        response.encode,
+                        response.url
                     )
                 }
             }
@@ -205,7 +193,7 @@ class TWSViewNavigator(
         data object PopState : NavigationEvent
         data class PushState(val path: String) : NavigationEvent
 
-        data class LoadDataWithBaseURL(val snippet: TWSSnippet) : NavigationEvent
+        data class LoadSnippet(val snippet: TWSSnippet) : NavigationEvent
         data class LoadUrl(val url: String) : NavigationEvent
 
         data class LoadHtml(
@@ -231,10 +219,13 @@ fun rememberTWSViewNavigator(
     val context = LocalContext.current
 
     return remember(coroutineScope) {
+        val client = lazy {
+            webViewHttpClient(context)
+        }
+
         TWSViewNavigator(
             coroutineScope = coroutineScope,
-            htmlModifier = HtmlModifierHelperImpl(),
-            redirectOkHttp = RedirectOkHttpImpl(context)
+            redirectOkHttp = SnippetWebLoadImpl(client, HtmlModifierHelperImpl())
         )
     }
 }
@@ -254,10 +245,12 @@ fun rememberTWSViewNavigator(
     val context = LocalContext.current
 
     return remember(key1) {
+        val client = lazy {
+            webViewHttpClient(context)
+        }
         TWSViewNavigator(
             coroutineScope = coroutineScope,
-            htmlModifier = HtmlModifierHelperImpl(),
-            redirectOkHttp = RedirectOkHttpImpl(context)
+            redirectOkHttp = SnippetWebLoadImpl(client, HtmlModifierHelperImpl())
         )
     }
 }

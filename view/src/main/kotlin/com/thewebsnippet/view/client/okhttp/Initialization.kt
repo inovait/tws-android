@@ -20,39 +20,20 @@ import android.content.Context
 import android.webkit.CookieManager
 import jakarta.inject.Singleton
 import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.Response
 
 @Singleton
-class RedirectOkHttpImpl(private val context: Context) : RedirectOkHttp {
-    private val okHttpClient: OkHttpClient
-        get() {
-            if (Thread.currentThread().name == "main") {
-                error("OkHttp should not be initialized on the main thread")
-            }
-
-            val manager = GlobalOkHttpDiskCacheManager(context, provideErrorReporter)
-            val cookieManager = CookieManager.getInstance().also { it.setAcceptCookie(true) }
-
-            return OkHttpClient.Builder()
-                .cache(manager.cache)
-                .cookieJar(SharedCookieJar(cookieManager))
-                .followRedirects(true)
-                .followSslRedirects(true)
-                .build()
-        }
-
-    override fun response(url: String, headers: Map<String, String>): Response {
-        val request = buildRequestWithHeaders(url, headers)
-
-        return okHttpClient.newCall(request).execute()
+internal fun webViewHttpClient(context: Context): OkHttpClient {
+    if (Thread.currentThread().name == "main") {
+        error("OkHttp should not be initialized on the main thread")
     }
 
-    private fun buildRequestWithHeaders(url: String, headers: Map<String, String>): Request {
-        val builder = Request.Builder().url(url)
-        for ((key, value) in headers) {
-            builder.addHeader(key, value)
-        }
-        return builder.build()
-    }
+    val manager = GlobalOkHttpDiskCacheManager(context, provideErrorReporter)
+    val cookieManager = CookieManager.getInstance().also { it.setAcceptCookie(true) }
+
+    return OkHttpClient.Builder()
+        .cache(manager.cache)
+        .cookieJar(SharedCookieJar(cookieManager))
+        .followRedirects(true)
+        .followSslRedirects(true)
+        .build()
 }
