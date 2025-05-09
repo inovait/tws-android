@@ -100,7 +100,7 @@ class TWSViewNavigator(
         coroutineScope.launch { navigationEvents.emit(NavigationEvent.Reload) }
     }
 
-    internal fun loadUrl(snippet: TWSSnippet) {
+    internal fun loadSnippet(snippet: TWSSnippet) {
         coroutineScope.launch {
             navigationEvents.emit(NavigationEvent.LoadSnippet(snippet))
         }
