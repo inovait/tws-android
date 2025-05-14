@@ -257,7 +257,7 @@ private fun HandleNavigationEvents(wv: WebView, navigator: TWSViewNavigator, sta
         snapshotFlow { state.content }.collect { content ->
             when (content) {
                 is WebContent.Snippet -> {
-                    navigator.loadUrl(content.target)
+                    navigator.loadSnippet(content.target)
                 }
 
                 is WebContent.NavigatorOnly, is WebContent.MessageOnly -> {

@@ -53,14 +53,12 @@ internal class HtmlModifierHelperImpl : HtmlModifierHelper {
 
         return if (contains("</head>")) {
             replaceFirst("</head>", """$combinedCssInjection</head>""")
-        } else if (contains("</body>")) {
-            replaceFirst("</body>", """$combinedCssInjection</body>""")
         } else {
             val htmlTagRegex = Regex("<html(\\s[^>]*)?>", RegexOption.IGNORE_CASE)
             if (htmlTagRegex.containsMatchIn(this)) {
                 replaceFirst(htmlTagRegex, """$0$combinedCssInjection""")
             } else {
-                "$combinedCssInjection$this"
+                "$this$combinedCssInjection"
             }
         }
     }
@@ -72,8 +70,6 @@ internal class HtmlModifierHelperImpl : HtmlModifierHelper {
 
         return if (contains("<head>")) {
             replaceFirst("<head>", """<head>$combinedJsInjection""")
-        } else if (contains("<body>")) {
-            replaceFirst("<body>", """<body>$combinedJsInjection""")
         } else {
             val htmlTagRegex = Regex("<html(\\s[^>]*)?>", RegexOption.IGNORE_CASE)
             if (htmlTagRegex.containsMatchIn(this)) {

@@ -104,7 +104,7 @@ fun TWSView(
             val content = viewState.content as? WebContent.NavigatorOnly
             if (viewState.viewState?.isEmpty != false && content?.default != null) {
                 // Handle first time load for navigator only state, other loads will be handled with state restoration
-                navigator.loadUrl(content.default)
+                navigator.loadSnippet(content.default)
             }
         }
 

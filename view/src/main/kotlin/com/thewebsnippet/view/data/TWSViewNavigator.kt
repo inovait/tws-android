@@ -26,8 +26,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import com.thewebsnippet.data.TWSSnippet
-import com.thewebsnippet.view.util.modifier.HtmlModifierHelper
+import com.thewebsnippet.view.client.okhttp.SnippetWebLoad
+import com.thewebsnippet.view.client.okhttp.SnippetWebLoadImpl
+import com.thewebsnippet.view.client.okhttp.webViewHttpClient
 import com.thewebsnippet.view.util.modifier.HtmlModifierHelperImpl
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -35,8 +38,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import okhttp3.OkHttpClient
-import okhttp3.Request
 
 /**
  * Allows control over the navigation of a WebView from outside the composable. E.g. for performing
@@ -48,7 +49,7 @@ import okhttp3.Request
 @Stable
 class TWSViewNavigator(
     private val coroutineScope: CoroutineScope,
-    private val htmlModifier: HtmlModifierHelper = HtmlModifierHelperImpl(),
+    private val redirectOkHttp: SnippetWebLoad
 ) {
     private val navigationEvents: MutableSharedFlow<NavigationEvent> = MutableSharedFlow(replay = 1)
 
@@ -99,9 +100,9 @@ class TWSViewNavigator(
         coroutineScope.launch { navigationEvents.emit(NavigationEvent.Reload) }
     }
 
-    internal fun loadUrl(snippet: TWSSnippet) {
+    internal fun loadSnippet(snippet: TWSSnippet) {
         coroutineScope.launch {
-            navigationEvents.emit(NavigationEvent.LoadDataWithBaseURL(snippet))
+            navigationEvents.emit(NavigationEvent.LoadSnippet(snippet))
         }
     }
 
@@ -165,33 +166,15 @@ class TWSViewNavigator(
                     event.historyUrl
                 )
 
-                is NavigationEvent.LoadDataWithBaseURL -> {
-                    val (newUrl, newHtml) = withContext(Dispatchers.IO) {
-                        val client = OkHttpClient.Builder() // TODO add auth token and move out
-                            .followRedirects(true)
-                            .followSslRedirects(true)
-                            .build()
+                is NavigationEvent.LoadSnippet -> {
+                    val response = redirectOkHttp.response(event.snippet)
 
-                        val request = buildRequestWithHeaders(event.snippet.target, event.snippet.headers)
-
-                        val response = client.newCall(request).execute()
-                        val finalUrl = response.request.url.toString()
-
-                        val updatedHtml = htmlModifier.modifyContent(
-                            response.body?.string() ?: "",
-                            event.snippet.dynamicResources,
-                            event.snippet.props,
-                            event.snippet.engine
-                        )
-                        Pair(finalUrl, updatedHtml)
-                    }
-
-                    loadDataWithBaseURL( // TODO
-                        newUrl,
-                        newHtml,
-                        "text/html",
-                        "UTF-8",
-                        newUrl
+                    loadDataWithBaseURL(
+                        response.url,
+                        response.html,
+                        response.mimeType,
+                        response.encode,
+                        response.url
                     )
                 }
             }
@@ -199,14 +182,6 @@ class TWSViewNavigator(
             navigationEvents.resetReplayCache()
         }
     }
-
-    private fun buildRequestWithHeaders(url: String, headers: Map<String, String>): Request {
-        val builder = Request.Builder().url(url)
-        for ((key, value) in headers) {
-            builder.addHeader(key, value)
-        }
-        return builder.build()
-    } // TODO move out
 
     private sealed interface NavigationEvent {
         data object Back : NavigationEvent
@@ -216,7 +191,7 @@ class TWSViewNavigator(
         data object PopState : NavigationEvent
         data class PushState(val path: String) : NavigationEvent
 
-        data class LoadDataWithBaseURL(val snippet: TWSSnippet) : NavigationEvent
+        data class LoadSnippet(val snippet: TWSSnippet) : NavigationEvent
         data class LoadUrl(val url: String) : NavigationEvent
 
         data class LoadHtml(
@@ -238,7 +213,20 @@ class TWSViewNavigator(
 @Composable
 fun rememberTWSViewNavigator(
     coroutineScope: CoroutineScope = rememberCoroutineScope()
-): TWSViewNavigator = remember(coroutineScope) { TWSViewNavigator(coroutineScope) }
+): TWSViewNavigator {
+    val context = LocalContext.current
+
+    return remember(coroutineScope) {
+        val client = lazy {
+            webViewHttpClient(context)
+        }
+
+        TWSViewNavigator(
+            coroutineScope = coroutineScope,
+            redirectOkHttp = SnippetWebLoadImpl(client, HtmlModifierHelperImpl())
+        )
+    }
+}
 
 /**
  * Creates and remembers a [TWSViewNavigator] with an optional key and default [CoroutineScope].
@@ -251,4 +239,16 @@ fun rememberTWSViewNavigator(
 fun rememberTWSViewNavigator(
     key1: Any?,
     coroutineScope: CoroutineScope = rememberCoroutineScope()
-): TWSViewNavigator = remember(key1) { TWSViewNavigator(coroutineScope) }
+): TWSViewNavigator {
+    val context = LocalContext.current
+
+    return remember(key1) {
+        val client = lazy {
+            webViewHttpClient(context)
+        }
+        TWSViewNavigator(
+            coroutineScope = coroutineScope,
+            redirectOkHttp = SnippetWebLoadImpl(client, HtmlModifierHelperImpl())
+        )
+    }
+}
