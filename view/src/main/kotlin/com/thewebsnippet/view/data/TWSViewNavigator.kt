@@ -28,10 +28,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import com.thewebsnippet.data.TWSSnippet
-import com.thewebsnippet.view.client.okhttp.SnippetWebLoad
-import com.thewebsnippet.view.client.okhttp.SnippetWebLoadImpl
-import com.thewebsnippet.view.client.okhttp.webViewHttpClient
-import com.thewebsnippet.view.util.modifier.HtmlModifierHelperImpl
+import com.thewebsnippet.view.client.okhttp.web.RedirectHandlerImpl
+import com.thewebsnippet.view.client.okhttp.web.SnippetWebLoader
+import com.thewebsnippet.view.client.okhttp.web.SnippetWebLoaderImpl
+import com.thewebsnippet.view.client.okhttp.web.webViewHttpClient
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -49,7 +49,7 @@ import kotlinx.coroutines.withContext
 @Stable
 class TWSViewNavigator(
     private val coroutineScope: CoroutineScope,
-    private val redirectOkHttp: SnippetWebLoad
+    private val snippetLoader: SnippetWebLoader
 ) {
     private val navigationEvents: MutableSharedFlow<NavigationEvent> = MutableSharedFlow(replay = 1)
 
@@ -167,7 +167,7 @@ class TWSViewNavigator(
                 )
 
                 is NavigationEvent.LoadSnippet -> {
-                    val response = redirectOkHttp.response(event.snippet)
+                    val response = snippetLoader.response(event.snippet)
 
                     loadDataWithBaseURL(
                         response.url,
@@ -217,13 +217,13 @@ fun rememberTWSViewNavigator(
     val context = LocalContext.current
 
     return remember(coroutineScope) {
-        val client = lazy {
-            webViewHttpClient(context)
+        val redirectionHandler = lazy {
+            RedirectHandlerImpl(webViewHttpClient(context))
         }
 
         TWSViewNavigator(
             coroutineScope = coroutineScope,
-            redirectOkHttp = SnippetWebLoadImpl(client, HtmlModifierHelperImpl())
+            snippetLoader = SnippetWebLoaderImpl(redirectionHandler)
         )
     }
 }
@@ -243,12 +243,12 @@ fun rememberTWSViewNavigator(
     val context = LocalContext.current
 
     return remember(key1) {
-        val client = lazy {
-            webViewHttpClient(context)
+        val redirectionHandler = lazy {
+            RedirectHandlerImpl(webViewHttpClient(context))
         }
         TWSViewNavigator(
             coroutineScope = coroutineScope,
-            redirectOkHttp = SnippetWebLoadImpl(client, HtmlModifierHelperImpl())
+            snippetLoader = SnippetWebLoaderImpl(redirectionHandler)
         )
     }
 }

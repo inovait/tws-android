@@ -14,16 +14,15 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.thewebsnippet.view.util.modifier
+package com.thewebsnippet.view.fake
 
-import com.thewebsnippet.data.TWSAttachment
-import com.thewebsnippet.data.TWSEngine
+import com.thewebsnippet.view.client.okhttp.cookie.CookieSaver
+import okhttp3.HttpUrl
 
-internal interface HtmlModifierHelper {
-    fun modifyContent(
-        htmlContent: String,
-        dynamicModifiers: List<TWSAttachment>,
-        mustacheProps: Map<String, Any>,
-        engine: TWSEngine? = null
-    ): String
+class FakeCookieSaver : CookieSaver {
+    val savedCookies = mutableListOf<Pair<HttpUrl, List<String>>>()
+
+    override fun saveCookies(url: HttpUrl, setCookies: List<String>) {
+        savedCookies.add(url to setCookies)
+    }
 }

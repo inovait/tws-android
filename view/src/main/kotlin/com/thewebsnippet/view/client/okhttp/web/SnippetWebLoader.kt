@@ -14,11 +14,26 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.thewebsnippet.view.client.okhttp
+package com.thewebsnippet.view.client.okhttp.web
 
 import com.thewebsnippet.data.TWSSnippet
 import com.thewebsnippet.view.data.ResponseMetaData
 
-interface SnippetWebLoad {
+/**
+ * Defines the contract for loading and transforming a TWS snippet into structured web content.
+ *
+ * Implementations are responsible for:
+ * - Executing HTTP requests (including redirects if needed)
+ * - Parsing and modifying HTML content
+ * - Returning metadata about the final result
+ */
+interface SnippetWebLoader {
+    /**
+     * Loads a given [TWSSnippet], performs necessary network and transformation logic,
+     * and returns the resulting HTML and metadata.
+     *
+     * @param snippet The snippet to load, including target URL, headers, props, and dynamic resources.
+     * @return [ResponseMetaData] containing the final URL, MIME type, encoding, and transformed HTML content.
+     */
     suspend fun response(snippet: TWSSnippet): ResponseMetaData
 }

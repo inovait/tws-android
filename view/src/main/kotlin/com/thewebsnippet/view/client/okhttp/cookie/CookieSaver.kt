@@ -14,23 +14,10 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.thewebsnippet.view.client.okhttp
+package com.thewebsnippet.view.client.okhttp.cookie
 
-import android.webkit.WebResourceRequest
+import okhttp3.HttpUrl
 
-/**
- * Callback interface to determine whether a given [WebResourceRequest] should be intercepted
- * and processed for HTML content injection (e.g., for injecting CSS, JavaScript, or Mustache templates).
- *
- * Implementations can define custom logic to include or exclude certain requests
- * from being modified by OkHttpTWSWebViewClient.
- */
-fun interface InjectionFilterCallback {
-    /**
-     * Determines if a request should be intercepted and processed.
-     *
-     * @param request The incoming web resource request.
-     * @return `true` if the request should be intercepted and modified, `false` otherwise.
-     */
-    fun invoke(request: WebResourceRequest): Boolean
+internal interface CookieSaver {
+    fun saveCookies(url: HttpUrl, setCookies: List<String>)
 }

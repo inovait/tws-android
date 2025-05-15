@@ -14,16 +14,19 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.thewebsnippet.view.util.modifier
+package com.thewebsnippet.view.client.okhttp.cookie
 
-import com.thewebsnippet.data.TWSAttachment
-import com.thewebsnippet.data.TWSEngine
+import android.webkit.CookieManager
+import okhttp3.HttpUrl
 
-internal interface HtmlModifierHelper {
-    fun modifyContent(
-        htmlContent: String,
-        dynamicModifiers: List<TWSAttachment>,
-        mustacheProps: Map<String, Any>,
-        engine: TWSEngine? = null
-    ): String
+internal class CookieSaverImpl(
+    private val cookieManager: CookieManager
+) : CookieSaver {
+
+    override fun saveCookies(url: HttpUrl, setCookies: List<String>) {
+        setCookies.forEach {
+            cookieManager.setCookie(url.toString(), it)
+        }
+        cookieManager.flush()
+    }
 }

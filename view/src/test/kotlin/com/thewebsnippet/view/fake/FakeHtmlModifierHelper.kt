@@ -14,26 +14,19 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.thewebsnippet.view.client.okhttp
+package com.thewebsnippet.view.fake
 
-import android.content.Context
-import android.webkit.CookieManager
-import jakarta.inject.Singleton
-import okhttp3.OkHttpClient
+import com.thewebsnippet.data.TWSAttachment
+import com.thewebsnippet.data.TWSEngine
+import com.thewebsnippet.view.util.modifier.HtmlModifierHelper
 
-@Singleton
-internal fun webViewHttpClient(context: Context): OkHttpClient {
-    if (Thread.currentThread().name == "main") {
-        error("OkHttp should not be initialized on the main thread")
+class FakeHtmlModifierHelper : HtmlModifierHelper {
+    override fun modifyContent(
+        htmlContent: String,
+        dynamicModifiers: List<TWSAttachment>,
+        mustacheProps: Map<String, Any>,
+        engine: TWSEngine?
+    ): String {
+        return "Modify Added \n$htmlContent"
     }
-
-    val manager = GlobalOkHttpDiskCacheManager(context, provideErrorReporter)
-    val cookieManager = CookieManager.getInstance().also { it.setAcceptCookie(true) }
-
-    return OkHttpClient.Builder()
-        .cache(manager.cache)
-        .cookieJar(SharedCookieJar(cookieManager))
-        .followRedirects(true)
-        .followSslRedirects(true)
-        .build()
 }

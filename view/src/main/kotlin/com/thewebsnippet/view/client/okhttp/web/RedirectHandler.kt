@@ -14,16 +14,11 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.thewebsnippet.view.util.modifier
+package com.thewebsnippet.view.client.okhttp.web
 
-import com.thewebsnippet.data.TWSAttachment
-import com.thewebsnippet.data.TWSEngine
+import okhttp3.Request
+import okhttp3.Response
 
-internal interface HtmlModifierHelper {
-    fun modifyContent(
-        htmlContent: String,
-        dynamicModifiers: List<TWSAttachment>,
-        mustacheProps: Map<String, Any>,
-        engine: TWSEngine? = null
-    ): String
+internal interface RedirectHandler {
+    fun execute(request: Request): Response
 }

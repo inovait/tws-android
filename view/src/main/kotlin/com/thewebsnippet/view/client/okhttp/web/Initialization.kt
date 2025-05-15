@@ -14,16 +14,29 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.thewebsnippet.view.util.modifier
+package com.thewebsnippet.view.client.okhttp.web
 
-import com.thewebsnippet.data.TWSAttachment
-import com.thewebsnippet.data.TWSEngine
+import android.content.Context
+import android.webkit.CookieManager
+import com.thewebsnippet.view.client.okhttp.GlobalOkHttpDiskCacheManager
+import com.thewebsnippet.view.client.okhttp.cookie.SharedCookieJar
+import com.thewebsnippet.view.client.okhttp.provideErrorReporter
+import jakarta.inject.Singleton
+import okhttp3.OkHttpClient
 
-internal interface HtmlModifierHelper {
-    fun modifyContent(
-        htmlContent: String,
-        dynamicModifiers: List<TWSAttachment>,
-        mustacheProps: Map<String, Any>,
-        engine: TWSEngine? = null
-    ): String
+@Singleton
+internal fun webViewHttpClient(context: Context): OkHttpClient {
+    if (Thread.currentThread().name == "main") {
+        error("OkHttp should not be initialized on the main thread : ${Thread.currentThread().name}")
+    }
+
+    val manager = GlobalOkHttpDiskCacheManager(context, provideErrorReporter)
+    val cookieManager = CookieManager.getInstance()
+
+    return OkHttpClient.Builder()
+        .cache(manager.cache)
+        .cookieJar(SharedCookieJar(cookieManager))
+        .followRedirects(false) // followed manually, we need that to be able to sync cookies with extensions from redirects
+        .followSslRedirects(false)
+        .build()
 }

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thewebsnippet.view.client.okhttp
+package com.thewebsnippet.view.client.okhttp.cookie
 
 import android.webkit.CookieManager
 import okhttp3.Cookie
@@ -26,9 +26,7 @@ import okhttp3.HttpUrl
  */
 internal class SharedCookieJar(private val cookieManager: CookieManager) : CookieJar {
     override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
-        cookies.forEach { cookie ->
-            cookieManager.setCookie(url.toString(), cookie.toString())
-        }
+        // Saving is done manually in ManualRedirectCookieClient, since CookieJar does not support SameSite extension
     }
 
     override fun loadForRequest(url: HttpUrl): List<Cookie> {

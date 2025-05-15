@@ -14,28 +14,28 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.thewebsnippet.view.client.okhttp
+package com.thewebsnippet.view.client.okhttp.web
 
 import com.thewebsnippet.data.TWSSnippet
 import com.thewebsnippet.view.data.ResponseMetaData
 import com.thewebsnippet.view.util.modifier.HtmlModifierHelper
+import com.thewebsnippet.view.util.modifier.HtmlModifierHelperImpl
 import jakarta.inject.Singleton
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import okhttp3.OkHttpClient
 import okhttp3.Request
 
 @Singleton
-internal class SnippetWebLoadImpl(
-    private val okHttpClient: Lazy<OkHttpClient>,
-    private val htmlModifier: HtmlModifierHelper,
+internal class SnippetWebLoaderImpl(
+    private val redirectHandler: Lazy<RedirectHandler>,
+    private val htmlModifier: HtmlModifierHelper = HtmlModifierHelperImpl(),
     private val dispatcherIO: CoroutineDispatcher = Dispatchers.IO
-) : SnippetWebLoad {
+) : SnippetWebLoader {
     override suspend fun response(snippet: TWSSnippet): ResponseMetaData = withContext(dispatcherIO) {
         val request = buildRequestWithHeaders(snippet.target, snippet.headers)
 
-        val response = okHttpClient.value.newCall(request).execute()
+        val response = redirectHandler.value.execute(request)
 
         val finalUrl = response.request.url.toString()
 

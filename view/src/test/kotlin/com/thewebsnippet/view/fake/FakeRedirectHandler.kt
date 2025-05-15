@@ -16,17 +16,27 @@
 
 package com.thewebsnippet.view.fake
 
-import com.thewebsnippet.data.TWSAttachment
-import com.thewebsnippet.data.TWSEngine
-import com.thewebsnippet.view.util.modifier.HtmlModifierHelper
+import com.thewebsnippet.view.client.okhttp.web.RedirectHandler
+import okhttp3.Headers
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.Protocol
+import okhttp3.Request
+import okhttp3.Response
+import okhttp3.ResponseBody.Companion.toResponseBody
 
-class HtmlModifierHelperFake : HtmlModifierHelper {
-    override fun modifyContent(
-        htmlContent: String,
-        dynamicModifiers: List<TWSAttachment>,
-        mustacheProps: Map<String, Any>,
-        engine: TWSEngine?
-    ): String {
-        return "Modify Added \n$htmlContent"
+class FakeRedirectHandler : RedirectHandler {
+    var fakeBody: String = "<html><body>Fake Response</body></html>"
+
+    override fun execute(request: Request): Response {
+        val fakeMediaType = "text/html; charset=UTF-8"
+
+        return Response.Builder()
+            .code(200)
+            .message("OK")
+            .request(request)
+            .protocol(Protocol.HTTP_1_1)
+            .body(fakeBody.toResponseBody(fakeMediaType.toMediaType()))
+            .headers(Headers.headersOf("Content-Type", fakeMediaType))
+            .build()
     }
 }

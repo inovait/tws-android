@@ -22,8 +22,10 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.thewebsnippet.data.TWSAttachment
 import com.thewebsnippet.data.TWSEngine
 import com.thewebsnippet.data.TWSSnippet
-import com.thewebsnippet.view.client.okhttp.SnippetWebLoadImpl
-import com.thewebsnippet.view.client.okhttp.webViewHttpClient
+import com.thewebsnippet.view.client.okhttp.cookie.CookieSaverImpl
+import com.thewebsnippet.view.client.okhttp.web.RedirectHandlerImpl
+import com.thewebsnippet.view.client.okhttp.web.SnippetWebLoaderImpl
+import com.thewebsnippet.view.client.okhttp.web.webViewHttpClient
 import com.thewebsnippet.view.util.modifier.HtmlModifierHelper
 import kotlinx.coroutines.runBlocking
 import okhttp3.mockwebserver.MockResponse
@@ -32,8 +34,8 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 
-class SnippetWebLoadImplTest {
-    private lateinit var snippetLoad: SnippetWebLoadImpl
+class SnippetWebLoaderImplTest {
+    private lateinit var snippetLoad: SnippetWebLoaderImpl
     private lateinit var context: Context
     private lateinit var cookieManager: CookieManager
     private lateinit var server: MockWebServer
@@ -49,8 +51,13 @@ class SnippetWebLoadImplTest {
         server = MockWebServer()
         server.start()
 
-        snippetLoad = SnippetWebLoadImpl(
-            okHttpClient = lazy { webViewHttpClient(context) },
+        snippetLoad = SnippetWebLoaderImpl(
+            redirectHandler = lazy {
+                RedirectHandlerImpl(
+                    client = webViewHttpClient(context),
+                    cookieSaver = CookieSaverImpl(cookieManager)
+                )
+            },
             htmlModifier = FakeHtmlModifierHelper()
         )
     }
@@ -68,7 +75,31 @@ class SnippetWebLoadImplTest {
         val response = MockResponse()
             .setResponseCode(200)
             .setHeader("Content-Type", "text/html; charset=UTF-8")
-            .setHeader("Set-Cookie", "test_cookie=test_value; Path=/; Domain=$baseUrl")
+            .setHeader("Set-Cookie", "test_cookie=test_value; Path=/; Domain=${server.hostName}")
+            .setBody("<html><body>Hello</body></html>")
+
+        server.enqueue(response)
+
+        // Validate that no cookies are saved in web view cookie store
+        assert(cookieManager.getCookie(baseUrl).isNullOrEmpty())
+
+        val snippet = TWSSnippet(id = "testId", target = baseUrl)
+        // Fetch snippet target content (and cookie), this is NOT fetched in webview
+        snippetLoad.response(snippet)
+
+        // Assert that cookie has been synced with web views cookie store
+        assert(cookieManager.getCookie(baseUrl).contains("test_cookie=test_value"))
+    }
+
+    @Test
+    fun ensureUnsupportedCookieExtensionsAreSynced() = runBlocking {
+        val baseUrl = server.url("/").toString()
+
+        // Prepare response with cookie
+        val response = MockResponse()
+            .setResponseCode(200)
+            .setHeader("Content-Type", "text/html; charset=UTF-8")
+            .setHeader("Set-Cookie", "test_cookie=test_value; Path=/; Domain=${server.hostName}; Secure; HttpOnly; SameSite=None")
             .setBody("<html><body>Hello</body></html>")
 
         server.enqueue(response)
