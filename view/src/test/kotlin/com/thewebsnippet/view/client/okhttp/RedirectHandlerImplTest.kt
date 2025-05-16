@@ -91,7 +91,7 @@ class RedirectHandlerImplTest {
         // Step 1: Respond with absolute redirect
         val redirectResponse = MockResponse()
             .setResponseCode(302)
-            .addHeader("Location", "$baseUrl/final") // ✅ absolute URL
+            .addHeader("Location", "$baseUrl/final")
             .addHeader("Set-Cookie", "first=session1")
 
         // Step 2: Final response
@@ -120,5 +120,99 @@ class RedirectHandlerImplTest {
 
         assertTrue(firstCookies.any { it.contains("first=session1") })
         assertTrue(secondCookies.any { it.contains("second=session2") })
+    }
+
+    @Test
+    fun `execute follows multiple absolute redirects and saves all cookies`() {
+        val baseUrl = mockWebServer.url("/").toString()
+
+        // Step 1: First redirect with a cookie
+        val firstRedirect = MockResponse()
+            .setResponseCode(302)
+            .addHeader("Location", "$baseUrl/step2")
+            .addHeader("Set-Cookie", "first=session1")
+
+        // Step 2: Second redirect with another cookie
+        val secondRedirect = MockResponse()
+            .setResponseCode(302)
+            .addHeader("Location", "$baseUrl/final")
+            .addHeader("Set-Cookie", "second=session2")
+
+        // Step 3: Final response with another cookie
+        val finalResponse = MockResponse()
+            .setResponseCode(200)
+            .addHeader("Set-Cookie", "third=session3")
+            .setBody("<html>final destination</html>")
+
+        mockWebServer.enqueue(firstRedirect)
+        mockWebServer.enqueue(secondRedirect)
+        mockWebServer.enqueue(finalResponse)
+
+        val request = Request.Builder()
+            .url("$baseUrl/start")
+            .build()
+
+        val response = redirectHandler.execute(request)
+
+        assertEquals(200, response.code)
+        assertTrue(response.body?.string()?.contains("final destination") == true)
+
+        // Check that all cookies from redirects were saved
+        assertEquals(3, cookieSaver.savedCookies.size)
+
+        val firstCookies = cookieSaver.savedCookies[0].second
+        val secondCookies = cookieSaver.savedCookies[1].second
+        val thirdCookies = cookieSaver.savedCookies[2].second
+
+        assertTrue(firstCookies.any { it.contains("first=session1") })
+        assertTrue(secondCookies.any { it.contains("second=session2") })
+        assertTrue(thirdCookies.any { it.contains("third=session3") })
+    }
+
+    @Test
+    fun `execute follows mixed absolute and relative redirects and saves all cookies`() {
+        val baseUrl = mockWebServer.url("/").toString()
+
+        // Step 1: Absolute redirect with cookie
+        val firstRedirect = MockResponse()
+            .setResponseCode(302)
+            .addHeader("Location", "$baseUrl/step2")
+            .addHeader("Set-Cookie", "first=session1")
+
+        // Step 2: Relative redirect with cookie
+        val secondRedirect = MockResponse()
+            .setResponseCode(302)
+            .addHeader("Location", "/final")
+            .addHeader("Set-Cookie", "second=session2")
+
+        // Step 3: Final response with cookie
+        val finalResponse = MockResponse()
+            .setResponseCode(200)
+            .addHeader("Set-Cookie", "third=session3")
+            .setBody("<html>mixed redirect complete</html>")
+
+        mockWebServer.enqueue(firstRedirect)
+        mockWebServer.enqueue(secondRedirect)
+        mockWebServer.enqueue(finalResponse)
+
+        val request = Request.Builder()
+            .url("$baseUrl/start")
+            .build()
+
+        val response = redirectHandler.execute(request)
+
+        assertEquals(200, response.code)
+        assertTrue(response.body?.string()?.contains("mixed redirect complete") == true)
+
+        // Ensure all cookies were saved
+        assertEquals(3, cookieSaver.savedCookies.size)
+
+        val firstCookies = cookieSaver.savedCookies[0].second
+        val secondCookies = cookieSaver.savedCookies[1].second
+        val thirdCookies = cookieSaver.savedCookies[2].second
+
+        assertTrue(firstCookies.any { it.contains("first=session1") })
+        assertTrue(secondCookies.any { it.contains("second=session2") })
+        assertTrue(thirdCookies.any { it.contains("third=session3") })
     }
 }
