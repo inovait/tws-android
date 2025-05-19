@@ -71,7 +71,7 @@ class SharedCookieJarTest {
     }
 
     @Test
-    fun ensureNoCookiesAreReturnedIfNonePresent() = runTest{
+    fun ensureNoCookiesAreReturnedIfNonePresent() = runTest {
         val cookies = cookieJar.loadForRequest(testUrl)
         assertTrue(cookies.isEmpty())
     }
