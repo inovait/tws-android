@@ -27,7 +27,7 @@ import com.thewebsnippet.view.client.okhttp.web.RedirectHandlerImpl
 import com.thewebsnippet.view.client.okhttp.web.SnippetWebLoaderImpl
 import com.thewebsnippet.view.client.okhttp.web.webViewHttpClient
 import com.thewebsnippet.view.util.modifier.HtmlModifierHelper
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.After
@@ -68,7 +68,7 @@ class SnippetWebLoaderImplTest {
     }
 
     @Test
-    fun ensureCookiesAreSyncedToWebView() = runBlocking {
+    fun ensureCookiesAreSyncedToWebView() = runTest {
         val baseUrl = server.url("/").toString()
 
         // Prepare response with cookie
@@ -92,7 +92,7 @@ class SnippetWebLoaderImplTest {
     }
 
     @Test
-    fun ensureUnsupportedCookieExtensionsAreSynced() = runBlocking {
+    fun ensureUnsupportedCookieExtensionsAreSynced() = runTest {
         val baseUrl = server.url("/").toString()
 
         // Prepare response with cookie

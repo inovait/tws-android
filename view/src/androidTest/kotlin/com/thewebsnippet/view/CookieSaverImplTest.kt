@@ -20,13 +20,15 @@ import android.webkit.CookieManager
 import com.thewebsnippet.view.client.okhttp.cookie.CookieSaver
 import com.thewebsnippet.view.client.okhttp.cookie.CookieSaverImpl
 import junit.framework.TestCase.assertNotNull
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
 class CookieSaverImplTest {
+    private val testUrl = "https://example.com".toHttpUrl()
+
     private lateinit var cookieSaver: CookieSaver
     private lateinit var cookieManager: CookieManager
 
@@ -39,7 +41,7 @@ class CookieSaverImplTest {
     }
 
     @Test
-    fun ensureFullCookieIsStoredToWebViewStore() = runBlocking {
+    fun ensureFullCookieIsStoredToWebViewStore() = runTest {
         assert(!cookieManager.hasCookies())
 
         val cookies = listOf("sessionId=abc123; Path=/", "userId=42; Path=/")
@@ -48,12 +50,12 @@ class CookieSaverImplTest {
         val stored = cookieManager.getCookie(testUrl.toString())
 
         assertNotNull("Expected cookies to be stored", stored)
-        assertTrue("Expected sessionId cookie", stored!!.contains("sessionId=abc123"))
+        assertTrue("Expected sessionId cookie", stored.contains("sessionId=abc123"))
         assertTrue("Expected userId cookie", stored.contains("userId=42"))
     }
 
     @Test
-    fun ensureCookiesAreAppendedInsteadOfReplaced() = runBlocking {
+    fun ensureCookiesAreAppendedInsteadOfReplaced() = runTest {
         cookieSaver.saveCookies(testUrl, listOf("a=1; Path=/"))
         cookieSaver.saveCookies(testUrl, listOf("b=2; Path=/"))
 
@@ -63,5 +65,3 @@ class CookieSaverImplTest {
         assertTrue(stored?.contains("b=2") == true)
     }
 }
-
-private val testUrl = "https://example.com".toHttpUrl()

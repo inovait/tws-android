@@ -18,7 +18,7 @@ package com.thewebsnippet.view
 
 import android.webkit.CookieManager
 import com.thewebsnippet.view.client.okhttp.cookie.SharedCookieJar
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -28,6 +28,7 @@ import org.junit.Before
 import org.junit.Test
 
 class SharedCookieJarTest {
+    private val testUrl = "https://example.com".toHttpUrl()
 
     private lateinit var cookieManager: CookieManager
     private lateinit var cookieJar: SharedCookieJar
@@ -49,7 +50,7 @@ class SharedCookieJarTest {
     }
 
     @Test
-    fun ensureAllCookiesAreReturnedForRequest() = runBlocking {
+    fun ensureAllCookiesAreReturnedForRequest() = runTest {
         // Manually set the cookies
         cookieManager.setCookie(testUrl.toString(), "sessionId=abc123; Path=/")
         cookieManager.setCookie(testUrl.toString(), "userId=42; Path=/")
@@ -70,13 +71,13 @@ class SharedCookieJarTest {
     }
 
     @Test
-    fun ensureNoCookiesAreReturnedIfNonePresent() {
+    fun ensureNoCookiesAreReturnedIfNonePresent() = runTest{
         val cookies = cookieJar.loadForRequest(testUrl)
         assertTrue(cookies.isEmpty())
     }
 
     @Test
-    fun ensureMalformedCookiesAreIgnored() = runBlocking {
+    fun ensureMalformedCookiesAreIgnored() = runTest {
         cookieManager.setCookie(testUrl.toString(), "valid=ok; Path=/")
         cookieManager.setCookie(testUrl.toString(), "broken-cookie-without-equals-sign")
         cookieManager.flush()
@@ -88,5 +89,3 @@ class SharedCookieJarTest {
         assertEquals("ok", cookies[0].value)
     }
 }
-
-private val testUrl = "https://example.com".toHttpUrl()
