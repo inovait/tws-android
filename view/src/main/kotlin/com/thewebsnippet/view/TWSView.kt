@@ -42,13 +42,9 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.util.Consumer
 import com.samskivert.mustache.MustacheException
-import com.thewebsnippet.data.TWSAttachment
-import com.thewebsnippet.data.TWSEngine
 import com.thewebsnippet.data.TWSSnippet
-import com.thewebsnippet.view.client.NoOpInjectionFilter
-import com.thewebsnippet.view.client.OkHttpTWSWebViewClient
 import com.thewebsnippet.view.client.TWSWebChromeClient
-import com.thewebsnippet.view.client.okhttp.InjectionFilterCallback
+import com.thewebsnippet.view.client.TWSWebViewClient
 import com.thewebsnippet.view.data.TWSLoadingState
 import com.thewebsnippet.view.data.TWSViewDeepLinkInterceptor
 import com.thewebsnippet.view.data.TWSViewInterceptor
@@ -64,12 +60,6 @@ import com.thewebsnippet.view.util.compose.SnippetErrorView
 import com.thewebsnippet.view.util.compose.SnippetLoadingView
 import com.thewebsnippet.view.util.compose.getUserFriendlyMessage
 import com.thewebsnippet.view.util.initializeSettings
-import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.ImmutableMap
-import kotlinx.collections.immutable.persistentListOf
-import kotlinx.collections.immutable.persistentMapOf
-import kotlinx.collections.immutable.toImmutableList
-import kotlinx.collections.immutable.toImmutableMap
 
 /**
  *
@@ -114,10 +104,7 @@ fun TWSView(
             val content = viewState.content as? WebContent.NavigatorOnly
             if (viewState.viewState?.isEmpty != false && content?.default != null) {
                 // Handle first time load for navigator only state, other loads will be handled with state restoration
-                navigator.loadUrl(
-                    url = content.default.target,
-                    additionalHttpHeaders = content.default.headers
-                )
+                navigator.loadSnippet(content.default)
             }
         }
 
@@ -131,7 +118,7 @@ fun TWSView(
             isRefreshable = isRefreshable,
             captureBackPresses = captureBackPresses,
             modifier = modifier,
-            onCreated = onCreated
+            onCreated = onCreated,
         )
     }
 }
@@ -255,13 +242,7 @@ private fun SnippetContentWithPopup(
         errorViewContent = errorViewContent,
         interceptUrlCallback = interceptUrlCallback,
         popupStateCallback = popupStateCallback,
-        dynamicModifiers = target?.dynamicResources?.toImmutableList() ?: persistentListOf(),
-        mustacheProps = target?.props?.toImmutableMap() ?: persistentMapOf(),
-        engine = target?.engine ?: TWSEngine.NONE,
         isRefreshable = isRefreshable,
-        injectionFilterCallback = { request ->
-            target?.target?.let { it == request.url.toString() } == true
-        },
         onCreated = onCreated,
         captureBackPresses = captureBackPresses
     )
@@ -294,23 +275,15 @@ private fun SnippetContentWithLoadingAndError(
     isRefreshable: Boolean,
     captureBackPresses: Boolean,
     modifier: Modifier = Modifier,
-    dynamicModifiers: ImmutableList<TWSAttachment> = persistentListOf(),
-    mustacheProps: ImmutableMap<String, Any> = persistentMapOf(),
-    engine: TWSEngine = TWSEngine.NONE,
-    injectionFilterCallback: InjectionFilterCallback = NoOpInjectionFilter,
     onCreated: (WebView) -> Unit = {},
     key: String? = null,
 ) {
     // https://github.com/google/accompanist/issues/1326 - WebView settings does not work in compose preview
     val isPreviewMode = LocalInspectionMode.current
     val client = remember(key1 = key) {
-        OkHttpTWSWebViewClient(
-            dynamicModifiers = dynamicModifiers,
-            mustacheProps = mustacheProps,
-            engine = engine,
+        TWSWebViewClient(
             interceptUrlCallback = interceptUrlCallback,
-            popupStateCallback = popupStateCallback,
-            injectionFilterCallback = injectionFilterCallback
+            popupStateCallback = popupStateCallback
         )
     }
     val chromeClient = remember(key1 = key) { TWSWebChromeClient(popupStateCallback) }

@@ -26,6 +26,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
+import com.thewebsnippet.data.TWSSnippet
+import com.thewebsnippet.view.client.okhttp.web.RedirectHandlerImpl
+import com.thewebsnippet.view.client.okhttp.web.SnippetWebLoader
+import com.thewebsnippet.view.client.okhttp.web.SnippetWebLoaderImpl
+import com.thewebsnippet.view.client.okhttp.web.webViewHttpClient
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -41,7 +47,10 @@ import kotlinx.coroutines.withContext
  *
  */
 @Stable
-class TWSViewNavigator(private val coroutineScope: CoroutineScope) {
+class TWSViewNavigator(
+    private val coroutineScope: CoroutineScope,
+    private val snippetLoader: SnippetWebLoader
+) {
     private val navigationEvents: MutableSharedFlow<NavigationEvent> = MutableSharedFlow(replay = 1)
 
     /**
@@ -91,12 +100,15 @@ class TWSViewNavigator(private val coroutineScope: CoroutineScope) {
         coroutineScope.launch { navigationEvents.emit(NavigationEvent.Reload) }
     }
 
-    internal fun loadUrl(
-        url: String,
-        additionalHttpHeaders: Map<String, String> = emptyMap()
-    ) {
+    internal fun loadSnippet(snippet: TWSSnippet) {
         coroutineScope.launch {
-            navigationEvents.emit(NavigationEvent.LoadUrl(url, additionalHttpHeaders))
+            navigationEvents.emit(NavigationEvent.LoadSnippet(snippet))
+        }
+    }
+
+    internal fun loadUrl(url: String) {
+        coroutineScope.launch {
+            navigationEvents.emit(NavigationEvent.LoadUrl(url))
         }
     }
 
@@ -128,6 +140,7 @@ class TWSViewNavigator(private val coroutineScope: CoroutineScope) {
                 is NavigationEvent.Back -> goBack()
                 is NavigationEvent.Forward -> goForward()
                 is NavigationEvent.Reload -> reload()
+                is NavigationEvent.LoadUrl -> loadUrl(event.url)
                 is NavigationEvent.PopState -> {
                     @Suppress("StringTemplateIndent") // JavaScript
                     val jsScript = """
@@ -153,8 +166,16 @@ class TWSViewNavigator(private val coroutineScope: CoroutineScope) {
                     event.historyUrl
                 )
 
-                is NavigationEvent.LoadUrl -> {
-                    loadUrl(event.url, event.additionalHttpHeaders)
+                is NavigationEvent.LoadSnippet -> {
+                    val response = snippetLoader.response(event.snippet)
+
+                    loadDataWithBaseURL(
+                        response.url,
+                        response.html,
+                        response.mimeType,
+                        response.encode,
+                        response.url
+                    )
                 }
             }
 
@@ -170,10 +191,8 @@ class TWSViewNavigator(private val coroutineScope: CoroutineScope) {
         data object PopState : NavigationEvent
         data class PushState(val path: String) : NavigationEvent
 
-        data class LoadUrl(
-            val url: String,
-            val additionalHttpHeaders: Map<String, String> = emptyMap()
-        ) : NavigationEvent
+        data class LoadSnippet(val snippet: TWSSnippet) : NavigationEvent
+        data class LoadUrl(val url: String) : NavigationEvent
 
         data class LoadHtml(
             val html: String,
@@ -194,7 +213,20 @@ class TWSViewNavigator(private val coroutineScope: CoroutineScope) {
 @Composable
 fun rememberTWSViewNavigator(
     coroutineScope: CoroutineScope = rememberCoroutineScope()
-): TWSViewNavigator = remember(coroutineScope) { TWSViewNavigator(coroutineScope) }
+): TWSViewNavigator {
+    val context = LocalContext.current
+
+    return remember(coroutineScope) {
+        val redirectionHandler = lazy {
+            RedirectHandlerImpl(webViewHttpClient(context))
+        }
+
+        TWSViewNavigator(
+            coroutineScope = coroutineScope,
+            snippetLoader = SnippetWebLoaderImpl(redirectionHandler)
+        )
+    }
+}
 
 /**
  * Creates and remembers a [TWSViewNavigator] with an optional key and default [CoroutineScope].
@@ -207,4 +239,16 @@ fun rememberTWSViewNavigator(
 fun rememberTWSViewNavigator(
     key1: Any?,
     coroutineScope: CoroutineScope = rememberCoroutineScope()
-): TWSViewNavigator = remember(key1) { TWSViewNavigator(coroutineScope) }
+): TWSViewNavigator {
+    val context = LocalContext.current
+
+    return remember(key1) {
+        val redirectionHandler = lazy {
+            RedirectHandlerImpl(webViewHttpClient(context))
+        }
+        TWSViewNavigator(
+            coroutineScope = coroutineScope,
+            snippetLoader = SnippetWebLoaderImpl(redirectionHandler)
+        )
+    }
+}

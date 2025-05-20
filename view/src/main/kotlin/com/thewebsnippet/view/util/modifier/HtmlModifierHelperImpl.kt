@@ -58,7 +58,7 @@ internal class HtmlModifierHelperImpl : HtmlModifierHelper {
             if (htmlTagRegex.containsMatchIn(this)) {
                 replaceFirst(htmlTagRegex, """$0$combinedCssInjection""")
             } else {
-                "$combinedCssInjection$this"
+                "$this$combinedCssInjection"
             }
         }
     }

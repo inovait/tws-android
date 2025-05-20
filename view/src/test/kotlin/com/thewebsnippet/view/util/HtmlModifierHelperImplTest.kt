@@ -126,6 +126,43 @@ class HtmlModifierHelperImplTest {
     }
 
     @Test
+    fun `inject css at the end of html`() {
+        val html = """<script src="test.js\" noModule=\"\"></script><meta charSet=\"utf-8\"/>"""
+        val cssResource = TWSAttachment("https://example.com/style.css", TWSAttachmentType.CSS)
+
+        val result = helper.modifyContent(
+            htmlContent = html,
+            dynamicModifiers = listOf(cssResource),
+            mustacheProps = emptyMap(),
+        )
+
+        val expected =
+            """<script type="text/javascript">var tws_injected = true;</script>""" +
+                """<script src="test.js\" noModule=\"\"></script><meta charSet=\"utf-8\"/>""" +
+                cssResource.inject
+
+        assertEquals(expected, result)
+    }
+
+    @Test
+    fun `inject js at the start of html`() {
+        val html = """<script src="test.js\" noModule=\"\"></script><meta charSet=\"utf-8\"/>"""
+        val jsResource = TWSAttachment("https://example.com/script.js", TWSAttachmentType.JAVASCRIPT)
+
+        val result = helper.modifyContent(
+            htmlContent = html,
+            dynamicModifiers = listOf(jsResource),
+            mustacheProps = emptyMap(),
+        )
+
+        val expected = """<script type="text/javascript">var tws_injected = true;</script>""" +
+            jsResource.inject +
+            """<script src="test.js\" noModule=\"\"></script><meta charSet=\"utf-8\"/>"""
+
+        assertEquals(expected, result)
+    }
+
+    @Test
     fun `should inject CSS, JavaScript, and Mustache content`() {
         val html = "<html><head></head><body>{{greeting}} World</body></html>"
         val cssResource = TWSAttachment("https://example.com/style.css", TWSAttachmentType.CSS)

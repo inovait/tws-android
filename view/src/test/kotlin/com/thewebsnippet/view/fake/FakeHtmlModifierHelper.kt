@@ -14,23 +14,19 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.thewebsnippet.view.client.okhttp
+package com.thewebsnippet.view.fake
 
-import android.webkit.WebResourceRequest
+import com.thewebsnippet.data.TWSAttachment
+import com.thewebsnippet.data.TWSEngine
+import com.thewebsnippet.view.util.modifier.HtmlModifierHelper
 
-/**
- * Callback interface to determine whether a given [WebResourceRequest] should be intercepted
- * and processed for HTML content injection (e.g., for injecting CSS, JavaScript, or Mustache templates).
- *
- * Implementations can define custom logic to include or exclude certain requests
- * from being modified by OkHttpTWSWebViewClient.
- */
-fun interface InjectionFilterCallback {
-    /**
-     * Determines if a request should be intercepted and processed.
-     *
-     * @param request The incoming web resource request.
-     * @return `true` if the request should be intercepted and modified, `false` otherwise.
-     */
-    fun invoke(request: WebResourceRequest): Boolean
+class FakeHtmlModifierHelper : HtmlModifierHelper {
+    override fun modifyContent(
+        htmlContent: String,
+        dynamicModifiers: List<TWSAttachment>,
+        mustacheProps: Map<String, Any>,
+        engine: TWSEngine?
+    ): String {
+        return "Modify Added \n$htmlContent"
+    }
 }
