@@ -249,7 +249,22 @@ private fun HandleBackPresses(captureBackPresses: Boolean, navigator: TWSViewNav
 private fun HandleNavigationEvents(wv: WebView, navigator: TWSViewNavigator, state: TWSViewState) {
     LaunchedEffect(wv, navigator) {
         with(navigator) {
-            wv.handleNavigationEvents()
+            wv.handleNavigationEvents(
+                markLoadingCallback = { isLoading ->
+                    state.loadingState = if (isLoading) {
+                        TWSLoadingState.Loading(
+                            progress = 0f,
+                            mainFrameLoaded = false,
+                            isUserForceRefresh = false
+                        )
+                    } else {
+                        TWSLoadingState.Finished
+                    }
+                },
+                markErrorCallback = {
+                    state.customErrorsForCurrentRequest.add(it)
+                }
+            )
         }
     }
 
