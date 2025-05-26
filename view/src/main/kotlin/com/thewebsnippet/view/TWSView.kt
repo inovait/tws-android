@@ -308,7 +308,15 @@ private fun SnippetContentWithLoadingAndError(
         SnippetLoading(viewState, loadingPlaceholderContent)
 
         SnippetErrors(viewState, errorViewContent) {
-            navigator.reload()
+            val isInitialRequestError = viewState.customErrorsForCurrentRequest.isNotEmpty()
+            if (isInitialRequestError) {
+                // if initial request to snippet target fails, we have to reload snippet, since web view has no data
+                val snippet = viewState.content.getSnippet() ?: return@SnippetErrors
+                navigator.loadSnippet(snippet)
+            } else {
+                // if any web view navigation loading event fails, we can reload
+                navigator.reload()
+            }
         }
     }
 }

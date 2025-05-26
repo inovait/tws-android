@@ -252,6 +252,8 @@ private fun HandleNavigationEvents(wv: WebView, navigator: TWSViewNavigator, sta
             wv.handleNavigationEvents(
                 markLoadingCallback = { isLoading ->
                     state.loadingState = if (isLoading) {
+                        state.customErrorsForCurrentRequest.clear()
+
                         TWSLoadingState.Loading(
                             progress = 0f,
                             mainFrameLoaded = false,
