@@ -134,7 +134,10 @@ class TWSViewNavigator(
 
     // Use Dispatchers.Main to ensure that the webview methods are called on UI thread
     @OptIn(ExperimentalCoroutinesApi::class)
-    internal suspend fun WebView.handleNavigationEvents(): Nothing = withContext(Dispatchers.Main) {
+    internal suspend fun WebView.handleNavigationEvents(
+        markLoadingCallback: (Boolean) -> Unit,
+        markErrorCallback: (Exception) -> Unit
+    ): Nothing = withContext(Dispatchers.Main) {
         navigationEvents.collect { event ->
             when (event) {
                 is NavigationEvent.Back -> goBack()
@@ -167,15 +170,21 @@ class TWSViewNavigator(
                 )
 
                 is NavigationEvent.LoadSnippet -> {
-                    val response = snippetLoader.response(event.snippet)
+                    markLoadingCallback(true)
 
-                    loadDataWithBaseURL(
-                        response.url,
-                        response.html,
-                        response.mimeType,
-                        response.encode,
-                        response.url
-                    )
+                    try {
+                        val response = snippetLoader.response(event.snippet)
+                        loadDataWithBaseURL(
+                            response.url,
+                            response.html,
+                            response.mimeType,
+                            response.encode,
+                            response.url
+                        )
+                    } catch (e: Exception) {
+                        markLoadingCallback(false)
+                        markErrorCallback(e)
+                    }
                 }
             }
 

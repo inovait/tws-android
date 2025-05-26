@@ -41,7 +41,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.util.Consumer
-import com.samskivert.mustache.MustacheException
 import com.thewebsnippet.data.TWSSnippet
 import com.thewebsnippet.view.client.TWSWebChromeClient
 import com.thewebsnippet.view.client.TWSWebViewClient
@@ -55,7 +54,6 @@ import com.thewebsnippet.view.data.getSnippet
 import com.thewebsnippet.view.data.onCreateWindowStatus
 import com.thewebsnippet.view.data.rememberTWSViewNavigator
 import com.thewebsnippet.view.data.rememberTWSViewState
-import com.thewebsnippet.view.util.compose.ErrorBannerWithSwipeToDismiss
 import com.thewebsnippet.view.util.compose.SnippetErrorView
 import com.thewebsnippet.view.util.compose.SnippetLoadingView
 import com.thewebsnippet.view.util.compose.getUserFriendlyMessage
@@ -324,11 +322,7 @@ private fun SnippetErrors(
     if (viewState.customErrorsForCurrentRequest.size > 0) {
         val error = viewState.customErrorsForCurrentRequest.first()
         val message = error.getUserFriendlyMessage() ?: error.message ?: stringResource(R.string.error_general)
-        if (error is MustacheException) {
-            errorViewContent(message)
-        } else {
-            ErrorBannerWithSwipeToDismiss(message)
-        }
+        errorViewContent(message)
     }
 }
 
