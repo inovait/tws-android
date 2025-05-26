@@ -39,6 +39,7 @@ import com.thewebsnippet.manager.TWSOutcome
 import com.thewebsnippet.manager.mapData
 import com.thewebsnippet.sample.components.ErrorView
 import com.thewebsnippet.sample.components.LoadingView
+import com.thewebsnippet.sample.components.sampleErrorView
 import com.thewebsnippet.view.TWSView
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
@@ -106,7 +107,7 @@ private fun TWSViewComponentWithTabs(content: ImmutableList<TWSSnippet>) {
             snippet = content[currentTab],
             modifier = Modifier.padding(padding),
             loadingPlaceholderContent = { LoadingView() },
-            errorViewContent = { ErrorView(it) }
+            errorViewContent = sampleErrorView()
         )
     }
 }
