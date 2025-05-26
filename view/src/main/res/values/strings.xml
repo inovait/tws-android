@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="oops_loading_failed">Ooops, loading failed.</string>
+
     <string name="human_readable_size">%.1f %s</string>
     <string name="download_completed_size">Download complete ∙ %s</string>
     <string name="download_completed">Download complete</string>
@@ -11,7 +11,11 @@
     <string name="file_size_mega_byte">MB</string>
     <string name="file_size_giga_byte">GB</string>
     <string name="file_size_tera_byte">TB</string>
+
     <string name="file_chooser_title">Choose a file</string>
+
+    <string name="oops_loading_failed">Ooops, loading failed.</string>
     <string name="error_general">Oops, something went wrong. Data may be outdated.</string>
     <string name="error_no_network">Oops, no internet connection. Data may be outdated.</string>
+    <string name="refresh">Refresh</string>
 </resources>
