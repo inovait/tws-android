@@ -26,6 +26,7 @@ import com.thewebsnippet.manager.TWSOutcome
 import com.thewebsnippet.manager.mapData
 import com.thewebsnippet.sample.components.ErrorView
 import com.thewebsnippet.sample.components.LoadingView
+import com.thewebsnippet.sample.components.sampleErrorView
 import com.thewebsnippet.view.TWSView
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
@@ -68,7 +69,7 @@ fun TWSViewPermissionsExample(
             TWSView(
                 snippet = snippet,
                 loadingPlaceholderContent = { LoadingView() },
-                errorViewContent = { ErrorView(it) },
+                errorViewContent = sampleErrorView()
             )
         }
 

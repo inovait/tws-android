@@ -29,6 +29,7 @@ import com.thewebsnippet.manager.TWSOutcome
 import com.thewebsnippet.manager.mapData
 import com.thewebsnippet.sample.components.ErrorView
 import com.thewebsnippet.sample.components.LoadingView
+import com.thewebsnippet.sample.components.sampleErrorView
 import com.thewebsnippet.sample.ui.Screen
 import com.thewebsnippet.view.TWSView
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -62,7 +63,7 @@ fun TWSViewCustomInterceptorExample(
             TWSView(
                 snippet = data,
                 loadingPlaceholderContent = { LoadingView() },
-                errorViewContent = { ErrorView(it) },
+                errorViewContent = sampleErrorView(),
                 // Handling urls natively
                 interceptUrlCallback = { url ->
                     val urlString = url.toString()
@@ -84,7 +85,7 @@ fun TWSViewCustomInterceptorExample(
             ErrorView(
                 errorText = stringResource(R.string.error_message),
                 modifier = Modifier.fillMaxSize(),
-                refresh = twsInterceptorViewModel::forceRefresh
+                callback = twsInterceptorViewModel::forceRefresh
             )
         }
 

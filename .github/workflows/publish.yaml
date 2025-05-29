@@ -45,13 +45,13 @@ jobs:
       - name: 'Save GPG secret key'
         run: 'echo "${{ secrets.GPG_SIGNING_KEY }}" | base64 -d > signing_key.gpg'
 
-      - name: 'Publish, deploy and release'
+      - name: 'Publish, deploy and release to maven central'
         env:
           JRELEASER_GPG_PASSPHRASE: ${{ secrets.GPG_SIGNING_PASSPHRASE }}
           JRELEASER_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           JRELEASER_GIT_ROOT_SEARCH: true
         run: |
-          ./gradlew jreleaserConfig service:jreleaserConfig publish service:publish jreleaserFullrelease service:jreleaserFullrelease \
+          ./gradlew jreleaserConfig publish jreleaserFullrelease \
             -PmavenUsername=''${{ secrets.MAVEN_CENTRAL_USERNAME }}'' \
             -PmavenPassword=''${{ secrets.MAVEN_CENTRAL_PASSWORD }}'' \
             -PpublicKeyPath=$(pwd)/public_key.pgp \
@@ -59,6 +59,12 @@ jobs:
             -Psigning.secretKeyRingFile=$(pwd)/signing_key.gpg \
             -Psigning.password=''${{ secrets.GPG_SIGNING_PASSPHRASE }}'' \
             -Psigning.keyId=${{ secrets.GPG_SIGNING_ID }}
+
+      - name: 'Publish service to gradle portal'
+        env:
+          GRADLE_PUBLISH_KEY: ${{ secrets.GRADLE_PUBLISH_KEY }}
+          GRADLE_PUBLISH_SECRET: ${{ secrets.GRADLE_PUBLISH_SECRET }}
+        run: "./gradlew service:publishPlugins"
 
       - name: Publish Test Results
         uses: EnricoMi/publish-unit-test-result-action/composite@v2

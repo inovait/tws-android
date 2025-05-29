@@ -70,8 +70,8 @@ class TWSViewState(webContent: WebContent) {
         internal set
 
     /**
-     * Whether the WebView is currently [TWSLoadingState.Loading] data in its main frame (along with
-     * progress) or the data loading has [TWSLoadingState.Finished]. See [TWSLoadingState]
+     * Whether the WebView is currently loading resources and loading its main frame (along with
+     * progress). See [TWSLoadingState]
      */
     var loadingState: TWSLoadingState by mutableStateOf(TWSLoadingState.Initializing)
 
@@ -115,44 +115,10 @@ fun rememberTWSViewState(
     // a recomposition loop when the webview updates the url itself.
     remember(key1 = snippet) {
         TWSViewState(
-            WebContent.Url(
-                url = snippet.target,
-                additionalHttpHeaders = snippet.headers
-            )
+            WebContent.Snippet(target = snippet)
         )
     }.apply {
-        this.content = WebContent.Url(
-            url = snippet.target,
-            additionalHttpHeaders = snippet.headers
-        )
-    }
-
-/**
- * Creates and remembers a [TWSViewState] for displaying HTML data in the WebView.
- *
- * @param data The HTML content to load.
- * @param baseUrl Optional base URL for resolving relative paths.
- * @param encoding Encoding for the HTML content, defaults to "utf-8".
- * @param mimeType Optional MIME type for the data; defaults to "text/html".
- * @param historyUrl Optional history URL for the WebView.
- * @param key1 An optional key for recomposition; if changed, a new instance of [TWSViewState] is created.
- * @return A [TWSViewState] configured to load the specified HTML content.
- */
-@Composable
-fun rememberTWSViewStateWithHTMLData(
-    data: String,
-    baseUrl: String? = null,
-    encoding: String = "utf-8",
-    mimeType: String? = null,
-    historyUrl: String? = null,
-    key1: Any? = null
-): TWSViewState =
-    remember(key1 = key1) {
-        TWSViewState(WebContent.Data(data, baseUrl, encoding, mimeType, historyUrl))
-    }.apply {
-        this.content = WebContent.Data(
-            data, baseUrl, encoding, mimeType, historyUrl
-        )
+        content = WebContent.Snippet(target = snippet)
     }
 
 /**
@@ -161,6 +127,8 @@ fun rememberTWSViewStateWithHTMLData(
  * using Composes `rememberSaveable` to restore state after process death.
  *
  * @param inputs A set of inputs to determine when the state should be reset.
+ * @param default A [TWSSnippet] containing the URL, custom HTTP headers, and modifiers
+ * for the web snippet to be rendered.
  * @param key An optional key for saved state persistence; defaults to an auto-generated key.
  * @return A [TWSViewState] that retains its state across activity recreation.
  *
@@ -168,12 +136,21 @@ fun rememberTWSViewStateWithHTMLData(
  * To load new URLs, use a TWSViewNavigator.
  */
 @Composable
-fun rememberSaveableTWSViewState(vararg inputs: Any?, key: String = ""): TWSViewState =
-    rememberSaveable(saver = createTWSViewStateSaver(key), key = key.takeIf { it.isNotEmpty() }, inputs = inputs) {
-        TWSViewState(WebContent.NavigatorOnly)
+fun rememberSavableTWSViewState(
+    vararg inputs: Any?,
+    default: TWSSnippet? = null,
+    key: String = ""
+): TWSViewState {
+    return rememberSaveable(
+        saver = createTWSViewStateSaver(key, default),
+        key = key.takeIf { it.isNotEmpty() },
+        inputs = inputs
+    ) {
+        TWSViewState(WebContent.NavigatorOnly(default = default))
     }
+}
 
-private fun createTWSViewStateSaver(key: String): Saver<TWSViewState, Any> {
+private fun createTWSViewStateSaver(key: String, default: TWSSnippet?): Saver<TWSViewState, Any> {
     val pageTitleKey = "$key:pagetitle"
     val lastLoadedUrlKey = "$key:lastloaded"
     val stateBundle = "$key:bundle"
@@ -191,7 +168,7 @@ private fun createTWSViewStateSaver(key: String): Saver<TWSViewState, Any> {
             )
         },
         restore = {
-            TWSViewState(WebContent.NavigatorOnly).apply {
+            TWSViewState(WebContent.NavigatorOnly(default)).apply {
                 this.title = it[pageTitleKey] as String?
                 this.lastLoadedUrl = it[lastLoadedUrlKey] as String?
                 this.viewState = it[stateBundle] as Bundle?

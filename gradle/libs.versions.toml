@@ -1,5 +1,7 @@
 [versions]
 accompanistPermissions = "0.35.1-alpha"
+androidXTestRules = "1.6.1"
+androidXTestRunner = "1.6.2"
 agp = "8.4.0"
 coilCompose = "2.7.0"
 dokkaBase = "1.9.20"
@@ -40,11 +42,14 @@ hiltAndroid = "2.51.1"
 hiltNavigationCompose = "1.2.0"
 lifecycleRuntimeComposeAndroid = "2.8.7"
 jreleaser = "1.17.0"
+gradlePublish = "1.2.1"
 
 [libraries]
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
 androidGradleCacheFix = { module = "org.gradle.android.cache-fix:org.gradle.android.cache-fix.gradle.plugin", version.ref = "androidGradleCacheFix" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-test-runner = { group = "androidx.test", name = "runner", version.ref = "androidXTestRunner" }
+androidx-test-rules = { group = "androidx.test", name = "rules", version.ref = "androidXTestRules" }
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
 dokka-base = { module = "org.jetbrains.dokka:dokka-base", version.ref = "dokkaBase" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -54,6 +59,7 @@ moshi-adapters = { module = "com.squareup.moshi:moshi-adapters", version.ref = "
 moshi-kotlin = { module = "com.squareup.moshi:moshi-kotlin", version.ref = "moshiKotlin" }
 moshi-codegen = { module = "com.squareup.moshi:moshi-kotlin-codegen", version.ref = "moshiKotlin" }
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
+okhttp-mock-server = { module = "com.squareup.okhttp3:mockwebserver", version.ref = "okhttp" }
 kotlin-immutableCollections = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "kotlin-immutableCollections" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activity-compose" }
 androidx-compose-material3 = { module = "androidx.compose.material3:material3", version.ref = "androidx-compose-material3" }
@@ -101,3 +107,4 @@ dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hiltAndroid" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 jreleaser = { id = "org.jreleaser", version.ref = "jreleaser"}
+gradle-publish = { id = "com.gradle.plugin-publish", version.ref = "gradlePublish" }

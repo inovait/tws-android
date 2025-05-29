@@ -20,17 +20,18 @@ import com.thewebsnippet.data.TWSAttachment
 import com.thewebsnippet.data.TWSAttachmentType
 import com.thewebsnippet.data.TWSEngine
 import com.thewebsnippet.view.BuildConfig
+import com.thewebsnippet.view.util.modifier.HtmlModifierHelperImpl
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 
-class HtmlModifierHelperTest {
+class HtmlModifierHelperImplTest {
 
-    private lateinit var helper: HtmlModifierHelper
+    private lateinit var helper: HtmlModifierHelperImpl
 
     @Before
     fun setUp() {
-        helper = HtmlModifierHelper()
+        helper = HtmlModifierHelperImpl()
     }
 
     @Test
@@ -120,6 +121,43 @@ class HtmlModifierHelperTest {
             """<script type="text/javascript">var tws_injected = true;</script>""" +
             """<body>Hello World</body>""" +
             """</html>"""
+
+        assertEquals(expected, result)
+    }
+
+    @Test
+    fun `inject css at the end of html`() {
+        val html = """<script src="test.js\" noModule=\"\"></script><meta charSet=\"utf-8\"/>"""
+        val cssResource = TWSAttachment("https://example.com/style.css", TWSAttachmentType.CSS)
+
+        val result = helper.modifyContent(
+            htmlContent = html,
+            dynamicModifiers = listOf(cssResource),
+            mustacheProps = emptyMap(),
+        )
+
+        val expected =
+            """<script type="text/javascript">var tws_injected = true;</script>""" +
+                """<script src="test.js\" noModule=\"\"></script><meta charSet=\"utf-8\"/>""" +
+                cssResource.inject
+
+        assertEquals(expected, result)
+    }
+
+    @Test
+    fun `inject js at the start of html`() {
+        val html = """<script src="test.js\" noModule=\"\"></script><meta charSet=\"utf-8\"/>"""
+        val jsResource = TWSAttachment("https://example.com/script.js", TWSAttachmentType.JAVASCRIPT)
+
+        val result = helper.modifyContent(
+            htmlContent = html,
+            dynamicModifiers = listOf(jsResource),
+            mustacheProps = emptyMap(),
+        )
+
+        val expected = """<script type="text/javascript">var tws_injected = true;</script>""" +
+            jsResource.inject +
+            """<script src="test.js\" noModule=\"\"></script><meta charSet=\"utf-8\"/>"""
 
         assertEquals(expected, result)
     }

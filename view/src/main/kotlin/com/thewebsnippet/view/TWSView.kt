@@ -41,30 +41,27 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.util.Consumer
-import com.samskivert.mustache.MustacheException
-import com.thewebsnippet.data.TWSAttachment
-import com.thewebsnippet.data.TWSEngine
 import com.thewebsnippet.data.TWSSnippet
-import com.thewebsnippet.view.client.OkHttpTWSWebViewClient
 import com.thewebsnippet.view.client.TWSWebChromeClient
+import com.thewebsnippet.view.client.TWSWebViewClient
 import com.thewebsnippet.view.data.TWSLoadingState
 import com.thewebsnippet.view.data.TWSViewDeepLinkInterceptor
 import com.thewebsnippet.view.data.TWSViewInterceptor
 import com.thewebsnippet.view.data.TWSViewNavigator
 import com.thewebsnippet.view.data.TWSViewState
 import com.thewebsnippet.view.data.WebContent
+import com.thewebsnippet.view.data.getSnippet
 import com.thewebsnippet.view.data.onCreateWindowStatus
 import com.thewebsnippet.view.data.rememberTWSViewNavigator
 import com.thewebsnippet.view.data.rememberTWSViewState
-import com.thewebsnippet.view.util.compose.ErrorBannerWithSwipeToDismiss
-import com.thewebsnippet.view.util.compose.SnippetErrorView
+import com.thewebsnippet.view.util.compose.error.SnippetErrorView
 import com.thewebsnippet.view.util.compose.SnippetLoadingView
+import com.thewebsnippet.view.util.compose.error.ErrorRefreshCallback
+import com.thewebsnippet.view.util.compose.error.SnippetErrorContent
+import com.thewebsnippet.view.util.compose.error.defaultErrorView
 import com.thewebsnippet.view.util.compose.getUserFriendlyMessage
+import com.thewebsnippet.view.util.compose.isRefreshable
 import com.thewebsnippet.view.util.initializeSettings
-import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.ImmutableMap
-import kotlinx.collections.immutable.toImmutableList
-import kotlinx.collections.immutable.toImmutableMap
 
 /**
  *
@@ -72,11 +69,9 @@ import kotlinx.collections.immutable.toImmutableMap
  * allowing dynamic loading and interaction with web content. It provides various customizable options
  * to handle loading states, error handling, and URL interception.
  *
- * @param snippet A [TWSSnippet] containing the URL, custom HTTP headers, and modifiers
- * for the web snippet to be rendered.
+ * @param viewState The current [TWSViewState] representing the state of the WebView.
  * @param modifier A [Modifier] to additionally customize the layout of the WebView.
  * @param navigator The current [TWSViewNavigator] to control WebView navigation externally.
- * @param viewState The current [TWSViewState] representing the state of the WebView.
  * @param errorViewContent A custom composable displayed when there is an error loading content.
  * Defaults to a [SnippetErrorView] with the same modifier as [TWSView].
  * @param loadingPlaceholderContent A custom composable displayed during loading.
@@ -87,6 +82,70 @@ import kotlinx.collections.immutable.toImmutableMap
  * via [Custom Tabs](https://developer.chrome.com/docs/android/custom-tabs).
  * Allows returning users to the app after authentication.
  * @param isRefreshable Enables pull-to-refresh functionality when set to `true`.
+ * @param captureBackPresses Set to true to have this Composable capture back presses and navigate
+ * the WebView back.
+ * @param onCreated Called when the WebView is first created, this can be used to set additional
+ * settings on the WebView. WebChromeClient and WebViewClient should not be set here as they will be
+ * subsequently overwritten after this lambda is called.
+ */
+@Composable
+fun TWSView(
+    viewState: TWSViewState,
+    modifier: Modifier = Modifier,
+    navigator: TWSViewNavigator = rememberTWSViewNavigator(),
+    errorViewContent: SnippetErrorContent = defaultErrorView(modifier),
+    loadingPlaceholderContent: @Composable () -> Unit = { SnippetLoadingView(modifier) },
+    interceptUrlCallback: TWSViewInterceptor = TWSViewDeepLinkInterceptor(LocalContext.current),
+    googleLoginRedirectUrl: String? = null,
+    isRefreshable: Boolean = true,
+    captureBackPresses: Boolean = true,
+    onCreated: (WebView) -> Unit = {}
+) {
+    key(viewState.content) {
+        LaunchedEffect(navigator) {
+            val content = viewState.content as? WebContent.NavigatorOnly
+            if (viewState.viewState?.isEmpty != false && content?.default != null) {
+                // Handle first time load for navigator only state, other loads will be handled with state restoration
+                navigator.loadSnippet(content.default)
+            }
+        }
+
+        SnippetContentWithPopup(
+            navigator = navigator,
+            viewState = viewState,
+            errorViewContent = errorViewContent,
+            loadingPlaceholderContent = loadingPlaceholderContent,
+            interceptUrlCallback = interceptUrlCallback,
+            googleLoginRedirectUrl = googleLoginRedirectUrl,
+            isRefreshable = isRefreshable,
+            captureBackPresses = captureBackPresses,
+            modifier = modifier,
+            onCreated = onCreated,
+        )
+    }
+}
+
+/**
+ *
+ * TWSView is a composable function that renders a WebView within a specified context,
+ * allowing dynamic loading and interaction with web content. It provides various customizable options
+ * to handle loading states, error handling, and URL interception.
+ *
+ * @param snippet A [TWSSnippet] containing the URL, custom HTTP headers, and modifiers
+ * for the web snippet to be rendered.
+ * @param modifier A [Modifier] to additionally customize the layout of the WebView.
+ * @param errorViewContent A custom composable displayed when there is an error loading content.
+ * Defaults to a [SnippetErrorView] with the same modifier as [TWSView].
+ * @param loadingPlaceholderContent A custom composable displayed during loading.
+ * Defaults to a [SnippetLoadingView] with the same modifier as [TWSView].
+ * @param interceptUrlCallback A [TWSViewInterceptor] invoked for URLs before navigation.
+ * Return `true` to prevent navigation, `false` to allow it.
+ * @param googleLoginRedirectUrl The URL the app should redirect to after a Google login
+ * via [Custom Tabs](https://developer.chrome.com/docs/android/custom-tabs).
+ * Allows returning users to the app after authentication.
+ * @param isRefreshable Enables pull-to-refresh functionality when set to `true`.
+ * @param captureBackPresses Set to true to have this Composable capture back presses and navigate
+ * the WebView back.
  * @param onCreated Called when the WebView is first created, this can be used to set additional
  * settings on the WebView. WebChromeClient and WebViewClient should not be set here as they will be
  * subsequently overwritten after this lambda is called.
@@ -95,36 +154,35 @@ import kotlinx.collections.immutable.toImmutableMap
 fun TWSView(
     snippet: TWSSnippet,
     modifier: Modifier = Modifier,
-    navigator: TWSViewNavigator = rememberTWSViewNavigator(snippet),
-    viewState: TWSViewState = rememberTWSViewState(snippet),
-    errorViewContent: @Composable (String) -> Unit = { SnippetErrorView(it, modifier) },
+    errorViewContent: SnippetErrorContent = defaultErrorView(modifier),
     loadingPlaceholderContent: @Composable () -> Unit = { SnippetLoadingView(modifier) },
     interceptUrlCallback: TWSViewInterceptor = TWSViewDeepLinkInterceptor(LocalContext.current),
     googleLoginRedirectUrl: String? = null,
     isRefreshable: Boolean = true,
+    captureBackPresses: Boolean = true,
     onCreated: (WebView) -> Unit = {}
 ) {
-    key(snippet) {
-        SnippetContentWithPopup(
-            snippet,
-            navigator,
-            viewState,
-            errorViewContent,
-            loadingPlaceholderContent,
-            interceptUrlCallback,
-            googleLoginRedirectUrl,
-            isRefreshable,
-            modifier,
-            onCreated
-        )
-    }
+    val navigator = rememberTWSViewNavigator(snippet)
+    val viewState = rememberTWSViewState(snippet)
+
+    TWSView(
+        viewState = viewState,
+        modifier = modifier,
+        navigator = navigator,
+        errorViewContent = errorViewContent,
+        loadingPlaceholderContent = loadingPlaceholderContent,
+        interceptUrlCallback = interceptUrlCallback,
+        googleLoginRedirectUrl = googleLoginRedirectUrl,
+        isRefreshable = isRefreshable,
+        captureBackPresses = captureBackPresses,
+        onCreated = onCreated
+    )
 }
 
 /**
  * Renders a WebView with popup support for handling separate web views in dialog-like containers.
  * Popups are displayed in dialogs, and navigation can be controlled externally.
  *
- * @param target The [TWSSnippet] to load in the WebView.
  * @param navigator The [TWSViewNavigator] for controlling navigation in the WebView.
  * @param viewState The [TWSViewState] representing the state of the WebView.
  * @param errorViewContent The composable content for rendering error messages.
@@ -133,6 +191,8 @@ fun TWSView(
  * @param googleLoginRedirectUrl URL to redirect back after Google login via
  * [Custom Tabs](https://developer.chrome.com/docs/android/custom-tabs).
  * @param isRefreshable Enables pull-to-refresh functionality.
+ * @param captureBackPresses Set to true to have this Composable capture back presses and navigate
+ * the WebView back.
  * @param modifier A [Modifier] to configure the layout or styling of the error view.
  * @param onCreated Called when the WebView is first created, this can be used to set additional
  * settings on the WebView. WebChromeClient and WebViewClient should not be set here as they will be
@@ -140,27 +200,17 @@ fun TWSView(
  */
 @Composable
 private fun SnippetContentWithPopup(
-    target: TWSSnippet,
     navigator: TWSViewNavigator,
     viewState: TWSViewState,
-    errorViewContent: @Composable (String) -> Unit,
+    errorViewContent: SnippetErrorContent,
     loadingPlaceholderContent: @Composable () -> Unit,
     interceptUrlCallback: TWSViewInterceptor,
     googleLoginRedirectUrl: String?,
     isRefreshable: Boolean,
+    captureBackPresses: Boolean,
     modifier: Modifier = Modifier,
     onCreated: (WebView) -> Unit = {}
 ) {
-    LaunchedEffect(navigator) {
-        if (viewState.viewState?.isEmpty != false && viewState.content is WebContent.NavigatorOnly) {
-            // Handle first time load for navigator only state, other loads will be handled with state restoration
-            navigator.loadUrl(
-                url = target.target,
-                additionalHttpHeaders = target.headers
-            )
-        }
-    }
-
     val popupStates = remember { mutableStateOf<List<TWSViewState>>(emptyList()) }
     val popupStateCallback: (TWSViewState, Boolean) -> Unit = { state, isAdd ->
         popupStates.value = if (isAdd) {
@@ -183,20 +233,20 @@ private fun SnippetContentWithPopup(
         }
     }
 
+    val target = viewState.content.getSnippet()
+
     SnippetContentWithLoadingAndError(
         modifier = modifier,
-        key = "${target.id}-${target.target}",
+        key = target?.let { "${target.id}-${target.target}" },
         navigator = navigator,
         viewState = viewState,
         loadingPlaceholderContent = loadingPlaceholderContent,
         errorViewContent = errorViewContent,
         interceptUrlCallback = interceptUrlCallback,
         popupStateCallback = popupStateCallback,
-        dynamicModifiers = target.dynamicResources.toImmutableList(),
-        mustacheProps = target.props.toImmutableMap(),
-        engine = target.engine,
         isRefreshable = isRefreshable,
-        onCreated = onCreated
+        onCreated = onCreated,
+        captureBackPresses = captureBackPresses
     )
 
     popupStates.value.forEach { state ->
@@ -209,40 +259,33 @@ private fun SnippetContentWithPopup(
             popupStateCallback = popupStateCallback,
             interceptUrlCallback = interceptUrlCallback,
             googleLoginRedirectUrl = googleLoginRedirectUrl,
-            dynamicModifiers = target.dynamicResources.toImmutableList(),
-            mustacheProps = target.props.toImmutableMap(),
-            engine = target.engine,
             isFullscreen = !msgState.isDialog,
-            isRefreshable = isRefreshable
+            isRefreshable = isRefreshable,
+            captureBackPresses = true
         )
     }
 }
 
 @Composable
 private fun SnippetContentWithLoadingAndError(
-    key: String,
     navigator: TWSViewNavigator,
     viewState: TWSViewState,
     loadingPlaceholderContent: @Composable () -> Unit,
-    errorViewContent: @Composable (String) -> Unit,
+    errorViewContent: SnippetErrorContent,
     interceptUrlCallback: TWSViewInterceptor,
     popupStateCallback: ((TWSViewState, Boolean) -> Unit)?,
-    dynamicModifiers: ImmutableList<TWSAttachment>,
-    mustacheProps: ImmutableMap<String, Any>,
-    engine: TWSEngine,
     isRefreshable: Boolean,
+    captureBackPresses: Boolean,
     modifier: Modifier = Modifier,
-    onCreated: (WebView) -> Unit = {}
+    onCreated: (WebView) -> Unit = {},
+    key: String? = null,
 ) {
     // https://github.com/google/accompanist/issues/1326 - WebView settings does not work in compose preview
     val isPreviewMode = LocalInspectionMode.current
     val client = remember(key1 = key) {
-        OkHttpTWSWebViewClient(
-            dynamicModifiers,
-            mustacheProps,
-            engine,
-            interceptUrlCallback,
-            popupStateCallback
+        TWSWebViewClient(
+            interceptUrlCallback = interceptUrlCallback,
+            popupStateCallback = popupStateCallback
         )
     }
     val chromeClient = remember(key1 = key) { TWSWebChromeClient(popupStateCallback) }
@@ -258,35 +301,44 @@ private fun SnippetContentWithLoadingAndError(
             },
             client = client,
             chromeClient = chromeClient,
-            isRefreshable = isRefreshable
+            isRefreshable = isRefreshable,
+            captureBackPresses = captureBackPresses
         )
 
         SnippetLoading(viewState, loadingPlaceholderContent)
 
-        SnippetErrors(viewState, errorViewContent)
+        SnippetErrors(viewState, errorViewContent) {
+            val isInitialRequestError = viewState.customErrorsForCurrentRequest.isNotEmpty()
+            if (isInitialRequestError) {
+                // if initial request to snippet target fails, we have to reload snippet, since web view has no data
+                val snippet = viewState.content.getSnippet() ?: return@SnippetErrors
+                navigator.loadSnippet(snippet)
+            } else {
+                // if any web view navigation loading event fails, we can reload
+                navigator.reload()
+            }
+        }
     }
 }
 
 @Composable
 private fun SnippetErrors(
     viewState: TWSViewState,
-    errorViewContent: @Composable (String) -> Unit,
+    errorViewContent: SnippetErrorContent,
+    refreshCallback: ErrorRefreshCallback
 ) {
     if (viewState.webViewErrorsForCurrentRequest.any { it.request?.isForMainFrame == true }) {
         val message = viewState.webViewErrorsForCurrentRequest.firstOrNull()?.error?.description?.toString()
             ?: stringResource(id = R.string.oops_loading_failed)
 
-        errorViewContent(message)
+        errorViewContent(message, null, false)
     }
 
     if (viewState.customErrorsForCurrentRequest.size > 0) {
         val error = viewState.customErrorsForCurrentRequest.first()
         val message = error.getUserFriendlyMessage() ?: error.message ?: stringResource(R.string.error_general)
-        if (error is MustacheException) {
-            errorViewContent(message)
-        } else {
-            ErrorBannerWithSwipeToDismiss(message)
-        }
+
+        errorViewContent(message, refreshCallback, error.isRefreshable())
     }
 }
 
@@ -295,8 +347,8 @@ private fun SnippetLoading(
     viewState: TWSViewState,
     loadingPlaceholderContent: @Composable () -> Unit
 ) {
-    val state = viewState.loadingState
-    if (state is TWSLoadingState.Loading && !state.isUserForceRefresh) {
+    val state = viewState.loadingState as? TWSLoadingState.Loading ?: return
+    if (!state.mainFrameLoaded && !state.isUserForceRefresh) {
         loadingPlaceholderContent()
     }
 }
@@ -305,15 +357,13 @@ private fun SnippetLoading(
 private fun PopUpWebView(
     popupState: TWSViewState,
     loadingPlaceholderContent: @Composable () -> Unit,
-    errorViewContent: @Composable (String) -> Unit,
+    errorViewContent: SnippetErrorContent,
     onDismissRequest: () -> Unit,
     interceptUrlCallback: TWSViewInterceptor,
-    dynamicModifiers: ImmutableList<TWSAttachment>,
-    mustacheProps: ImmutableMap<String, Any>,
-    engine: TWSEngine,
     popupStateCallback: ((TWSViewState, Boolean) -> Unit)?,
     googleLoginRedirectUrl: String?,
     isRefreshable: Boolean,
+    captureBackPresses: Boolean,
     isFullscreen: Boolean,
     popupNavigator: TWSViewNavigator = rememberTWSViewNavigator()
 ) {
@@ -348,10 +398,8 @@ private fun PopUpWebView(
                 errorViewContent = errorViewContent,
                 popupStateCallback = popupStateCallback,
                 interceptUrlCallback = interceptUrlCallback,
-                dynamicModifiers = dynamicModifiers,
-                mustacheProps = mustacheProps,
-                engine = engine,
                 isRefreshable = isRefreshable,
+                captureBackPresses = captureBackPresses,
                 onCreated = (popupState.content as WebContent.MessageOnly)::onCreateWindowStatus
             )
         }
@@ -380,44 +428,36 @@ private const val WEB_VIEW_POPUP_HEIGHT_PERCENTAGE = 0.8f
 @Composable
 @Preview
 private fun WebSnippetLoadingPlaceholderComponentPreview() {
-    TWSView(
-        TWSSnippet(id = "id", target = "https://www.google.com/"),
-        viewState = webStateLoading
-    )
+    TWSView(viewState = webStateLoading)
 }
 
 @Composable
 @Preview
 private fun WebSnippetLoadingForceRefreshComponentPreview() {
-    TWSView(
-        TWSSnippet(id = "id", target = "https://www.google.com/"),
-        viewState = webStateLoadingForceRefresh
-    )
+    TWSView(viewState = webStateLoadingForceRefresh)
 }
 
 @Composable
 @Preview
 private fun WebSnippetLoadingPlaceholderInitComponentPreview() {
-    TWSView(
-        TWSSnippet(id = "id", target = "https://www.google.com/"),
-        viewState = webStateInitializing
-    )
+    TWSView(viewState = webStateInitializing)
 }
 
 @Composable
 @Preview
 private fun WebSnippetLoadingPlaceholderFinishedComponentPreview() {
-    TWSView(
-        TWSSnippet(id = "id", target = "https://www.google.com/"),
-        viewState = webStateLoadingFinished
-    )
+    TWSView(viewState = webStateLoadingFinished)
 }
 
-private val webStateInitializing = TWSViewState(WebContent.NavigatorOnly).apply { loadingState = TWSLoadingState.Initializing }
-private val webStateLoading = TWSViewState(WebContent.NavigatorOnly).apply {
-    loadingState = TWSLoadingState.Loading(0.5f, false)
+private val webStateInitializing = TWSViewState(WebContent.NavigatorOnly(TWSSnippet("id", "url"))).apply {
+    loadingState = TWSLoadingState.Initializing
 }
-private val webStateLoadingForceRefresh = TWSViewState(WebContent.NavigatorOnly).apply {
-    loadingState = TWSLoadingState.Loading(0.5f, true)
+private val webStateLoading = TWSViewState(WebContent.NavigatorOnly(TWSSnippet("id", "url"))).apply {
+    loadingState = TWSLoadingState.Loading(0.5f, mainFrameLoaded = false, false)
 }
-private val webStateLoadingFinished = TWSViewState(WebContent.NavigatorOnly).apply { loadingState = TWSLoadingState.Finished }
+private val webStateLoadingForceRefresh = TWSViewState(WebContent.NavigatorOnly(TWSSnippet("id", "url"))).apply {
+    loadingState = TWSLoadingState.Loading(0.5f, mainFrameLoaded = false, true)
+}
+private val webStateLoadingFinished = TWSViewState(WebContent.NavigatorOnly(TWSSnippet("id", "url"))).apply {
+    loadingState = TWSLoadingState.Finished
+}

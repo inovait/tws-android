@@ -53,9 +53,9 @@ internal open class TWSWebViewClient(
     override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest?): Boolean {
         val url = request?.url
 
-        url?.toString()?.let {
-            if (it.startsWith("https://accounts.google.com")) {
-                openCustomChromeTab(view.context, it)
+        url?.host?.let { host ->
+            if (host.startsWith(REDIRECT_URL_GOOGLE) || host.startsWith(REDIRECT_URL_FACEBOOK)) {
+                openCustomChromeTab(view.context, url.toString())
                 return true // Indicate that we've handled the URL
             }
         }
@@ -110,5 +110,10 @@ internal open class TWSWebViewClient(
         )
 
         return packageName
+    }
+
+    companion object {
+        private const val REDIRECT_URL_GOOGLE = "accounts.google.com"
+        private const val REDIRECT_URL_FACEBOOK = "m.facebook.com"
     }
 }
