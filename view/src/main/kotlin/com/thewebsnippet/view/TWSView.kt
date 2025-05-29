@@ -86,7 +86,7 @@ import com.thewebsnippet.view.util.initializeSettings
  * the WebView back.
  * @param onCreated Called when the WebView is first created, this can be used to set additional
  * settings on the WebView. WebChromeClient and WebViewClient should not be set here as they will be
- * subsequently overwritten after this lambda is called.
+ * subsequently be overwritten after this lambda is called.
  */
 @Composable
 fun TWSView(
