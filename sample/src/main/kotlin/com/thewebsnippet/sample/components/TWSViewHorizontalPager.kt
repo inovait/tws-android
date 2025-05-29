@@ -70,7 +70,7 @@ internal fun TWSViewComponentWithPager(data: ImmutableList<TWSSnippet>) {
                 modifier = Modifier.fillMaxSize(),
                 snippet = data[page],
                 loadingPlaceholderContent = { LoadingView() },
-                errorViewContent = { ErrorView(it) }
+                errorViewContent = sampleErrorView()
             )
         }
 

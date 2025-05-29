@@ -40,6 +40,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.thewebsnippet.sample.R
 import com.thewebsnippet.sample.ui.theme.SampleTheme
+import com.thewebsnippet.view.util.compose.error.ErrorRefreshCallback
+import com.thewebsnippet.view.util.compose.error.SnippetErrorContent
+
+internal fun sampleErrorView(modifier: Modifier = Modifier): SnippetErrorContent = { message, callback, _ ->
+    ErrorView(
+        modifier = modifier.fillMaxSize(),
+        errorText = message,
+        callback = callback
+    )
+}
 
 /**
  * A composable function that displays exclamation icon and a custom error message.
@@ -52,7 +62,7 @@ import com.thewebsnippet.sample.ui.theme.SampleTheme
 internal fun ErrorView(
     errorText: String,
     modifier: Modifier = Modifier.fillMaxSize(),
-    refresh: (() -> Unit)? = null
+    callback: ErrorRefreshCallback? = null
 ) {
     Column(
         modifier = modifier,
@@ -72,14 +82,14 @@ internal fun ErrorView(
             textAlign = TextAlign.Center
         )
 
-        refresh?.let {
+        callback?.let {
             Spacer(Modifier.size(8.dp))
 
             Button(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 6.dp),
-                onClick = refresh
+                onClick = { callback.refresh() }
             ) {
                 Icon(
                     imageVector = Icons.Default.Refresh,
@@ -106,6 +116,6 @@ private fun FullScreenErrorViewPreview() {
 @Preview
 private fun FullScreenErrorViewRefreshPreview() {
     SampleTheme {
-        ErrorView("Sorry, something went wrong!", refresh = {})
+        ErrorView("Sorry, something went wrong!", callback = {})
     }
 }

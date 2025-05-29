@@ -54,9 +54,13 @@ import com.thewebsnippet.view.data.getSnippet
 import com.thewebsnippet.view.data.onCreateWindowStatus
 import com.thewebsnippet.view.data.rememberTWSViewNavigator
 import com.thewebsnippet.view.data.rememberTWSViewState
-import com.thewebsnippet.view.util.compose.SnippetErrorView
+import com.thewebsnippet.view.util.compose.error.SnippetErrorView
 import com.thewebsnippet.view.util.compose.SnippetLoadingView
+import com.thewebsnippet.view.util.compose.error.ErrorRefreshCallback
+import com.thewebsnippet.view.util.compose.error.SnippetErrorContent
+import com.thewebsnippet.view.util.compose.error.defaultErrorView
 import com.thewebsnippet.view.util.compose.getUserFriendlyMessage
+import com.thewebsnippet.view.util.compose.isRefreshable
 import com.thewebsnippet.view.util.initializeSettings
 
 /**
@@ -89,7 +93,7 @@ fun TWSView(
     viewState: TWSViewState,
     modifier: Modifier = Modifier,
     navigator: TWSViewNavigator = rememberTWSViewNavigator(),
-    errorViewContent: @Composable (String) -> Unit = { SnippetErrorView(it, modifier) },
+    errorViewContent: SnippetErrorContent = defaultErrorView(modifier),
     loadingPlaceholderContent: @Composable () -> Unit = { SnippetLoadingView(modifier) },
     interceptUrlCallback: TWSViewInterceptor = TWSViewDeepLinkInterceptor(LocalContext.current),
     googleLoginRedirectUrl: String? = null,
@@ -150,7 +154,7 @@ fun TWSView(
 fun TWSView(
     snippet: TWSSnippet,
     modifier: Modifier = Modifier,
-    errorViewContent: @Composable (String) -> Unit = { SnippetErrorView(it, modifier) },
+    errorViewContent: SnippetErrorContent = defaultErrorView(modifier),
     loadingPlaceholderContent: @Composable () -> Unit = { SnippetLoadingView(modifier) },
     interceptUrlCallback: TWSViewInterceptor = TWSViewDeepLinkInterceptor(LocalContext.current),
     googleLoginRedirectUrl: String? = null,
@@ -198,7 +202,7 @@ fun TWSView(
 private fun SnippetContentWithPopup(
     navigator: TWSViewNavigator,
     viewState: TWSViewState,
-    errorViewContent: @Composable (String) -> Unit,
+    errorViewContent: SnippetErrorContent,
     loadingPlaceholderContent: @Composable () -> Unit,
     interceptUrlCallback: TWSViewInterceptor,
     googleLoginRedirectUrl: String?,
@@ -267,7 +271,7 @@ private fun SnippetContentWithLoadingAndError(
     navigator: TWSViewNavigator,
     viewState: TWSViewState,
     loadingPlaceholderContent: @Composable () -> Unit,
-    errorViewContent: @Composable (String) -> Unit,
+    errorViewContent: SnippetErrorContent,
     interceptUrlCallback: TWSViewInterceptor,
     popupStateCallback: ((TWSViewState, Boolean) -> Unit)?,
     isRefreshable: Boolean,
@@ -303,26 +307,38 @@ private fun SnippetContentWithLoadingAndError(
 
         SnippetLoading(viewState, loadingPlaceholderContent)
 
-        SnippetErrors(viewState, errorViewContent)
+        SnippetErrors(viewState, errorViewContent) {
+            val isInitialRequestError = viewState.customErrorsForCurrentRequest.isNotEmpty()
+            if (isInitialRequestError) {
+                // if initial request to snippet target fails, we have to reload snippet, since web view has no data
+                val snippet = viewState.content.getSnippet() ?: return@SnippetErrors
+                navigator.loadSnippet(snippet)
+            } else {
+                // if any web view navigation loading event fails, we can reload
+                navigator.reload()
+            }
+        }
     }
 }
 
 @Composable
 private fun SnippetErrors(
     viewState: TWSViewState,
-    errorViewContent: @Composable (String) -> Unit,
+    errorViewContent: SnippetErrorContent,
+    refreshCallback: ErrorRefreshCallback
 ) {
     if (viewState.webViewErrorsForCurrentRequest.any { it.request?.isForMainFrame == true }) {
         val message = viewState.webViewErrorsForCurrentRequest.firstOrNull()?.error?.description?.toString()
             ?: stringResource(id = R.string.oops_loading_failed)
 
-        errorViewContent(message)
+        errorViewContent(message, null, false)
     }
 
     if (viewState.customErrorsForCurrentRequest.size > 0) {
         val error = viewState.customErrorsForCurrentRequest.first()
         val message = error.getUserFriendlyMessage() ?: error.message ?: stringResource(R.string.error_general)
-        errorViewContent(message)
+
+        errorViewContent(message, refreshCallback, error.isRefreshable())
     }
 }
 
@@ -341,7 +357,7 @@ private fun SnippetLoading(
 private fun PopUpWebView(
     popupState: TWSViewState,
     loadingPlaceholderContent: @Composable () -> Unit,
-    errorViewContent: @Composable (String) -> Unit,
+    errorViewContent: SnippetErrorContent,
     onDismissRequest: () -> Unit,
     interceptUrlCallback: TWSViewInterceptor,
     popupStateCallback: ((TWSViewState, Boolean) -> Unit)?,
