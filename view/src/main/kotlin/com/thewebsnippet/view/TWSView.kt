@@ -81,7 +81,7 @@ import com.thewebsnippet.view.util.initializeSettings
  * @param googleLoginRedirectUrl The URL the app should redirect to after a Google login
  * via [Custom Tabs](https://developer.chrome.com/docs/android/custom-tabs).
  * Allows returning users to the app after authentication.
- * @param isRefreshable Enables pull-to-refresh functionality when set to `true`.
+ * @param isRefreshable Enables pull-to-refresh action when set to `true`.
  * @param captureBackPresses Set to true to have this Composable capture back presses and navigate
  * the WebView back.
  * @param onCreated Called when the WebView is first created, this can be used to set additional
