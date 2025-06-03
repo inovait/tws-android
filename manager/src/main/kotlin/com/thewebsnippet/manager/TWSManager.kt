@@ -53,6 +53,12 @@ interface TWSManager {
     fun forceRefresh()
 
     /**
+     * Creates a connection to a backend service and prepares snippets, note that this MUST be called before manager can
+     * actually be user, otherwise connection to a backend service will not be established.
+     */
+    fun register()
+
+    /**
      * Updates or adds local properties for a specific snippet.
      * These properties are  applied to the snippet for all active collectors.
      *

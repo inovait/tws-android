@@ -78,6 +78,7 @@ internal class TWSManagerImpl(
     private val networkConnectivityService: NetworkConnectivityService? = NetworkConnectivityServiceImpl(context)
 ) : TWSManager, CoroutineScope by scope {
 
+    private var isRegistered: Boolean = false
     private var collectingSocket: Boolean = false
     private var collectingLocalHandler: Boolean = false
     private var networkStatusJob: Job? = null
@@ -91,7 +92,7 @@ internal class TWSManagerImpl(
      */
     override val snippets = combine(_snippetsFlow.filterNotNull(), _localProps) { outcome, localProps ->
         outcome.mapData { it.toTWSSnippetList(localProps) }
-    }.onStart { setupCollectingAndLoad() }
+    }.onStart { loadProjectAndSnippets() }
         .onCompletion { cancelCollecting() }
         .stateIn(scope, SharingStarted.WhileSubscribed(5.seconds), null)
         .filterNotNull()
@@ -102,6 +103,17 @@ internal class TWSManagerImpl(
      * @return A [Flow] emitting the current list of snippets or `null` if unavailable.
      */
     override fun snippets() = snippets.map { it.data }
+
+    /**
+     * Creates a connection to a backend service and prepares snippets, note that this MUST be called before manager can
+     * actually be user, otherwise connection to a backend service will not be established.
+     */
+    override fun register() {
+        if (isRegistered) return
+
+        isRegistered = true
+        loadProjectAndSnippets()
+    }
 
     /**
      * Forces a refresh of the snippets by reloading them from the remote source.
@@ -144,7 +156,9 @@ internal class TWSManagerImpl(
         cacheManager?.save(CACHED_SNIPPETS, snippets)
     }
 
-    private fun setupCollectingAndLoad() {
+    private fun loadProjectAndSnippets() {
+        if (!isRegistered) return
+
         // web socket and local handler will be launched in here
         forceRefresh()
 
