@@ -20,6 +20,7 @@ import com.thewebsnippet.manager.factory.create
 import com.thewebsnippet.manager.function.TWSAuthFunction
 import com.thewebsnippet.manager.preference.AuthPreference
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.sync.Mutex
 
 internal class AuthRegisterManagerImpl(
     private val auth: AuthPreference,
@@ -28,8 +29,17 @@ internal class AuthRegisterManagerImpl(
     override val getToken: Flow<String>
         get() = auth.refreshToken
 
+    private val mutex = Mutex()
+
     override suspend fun refreshToken() {
-        val response = twsAuth.register()
-        auth.setRefreshToken(response.refreshToken)
+        if (mutex.isLocked) return
+
+        mutex.lock()
+        try {
+            val response = twsAuth.register()
+            auth.setRefreshToken(response.refreshToken)
+        } finally {
+            mutex.unlock()
+        }
     }
 }
