@@ -15,13 +15,11 @@
  */
 package com.thewebsnippet.sample.di
 
-import android.content.Context
-import com.thewebsnippet.manager.TWSFactory
 import com.thewebsnippet.manager.TWSManager
+import com.thewebsnippet.manager.TWSSdk
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 
 @Module
@@ -30,12 +28,8 @@ internal class AppModule {
     /**
      * Provides a global instance of TWSManager configured in Manifest.
      *
-     * @param context Application context.
      * @return Global instance of [TWSManager].
      */
     @Provides
-    fun provideTWSManager(
-        @ApplicationContext
-        context: Context
-    ): TWSManager = TWSFactory.get(context)
+    fun provideTWSManager(): TWSManager = TWSSdk.getInstance()
 }

@@ -82,5 +82,7 @@ object TWSSdk {
                 is TWSConfiguration.Shared -> TWSFactory.get(context, configuration)
             }
         } ?: TWSFactory.get(context)
+
+        manager.register()
     }
 }

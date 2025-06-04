@@ -16,7 +16,15 @@
 package com.thewebsnippet.sample.ui
 
 import android.app.Application
+import com.thewebsnippet.manager.TWSSdk
 import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
-internal class SampleApp : Application()
+internal class SampleApp : Application() {
+
+    override fun onCreate() {
+        super.onCreate()
+
+        TWSSdk.initialize(this)
+    }
+}
