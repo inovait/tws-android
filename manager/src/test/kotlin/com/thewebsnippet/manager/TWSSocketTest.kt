@@ -16,14 +16,14 @@
 package com.thewebsnippet.manager
 
 import app.cash.turbine.test
-import com.thewebsnippet.manager.data.WebSocketStatus
+import com.thewebsnippet.manager.domain.model.WebSocketStatus
 import com.thewebsnippet.manager.fakes.FakeTWSSocketListener
 import com.thewebsnippet.manager.utils.ADD_FAKE_SNIPPET_SOCKET
 import com.thewebsnippet.manager.utils.UPDATED_FAKE_SNIPPET_SOCKET
 import com.thewebsnippet.manager.utils.testScopeWithDispatcherProvider
-import com.thewebsnippet.manager.websocket.TWSSocket
-import com.thewebsnippet.manager.websocket.TWSSocketImpl
-import com.thewebsnippet.manager.websocket.TWSSocketListenerImpl
+import com.thewebsnippet.manager.domain.websocket.TWSSocket
+import com.thewebsnippet.manager.data.websocket.TWSSocketImpl
+import com.thewebsnippet.manager.data.websocket.TWSSocketListenerImpl
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify

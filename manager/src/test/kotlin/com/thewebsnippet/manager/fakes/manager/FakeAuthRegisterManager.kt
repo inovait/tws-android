@@ -16,7 +16,7 @@
 package com.thewebsnippet.manager.fakes.manager
 
 import com.thewebsnippet.manager.fakes.function.FakeTWSAuthFunction
-import com.thewebsnippet.manager.manager.auth.Auth
+import com.thewebsnippet.manager.domain.auth.Auth
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.filterNotNull

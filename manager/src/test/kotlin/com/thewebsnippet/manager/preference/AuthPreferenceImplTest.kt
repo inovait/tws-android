@@ -21,6 +21,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import app.cash.turbine.test
+import com.thewebsnippet.manager.data.preference.AuthPreferenceImpl
 import com.thewebsnippet.manager.fakes.preference.FakeTWSBuild
 import com.thewebsnippet.manager.utils.testScopeWithDispatcherProvider
 import kotlinx.coroutines.ExperimentalCoroutinesApi

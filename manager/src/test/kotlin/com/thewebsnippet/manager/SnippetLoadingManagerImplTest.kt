@@ -16,10 +16,11 @@
 package com.thewebsnippet.manager
 
 import android.content.Context
+import com.thewebsnippet.manager.core.TWSConfiguration
 import com.thewebsnippet.manager.fakes.function.FakeTWSSnippetFunction
-import com.thewebsnippet.manager.manager.snippet.ProjectResponse
-import com.thewebsnippet.manager.manager.snippet.SnippetLoadingManager
-import com.thewebsnippet.manager.manager.snippet.SnippetLoadingManagerImpl
+import com.thewebsnippet.manager.domain.datasource.SnippetLoadingManager
+import com.thewebsnippet.manager.data.datasource.SnippetLoadingManagerImpl
+import com.thewebsnippet.manager.domain.model.ProjectResponse
 import com.thewebsnippet.manager.utils.FAKE_PROJECT_DTO
 import com.thewebsnippet.manager.utils.FAKE_SHARED_PROJECT
 import com.thewebsnippet.manager.utils.MILLISECONDS_DATE

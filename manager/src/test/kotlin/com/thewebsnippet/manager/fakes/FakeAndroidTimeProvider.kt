@@ -15,7 +15,7 @@
  */
 package com.thewebsnippet.manager.fakes
 
-import com.thewebsnippet.manager.time.AndroidTimeProvider
+import com.thewebsnippet.manager.domain.time.AndroidTimeProvider
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime

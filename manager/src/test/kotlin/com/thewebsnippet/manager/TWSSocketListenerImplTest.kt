@@ -17,7 +17,7 @@ package com.thewebsnippet.manager
 
 import android.util.Log
 import app.cash.turbine.test
-import com.thewebsnippet.manager.data.WebSocketStatus
+import com.thewebsnippet.manager.domain.model.WebSocketStatus
 import com.thewebsnippet.manager.utils.ADD_FAKE_SNIPPET_SOCKET
 import com.thewebsnippet.manager.utils.CREATE_SNIPPET
 import com.thewebsnippet.manager.utils.DELETE_FAKE_SNIPPET_SOCKET
@@ -30,7 +30,7 @@ import com.thewebsnippet.manager.utils.UPDATE_SNIPPET_DYNAMIC_RESOURCES
 import com.thewebsnippet.manager.utils.UPDATE_SNIPPET_HTML
 import com.thewebsnippet.manager.utils.UPDATE_SNIPPET_PROPS
 import com.thewebsnippet.manager.utils.UPDATE_SNIPPET_URL
-import com.thewebsnippet.manager.websocket.TWSSocketListenerImpl
+import com.thewebsnippet.manager.data.websocket.TWSSocketListenerImpl
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic

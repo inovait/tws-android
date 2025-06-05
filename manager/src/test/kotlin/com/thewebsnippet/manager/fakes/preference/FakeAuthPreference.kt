@@ -16,7 +16,7 @@
 
 package com.thewebsnippet.manager.fakes.preference
 
-import com.thewebsnippet.manager.preference.AuthPreference
+import com.thewebsnippet.manager.domain.preference.AuthPreference
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.filterNotNull

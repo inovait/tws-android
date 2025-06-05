@@ -15,9 +15,9 @@
  */
 package com.thewebsnippet.manager.fakes
 
-import com.thewebsnippet.manager.data.SnippetUpdateAction
-import com.thewebsnippet.manager.data.WebSocketStatus
-import com.thewebsnippet.manager.websocket.TWSSocketListener
+import com.thewebsnippet.manager.domain.model.SnippetUpdateAction
+import com.thewebsnippet.manager.domain.model.WebSocketStatus
+import com.thewebsnippet.manager.domain.websocket.TWSSocketListener
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow

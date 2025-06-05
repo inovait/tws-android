@@ -15,8 +15,8 @@
  */
 package com.thewebsnippet.manager.fakes
 
-import com.thewebsnippet.manager.data.SnippetUpdateAction
-import com.thewebsnippet.manager.websocket.TWSSocket
+import com.thewebsnippet.manager.domain.model.SnippetUpdateAction
+import com.thewebsnippet.manager.domain.websocket.TWSSocket
 import kotlinx.coroutines.flow.MutableSharedFlow
 
 internal class FakeTWSSocket : TWSSocket {

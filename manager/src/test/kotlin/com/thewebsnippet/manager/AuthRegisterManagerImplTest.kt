@@ -16,10 +16,10 @@
 
 package com.thewebsnippet.manager
 
-import com.thewebsnippet.manager.data.RefreshTokenDto
+import com.thewebsnippet.manager.domain.model.RefreshTokenDto
 import com.thewebsnippet.manager.fakes.function.FakeTWSAuthFunction
 import com.thewebsnippet.manager.fakes.preference.FakeAuthPreference
-import com.thewebsnippet.manager.manager.auth.AuthRegisterManagerImpl
+import com.thewebsnippet.manager.data.auth.AuthRegisterManagerImpl
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.junit.Before

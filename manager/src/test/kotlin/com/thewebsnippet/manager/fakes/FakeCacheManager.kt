@@ -15,8 +15,8 @@
  */
 package com.thewebsnippet.manager.fakes
 
-import com.thewebsnippet.manager.cache.CacheManager
-import com.thewebsnippet.manager.data.TWSSnippetDto
+import com.thewebsnippet.manager.domain.datasource.CacheManager
+import com.thewebsnippet.manager.domain.model.TWSSnippetDto
 
 internal class FakeCacheManager : CacheManager {
     private var cachedList: List<TWSSnippetDto>? = null

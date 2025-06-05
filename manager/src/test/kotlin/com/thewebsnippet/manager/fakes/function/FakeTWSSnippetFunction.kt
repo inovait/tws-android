@@ -15,9 +15,9 @@
  */
 package com.thewebsnippet.manager.fakes.function
 
-import com.thewebsnippet.manager.data.ProjectDto
-import com.thewebsnippet.manager.data.SharedSnippetDto
-import com.thewebsnippet.manager.function.TWSSnippetFunction
+import com.thewebsnippet.manager.domain.model.ProjectDto
+import com.thewebsnippet.manager.domain.model.SharedSnippetDto
+import com.thewebsnippet.manager.data.function.TWSSnippetFunction
 import com.thewebsnippet.manager.utils.FakeService
 import com.thewebsnippet.manager.utils.ServiceTestingHelper
 import retrofit2.Response

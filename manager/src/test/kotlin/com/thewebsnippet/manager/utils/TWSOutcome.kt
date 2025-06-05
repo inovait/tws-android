@@ -15,7 +15,7 @@
  */
 package com.thewebsnippet.manager.utils
 
-import com.thewebsnippet.manager.TWSOutcome
+import com.thewebsnippet.manager.core.TWSOutcome
 
 infix fun <T> TWSOutcome<T>.shouldBeSuccessWithData(expectedData: T) {
     assert(this is TWSOutcome.Success && this.data == expectedData)

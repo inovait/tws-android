@@ -15,9 +15,9 @@
  */
 package com.thewebsnippet.manager.fakes.function
 
-import com.thewebsnippet.manager.data.AccessTokenDto
-import com.thewebsnippet.manager.data.RefreshTokenDto
-import com.thewebsnippet.manager.function.TWSAuthFunction
+import com.thewebsnippet.manager.domain.model.AccessTokenDto
+import com.thewebsnippet.manager.domain.model.RefreshTokenDto
+import com.thewebsnippet.manager.data.function.TWSAuthFunction
 import com.thewebsnippet.manager.utils.FakeService
 import com.thewebsnippet.manager.utils.ServiceTestingHelper
 import kotlinx.coroutines.delay
