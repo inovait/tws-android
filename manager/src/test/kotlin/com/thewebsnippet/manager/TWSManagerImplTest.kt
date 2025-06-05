@@ -768,6 +768,8 @@ class TWSManagerImplTest {
             localSnippetHandler = localSnippetHandler ?: fakeHandler,
             cacheManager = cacheManager ?: fakeCache,
             networkConnectivityService = networkConnectivityService ?: fakeNetworkConnectivityService
-        )
+        ).also {
+            it.register()
+        }
     }
 }

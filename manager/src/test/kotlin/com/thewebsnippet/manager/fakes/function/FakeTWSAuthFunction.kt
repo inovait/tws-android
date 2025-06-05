@@ -20,6 +20,7 @@ import com.thewebsnippet.manager.data.RefreshTokenDto
 import com.thewebsnippet.manager.function.TWSAuthFunction
 import com.thewebsnippet.manager.utils.FakeService
 import com.thewebsnippet.manager.utils.ServiceTestingHelper
+import kotlinx.coroutines.delay
 
 internal class FakeTWSAuthFunction(
     private val helper: ServiceTestingHelper = ServiceTestingHelper()
@@ -27,14 +28,23 @@ internal class FakeTWSAuthFunction(
     var refreshToken: RefreshTokenDto? = null
     var accessToken: AccessTokenDto? = null
 
+    var registerCalled = 0
+    var loginCalled = 0
+
     override suspend fun register(): RefreshTokenDto {
         helper.intercept()
+        registerCalled++
+
+        delay(100)
 
         return refreshToken ?: error("Returned refreshToken not faked!")
     }
 
     override suspend fun login(): AccessTokenDto {
         helper.intercept()
+        loginCalled++
+
+        delay(100)
 
         return accessToken ?: error("Returned accessToken not faked!")
     }
