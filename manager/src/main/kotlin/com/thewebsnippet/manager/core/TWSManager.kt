@@ -54,7 +54,7 @@ interface TWSManager {
 
     /**
      * Creates a connection to a backend service and prepares snippets, note that this MUST be called before manager can
-     * actually be user, otherwise connection to a backend service will not be established.
+     * actually be used, otherwise connection to a backend service will not be established.
      */
     fun register()
 
