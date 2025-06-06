@@ -16,6 +16,7 @@
 
 package com.thewebsnippet.manager.data.notification
 
+import android.util.Log
 import com.thewebsnippet.manager.domain.model.SnippetNotificationBody
 import com.thewebsnippet.manager.domain.model.SnippetNotificationMetadata
 import com.thewebsnippet.manager.domain.notification.NotificationPayloadParser
@@ -25,37 +26,47 @@ internal class NotificationPayloadParserImpl(
 ) : NotificationPayloadParser {
 
     override fun parseNotification(data: Map<String, String>): SnippetNotificationBody? {
-        val type = data[PAYLOAD_TYPE]
-        if (type !in supportedTypes) return null
+        return try {
+            val type = data[PAYLOAD_TYPE]
+            if (type !in supportedTypes) return null
 
-        val path = data[PAYLOAD_SNIPPET_PATH] ?: return null
-        val title = data[PAYLOAD_MESSAGE_TITLE]
-        val message = data[PAYLOAD_MESSAGE_CONTENT]
+            val path = data[PAYLOAD_SNIPPET_PATH] ?: return null
+            val title = data[PAYLOAD_MESSAGE_TITLE]
+            val message = data[PAYLOAD_MESSAGE_CONTENT]
 
-        val (snippetId, projectId) = path.split("/")
-        val snippetMetadataAvailable = projectId.isNotBlank() && snippetId.isNotBlank()
+            val (snippetId, projectId) = path.split("/")
+            val snippetMetadataAvailable = projectId.isNotBlank() && snippetId.isNotBlank()
 
-        return if (
-            snippetMetadataAvailable &&
-            !title.isNullOrBlank() &&
-            !message.isNullOrBlank()
-        ) {
-            SnippetNotificationBody(projectId, snippetId, title, message)
-        } else {
+            if (
+                snippetMetadataAvailable &&
+                !title.isNullOrBlank() &&
+                !message.isNullOrBlank()
+            ) {
+                SnippetNotificationBody(projectId, snippetId, title, message)
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            Log.e("NotificationPayloadParserImpl", "Error parsing notification body", e)
             null
         }
     }
 
     override fun parseMetadata(data: Map<String, String>): SnippetNotificationMetadata? {
-        val type = data[PAYLOAD_TYPE]
-        if (type !in supportedTypes) return null
+        return try {
+            val type = data[PAYLOAD_TYPE]
+            if (type !in supportedTypes) return null
 
-        val path = data[PAYLOAD_SNIPPET_PATH] ?: return null
-        val (snippetId, projectId) = path.split("/")
+            val path = data[PAYLOAD_SNIPPET_PATH] ?: return null
+            val (snippetId, projectId) = path.split("/")
 
-        return if (projectId.isNotBlank() && snippetId.isNotBlank()) {
-            SnippetNotificationMetadata(projectId, snippetId)
-        } else {
+            if (projectId.isNotBlank() && snippetId.isNotBlank()) {
+                SnippetNotificationMetadata(projectId, snippetId)
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            Log.e("NotificationPayloadParserImpl", "Error parsing notification metadata", e)
             null
         }
     }
