@@ -38,7 +38,7 @@ internal class NotificationDisplayImpl(
     override fun display(
         payload: SnippetNotificationBody,
         historyIntents: List<Intent>
-    ) {
+    ): Boolean {
         val pendingIntent = buildPendingIntent(
             context,
             payload.projectId,
@@ -55,10 +55,12 @@ internal class NotificationDisplayImpl(
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .build()
 
-        val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager ?: return false
         createChannelIfNeeded(manager)
 
         manager.notify(NOTIFICATION_ID, notification)
+
+        return true
     }
 
     private fun buildPendingIntent(

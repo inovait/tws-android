@@ -33,7 +33,7 @@ internal class NotificationHandlerImpl(
         historyIntents: List<Intent>
     ): Boolean {
         val payload = parser.parseNotification(notificationData) ?: return false
-        displayer.display(payload, historyIntents)
-        return true
+
+        return displayer.display(payload, historyIntents)
     }
 }

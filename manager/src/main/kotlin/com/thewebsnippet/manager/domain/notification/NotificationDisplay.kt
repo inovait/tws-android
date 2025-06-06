@@ -20,5 +20,5 @@ import android.content.Intent
 import com.thewebsnippet.manager.domain.model.SnippetNotificationBody
 
 internal interface NotificationDisplay {
-    fun display(payload: SnippetNotificationBody, historyIntents: List<Intent>)
+    fun display(payload: SnippetNotificationBody, historyIntents: List<Intent>): Boolean
 }

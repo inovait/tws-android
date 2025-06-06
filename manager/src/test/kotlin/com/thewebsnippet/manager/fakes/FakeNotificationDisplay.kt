@@ -24,8 +24,10 @@ internal class FakeNotificationDisplay : NotificationDisplay {
     var lastPayload: SnippetNotificationBody? = null
     var lastHistoryIntents: List<Intent>? = null
 
-    override fun display(payload: SnippetNotificationBody, historyIntents: List<Intent>) {
+    override fun display(payload: SnippetNotificationBody, historyIntents: List<Intent>): Boolean {
         lastPayload = payload
         lastHistoryIntents = historyIntents
+
+        return true
     }
 }
