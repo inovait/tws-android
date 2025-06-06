@@ -16,10 +16,8 @@
 
 package com.thewebsnippet.manager.domain.notification
 
-import com.thewebsnippet.manager.domain.model.SnippetNotificationBody
 import com.thewebsnippet.manager.domain.model.SnippetNotificationMetadata
 
 internal interface NotificationPayloadParser {
-    fun parseNotification(data: Map<String, String>): SnippetNotificationBody?
     fun parseMetadata(data: Map<String, String>): SnippetNotificationMetadata?
 }

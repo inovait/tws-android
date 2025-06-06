@@ -29,11 +29,24 @@ internal class NotificationHandlerImpl(
 ) : NotificationHandler {
 
     override fun handle(
-        notificationData: Map<String, String>,
+        contentTitle: String,
+        contentText: String,
+        payload: Map<String, String>,
+        smallIcon: Int,
+        autoCancel: Boolean,
+        priority: Int,
         historyIntents: List<Intent>
     ): Boolean {
-        val payload = parser.parseNotification(notificationData) ?: return false
+        val parsedPayload = parser.parseMetadata(payload) ?: return false
 
-        return displayer.display(payload, historyIntents)
+        return displayer.display(
+            contentTitle,
+            contentText,
+            parsedPayload,
+            smallIcon,
+            autoCancel,
+            priority,
+            historyIntents
+        )
     }
 }

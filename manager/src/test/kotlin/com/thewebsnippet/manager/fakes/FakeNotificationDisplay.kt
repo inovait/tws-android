@@ -17,14 +17,22 @@
 package com.thewebsnippet.manager.fakes
 
 import android.content.Intent
-import com.thewebsnippet.manager.domain.model.SnippetNotificationBody
+import com.thewebsnippet.manager.domain.model.SnippetNotificationMetadata
 import com.thewebsnippet.manager.domain.notification.NotificationDisplay
 
 internal class FakeNotificationDisplay : NotificationDisplay {
-    var lastPayload: SnippetNotificationBody? = null
+    var lastPayload: SnippetNotificationMetadata? = null
     var lastHistoryIntents: List<Intent>? = null
 
-    override fun display(payload: SnippetNotificationBody, historyIntents: List<Intent>): Boolean {
+    override fun display(
+        contentTitle: String,
+        contentText: String,
+        payload: SnippetNotificationMetadata,
+        smallIcon: Int,
+        autoCancel: Boolean,
+        priority: Int,
+        historyIntents: List<Intent>
+    ): Boolean {
         lastPayload = payload
         lastHistoryIntents = historyIntents
 

@@ -24,8 +24,7 @@ import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.TaskStackBuilder
-import com.thewebsnippet.manager.R
-import com.thewebsnippet.manager.domain.model.SnippetNotificationBody
+import com.thewebsnippet.manager.domain.model.SnippetNotificationMetadata
 import com.thewebsnippet.manager.domain.notification.NotificationDisplay
 import com.thewebsnippet.manager.ui.TWSViewPopupActivity
 
@@ -36,7 +35,12 @@ internal class NotificationDisplayImpl(
 ) : NotificationDisplay {
 
     override fun display(
-        payload: SnippetNotificationBody,
+        contentTitle: String,
+        contentText: String,
+        payload: SnippetNotificationMetadata,
+        smallIcon: Int,
+        autoCancel: Boolean,
+        priority: Int,
         historyIntents: List<Intent>
     ): Boolean {
         val pendingIntent = buildPendingIntent(
@@ -47,12 +51,12 @@ internal class NotificationDisplayImpl(
         )
 
         val notification = NotificationCompat.Builder(context, channelId)
-            .setSmallIcon(R.drawable.ic_default_notification)
-            .setContentTitle(payload.title)
-            .setContentText(payload.message)
-            .setAutoCancel(true)
+            .setSmallIcon(smallIcon)
+            .setContentTitle(contentTitle)
+            .setContentText(contentText)
+            .setAutoCancel(autoCancel)
             .setContentIntent(pendingIntent)
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setPriority(priority)
             .build()
 
         val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager ?: return false

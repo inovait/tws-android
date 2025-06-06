@@ -17,10 +17,17 @@
 package com.thewebsnippet.manager.domain.notification
 
 import android.content.Intent
+import androidx.core.app.NotificationCompat
+import com.thewebsnippet.manager.R
 
 internal interface NotificationHandler {
     fun handle(
-        notificationData: Map<String, String>,
+        contentTitle: String,
+        contentText: String,
+        payload: Map<String, String>,
+        smallIcon: Int = R.drawable.ic_default_notification,
+        autoCancel: Boolean = true,
+        priority: Int = NotificationCompat.PRIORITY_HIGH,
         historyIntents: List<Intent> = emptyList()
     ): Boolean
 }

@@ -16,14 +16,11 @@
 
 package com.thewebsnippet.manager.fakes
 
-import com.thewebsnippet.manager.domain.model.SnippetNotificationBody
 import com.thewebsnippet.manager.domain.model.SnippetNotificationMetadata
 import com.thewebsnippet.manager.domain.notification.NotificationPayloadParser
 
 internal class FakeNotificationPayloadParser : NotificationPayloadParser {
-    var nextResultBody: SnippetNotificationBody? = null
+    var nextResultBody: SnippetNotificationMetadata? = null
 
-    override fun parseNotification(data: Map<String, String>): SnippetNotificationBody? = nextResultBody
-
-    override fun parseMetadata(data: Map<String, String>): SnippetNotificationMetadata? = null
+    override fun parseMetadata(data: Map<String, String>): SnippetNotificationMetadata? = nextResultBody
 }

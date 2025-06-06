@@ -17,8 +17,18 @@
 package com.thewebsnippet.manager.domain.notification
 
 import android.content.Intent
-import com.thewebsnippet.manager.domain.model.SnippetNotificationBody
+import androidx.core.app.NotificationCompat
+import com.thewebsnippet.manager.R
+import com.thewebsnippet.manager.domain.model.SnippetNotificationMetadata
 
 internal interface NotificationDisplay {
-    fun display(payload: SnippetNotificationBody, historyIntents: List<Intent>): Boolean
+    fun display(
+        contentTitle: String,
+        contentText: String,
+        payload: SnippetNotificationMetadata,
+        smallIcon: Int = R.drawable.ic_default_notification,
+        autoCancel: Boolean = true,
+        priority: Int = NotificationCompat.PRIORITY_HIGH,
+        historyIntents: List<Intent> = emptyList()
+    ): Boolean
 }

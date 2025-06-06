@@ -38,110 +38,24 @@ class NotificationPayloadParserImplTest {
     }
 
     @Test
-    fun `parseNotification returns SnippetNotificationBody for valid payload`() {
+    fun `parseMetadata returns SnippetNotificationBody for valid payload`() {
         val payload = mapOf(
             "type" to "snippet_push",
-            "path" to "snippet123/project456",
-            "title" to "Title",
-            "message" to "Message"
-        )
-
-        val result = parser.parseNotification(payload)
-
-        assertNotNull(result)
-        assertEquals("project456", result?.projectId)
-        assertEquals("snippet123", result?.snippetId)
-        assertEquals("Title", result?.title)
-        assertEquals("Message", result?.message)
-    }
-
-    @Test
-    fun `parseNotification returns null if type is not supported`() {
-        val payload = mapOf(
-            "type" to "other_type",
-            "path" to "snippet123/project456",
-            "title" to "Title",
-            "message" to "Message"
-        )
-
-        val result = parser.parseNotification(payload)
-
-        assertNull(result)
-    }
-
-    @Test
-    fun `parseNotification returns null if path is missing`() {
-        val payload = mapOf(
-            "type" to "snippet_push",
-            "title" to "Title",
-            "message" to "Message"
-        )
-
-        val result = parser.parseNotification(payload)
-
-        assertNull(result)
-    }
-
-    @Test
-    fun `parseNotification returns null if title is blank`() {
-        val payload = mapOf(
-            "type" to "snippet_push",
-            "path" to "snippet123/project456",
-            "title" to "",
-            "message" to "Message"
-        )
-
-        val result = parser.parseNotification(payload)
-
-        assertNull(result)
-    }
-
-    @Test
-    fun `parseNotification returns null if message is blank`() {
-        val payload = mapOf(
-            "type" to "snippet_push",
-            "path" to "snippet123/project456",
-            "title" to "Title",
-            "message" to ""
-        )
-
-        val result = parser.parseNotification(payload)
-
-        assertNull(result)
-    }
-
-    @Test
-    fun `parseNotification returns null if path is invalid`() {
-        val payload = mapOf(
-            "type" to "snippet_push",
-            "path" to "snippet123", // Not "snippet/project"
-            "title" to "Title",
-            "message" to "Message"
-        )
-
-        val result = parser.parseNotification(payload)
-        assertNull(result)
-    }
-
-    @Test
-    fun `parseMetadata returns SnippetNotificationMetadata for valid payload`() {
-        val payload = mapOf(
-            "type" to "snippet_push",
-            "path" to "snippetABC/projectDEF"
+            "path" to "snippet123/project456"
         )
 
         val result = parser.parseMetadata(payload)
 
         assertNotNull(result)
-        assertEquals("projectDEF", result?.projectId)
-        assertEquals("snippetABC", result?.snippetId)
+        assertEquals("project456", result?.projectId)
+        assertEquals("snippet123", result?.snippetId)
     }
 
     @Test
     fun `parseMetadata returns null if type is not supported`() {
         val payload = mapOf(
             "type" to "other_type",
-            "path" to "snippetABC/projectDEF"
+            "path" to "snippet123/project456"
         )
 
         val result = parser.parseMetadata(payload)
@@ -161,10 +75,25 @@ class NotificationPayloadParserImplTest {
     }
 
     @Test
+    fun `parseMetadata ignores unknown fields`() {
+        val payload = mapOf(
+            "type" to "snippet_push",
+            "path" to "snippet123/project456",
+            "test" to "Title"
+        )
+
+        val result = parser.parseMetadata(payload)
+
+        assertNotNull(result)
+        assertEquals("project456", result?.projectId)
+        assertEquals("snippet123", result?.snippetId)
+    }
+
+    @Test
     fun `parseMetadata returns null if path is invalid`() {
         val payload = mapOf(
             "type" to "snippet_push",
-            "path" to "justonestring"
+            "path" to "snippet123" // Not "snippet/project"
         )
 
         val result = parser.parseMetadata(payload)

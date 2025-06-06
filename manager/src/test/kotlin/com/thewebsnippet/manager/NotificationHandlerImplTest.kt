@@ -18,7 +18,7 @@ package com.thewebsnippet.manager
 
 import android.content.Intent
 import com.thewebsnippet.manager.data.notification.NotificationHandlerImpl
-import com.thewebsnippet.manager.domain.model.SnippetNotificationBody
+import com.thewebsnippet.manager.domain.model.SnippetNotificationMetadata
 import com.thewebsnippet.manager.fakes.FakeNotificationDisplay
 import com.thewebsnippet.manager.fakes.FakeNotificationPayloadParser
 import junit.framework.TestCase.assertFalse
@@ -48,18 +48,18 @@ class NotificationHandlerImplTest {
     fun `handle returns false if parser returns null`() {
         fakeParser.nextResultBody = null
 
-        val result = handler.handle(mapOf("foo" to "bar"))
+        val result = handler.handle("title", "message", mapOf("foo" to "bar"))
 
         assertFalse(result)
     }
 
     @Test
     fun `handle returns true and calls displayer if parser returns payload`() {
-        val payload = SnippetNotificationBody("project", "snippet", "title", "message")
+        val payload = SnippetNotificationMetadata("project", "snippet")
         fakeParser.nextResultBody = payload
 
         val history = listOf(Intent("ACTION_1"))
-        val result = handler.handle(mapOf("foo" to "bar"), history)
+        val result = handler.handle("title", "message", mapOf("foo" to "bar"), historyIntents = history)
 
         assertTrue(result)
         assertEquals(payload, fakeDisplayer.lastPayload)

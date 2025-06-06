@@ -17,40 +17,12 @@
 package com.thewebsnippet.manager.data.notification
 
 import android.util.Log
-import com.thewebsnippet.manager.domain.model.SnippetNotificationBody
 import com.thewebsnippet.manager.domain.model.SnippetNotificationMetadata
 import com.thewebsnippet.manager.domain.notification.NotificationPayloadParser
 
 internal class NotificationPayloadParserImpl(
     private val supportedTypes: Set<String> = setOf(SUPPORTED_TYPE_SNIPPET_PUSH)
 ) : NotificationPayloadParser {
-
-    override fun parseNotification(data: Map<String, String>): SnippetNotificationBody? {
-        return try {
-            val type = data[PAYLOAD_TYPE]
-            if (type !in supportedTypes) return null
-
-            val path = data[PAYLOAD_SNIPPET_PATH] ?: return null
-            val title = data[PAYLOAD_MESSAGE_TITLE]
-            val message = data[PAYLOAD_MESSAGE_CONTENT]
-
-            val (snippetId, projectId) = path.split("/")
-            val snippetMetadataAvailable = projectId.isNotBlank() && snippetId.isNotBlank()
-
-            if (
-                snippetMetadataAvailable &&
-                !title.isNullOrBlank() &&
-                !message.isNullOrBlank()
-            ) {
-                SnippetNotificationBody(projectId, snippetId, title, message)
-            } else {
-                null
-            }
-        } catch (e: Exception) {
-            Log.e("NotificationPayloadParserImpl", "Error parsing notification body", e)
-            null
-        }
-    }
 
     override fun parseMetadata(data: Map<String, String>): SnippetNotificationMetadata? {
         return try {
@@ -74,8 +46,6 @@ internal class NotificationPayloadParserImpl(
     companion object {
         private const val PAYLOAD_TYPE = "type"
         private const val PAYLOAD_SNIPPET_PATH = "path"
-        private const val PAYLOAD_MESSAGE_TITLE = "title"
-        private const val PAYLOAD_MESSAGE_CONTENT = "message"
 
         private const val SUPPORTED_TYPE_SNIPPET_PUSH = "snippet_push"
     }

@@ -18,6 +18,8 @@ package com.thewebsnippet.manager.core
 
 import android.content.Context
 import android.content.Intent
+import androidx.core.app.NotificationCompat
+import com.thewebsnippet.manager.R
 import com.thewebsnippet.manager.data.manager.NoOpManager
 import com.thewebsnippet.manager.data.notification.NotificationPayloadParserImpl
 import com.thewebsnippet.manager.data.notification.NotificationHandlerImpl
@@ -78,27 +80,44 @@ object TWSSdk {
     /**
      * Handles and displays a push notification using the TWS SDK.
      *
-     * Use this method to process notification payloads received from FCM (Firebase Cloud Messaging) or other
-     * push providers. If the data contains a supported TWS notification, the SDK will parse it and display
-     * a notification to the user. Returns `true` if the SDK successfully handled and displayed the notification,
-     * or `false` if the payload was ignored (for example, if it was missing required fields or not meant for TWS).
+     * This method processes notification payloads (typically from FCM or similar services) and displays a notification
+     * to the user using the provided details. The notification is only shown if the SDK recognizes the payload as a
+     * supported TWS notification (i.e., it includes the necessary fields and a supported type).
      *
-     * Typical usage is to call this method from your `FirebaseMessagingService.onMessageReceived`, passing in
-     * the `remoteMessage.data` map. You may also pass any navigation `historyIntents` if you want the notification
-     * to preserve a back stack.
+     * Typical usage is from your `FirebaseMessagingService.onMessageReceived`, passing in the relevant
+     * notification data. You may customize the notification appearance via `contentTitle`, `contentText`, `smallIcon`, etc.
+     * Optionally, you can pass a navigation back stack (`historyIntents`) for proper navigation when the notification is opened.
      *
-     * @param context The context to use for displaying the notification (usually the application context).
-     * @param data The notification payload, typically from FCM. Must include at least `projectId`, `snippetId`, and `type`.
-     * @param historyIntents An optional list of [Intent]s representing previous navigation history. This is used to build
-     *                       the back stack when the notification is opened. Defaults to an empty list.
+     * @param context The context for displaying the notification (usually the application context).
+     * @param contentTitle The title to display in the notification.
+     * @param contentText The message/body to display in the notification.
+     * @param payload The notification payload as a [Map] (typically from FCM's `remoteMessage.data`),
+     *                must include at least `projectId`, `snippetId`, and `type` for SDK to recognize and handle notification.
+     * @param smallIcon The resource ID of the small icon to show in the notification. Defaults to TWS SDK's default icon.
+     * @param autoCancel Whether to dismiss the notification when tapped. Default is `true`.
+     * @param priority The notification priority (see [NotificationCompat]). Default is [NotificationCompat.PRIORITY_HIGH].
+     * @param historyIntents An optional list of [Intent]s representing previous navigation history to construct the back stack.
      * @return `true` if the notification was handled and displayed by the SDK, `false` otherwise.
      */
     fun displayNotification(
         context: Context,
-        data: Map<String, String>,
+        contentTitle: String,
+        contentText: String,
+        payload: Map<String, String>,
+        smallIcon: Int = R.drawable.ic_default_notification,
+        autoCancel: Boolean = true,
+        priority: Int = NotificationCompat.PRIORITY_HIGH,
         historyIntents: List<Intent> = emptyList()
     ): Boolean {
-        return NotificationHandlerImpl(context).handle(data, historyIntents)
+        return NotificationHandlerImpl(context).handle(
+            contentTitle,
+            contentText,
+            payload,
+            smallIcon,
+            autoCancel,
+            priority,
+            historyIntents
+        )
     }
 
     /**
@@ -113,7 +132,7 @@ object TWSSdk {
      *
      * @param context The context used to create the intent.
      * @param data The notification payload, typically received from FCM or a similar service.
-     *             Must contain `projectId`, `snippetId` and `type` keys.
+     *             Must contain `projectId`, `snippetId` and `type` for SDK to recognize and prepare an Intent.
      * @return An [Intent] to open full screen snippet, or `null` if the payload is invalid or missing required data.
      *
      */
