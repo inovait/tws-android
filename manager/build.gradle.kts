@@ -19,6 +19,7 @@ import util.publishLibrary
 plugins {
     androidLibraryModule
     kotlin("kapt")
+    alias(libs.plugins.compose.compiler)
     alias(libs.plugins.dokka)
     id(libs.plugins.jreleaser.get().pluginId)
 }
@@ -39,6 +40,12 @@ afterEvaluate {
 
 android {
     namespace = "com.thewebsnippet.manager"
+
+    buildFeatures {
+        compose = true
+        androidResources = true
+        buildConfig = true
+    }
 
     testOptions {
         unitTests.all {
