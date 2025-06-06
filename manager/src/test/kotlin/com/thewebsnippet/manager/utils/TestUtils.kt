@@ -18,13 +18,13 @@ package com.thewebsnippet.manager.utils
 import com.thewebsnippet.data.TWSAttachment
 import com.thewebsnippet.data.TWSAttachmentType
 import com.thewebsnippet.data.TWSSnippet
-import com.thewebsnippet.manager.data.ActionBody
-import com.thewebsnippet.manager.data.ActionType
-import com.thewebsnippet.manager.data.ProjectDto
-import com.thewebsnippet.manager.data.SharedSnippetDto
-import com.thewebsnippet.manager.data.SnippetUpdateAction
-import com.thewebsnippet.manager.data.TWSSnippetDto
-import com.thewebsnippet.manager.data.VisibilityDto
+import com.thewebsnippet.manager.domain.model.ActionBody
+import com.thewebsnippet.manager.domain.model.ActionType
+import com.thewebsnippet.manager.domain.model.ProjectDto
+import com.thewebsnippet.manager.domain.model.SharedSnippetDto
+import com.thewebsnippet.manager.domain.model.SnippetUpdateAction
+import com.thewebsnippet.manager.domain.model.TWSSnippetDto
+import com.thewebsnippet.manager.domain.model.VisibilityDto
 import java.time.Instant
 
 internal val FAKE_SNIPPET_ONE = TWSSnippetDto(

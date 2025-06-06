@@ -15,8 +15,8 @@
  */
 package com.thewebsnippet.sample.di
 
-import com.thewebsnippet.manager.TWSManager
-import com.thewebsnippet.manager.TWSSdk
+import com.thewebsnippet.manager.core.TWSManager
+import com.thewebsnippet.manager.core.TWSSdk
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

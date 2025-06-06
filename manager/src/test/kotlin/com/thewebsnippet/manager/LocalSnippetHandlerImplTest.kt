@@ -16,11 +16,11 @@
 package com.thewebsnippet.manager
 
 import app.cash.turbine.test
-import com.thewebsnippet.manager.data.ActionBody
-import com.thewebsnippet.manager.data.ActionType
-import com.thewebsnippet.manager.data.SnippetUpdateAction
+import com.thewebsnippet.manager.domain.model.SnippetUpdateAction
 import com.thewebsnippet.manager.fakes.FakeAndroidTimeProvider
-import com.thewebsnippet.manager.localhandler.LocalSnippetHandlerImpl
+import com.thewebsnippet.manager.data.datasource.LocalSnippetHandlerImpl
+import com.thewebsnippet.manager.domain.model.ActionBody
+import com.thewebsnippet.manager.domain.model.ActionType
 import com.thewebsnippet.manager.utils.FAKE_SNIPPET_ONE
 import com.thewebsnippet.manager.utils.FAKE_SNIPPET_THREE
 import com.thewebsnippet.manager.utils.FAKE_SNIPPET_TWO

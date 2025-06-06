@@ -16,7 +16,7 @@
 package com.thewebsnippet.sample.ui
 
 import android.app.Application
-import com.thewebsnippet.manager.TWSSdk
+import com.thewebsnippet.manager.core.TWSSdk
 import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
