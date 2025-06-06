@@ -55,8 +55,11 @@ publishLibrary(
 
 dependencies {
     api(projects.data)
+    implementation(projects.view)
 
+    implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.core.ktx)
+    implementation(libs.compose.foundation)
     implementation(libs.dispatch)
     implementation(libs.retrofit.moshi)
     implementation(libs.retrofit.scalars)
