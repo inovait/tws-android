@@ -41,7 +41,7 @@ class NotificationPayloadParserImplTest {
     fun `parseMetadata returns SnippetNotificationBody for valid payload`() {
         val payload = mapOf(
             "type" to "snippet_push",
-            "path" to "snippet123/project456"
+            "path" to "project456/snippet123"
         )
 
         val result = parser.parseMetadata(payload)
@@ -55,7 +55,7 @@ class NotificationPayloadParserImplTest {
     fun `parseMetadata returns null if type is not supported`() {
         val payload = mapOf(
             "type" to "other_type",
-            "path" to "snippet123/project456"
+            "path" to "project456/snippet123"
         )
 
         val result = parser.parseMetadata(payload)
@@ -78,7 +78,7 @@ class NotificationPayloadParserImplTest {
     fun `parseMetadata ignores unknown fields`() {
         val payload = mapOf(
             "type" to "snippet_push",
-            "path" to "snippet123/project456",
+            "path" to "project456/snippet123",
             "test" to "Title"
         )
 
@@ -93,7 +93,7 @@ class NotificationPayloadParserImplTest {
     fun `parseMetadata returns null if path is invalid`() {
         val payload = mapOf(
             "type" to "snippet_push",
-            "path" to "snippet123" // Not "snippet/project"
+            "path" to "snippet123" // Not "project/snippet"
         )
 
         val result = parser.parseMetadata(payload)
