@@ -18,6 +18,7 @@ package com.thewebsnippet.manager.core
 
 import android.content.Context
 import android.content.Intent
+import android.os.Bundle
 import androidx.core.app.NotificationCompat
 import com.thewebsnippet.manager.R
 import com.thewebsnippet.manager.data.manager.NoOpManager
@@ -121,25 +122,28 @@ object TWSSdk {
     }
 
     /**
-     * Prepares an [Intent] to display a snippet detail screen from a push notification payload.
+     * Creates an [Intent] for displaying the snippet detail screen in response to a notification tap.
      *
-     * Use this method to create an [Intent] that opens [TWSViewPopupActivity] for the snippet and project
-     * specified in the given notification data. This is typically used when you want to launch the SDK's
-     * snippet UI in response to a push notification tap.
+     * This function is intended to be used when handling push notification payloads (for example, from FCM).
+     * It extracts the required fields from the provided [extras] [Bundle], parses them, and—if valid—
+     * constructs an [Intent] that opens [TWSViewPopupActivity] to display the requested snippet.
      *
-     * The returned [Intent] can be passed to PendingIntent.getActivity() and used as the `contentIntent`
-     * in your notification.
-     *
-     * @param context The context used to create the intent.
-     * @param data The notification payload, typically received from FCM or a similar service.
-     *             Must contain `projectId`, `snippetId` and `type` for SDK to recognize and prepare an Intent.
-     * @return An [Intent] to open full screen snippet, or `null` if the payload is invalid or missing required data.
-     *
+     * @param context The context used to construct the intent.
+     * @param extras The push notification payload, usually from FCM. Must include
+     *               `"projectId"`, `"snippetId"`, and `"type"` keys.
+     * @return An [Intent] to open the snippet detail screen, or `null` if the payload is invalid or missing required data.
      */
     fun prepareNotificationIntent(
         context: Context,
-        data: Map<String, String>
+        extras: Bundle
     ): Intent? {
+        val data = extras.keySet()
+            .mapNotNull { key ->
+                extras.getString(key)?.let { value ->
+                    key to value
+                }
+            }.toMap()
+
         return NotificationPayloadParserImpl().parseMetadata(data)?.let {
             TWSViewPopupActivity.createIntent(context, it.snippetId, it.projectId)
         }

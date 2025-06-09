@@ -30,7 +30,7 @@ internal class NotificationPayloadParserImpl(
             if (type !in supportedTypes) return null
 
             val path = data[PAYLOAD_SNIPPET_PATH] ?: return null
-            val (snippetId, projectId) = path.split("/")
+            val (projectId, snippetId) = path.split("/")
 
             if (projectId.isNotBlank() && snippetId.isNotBlank()) {
                 SnippetNotificationMetadata(projectId, snippetId)

@@ -74,16 +74,23 @@ internal class NotificationDisplayImpl(
         historyIntents: List<Intent>
     ): PendingIntent {
         val detailIntent = TWSViewPopupActivity.createIntent(context, snippetId, projectId)
-
-        val stackBuilder = TaskStackBuilder.create(context).apply {
-            historyIntents.forEach { addNextIntent(it) }
-            addNextIntent(detailIntent)
+        return if (historyIntents.isNotEmpty()) {
+            val stackBuilder = TaskStackBuilder.create(context).apply {
+                historyIntents.forEach { addNextIntent(it) }
+                addNextIntent(detailIntent)
+            }
+            stackBuilder.getPendingIntent(
+                0,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            ) ?: error("Should not occur")
+        } else {
+            PendingIntent.getActivity(
+                context,
+                0,
+                detailIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
         }
-
-        return stackBuilder.getPendingIntent(
-            0,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        ) ?: error("Should not occur")
     }
 
     private fun createChannelIfNeeded(manager: NotificationManager) {
