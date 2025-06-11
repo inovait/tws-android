@@ -21,7 +21,6 @@ package com.thewebsnippet.view
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.os.Bundle
 import android.view.ViewGroup.LayoutParams
 import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
@@ -53,6 +52,8 @@ import com.thewebsnippet.view.data.TWSViewNavigator
 import com.thewebsnippet.view.data.TWSViewState
 import com.thewebsnippet.view.data.WebContent
 import com.thewebsnippet.view.data.rememberTWSViewNavigator
+import com.thewebsnippet.view.saver.FileWebViewStateManager
+import com.thewebsnippet.view.saver.WebViewStateManager
 import com.thewebsnippet.view.util.JavaScriptDownloadInterface
 import com.thewebsnippet.view.util.JavaScriptDownloadInterface.Companion.JAVASCRIPT_INTERFACE_NAME
 
@@ -220,12 +221,6 @@ internal fun WebView(
         modifier = modifier,
         onRelease = {
             val wv = state.webView ?: return@AndroidView
-
-            state.viewState = Bundle().apply {
-                wv.saveState(this)
-            }.takeIf { bundle ->
-                !bundle.isEmpty
-            } ?: state.viewState
             state.webView = null
 
             onDispose(wv)
@@ -263,9 +258,8 @@ private fun HandleNavigationEvents(wv: WebView, navigator: TWSViewNavigator, sta
                         TWSLoadingState.Finished
                     }
                 },
-                markErrorCallback = {
-                    state.customErrorsForCurrentRequest.add(it)
-                }
+                markErrorCallback = { state.customErrorsForCurrentRequest.add(it) },
+                saveResolvedUrlCallback = { state.initialLoadedUrl = it }
             )
         }
     }
@@ -350,13 +344,18 @@ private fun createWebView(
     state: TWSViewState,
     onCreated: (WebView) -> Unit,
     client: WebViewClient,
-    chromeClient: WebChromeClient
+    chromeClient: WebChromeClient,
+    stateManager: WebViewStateManager = FileWebViewStateManager()
 ): WebView {
     return WebView(context).apply {
         webChromeClient = chromeClient
         webViewClient = client
 
-        state.viewState?.let { this.restoreState(it) }
+        state.viewStatePath?.let {
+            stateManager.restoreWebViewState(this, it)
+            stateManager.deleteWebViewState(it)
+        }
+
         onCreated(this)
 
         addJavascriptInterface(JavaScriptDownloadInterface(context), JAVASCRIPT_INTERFACE_NAME)

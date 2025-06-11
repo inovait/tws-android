@@ -18,7 +18,7 @@
  */
 package com.thewebsnippet.view.data
 
-import android.os.Bundle
+import android.content.Context
 import android.webkit.WebView
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
@@ -31,7 +31,10 @@ import androidx.compose.runtime.saveable.mapSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.ui.platform.LocalContext
 import com.thewebsnippet.data.TWSSnippet
+import com.thewebsnippet.view.saver.FileWebViewStateManager
+import com.thewebsnippet.view.saver.WebViewStateManager
 
 /**
  * A state holder to hold the state for the WebView.
@@ -64,6 +67,12 @@ class TWSViewState(webContent: WebContent) {
     var content: WebContent by mutableStateOf(webContent)
 
     /**
+     * The URL of the initial page that started loading.
+     */
+    var initialLoadedUrl: String? by mutableStateOf(null)
+        internal set
+
+    /**
      * The title received from the loaded content of the current page
      */
     var title: String? by mutableStateOf(null)
@@ -91,7 +100,7 @@ class TWSViewState(webContent: WebContent) {
      * The saved view state from when the view was destroyed last. To restore state,
      * use the navigator and only call loadUrl if the bundle is null.
      */
-    var viewState: Bundle? = null
+    var viewStatePath: String? = null
         internal set
 
     // We need access to this in the state saver. An internal DisposableEffect or AndroidView
@@ -139,10 +148,10 @@ fun rememberTWSViewState(
 fun rememberSavableTWSViewState(
     vararg inputs: Any?,
     default: TWSSnippet? = null,
-    key: String = ""
+    key: String = default?.id ?: ""
 ): TWSViewState {
     return rememberSaveable(
-        saver = createTWSViewStateSaver(key, default),
+        saver = createTWSViewStateSaver(LocalContext.current, key, default),
         key = key.takeIf { it.isNotEmpty() },
         inputs = inputs
     ) {
@@ -150,28 +159,33 @@ fun rememberSavableTWSViewState(
     }
 }
 
-private fun createTWSViewStateSaver(key: String, default: TWSSnippet?): Saver<TWSViewState, Any> {
+private fun createTWSViewStateSaver(
+    context: Context,
+    key: String,
+    default: TWSSnippet?,
+    stateManager: WebViewStateManager = FileWebViewStateManager()
+): Saver<TWSViewState, Any> {
     val pageTitleKey = "$key:pagetitle"
     val lastLoadedUrlKey = "$key:lastloaded"
-    val stateBundle = "$key:bundle"
+    val bundlePath = "$key:path"
 
     return mapSaver(
         save = { state ->
-            val viewState = Bundle().apply {
-                state.webView?.saveState(this)
-            }.takeIf { !it.isEmpty } ?: state.viewState
+            val storePath = state.webView?.let {
+                stateManager.saveWebViewState(context, it, key)
+            }
 
             mapOf(
                 pageTitleKey to state.title,
                 lastLoadedUrlKey to state.lastLoadedUrl,
-                stateBundle to viewState
+                bundlePath to storePath
             )
         },
         restore = {
             TWSViewState(WebContent.NavigatorOnly(default)).apply {
                 this.title = it[pageTitleKey] as String?
                 this.lastLoadedUrl = it[lastLoadedUrlKey] as String?
-                this.viewState = it[stateBundle] as Bundle?
+                this.viewStatePath = it[bundlePath] as String?
             }
         }
     )

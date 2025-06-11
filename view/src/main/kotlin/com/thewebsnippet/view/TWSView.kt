@@ -41,9 +41,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.util.Consumer
+import com.thewebsnippet.data.TWSAttachment
+import com.thewebsnippet.data.TWSEngine
 import com.thewebsnippet.data.TWSSnippet
+import com.thewebsnippet.view.client.OkHttpTWSWebViewClient
 import com.thewebsnippet.view.client.TWSWebChromeClient
-import com.thewebsnippet.view.client.TWSWebViewClient
 import com.thewebsnippet.view.data.TWSLoadingState
 import com.thewebsnippet.view.data.TWSViewDeepLinkInterceptor
 import com.thewebsnippet.view.data.TWSViewInterceptor
@@ -62,6 +64,12 @@ import com.thewebsnippet.view.util.compose.error.defaultErrorView
 import com.thewebsnippet.view.util.compose.getUserFriendlyMessage
 import com.thewebsnippet.view.util.compose.isRefreshable
 import com.thewebsnippet.view.util.initializeSettings
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.ImmutableMap
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.persistentMapOf
+import kotlinx.collections.immutable.toPersistentList
+import kotlinx.collections.immutable.toPersistentMap
 
 /**
  *
@@ -104,7 +112,7 @@ fun TWSView(
     key(viewState.content) {
         LaunchedEffect(navigator) {
             val content = viewState.content as? WebContent.NavigatorOnly
-            if (viewState.viewState?.isEmpty != false && content?.default != null) {
+            if (viewState.viewStatePath == null && content?.default != null) {
                 // Handle first time load for navigator only state, other loads will be handled with state restoration
                 navigator.loadSnippet(content.default)
             }
@@ -246,7 +254,10 @@ private fun SnippetContentWithPopup(
         popupStateCallback = popupStateCallback,
         isRefreshable = isRefreshable,
         onCreated = onCreated,
-        captureBackPresses = captureBackPresses
+        captureBackPresses = captureBackPresses,
+        dynamicModifiers = target?.dynamicResources?.toPersistentList() ?: persistentListOf(),
+        mustacheProps = target?.props?.toPersistentMap() ?: persistentMapOf(),
+        engine = target?.engine ?: TWSEngine.NONE
     )
 
     popupStates.value.forEach { state ->
@@ -279,11 +290,17 @@ private fun SnippetContentWithLoadingAndError(
     modifier: Modifier = Modifier,
     onCreated: (WebView) -> Unit = {},
     key: String? = null,
+    dynamicModifiers: ImmutableList<TWSAttachment> = persistentListOf(),
+    mustacheProps: ImmutableMap<String, Any> = persistentMapOf(),
+    engine: TWSEngine = TWSEngine.NONE,
 ) {
     // https://github.com/google/accompanist/issues/1326 - WebView settings does not work in compose preview
     val isPreviewMode = LocalInspectionMode.current
     val client = remember(key1 = key) {
-        TWSWebViewClient(
+        OkHttpTWSWebViewClient(
+            dynamicModifiers = dynamicModifiers,
+            mustacheProps = mustacheProps,
+            engine = engine,
             interceptUrlCallback = interceptUrlCallback,
             popupStateCallback = popupStateCallback
         )
