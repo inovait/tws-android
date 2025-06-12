@@ -19,6 +19,7 @@ import util.publishLibrary
 plugins {
     androidLibraryModule
     kotlin("kapt")
+    alias(libs.plugins.compose.compiler)
     alias(libs.plugins.dokka)
     id(libs.plugins.jreleaser.get().pluginId)
 }
@@ -40,6 +41,12 @@ afterEvaluate {
 android {
     namespace = "com.thewebsnippet.manager"
 
+    buildFeatures {
+        compose = true
+        androidResources = true
+        buildConfig = true
+    }
+
     testOptions {
         unitTests.all {
             it.useJUnit()
@@ -55,8 +62,11 @@ publishLibrary(
 
 dependencies {
     api(projects.data)
+    implementation(projects.view)
 
+    implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.core.ktx)
+    implementation(libs.compose.foundation)
     implementation(libs.dispatch)
     implementation(libs.retrofit.moshi)
     implementation(libs.retrofit.scalars)
