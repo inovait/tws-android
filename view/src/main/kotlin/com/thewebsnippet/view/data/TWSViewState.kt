@@ -148,7 +148,7 @@ fun rememberTWSViewState(
 fun rememberSavableTWSViewState(
     vararg inputs: Any?,
     default: TWSSnippet? = null,
-    key: String = default?.id ?: ""
+    key: String = default?.id.orEmpty()
 ): TWSViewState {
     return rememberSaveable(
         saver = createTWSViewStateSaver(LocalContext.current, key, default),
