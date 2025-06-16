@@ -41,6 +41,8 @@ internal fun WebView.initializeSettings() {
         cacheMode = WebSettings.LOAD_DEFAULT
         mediaPlaybackRequiresUserGesture = false
         setGeolocationEnabled(true)
-        userAgentString = "$userAgentString TheWebSnippet"
+        userAgentString = userAgentString.toTWSUserAgent()
     }
 }
+
+internal fun String.toTWSUserAgent() = "$this TheWebSnippet"

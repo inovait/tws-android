@@ -19,14 +19,11 @@ package com.thewebsnippet.view
 import android.content.Context
 import android.webkit.CookieManager
 import androidx.test.platform.app.InstrumentationRegistry
-import com.thewebsnippet.data.TWSAttachment
-import com.thewebsnippet.data.TWSEngine
 import com.thewebsnippet.data.TWSSnippet
 import com.thewebsnippet.view.client.okhttp.cookie.CookieSaverImpl
 import com.thewebsnippet.view.client.okhttp.web.RedirectHandlerImpl
 import com.thewebsnippet.view.client.okhttp.web.SnippetWebLoaderImpl
 import com.thewebsnippet.view.client.okhttp.web.webViewHttpClient
-import com.thewebsnippet.view.util.modifier.HtmlModifierHelper
 import kotlinx.coroutines.test.runTest
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -57,8 +54,7 @@ class SnippetWebLoaderImplTest {
                     client = webViewHttpClient(context),
                     cookieSaver = CookieSaverImpl(cookieManager)
                 )
-            },
-            htmlModifier = FakeHtmlModifierHelper()
+            }
         )
     }
 
@@ -113,16 +109,5 @@ class SnippetWebLoaderImplTest {
 
         // Assert that cookie has been synced with web views cookie store
         assert(cookieManager.getCookie(baseUrl).contains("test_cookie=test_value"))
-    }
-}
-
-class FakeHtmlModifierHelper : HtmlModifierHelper {
-    override fun modifyContent(
-        htmlContent: String,
-        dynamicModifiers: List<TWSAttachment>,
-        mustacheProps: Map<String, Any>,
-        engine: TWSEngine?
-    ): String {
-        return htmlContent
     }
 }

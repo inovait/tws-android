@@ -136,7 +136,8 @@ class TWSViewNavigator(
     @OptIn(ExperimentalCoroutinesApi::class)
     internal suspend fun WebView.handleNavigationEvents(
         markLoadingCallback: (Boolean) -> Unit,
-        markErrorCallback: (Exception) -> Unit
+        markErrorCallback: (Exception) -> Unit,
+        saveResolvedUrlCallback: (String) -> Unit
     ): Nothing = withContext(Dispatchers.Main) {
         navigationEvents.collect { event ->
             when (event) {
@@ -174,13 +175,8 @@ class TWSViewNavigator(
 
                     try {
                         val response = snippetLoader.response(event.snippet)
-                        loadDataWithBaseURL(
-                            response.url,
-                            response.html,
-                            response.mimeType,
-                            response.encode,
-                            response.url
-                        )
+                        saveResolvedUrlCallback(response.url)
+                        loadUrl(response.url)
                     } catch (e: Exception) {
                         markLoadingCallback(false)
                         markErrorCallback(e)

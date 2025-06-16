@@ -14,14 +14,13 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.thewebsnippet.view.data
+package com.thewebsnippet.view.saver
 
-/**
- * Represents the result of loading and transforming a web snippet,
- * including the final URL and content metadata.
- *
- * @property url The final resolved URL after redirects.
- */
-data class ResponseMetaData(
-    val url: String
-)
+import android.content.Context
+import android.webkit.WebView
+
+internal interface WebViewStateManager {
+    fun saveWebViewState(context: Context, webView: WebView, key: String): String?
+    fun restoreWebViewState(webView: WebView, path: String): Boolean
+    fun deleteWebViewState(path: String)
+}

@@ -18,10 +18,13 @@ package com.thewebsnippet.view.client.okhttp.web
 
 import android.content.Context
 import android.webkit.CookieManager
+import android.webkit.WebSettings
 import com.thewebsnippet.view.client.okhttp.GlobalOkHttpDiskCacheManager
 import com.thewebsnippet.view.client.okhttp.cookie.SharedCookieJar
 import com.thewebsnippet.view.client.okhttp.provideErrorReporter
+import com.thewebsnippet.view.util.toTWSUserAgent
 import jakarta.inject.Singleton
+import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 
 @Singleton
@@ -33,10 +36,19 @@ internal fun webViewHttpClient(context: Context): OkHttpClient {
     val manager = GlobalOkHttpDiskCacheManager(context, provideErrorReporter)
     val cookieManager = CookieManager.getInstance()
 
+    val userAgentInterceptor = Interceptor { chain ->
+        val originalRequest = chain.request()
+        val requestWithUserAgent = originalRequest.newBuilder()
+            .header("User-Agent", WebSettings.getDefaultUserAgent(context).toTWSUserAgent())
+            .build()
+        chain.proceed(requestWithUserAgent)
+    }
+
     return OkHttpClient.Builder()
         .cache(manager.cache)
         .cookieJar(SharedCookieJar(cookieManager))
         .followRedirects(false) // followed manually, we need that to be able to sync cookies with extensions from redirects
         .followSslRedirects(false)
+        .addInterceptor(userAgentInterceptor)
         .build()
 }
