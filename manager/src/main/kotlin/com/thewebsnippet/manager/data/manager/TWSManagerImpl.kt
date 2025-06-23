@@ -149,11 +149,18 @@ internal class TWSManagerImpl(
         }
     }
 
+    /**
+     * Logs a user-defined event and fetches campaign-based snippets from the backend.
+     * If the backend returns any matching campaign snippets, all are displayed immediately
+     * using a popup UI ([TWSViewPopupActivity]).
+     *
+     *
+     * @param event The name of the event to log and use for campaign targeting.
+     */
     override fun logEvent(event: String) {
         launch {
             val snippetsToDisplay = remoteCampaignLoader?.logEventAndGetCampaignSnippets(event).orEmpty()
-
-            snippetsToDisplay.take(1).forEach {
+            snippetsToDisplay.forEach {
                 val intent = TWSViewPopupActivity.createIntent(context, it.id, it.projectId).apply {
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 }
