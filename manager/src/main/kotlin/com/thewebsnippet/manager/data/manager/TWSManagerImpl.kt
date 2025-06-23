@@ -16,7 +16,6 @@
 package com.thewebsnippet.manager.data.manager
 
 import android.content.Context
-import android.content.Intent
 import com.thewebsnippet.manager.domain.datasource.CacheManager
 import com.thewebsnippet.manager.data.datasource.FileCacheManager
 import com.thewebsnippet.manager.core.TWSConfiguration
@@ -34,9 +33,11 @@ import com.thewebsnippet.manager.data.datasource.SnippetLoadingManagerImpl
 import com.thewebsnippet.manager.domain.connectivity.NetworkConnectivityService
 import com.thewebsnippet.manager.data.connectivity.NetworkConnectivityServiceImpl
 import com.thewebsnippet.manager.data.datasource.RemoteCampaignLoaderImpl
+import com.thewebsnippet.manager.data.intent.PopupIntentLauncher
 import com.thewebsnippet.manager.domain.websocket.TWSSocket
 import com.thewebsnippet.manager.data.websocket.TWSSocketImpl
 import com.thewebsnippet.manager.domain.datasource.RemoteCampaignLoader
+import com.thewebsnippet.manager.domain.intent.IntentLauncher
 import com.thewebsnippet.manager.ui.TWSViewPopupActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -74,6 +75,7 @@ import kotlin.time.Duration.Companion.seconds
  * @param localSnippetUpdater An optional handler for local snippet-related updates (e.g., visibility changes).
  * @param remoteCampaignLoader An optional loader for retrieving remote campaign-related snippets.
  * @param networkConnectivityService An optional service for observing network connectivity status.
+ * @param popupLauncher An abstraction used to launch UIs for displaying campaign snippets.
  */
 internal class TWSManagerImpl(
     private val context: Context,
@@ -85,7 +87,8 @@ internal class TWSManagerImpl(
     private val remoteSnippetUpdater: TWSSocket? = TWSSocketImpl(scope),
     private val localSnippetUpdater: LocalSnippetHandler? = LocalSnippetHandlerImpl(scope),
     private val remoteCampaignLoader: RemoteCampaignLoader? = RemoteCampaignLoaderImpl(context, configuration),
-    private val networkConnectivityService: NetworkConnectivityService? = NetworkConnectivityServiceImpl(context)
+    private val networkConnectivityService: NetworkConnectivityService? = NetworkConnectivityServiceImpl(context),
+    private val popupLauncher: IntentLauncher = PopupIntentLauncher(context)
 ) : TWSManager, CoroutineScope by scope {
 
     private var isRegistered: Boolean = false
@@ -161,10 +164,7 @@ internal class TWSManagerImpl(
         launch {
             val snippetsToDisplay = remoteCampaignLoader?.logEventAndGetCampaignSnippets(event).orEmpty()
             snippetsToDisplay.forEach {
-                val intent = TWSViewPopupActivity.createIntent(context, it.id, it.projectId).apply {
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                }
-                context.startActivity(intent)
+                popupLauncher.launchPopup(it.id, it.projectId)
             }
         }
     }
