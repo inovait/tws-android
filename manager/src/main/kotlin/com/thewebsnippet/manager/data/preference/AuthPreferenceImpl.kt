@@ -16,10 +16,12 @@
 
 package com.thewebsnippet.manager.data.preference
 
+import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
 import com.thewebsnippet.manager.domain.preference.AuthPreference
 import com.thewebsnippet.manager.domain.preference.TWSBuild
 import kotlinx.coroutines.CoroutineScope
@@ -96,5 +98,8 @@ internal class AuthPreferenceImpl(
         val DATASTORE_JWT = stringPreferencesKey("jwt")
         val DATASTORE_REFRESH_TOKEN = stringPreferencesKey("refreshToken")
         val DATASTORE_ACCESS_TOKEN = stringPreferencesKey("accessToken")
+
+        private const val DATASTORE_NAME = "authPreferences"
+        val Context.authPreferences: DataStore<Preferences> by preferencesDataStore(name = DATASTORE_NAME)
     }
 }

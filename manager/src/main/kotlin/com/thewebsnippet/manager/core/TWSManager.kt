@@ -66,4 +66,6 @@ interface TWSManager {
      * @param localProps A map of properties to associate with the snippet.
      */
     fun set(id: String, localProps: Map<String, Any>)
+
+    fun logEvent(event: String)
 }

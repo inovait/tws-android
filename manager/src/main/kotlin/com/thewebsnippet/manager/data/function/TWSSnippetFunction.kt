@@ -15,12 +15,16 @@
  */
 package com.thewebsnippet.manager.data.function
 
+import com.thewebsnippet.manager.domain.model.CampaignResponse
+import com.thewebsnippet.manager.domain.model.EventBody
 import com.thewebsnippet.manager.domain.model.ProjectDto
 import com.thewebsnippet.manager.domain.model.SharedSnippetDto
 import jakarta.inject.Singleton
 import retrofit2.Response
+import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Headers
+import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -44,4 +48,10 @@ internal interface TWSSnippetFunction {
         @Query("shareToken")
         shareToken: String
     ): Response<ProjectDto>
+
+    @POST("projects/{projectId}/events")
+    suspend fun logEventAndGetCampaignSnippets(
+        @Path("projectId") projectId: String,
+        @Body eventBody: EventBody
+    ): CampaignResponse
 }

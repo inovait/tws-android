@@ -25,10 +25,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.thewebsnippet.data.TWSSnippet
-import com.thewebsnippet.manager.core.TWSConfiguration
 import com.thewebsnippet.manager.core.TWSFactory
 import com.thewebsnippet.manager.core.TWSOutcome
 import com.thewebsnippet.manager.core.mapData
@@ -51,18 +49,21 @@ internal class TWSViewPopupActivity : ComponentActivity() {
         }
 
         setContent {
-            val context = LocalContext.current
-
             val manager = remember {
-                TWSFactory.get(context, TWSConfiguration.Basic(projectId = projectId))
+                TWSFactory.get(projectId)
             }
 
-            val pushSnippetOutcome = manager.snippets
-                .collectAsStateWithLifecycle(TWSOutcome.Progress())
-                .value
-                .mapData { list -> list.find { it.id == snippetId } }
+            if (manager != null) {
+                val pushSnippetOutcome = manager.snippets
+                    .collectAsStateWithLifecycle(TWSOutcome.Progress())
+                    .value
+                    .mapData { list -> list.find { it.id == snippetId } }
 
-            SnippetPopupScreen(pushSnippetOutcome)
+                SnippetPopupScreen(pushSnippetOutcome)
+            } else {
+                // display custom error?
+                finish()
+            }
         }
     }
 

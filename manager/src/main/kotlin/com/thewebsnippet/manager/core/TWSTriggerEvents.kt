@@ -14,35 +14,8 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.thewebsnippet.manager.data.manager
+package com.thewebsnippet.manager.core
 
-import com.thewebsnippet.data.TWSSnippet
-import com.thewebsnippet.manager.core.TWSManager
-import com.thewebsnippet.manager.core.TWSOutcome
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
-
-internal class NoOpManager : TWSManager {
-    override val snippets: Flow<TWSOutcome<List<TWSSnippet>>>
-        get() = flowOf(TWSOutcome.Success(emptyList()))
-
-    override fun snippets(): Flow<List<TWSSnippet>?> {
-        return flowOf(emptyList())
-    }
-
-    override fun forceRefresh() {
-        // No operation
-    }
-
-    override fun register() {
-        // No operation
-    }
-
-    override fun set(id: String, localProps: Map<String, Any>) {
-        // No operation
-    }
-
-    override fun logEvent(event: String) {
-        // No operation
-    }
+object TWSTriggerEvents {
+    const val SDK_INIT = "sdkInitialize"
 }

@@ -119,6 +119,7 @@ object TWSFactory {
         tag: String,
         configuration: TWSConfiguration
     ): TWSManager {
+        val appContext = context.applicationContext
         val existingInstance = instances[tag]?.get()
 
         return if (existingInstance != null) {
@@ -127,7 +128,7 @@ object TWSFactory {
             TWSBuildImpl.safeInit(context)
 
             val newInstance = TWSManagerImpl(
-                context = context,
+                context = appContext,
                 tag = tag,
                 configuration = configuration
             )

@@ -765,11 +765,11 @@ class TWSManagerImplTest {
             context = context ?: mock(),
             tag = tag ?: "TestManager",
             configuration = configuration ?: TWSConfiguration.Basic("project"),
-            loader = loader ?: fakeLoader,
+            remoteSnippetLoader = loader ?: fakeLoader,
             scope = scope ?: fakeScope.backgroundScope,
-            twsSocket = twsSocket ?: fakeSocket,
-            localSnippetHandler = localSnippetHandler ?: fakeHandler,
-            cacheManager = cacheManager ?: fakeCache,
+            remoteSnippetUpdater = twsSocket ?: fakeSocket,
+            localSnippetUpdater = localSnippetHandler ?: fakeHandler,
+            cacheSnippetLoader = cacheManager ?: fakeCache,
             networkConnectivityService = networkConnectivityService ?: fakeNetworkConnectivityService
         ).also {
             it.register()
