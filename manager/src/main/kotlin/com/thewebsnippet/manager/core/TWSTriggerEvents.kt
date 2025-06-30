@@ -17,5 +17,5 @@
 package com.thewebsnippet.manager.core
 
 object TWSTriggerEvents {
-    const val SDK_INIT = "sdkInitialize"
+    const val SDK_INIT = "sdk_init"
 }
