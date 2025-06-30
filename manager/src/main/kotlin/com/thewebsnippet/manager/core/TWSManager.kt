@@ -66,4 +66,13 @@ interface TWSManager {
      * @param localProps A map of properties to associate with the snippet.
      */
     fun set(id: String, localProps: Map<String, Any>)
+
+    /**
+     * Logs a user-defined event and fetches campaign-based snippets from the backend.
+     * If the backend returns any matching campaign snippets, all are displayed immediately
+     * using a popup UI.
+     *
+     * @param event The name of the event to log and use for campaign targeting.
+     */
+    fun logEvent(event: String)
 }

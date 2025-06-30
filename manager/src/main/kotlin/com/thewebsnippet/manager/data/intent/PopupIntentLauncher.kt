@@ -14,35 +14,20 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.thewebsnippet.manager.data.manager
+package com.thewebsnippet.manager.data.intent
 
-import com.thewebsnippet.data.TWSSnippet
-import com.thewebsnippet.manager.core.TWSManager
-import com.thewebsnippet.manager.core.TWSOutcome
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
+import android.content.Context
+import android.content.Intent
+import com.thewebsnippet.manager.domain.intent.IntentLauncher
+import com.thewebsnippet.manager.domain.model.TWSSnippetDto
+import com.thewebsnippet.manager.domain.model.toTWSSnippet
+import com.thewebsnippet.manager.ui.TWSViewPopupActivity
 
-internal class NoOpManager : TWSManager {
-    override val snippets: Flow<TWSOutcome<List<TWSSnippet>>>
-        get() = flowOf(TWSOutcome.Success(emptyList()))
-
-    override fun snippets(): Flow<List<TWSSnippet>?> {
-        return flowOf(emptyList())
-    }
-
-    override fun forceRefresh() {
-        // No operation
-    }
-
-    override fun register() {
-        // No operation
-    }
-
-    override fun set(id: String, localProps: Map<String, Any>) {
-        // No operation
-    }
-
-    override fun logEvent(event: String) {
-        // No operation
+internal class PopupIntentLauncher(private val context: Context) : IntentLauncher {
+    override fun launchPopup(snippet: TWSSnippetDto) {
+        val intent = TWSViewPopupActivity.createIntent(context, snippet.toTWSSnippet(emptyMap())).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        context.startActivity(intent)
     }
 }

@@ -18,6 +18,9 @@ package com.thewebsnippet.manager.fakes.function
 import com.thewebsnippet.manager.domain.model.ProjectDto
 import com.thewebsnippet.manager.domain.model.SharedSnippetDto
 import com.thewebsnippet.manager.data.function.TWSSnippetFunction
+import com.thewebsnippet.manager.domain.model.CampaignResponse
+import com.thewebsnippet.manager.domain.model.EventBody
+import com.thewebsnippet.manager.domain.model.TWSSnippetDto
 import com.thewebsnippet.manager.utils.FakeService
 import com.thewebsnippet.manager.utils.ServiceTestingHelper
 import retrofit2.Response
@@ -27,6 +30,7 @@ internal class FakeTWSSnippetFunction(
 ) : TWSSnippetFunction, FakeService by helper {
     var returnedProject: Response<ProjectDto>? = null
     var returnedSharedSnippet: SharedSnippetDto? = null
+    var returnedSnippetsForTrigger: Map<String, List<TWSSnippetDto>> = emptyMap()
 
     override suspend fun getWebSnippets(projectId: String): Response<ProjectDto> {
         helper.intercept()
@@ -44,5 +48,9 @@ internal class FakeTWSSnippetFunction(
         helper.intercept()
 
         return returnedProject ?: error("Returned project not faked!")
+    }
+
+    override suspend fun logEventAndGetCampaignSnippets(projectId: String, eventBody: EventBody): CampaignResponse {
+        return CampaignResponse(snippets = returnedSnippetsForTrigger[eventBody.event].orEmpty())
     }
 }

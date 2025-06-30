@@ -32,8 +32,13 @@ import com.thewebsnippet.manager.domain.datasource.SnippetLoadingManager
 import com.thewebsnippet.manager.data.datasource.SnippetLoadingManagerImpl
 import com.thewebsnippet.manager.domain.connectivity.NetworkConnectivityService
 import com.thewebsnippet.manager.data.connectivity.NetworkConnectivityServiceImpl
+import com.thewebsnippet.manager.data.datasource.RemoteCampaignLoaderImpl
+import com.thewebsnippet.manager.data.intent.PopupIntentLauncher
 import com.thewebsnippet.manager.domain.websocket.TWSSocket
 import com.thewebsnippet.manager.data.websocket.TWSSocketImpl
+import com.thewebsnippet.manager.domain.datasource.RemoteCampaignLoader
+import com.thewebsnippet.manager.domain.intent.IntentLauncher
+import com.thewebsnippet.manager.ui.TWSViewPopupActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -56,30 +61,34 @@ import java.time.Instant
 import kotlin.time.Duration.Companion.seconds
 
 /**
- * An implementation of [TWSManager] that manages snippets, their loading, caching, and live updates.
- * It integrates WebSocket connections, local snippet handler, and network connectivity to ensure
- * snippets are always up-to-date and react to changes dynamically.
+ * An implementation of [TWSManager] responsible for managing snippets, including their loading,
+ * caching, and live updates. It integrates WebSocket connections, local snippet handlers, and
+ * network connectivity monitoring to ensure that snippets remain up-to-date and responsive to changes.
  *
  * @param context The application context, used for cache management and connectivity services.
- * @param tag A unique tag used for cache management and identification.
- * @param configuration The configuration for the manager, defining source of the snippets.
- * @param scope A [CoroutineScope] used for asynchronous operations and lifecycle management.
- * @param loader A [SnippetLoadingManager] responsible for loading snippets from a remote source.
- * @param twsSocket An optional WebSocket connection to receive live updates.
- * @param localSnippetHandler An optional handler for local snippet updates, like visibility changes.
- * @param cacheManager An optional cache manager to handle snippet caching.
- * @param networkConnectivityService An optional service to monitor network connectivity changes.
+ * @param tag A unique identifier used for cache namespacing and internal logging.
+ * @param configuration Configuration settings defining the source and behavior of snippet management.
+ * @param scope A [CoroutineScope] used for running asynchronous tasks and managing their lifecycle.
+ * @param remoteSnippetLoader A [SnippetLoadingManager] that fetches snippets from a remote source.
+ * @param cacheSnippetLoader An optional cache manager that retrieves and stores snippets locally.
+ * @param remoteSnippetUpdater An optional WebSocket-based updater for receiving live snippet updates.
+ * @param localSnippetUpdater An optional handler for local snippet-related updates (e.g., visibility changes).
+ * @param remoteCampaignLoader An optional loader for retrieving remote campaign-related snippets.
+ * @param networkConnectivityService An optional service for observing network connectivity status.
+ * @param popupLauncher An abstraction used to launch UIs for displaying campaign snippets.
  */
 internal class TWSManagerImpl(
-    context: Context,
+    private val context: Context,
     tag: String = "",
     private val configuration: TWSConfiguration,
     scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO),
-    private val loader: SnippetLoadingManager = SnippetLoadingManagerImpl(context, configuration),
-    private val twsSocket: TWSSocket? = TWSSocketImpl(scope),
-    private val localSnippetHandler: LocalSnippetHandler? = LocalSnippetHandlerImpl(scope),
-    private val cacheManager: CacheManager? = FileCacheManager(context, tag),
-    private val networkConnectivityService: NetworkConnectivityService? = NetworkConnectivityServiceImpl(context)
+    private val remoteSnippetLoader: SnippetLoadingManager = SnippetLoadingManagerImpl(context, configuration),
+    private val cacheSnippetLoader: CacheManager? = FileCacheManager(context, tag),
+    private val remoteSnippetUpdater: TWSSocket? = TWSSocketImpl(scope),
+    private val localSnippetUpdater: LocalSnippetHandler? = LocalSnippetHandlerImpl(scope),
+    private val remoteCampaignLoader: RemoteCampaignLoader? = RemoteCampaignLoaderImpl(context, configuration),
+    private val networkConnectivityService: NetworkConnectivityService? = NetworkConnectivityServiceImpl(context),
+    private val popupLauncher: IntentLauncher = PopupIntentLauncher(context)
 ) : TWSManager, CoroutineScope by scope {
 
     private var isRegistered: Boolean = false
@@ -126,19 +135,35 @@ internal class TWSManagerImpl(
     override fun forceRefresh() {
         launch {
             try {
-                _snippetsFlow.emit(TWSOutcome.Progress(cacheManager?.load(CACHED_SNIPPETS)))
+                _snippetsFlow.emit(TWSOutcome.Progress(cacheSnippetLoader?.load(CACHED_SNIPPETS)))
 
-                val response = loader.load()
+                val response = remoteSnippetLoader.load()
                 val project = response.project
 
                 _snippetsFlow.emit(TWSOutcome.Success(project.snippets))
 
                 saveToCache(project.snippets)
 
-                twsSocket?.launchAndCollect(project.listenOn)
-                localSnippetHandler?.launchAndCollect(response.responseDate, project.snippets)
+                remoteSnippetUpdater?.launchAndCollect(project.listenOn)
+                localSnippetUpdater?.launchAndCollect(response.responseDate, project.snippets)
             } catch (e: Exception) {
                 _snippetsFlow.emit(TWSOutcome.Error(e, _snippetsFlow.value?.data))
+            }
+        }
+    }
+
+    /**
+     * Logs a user-defined event and fetches campaign-based snippets from the backend.
+     * If the backend returns any matching campaign snippets, all are displayed immediately
+     * using a popup UI ([TWSViewPopupActivity]).
+     *
+     * @param event The name of the event to log and use for campaign targeting.
+     */
+    override fun logEvent(event: String) {
+        launch {
+            val snippetsToDisplay = remoteCampaignLoader?.logEventAndGetCampaignSnippets(event).orEmpty()
+            snippetsToDisplay.forEach {
+                popupLauncher.launchPopup(it)
             }
         }
     }
@@ -157,7 +182,7 @@ internal class TWSManagerImpl(
     }
 
     private fun saveToCache(snippets: List<TWSSnippetDto>) = launch {
-        cacheManager?.save(CACHED_SNIPPETS, snippets)
+        cacheSnippetLoader?.save(CACHED_SNIPPETS, snippets)
     }
 
     private fun loadProjectAndSnippets() {
@@ -171,8 +196,8 @@ internal class TWSManagerImpl(
     }
 
     private fun cancelCollecting() {
-        localSnippetHandler?.release()
-        twsSocket?.closeWebsocketConnection()
+        localSnippetUpdater?.release()
+        remoteSnippetUpdater?.closeWebsocketConnection()
 
         // stop collecting network status
         networkStatusJob?.cancel()
@@ -189,7 +214,7 @@ internal class TWSManagerImpl(
         updateActionFlow.onEach {
             val newList = _snippetsFlow.value?.data.orEmpty().updateWith(it)
 
-            localSnippetHandler?.updateAndScheduleCheck(newList)
+            localSnippetUpdater?.updateAndScheduleCheck(newList)
             _snippetsFlow.emit(TWSOutcome.Success(newList))
             saveToCache(newList)
         }.launchIn(this@TWSManagerImpl).invokeOnCompletion {
@@ -228,7 +253,7 @@ internal class TWSManagerImpl(
 
                 when (it) {
                     is NetworkStatus.Connected -> forceRefresh()
-                    is NetworkStatus.Disconnected -> twsSocket?.closeWebsocketConnection()
+                    is NetworkStatus.Disconnected -> remoteSnippetUpdater?.closeWebsocketConnection()
                 }
             }
         }

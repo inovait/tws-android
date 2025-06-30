@@ -14,35 +14,15 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.thewebsnippet.manager.data.manager
+package com.thewebsnippet.manager.fakes
 
-import com.thewebsnippet.data.TWSSnippet
-import com.thewebsnippet.manager.core.TWSManager
-import com.thewebsnippet.manager.core.TWSOutcome
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
+import com.thewebsnippet.manager.domain.intent.IntentLauncher
+import com.thewebsnippet.manager.domain.model.TWSSnippetDto
 
-internal class NoOpManager : TWSManager {
-    override val snippets: Flow<TWSOutcome<List<TWSSnippet>>>
-        get() = flowOf(TWSOutcome.Success(emptyList()))
+internal class FakeIntentLauncher : IntentLauncher {
+    val launchedPopups = mutableListOf<TWSSnippetDto>()
 
-    override fun snippets(): Flow<List<TWSSnippet>?> {
-        return flowOf(emptyList())
-    }
-
-    override fun forceRefresh() {
-        // No operation
-    }
-
-    override fun register() {
-        // No operation
-    }
-
-    override fun set(id: String, localProps: Map<String, Any>) {
-        // No operation
-    }
-
-    override fun logEvent(event: String) {
-        // No operation
+    override fun launchPopup(snippet: TWSSnippetDto) {
+        launchedPopups.add(snippet)
     }
 }

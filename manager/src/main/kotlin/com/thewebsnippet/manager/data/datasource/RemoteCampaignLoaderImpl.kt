@@ -17,44 +17,41 @@
 package com.thewebsnippet.manager.data.datasource
 
 import android.content.Context
+import android.util.Log
 import com.thewebsnippet.manager.core.TWSConfiguration
 import com.thewebsnippet.manager.data.auth.AuthLoginManagerImpl
-import com.thewebsnippet.manager.domain.datasource.SnippetLoadingManager
-import com.thewebsnippet.manager.domain.model.ProjectResponse
 import com.thewebsnippet.manager.data.factory.BaseServiceFactory
 import com.thewebsnippet.manager.data.factory.create
 import com.thewebsnippet.manager.data.function.TWSSnippetFunction
 import com.thewebsnippet.manager.data.preference.AuthPreferenceImpl
 import com.thewebsnippet.manager.data.preference.AuthPreferenceImpl.Companion.authPreferences
-import java.time.Instant
+import com.thewebsnippet.manager.domain.datasource.RemoteCampaignLoader
+import com.thewebsnippet.manager.domain.model.EventBody
+import com.thewebsnippet.manager.domain.model.TWSSnippetDto
 
-internal class SnippetLoadingManagerImpl(
+internal class RemoteCampaignLoaderImpl(
     context: Context,
     private val configuration: TWSConfiguration,
     private val functions: TWSSnippetFunction = BaseServiceFactory(
         AuthLoginManagerImpl(AuthPreferenceImpl(context.authPreferences))
     ).create()
-) : SnippetLoadingManager {
+) : RemoteCampaignLoader {
 
-    override suspend fun load(): ProjectResponse {
-        val twsProjectResponse = when (configuration) {
-            is TWSConfiguration.Basic -> {
-                functions.getWebSnippets(projectId = configuration.projectId)
-            }
+    override suspend fun logEventAndGetCampaignSnippets(
+        name: String
+    ): List<TWSSnippetDto> {
+        return try {
+            val projectId = (configuration as? TWSConfiguration.Basic)?.projectId
+                ?: return emptyList()
+            val snippets = functions.logEventAndGetCampaignSnippets(
+                projectId,
+                EventBody(event = name)
+            ).snippets
 
-            is TWSConfiguration.Shared -> {
-                val sharedSnippet = functions.getSharedSnippetToken(configuration.sharedId)
-                functions.getSharedSnippetData(sharedSnippet.shareToken)
-            }
+            snippets
+        } catch (e: Exception) {
+            Log.e("RemoteCampaignLoaderImpl", "Error logging event", e)
+            emptyList()
         }
-
-        return ProjectResponse(
-            twsProjectResponse.body() ?: error("Body not available"),
-            twsProjectResponse.headers().getDate(HEADER_DATE)?.toInstant() ?: Instant.now()
-        )
-    }
-
-    companion object {
-        private const val HEADER_DATE = "date"
     }
 }

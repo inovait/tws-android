@@ -76,6 +76,7 @@ object TWSSdk {
         } ?: TWSFactory.get(context)
 
         manager.register()
+        manager.logEvent(TWSTriggerEvents.SDK_INIT)
     }
 
     /**
