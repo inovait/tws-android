@@ -41,7 +41,10 @@ internal class TWSViewPopupActivity : ComponentActivity() {
         val projectId = intent.getStringExtra(EXTRA_PROJECT_ID)
         val snippetId = intent.getStringExtra(EXTRA_SNIPPET_ID)
 
-        if (projectId.isNullOrBlank() || snippetId.isNullOrBlank()) {
+        @Suppress("DEPRECATION")
+        val snippet = intent.getParcelableExtra<TWSSnippet>(EXTRA_CAMPAIGN_SNIPPET)
+
+        if ((projectId.isNullOrBlank() || snippetId.isNullOrBlank()) && snippet == null) {
             // both values are required
 
             finish()
@@ -49,21 +52,33 @@ internal class TWSViewPopupActivity : ComponentActivity() {
         }
 
         setContent {
-            val manager = remember {
-                TWSFactory.get(projectId)
+            if (snippet != null) {
+                TWSView(
+                    modifier = Modifier.fillMaxSize(),
+                    snippet = snippet
+                )
+            } else if (projectId != null && snippetId != null) {
+                ContentWithManager(projectId, snippetId)
             }
+        }
+    }
 
-            if (manager != null) {
-                val pushSnippetOutcome = manager.snippets
-                    .collectAsStateWithLifecycle(TWSOutcome.Progress())
-                    .value
-                    .mapData { list -> list.find { it.id == snippetId } }
+    @Composable
+    private fun ContentWithManager(projectId: String, snippetId: String) {
+        val manager = remember {
+            TWSFactory.get(projectId)
+        }
 
-                SnippetPopupScreen(pushSnippetOutcome)
-            } else {
-                // display custom error?
-                finish()
-            }
+        if (manager != null) {
+            val pushSnippetOutcome = manager.snippets
+                .collectAsStateWithLifecycle(TWSOutcome.Progress())
+                .value
+                .mapData { list -> list.find { it.id == snippetId } }
+
+            SnippetPopupScreen(pushSnippetOutcome)
+        } else {
+            // display custom error?
+            finish()
         }
     }
 
@@ -103,7 +118,14 @@ internal class TWSViewPopupActivity : ComponentActivity() {
             }
         }
 
+        internal fun createIntent(context: Context, snippet: TWSSnippet): Intent {
+            return Intent(context, TWSViewPopupActivity::class.java).apply {
+                putExtra(EXTRA_CAMPAIGN_SNIPPET, snippet)
+            }
+        }
+
         private const val EXTRA_SNIPPET_ID = "extra_snippet_id"
         private const val EXTRA_PROJECT_ID = "extra_project_id"
+        private const val EXTRA_CAMPAIGN_SNIPPET = "extra_campaign_snippet"
     }
 }

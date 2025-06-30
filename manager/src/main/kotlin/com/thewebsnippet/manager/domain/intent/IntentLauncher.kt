@@ -16,6 +16,8 @@
 
 package com.thewebsnippet.manager.domain.intent
 
+import com.thewebsnippet.manager.domain.model.TWSSnippetDto
+
 internal interface IntentLauncher {
-    fun launchPopup(snippetId: String, projectId: String)
+    fun launchPopup(snippet: TWSSnippetDto)
 }

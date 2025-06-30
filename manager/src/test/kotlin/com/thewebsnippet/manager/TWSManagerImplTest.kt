@@ -764,7 +764,7 @@ class TWSManagerImplTest {
         runCurrent()
 
         assert(fakeIntentLauncher.launchedPopups.size == 1)
-        assert(fakeIntentLauncher.launchedPopups.first() == Pair(FAKE_SNIPPET_ONE.id, FAKE_SNIPPET_ONE.projectId))
+        assert(fakeIntentLauncher.launchedPopups.first() == FAKE_SNIPPET_ONE)
     }
 
     @Test
@@ -774,13 +774,7 @@ class TWSManagerImplTest {
         webSnippetManager.logEvent("test")
         runCurrent()
 
-        val expected = listOf(
-            Pair(FAKE_SNIPPET_ONE.id, FAKE_SNIPPET_ONE.projectId),
-            Pair(FAKE_SNIPPET_TWO.id, FAKE_SNIPPET_TWO.projectId),
-            Pair(FAKE_SNIPPET_THREE.id, FAKE_SNIPPET_THREE.projectId)
-        )
-
-        assert(fakeIntentLauncher.launchedPopups == expected)
+        assert(fakeIntentLauncher.launchedPopups == listOf(FAKE_SNIPPET_ONE, FAKE_SNIPPET_TWO, FAKE_SNIPPET_THREE))
     }
 
     private fun copyTWSManagerImpl(

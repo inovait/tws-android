@@ -19,11 +19,13 @@ package com.thewebsnippet.manager.data.intent
 import android.content.Context
 import android.content.Intent
 import com.thewebsnippet.manager.domain.intent.IntentLauncher
+import com.thewebsnippet.manager.domain.model.TWSSnippetDto
+import com.thewebsnippet.manager.domain.model.toTWSSnippet
 import com.thewebsnippet.manager.ui.TWSViewPopupActivity
 
 internal class PopupIntentLauncher(private val context: Context) : IntentLauncher {
-    override fun launchPopup(snippetId: String, projectId: String) {
-        val intent = TWSViewPopupActivity.createIntent(context, snippetId, projectId).apply {
+    override fun launchPopup(snippet: TWSSnippetDto) {
+        val intent = TWSViewPopupActivity.createIntent(context, snippet.toTWSSnippet(emptyMap())).apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
         context.startActivity(intent)

@@ -17,11 +17,12 @@
 package com.thewebsnippet.manager.fakes
 
 import com.thewebsnippet.manager.domain.intent.IntentLauncher
+import com.thewebsnippet.manager.domain.model.TWSSnippetDto
 
-class FakeIntentLauncher : IntentLauncher {
-    val launchedPopups = mutableListOf<Pair<String, String>>()
+internal class FakeIntentLauncher : IntentLauncher {
+    val launchedPopups = mutableListOf<TWSSnippetDto>()
 
-    override fun launchPopup(snippetId: String, projectId: String) {
-        launchedPopups.add(snippetId to projectId)
+    override fun launchPopup(snippet: TWSSnippetDto) {
+        launchedPopups.add(snippet)
     }
 }
