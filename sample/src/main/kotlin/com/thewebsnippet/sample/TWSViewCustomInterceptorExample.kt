@@ -72,6 +72,7 @@ fun TWSViewCustomInterceptorExample(
                         urlString.contains("/mustacheExample") -> Screen.TWSViewMustacheExampleKey.route
                         urlString.contains("/injectionExample") -> Screen.TWSViewInjectionExampleKey.route
                         urlString.contains("/permissionsExample") -> Screen.TWSViewPermissionsExampleKey.route
+                        urlString.contains("/userEngagementExample") -> Screen.NativeViewUserEngagementExampleKey.route
                         else -> null
                     }
 
