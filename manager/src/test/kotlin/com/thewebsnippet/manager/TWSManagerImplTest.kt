@@ -777,6 +777,26 @@ class TWSManagerImplTest {
         assert(fakeIntentLauncher.launchedPopups == listOf(FAKE_SNIPPET_ONE, FAKE_SNIPPET_TWO, FAKE_SNIPPET_THREE))
     }
 
+    @Test
+    fun `Should not establish socket connection if listenOn is null`() = fakeScope.runTest {
+        fakeLoader.loaderResponse = ProjectResponse(
+            ProjectDto(
+                snippets = listOf(FAKE_SNIPPET_ONE, FAKE_SNIPPET_TWO),
+                listenOn = null
+            ),
+            Instant.MIN
+        )
+
+        webSnippetManager.snippets.test {
+            awaitItem().shouldBeProgressWith()
+            awaitItem().shouldBeSuccessWithData(
+                listOf(FAKE_EXPOSED_SNIPPET_ONE, FAKE_EXPOSED_SNIPPET_TWO)
+            )
+
+            assert(!fakeSocket.isConnectionOpen)
+        }
+    }
+
     private fun copyTWSManagerImpl(
         context: Context? = null,
         tag: String? = null,

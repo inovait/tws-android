@@ -22,5 +22,5 @@ import com.squareup.moshi.JsonClass
 @Keep
 internal data class ProjectDto(
     val snippets: List<TWSSnippetDto>,
-    val listenOn: String
+    val listenOn: String? = null
 )
