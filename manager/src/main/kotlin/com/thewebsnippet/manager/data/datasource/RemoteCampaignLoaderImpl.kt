@@ -16,25 +16,16 @@
 
 package com.thewebsnippet.manager.data.datasource
 
-import android.content.Context
 import android.util.Log
 import com.thewebsnippet.manager.core.TWSConfiguration
-import com.thewebsnippet.manager.data.auth.AuthLoginManagerImpl
-import com.thewebsnippet.manager.data.factory.BaseServiceFactory
-import com.thewebsnippet.manager.data.factory.create
 import com.thewebsnippet.manager.data.function.TWSSnippetFunction
-import com.thewebsnippet.manager.data.preference.AuthPreferenceImpl
-import com.thewebsnippet.manager.data.preference.AuthPreferenceImpl.Companion.authPreferences
 import com.thewebsnippet.manager.domain.datasource.RemoteCampaignLoader
 import com.thewebsnippet.manager.domain.model.EventBody
 import com.thewebsnippet.manager.domain.model.TWSSnippetDto
 
 internal class RemoteCampaignLoaderImpl(
-    context: Context,
     private val configuration: TWSConfiguration,
-    private val functions: TWSSnippetFunction = BaseServiceFactory(
-        AuthLoginManagerImpl(AuthPreferenceImpl(context.authPreferences))
-    ).create()
+    private val functions: TWSSnippetFunction
 ) : RemoteCampaignLoader {
 
     override suspend fun logEventAndGetCampaignSnippets(

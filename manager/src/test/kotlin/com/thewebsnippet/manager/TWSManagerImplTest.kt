@@ -59,6 +59,7 @@ import com.thewebsnippet.manager.utils.toActionBody
 import com.thewebsnippet.manager.domain.websocket.TWSSocket
 import com.thewebsnippet.manager.fakes.FakeIntentLauncher
 import com.thewebsnippet.manager.fakes.FakeRemoteCampaignLoader
+import com.thewebsnippet.manager.fakes.function.FakeTWSSnippetFunction
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runCurrent
@@ -794,6 +795,7 @@ class TWSManagerImplTest {
             context = context ?: mock(),
             tag = tag ?: "TestManager",
             configuration = configuration ?: TWSConfiguration.Basic("project"),
+            functions = FakeTWSSnippetFunction(),
             remoteSnippetLoader = loader ?: fakeLoader,
             scope = scope ?: fakeScope.backgroundScope,
             remoteSnippetUpdater = twsSocket ?: fakeSocket,
