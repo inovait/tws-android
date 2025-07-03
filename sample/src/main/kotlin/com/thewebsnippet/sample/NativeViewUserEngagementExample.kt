@@ -54,6 +54,46 @@ import com.thewebsnippet.manager.core.TWSSdk
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
+/**
+ * Demonstrates how to use built-in user engagement features provided by the TWS SDK.
+ *
+ * This example showcases how platform-defined campaigns and event-based notifications behave when triggered
+ * from native code. You can experiment with campaign definitions under the **"Campaigns"** tab in your sample
+ * project on the TWS platform. After manually logging a custom event, it will become available as a trigger
+ * option for campaign configuration.
+ *
+ * ### Features:
+ *
+ * - A default `sdk_init` event is automatically sent when initializing the SDK:
+ *   ```kotlin
+ *   TWSSdk.initialize(context)
+ *   ```
+ *
+ * - Custom events can be logged manually using:
+ *   ```kotlin
+ *   twsManager.logEvent("campaign_clicked")
+ *   ```
+ *
+ * - To handle and display push notifications from FCM or similar services:
+ *   ```kotlin
+ *   class MyFirebaseMessagingService : FirebaseMessagingService() {
+ *       override fun onMessageReceived(remoteMessage: RemoteMessage) {
+ *           TWSSdk.displayNotification(
+ *               context = this,
+ *               contentTitle = "New snippet available!",
+ *               contentText = "Tap to view the latest update.",
+ *               payload = remoteMessage.data
+ *           )
+ *       }
+ *   }
+ *   ```
+ *   Ensure the payload includes at minimum:
+ *   - `"path"`: e.g. `"projId/snippetId"`
+ *   - `"type"`: e.g. `"snippet_push"`
+ *
+ * These features allow you to deliver targeted content through in-app campaigns
+ * seamlessly integrating native and web-driven experiences.
+ */
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun NativeViewUserEngagementExample(
