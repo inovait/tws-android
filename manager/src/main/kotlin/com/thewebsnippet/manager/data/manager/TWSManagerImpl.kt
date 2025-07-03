@@ -144,7 +144,9 @@ internal class TWSManagerImpl(
 
                 saveToCache(project.snippets)
 
-                remoteSnippetUpdater?.launchAndCollect(project.listenOn)
+                project.listenOn?.let { socketUrl ->
+                    remoteSnippetUpdater?.launchAndCollect(socketUrl)
+                }
                 localSnippetUpdater?.launchAndCollect(response.responseDate, project.snippets)
             } catch (e: Exception) {
                 _snippetsFlow.emit(TWSOutcome.Error(e, _snippetsFlow.value?.data))

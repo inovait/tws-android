@@ -22,6 +22,8 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 internal class FakeTWSSocket : TWSSocket {
     override var updateActionFlow: MutableSharedFlow<SnippetUpdateAction> = MutableSharedFlow()
 
+    var isConnectionOpen = false
+
     override fun closeWebsocketConnection(): Boolean {
         isConnectionOpen = false
         return true
@@ -34,6 +36,4 @@ internal class FakeTWSSocket : TWSSocket {
     suspend fun mockUpdateAction(action: SnippetUpdateAction) {
         updateActionFlow.emit(action)
     }
-
-    var isConnectionOpen = false
 }
