@@ -33,10 +33,13 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import java.io.File
 
 internal class AuthPreferenceImpl(
     context: Context,
     private val authPreferences: DataStore<Preferences> = context.authPreferences,
+    cookieManager: CookieManager = CookieManager.getInstance(),
+    private val cacheDir: File = context.cacheDir,
     scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO),
     twsBuild: TWSBuild = TWSBuildImpl
 ) : AuthPreference {
@@ -53,8 +56,8 @@ internal class AuthPreferenceImpl(
             val currentJwt = storedJwt.first()
             if (currentJwt != twsBuild.token && currentJwt.isNotEmpty()) {
                 clearPreferences()
-                CookieManager.getInstance().removeSessionCookies(null)
-                clearAllTwsCaches(context)
+                cookieManager.removeSessionCookies(null)
+                clearAllTwsCaches()
             }
 
             setJWT(twsBuild.token)
@@ -99,10 +102,8 @@ internal class AuthPreferenceImpl(
         }
     }
 
-    private fun clearAllTwsCaches(context: Context) {
-        val cacheRoot = context.cacheDir
-
-        cacheRoot.listFiles()
+    private fun clearAllTwsCaches() {
+        cacheDir.listFiles()
             ?.filter { it.isDirectory && it.name.startsWith(FileCacheManager.CACHE_DIR) }
             ?.forEach { dir ->
                 dir.deleteRecursively()

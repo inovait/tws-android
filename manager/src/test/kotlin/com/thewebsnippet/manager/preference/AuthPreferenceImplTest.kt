@@ -32,6 +32,8 @@ import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
+import org.mockito.Mockito.mock
+import java.nio.file.Files
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class AuthPreferenceImplTest {
@@ -52,7 +54,11 @@ class AuthPreferenceImplTest {
         }
         runCurrent()
 
-        AuthPreferenceImpl(testDataStore, this, FakeTWSBuild)
+        // Create a temporary directory
+        val tempDirPath = Files.createTempDirectory("test_cache")
+        val tempCacheDir = tempDirPath.toFile()
+
+        AuthPreferenceImpl(mock(), testDataStore, mock(), tempCacheDir, this, FakeTWSBuild)
         advanceUntilIdle()
 
         // Verify that preferences were cleared and JWT was updated
@@ -67,6 +73,9 @@ class AuthPreferenceImplTest {
 
         // To destroy DataStore scope.
         coroutineContext.cancelChildren()
+
+        // Cleanup temp dir
+        tempCacheDir.deleteRecursively()
     }
 
     @Test
@@ -77,7 +86,11 @@ class AuthPreferenceImplTest {
         }
         runCurrent()
 
-        AuthPreferenceImpl(testDataStore, this, FakeTWSBuild)
+        // Create a temporary directory
+        val tempDirPath = Files.createTempDirectory("test_cache")
+        val tempCacheDir = tempDirPath.toFile()
+
+        AuthPreferenceImpl(mock(), testDataStore, mock(), tempCacheDir, this, FakeTWSBuild)
         advanceUntilIdle()
 
         // Verify that preferences were cleared and JWT was updated
@@ -92,6 +105,9 @@ class AuthPreferenceImplTest {
 
         // To destroy DataStore scope.
         coroutineContext.cancelChildren()
+
+        // Cleanup temp dir
+        tempCacheDir.deleteRecursively()
     }
 }
 
