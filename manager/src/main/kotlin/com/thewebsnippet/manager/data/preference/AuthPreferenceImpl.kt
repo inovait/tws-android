@@ -17,11 +17,13 @@
 package com.thewebsnippet.manager.data.preference
 
 import android.content.Context
+import android.webkit.CookieManager
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.thewebsnippet.manager.data.datasource.FileCacheManager
 import com.thewebsnippet.manager.domain.preference.AuthPreference
 import com.thewebsnippet.manager.domain.preference.TWSBuild
 import kotlinx.coroutines.CoroutineScope
@@ -33,7 +35,8 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 internal class AuthPreferenceImpl(
-    private val authPreferences: DataStore<Preferences>,
+    context: Context,
+    private val authPreferences: DataStore<Preferences> = context.authPreferences,
     scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO),
     twsBuild: TWSBuild = TWSBuildImpl
 ) : AuthPreference {
@@ -50,6 +53,8 @@ internal class AuthPreferenceImpl(
             val currentJwt = storedJwt.first()
             if (currentJwt != twsBuild.token && currentJwt.isNotEmpty()) {
                 clearPreferences()
+                CookieManager.getInstance().removeSessionCookies(null)
+                clearAllTwsCaches(context)
             }
 
             setJWT(twsBuild.token)
@@ -92,6 +97,16 @@ internal class AuthPreferenceImpl(
         authPreferences.edit {
             it.clear()
         }
+    }
+
+    private fun clearAllTwsCaches(context: Context) {
+        val cacheRoot = context.cacheDir
+
+        cacheRoot.listFiles()
+            ?.filter { it.isDirectory && it.name.startsWith(FileCacheManager.CACHE_DIR) }
+            ?.forEach { dir ->
+                dir.deleteRecursively()
+            }
     }
 
     internal companion object {
