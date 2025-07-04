@@ -21,6 +21,7 @@ import com.thewebsnippet.manager.data.datasource.FileCacheManager
 import com.thewebsnippet.manager.core.TWSConfiguration
 import com.thewebsnippet.manager.core.TWSManager
 import com.thewebsnippet.manager.core.TWSOutcome
+import com.thewebsnippet.manager.core.TWSTriggerEvents
 import com.thewebsnippet.manager.core.mapData
 import com.thewebsnippet.manager.domain.model.NetworkStatus
 import com.thewebsnippet.manager.domain.model.TWSSnippetDto
@@ -128,6 +129,7 @@ internal class TWSManagerImpl(
         if (isRegistered) return
 
         isRegistered = true
+        logEvent(TWSTriggerEvents.SDK_INIT)
         loadProjectAndSnippets()
     }
 
