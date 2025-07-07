@@ -33,6 +33,7 @@ import com.thewebsnippet.manager.data.datasource.SnippetLoadingManagerImpl
 import com.thewebsnippet.manager.domain.connectivity.NetworkConnectivityService
 import com.thewebsnippet.manager.data.connectivity.NetworkConnectivityServiceImpl
 import com.thewebsnippet.manager.data.datasource.RemoteCampaignLoaderImpl
+import com.thewebsnippet.manager.data.function.TWSSnippetFunction
 import com.thewebsnippet.manager.data.intent.PopupIntentLauncher
 import com.thewebsnippet.manager.domain.websocket.TWSSocket
 import com.thewebsnippet.manager.data.websocket.TWSSocketImpl
@@ -68,6 +69,7 @@ import kotlin.time.Duration.Companion.seconds
  * @param context The application context, used for cache management and connectivity services.
  * @param tag A unique identifier used for cache namespacing and internal logging.
  * @param configuration Configuration settings defining the source and behavior of snippet management.
+ * @param functions A shared [TWSSnippetFunction] instance, used to communicate with the backend API.
  * @param scope A [CoroutineScope] used for running asynchronous tasks and managing their lifecycle.
  * @param remoteSnippetLoader A [SnippetLoadingManager] that fetches snippets from a remote source.
  * @param cacheSnippetLoader An optional cache manager that retrieves and stores snippets locally.
@@ -81,12 +83,13 @@ internal class TWSManagerImpl(
     private val context: Context,
     tag: String = "",
     private val configuration: TWSConfiguration,
+    functions: TWSSnippetFunction,
     scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO),
-    private val remoteSnippetLoader: SnippetLoadingManager = SnippetLoadingManagerImpl(context, configuration),
+    private val remoteSnippetLoader: SnippetLoadingManager = SnippetLoadingManagerImpl(configuration, functions),
     private val cacheSnippetLoader: CacheManager? = FileCacheManager(context, tag),
     private val remoteSnippetUpdater: TWSSocket? = TWSSocketImpl(scope),
     private val localSnippetUpdater: LocalSnippetHandler? = LocalSnippetHandlerImpl(scope),
-    private val remoteCampaignLoader: RemoteCampaignLoader? = RemoteCampaignLoaderImpl(context, configuration),
+    private val remoteCampaignLoader: RemoteCampaignLoader? = RemoteCampaignLoaderImpl(configuration, functions),
     private val networkConnectivityService: NetworkConnectivityService? = NetworkConnectivityServiceImpl(context),
     private val popupLauncher: IntentLauncher = PopupIntentLauncher(context)
 ) : TWSManager, CoroutineScope by scope {

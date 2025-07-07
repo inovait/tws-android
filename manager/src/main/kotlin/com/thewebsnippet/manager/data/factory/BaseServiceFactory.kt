@@ -15,6 +15,7 @@
  */
 package com.thewebsnippet.manager.data.factory
 
+import android.content.Context
 import com.squareup.moshi.Moshi
 import com.thewebsnippet.manager.domain.auth.Auth
 import com.thewebsnippet.manager.data.preference.TWSBuildImpl
@@ -25,9 +26,9 @@ import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
 
-internal class BaseServiceFactory(private val fallbackAuthentication: Auth? = null) : ServiceFactory {
+internal class BaseServiceFactory(context: Context, private val fallbackAuthentication: Auth? = null) : ServiceFactory {
     private val moshi: Moshi by lazy { twsMoshi() }
-    private val okHttpClient: OkHttpClient by lazy { twsOkHttpClient(fallbackAuthentication) }
+    private val okHttpClient: OkHttpClient by lazy { twsOkHttpClient(context, fallbackAuthentication) }
 
     override fun <S> create(
         klass: Class<S>,

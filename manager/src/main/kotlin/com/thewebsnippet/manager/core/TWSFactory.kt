@@ -21,6 +21,13 @@ import android.content.pm.PackageManager
 import com.thewebsnippet.manager.data.manager.TWSManagerImpl
 import com.thewebsnippet.manager.core.TWSConfiguration.Basic
 import com.thewebsnippet.manager.core.TWSConfiguration.Shared
+import com.thewebsnippet.manager.data.auth.AuthLoginManagerImpl
+import com.thewebsnippet.manager.data.auth.AuthRegisterManagerImpl
+import com.thewebsnippet.manager.data.factory.BaseServiceFactory
+import com.thewebsnippet.manager.data.factory.create
+import com.thewebsnippet.manager.data.function.TWSSnippetFunction
+import com.thewebsnippet.manager.data.preference.AuthPreferenceImpl
+import com.thewebsnippet.manager.data.preference.AuthPreferenceImpl.Companion.authPreferences
 import com.thewebsnippet.manager.data.preference.TWSBuildImpl
 import jakarta.inject.Singleton
 import java.lang.ref.WeakReference
@@ -127,10 +134,20 @@ object TWSFactory {
         } else {
             TWSBuildImpl.safeInit(context)
 
+            val authPreference = AuthPreferenceImpl(appContext.authPreferences)
+            val authRegister = AuthRegisterManagerImpl(appContext, authPreference)
+            val authLogin = AuthLoginManagerImpl(
+                appContext,
+                authPreference,
+                BaseServiceFactory(appContext, authRegister).create()
+            )
+            val snippetFunction = BaseServiceFactory(appContext, authLogin).create<TWSSnippetFunction>()
+
             val newInstance = TWSManagerImpl(
                 context = appContext,
                 tag = tag,
-                configuration = configuration
+                configuration = configuration,
+                functions = snippetFunction
             )
 
             instances[tag] = WeakReference(newInstance)

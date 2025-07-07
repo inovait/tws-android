@@ -15,7 +15,8 @@
  */
 package com.thewebsnippet.manager.data.setup
 
-import com.appmattus.certificatetransparency.certificateTransparencyInterceptor
+import android.content.Context
+import android.webkit.WebSettings
 import com.squareup.moshi.FromJson
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.ToJson
@@ -26,6 +27,7 @@ import com.thewebsnippet.manager.domain.auth.Auth
 import com.thewebsnippet.manager.data.preference.TWSBuildImpl
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
+import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import java.time.Instant
 import java.time.ZoneOffset
@@ -47,17 +49,26 @@ internal fun twsMoshi(): Moshi {
         .build()
 }
 
-internal fun twsOkHttpClient(fallbackAuthentication: Auth?): OkHttpClient {
+internal fun twsOkHttpClient(context: Context, fallbackAuthentication: Auth?): OkHttpClient {
     if (Thread.currentThread().name == "main") {
         error("OkHttp should not be initialized on the main thread")
     }
 
-    return prepareBaseOkHttpClient(fallbackAuthentication).build()
+    return prepareBaseOkHttpClient(context, fallbackAuthentication).build()
 }
 
-internal fun prepareBaseOkHttpClient(auth: Auth?): OkHttpClient.Builder {
+internal fun prepareBaseOkHttpClient(context: Context, auth: Auth?): OkHttpClient.Builder {
+    val userAgentInterceptor = Interceptor { chain ->
+        val originalRequest = chain.request()
+        val requestWithUserAgent = originalRequest.newBuilder()
+            .header("User-Agent", WebSettings.getDefaultUserAgent(context).toTWSUserAgent())
+            .build()
+        chain.proceed(requestWithUserAgent)
+    }
+
     return OkHttpClient.Builder()
         .apply {
+            addInterceptor(userAgentInterceptor)
             addInterceptor { chain ->
                 runBlocking {
                     val token = auth?.getToken?.first() ?: TWSBuildImpl.token
@@ -84,8 +95,9 @@ internal fun prepareBaseOkHttpClient(auth: Auth?): OkHttpClient.Builder {
                 }
             }
         }
-        .addNetworkInterceptor(certificateTransparencyInterceptor())
 }
+
+internal fun String.toTWSUserAgent() = "$this TheWebSnippet"
 
 internal class InstantJsonAdapter {
     private val formatter: DateTimeFormatter = ISO_INSTANT.withZone(ZoneOffset.UTC)

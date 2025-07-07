@@ -24,6 +24,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
+import org.mockito.Mockito.mock
 
 class AuthLoginManagerImplTest {
     private val fakePreference = FakeAuthPreference()
@@ -33,7 +34,7 @@ class AuthLoginManagerImplTest {
 
     @Before
     fun setup() {
-        authLoginManagerImpl = AuthLoginManagerImpl(fakePreference, fakeAuthFunctions)
+        authLoginManagerImpl = AuthLoginManagerImpl(mock(), fakePreference, fakeAuthFunctions)
 
         val testToken = "token_123"
         fakeAuthFunctions.accessToken = AccessTokenDto(accessToken = testToken)

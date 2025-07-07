@@ -25,7 +25,6 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
-import org.mockito.Mockito.mock
 
 internal class RemoteCampaignLoaderImplTest {
     private lateinit var fakeFunctions: FakeTWSSnippetFunction
@@ -36,7 +35,6 @@ internal class RemoteCampaignLoaderImplTest {
         fakeFunctions = FakeTWSSnippetFunction()
 
         remoteCampaignLoader = RemoteCampaignLoaderImpl(
-            context = mock(),
             configuration = TWSConfiguration.Basic("id"),
             functions = fakeFunctions
         )
@@ -70,7 +68,6 @@ internal class RemoteCampaignLoaderImplTest {
         fakeFunctions.returnedSnippetsForTrigger = mapOf("purchase" to listOf(FAKE_SNIPPET_ONE))
 
         remoteCampaignLoader = RemoteCampaignLoaderImpl(
-            context = mock(),
             configuration = TWSConfiguration.Shared("token"),
             functions = fakeFunctions
         )

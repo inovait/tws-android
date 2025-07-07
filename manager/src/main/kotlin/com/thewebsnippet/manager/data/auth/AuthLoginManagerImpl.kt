@@ -15,6 +15,7 @@
  */
 package com.thewebsnippet.manager.data.auth
 
+import android.content.Context
 import com.thewebsnippet.manager.domain.auth.Auth
 import com.thewebsnippet.manager.data.factory.BaseServiceFactory
 import com.thewebsnippet.manager.data.factory.create
@@ -24,8 +25,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.sync.Mutex
 
 internal class AuthLoginManagerImpl(
+    context: Context,
     private val auth: AuthPreference,
-    private val twsAuth: TWSAuthFunction = BaseServiceFactory(AuthRegisterManagerImpl(auth)).create()
+    private val twsAuth: TWSAuthFunction = BaseServiceFactory(context, AuthRegisterManagerImpl(context, auth)).create()
 ) : Auth {
     override val getToken: Flow<String>
         get() = auth.accessToken
