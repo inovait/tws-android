@@ -27,7 +27,6 @@ import com.thewebsnippet.manager.data.factory.BaseServiceFactory
 import com.thewebsnippet.manager.data.factory.create
 import com.thewebsnippet.manager.data.function.TWSSnippetFunction
 import com.thewebsnippet.manager.data.preference.AuthPreferenceImpl
-import com.thewebsnippet.manager.data.preference.AuthPreferenceImpl.Companion.authPreferences
 import com.thewebsnippet.manager.data.preference.TWSBuildImpl
 import jakarta.inject.Singleton
 import java.lang.ref.WeakReference
@@ -134,7 +133,7 @@ object TWSFactory {
         } else {
             TWSBuildImpl.safeInit(context)
 
-            val authPreference = AuthPreferenceImpl(appContext.authPreferences)
+            val authPreference = AuthPreferenceImpl(appContext)
             val authRegister = AuthRegisterManagerImpl(appContext, authPreference)
             val authLogin = AuthLoginManagerImpl(
                 appContext,

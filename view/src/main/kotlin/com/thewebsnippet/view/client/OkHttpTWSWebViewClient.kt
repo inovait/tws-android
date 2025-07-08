@@ -19,7 +19,6 @@ import android.graphics.Bitmap
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
-import com.samskivert.mustache.MustacheException
 import com.thewebsnippet.data.TWSAttachment
 import com.thewebsnippet.data.TWSEngine
 import com.thewebsnippet.view.client.okhttp.web.webViewHttpClient
@@ -28,13 +27,12 @@ import com.thewebsnippet.view.data.TWSViewInterceptor
 import com.thewebsnippet.view.data.TWSViewState
 import com.thewebsnippet.view.util.modifier.HtmlModifierHelper
 import com.thewebsnippet.view.util.modifier.HtmlModifierHelperImpl
-import okhttp3.CacheControl
 import okhttp3.Headers
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
 import okhttp3.ResponseBody
-import java.util.concurrent.TimeUnit
+import java.io.IOException
 
 /**
  * [OkHttpTWSWebViewClient] is a specialized subclass of [TWSWebViewClient] that integrates OkHttp for
@@ -93,20 +91,19 @@ internal class OkHttpTWSWebViewClient(
                 // Get cached or web response, depending on headers
                 val response = okHttpClient.duplicateAndExecuteRequest(request)
 
+                if (!response.isSuccessful) {
+                    throw IOException("HTTP error ${response.code}")
+                }
+
                 if (response.isRedirect) {
                     null
                 } else {
                     response.modifyResponseAndServe() ?: super.shouldInterceptRequest(view, request)
                 }
-            } catch (e: MustacheException) {
+            } catch (e: Exception) {
                 // Fallback to default behavior in case of mustache exception and expose mustache exception to developer
                 state.customErrorsForCurrentRequest.add(e)
                 super.shouldInterceptRequest(view, request)
-            } catch (e: Exception) {
-                // Exception, get stale-if-error header and check if cache is still valid
-                okHttpClient.duplicateAndExecuteCachedRequest(request)?.modifyResponseAndServe()?.also {
-                    state.customErrorsForCurrentRequest.add(e)
-                } ?: super.shouldInterceptRequest(view, request)
             }
         }
 
@@ -140,36 +137,6 @@ internal class OkHttpTWSWebViewClient(
             .build()
 
         return newCall(overrideRequest).execute()
-    }
-
-    private fun OkHttpClient.duplicateAndExecuteCachedRequest(request: WebResourceRequest): Response? {
-        // Build a forced cache request
-        val overrideRequest = Request.Builder()
-            .url(request.buildUrl())
-            .method(request.method, null)
-            .cacheControl(CacheControl.FORCE_CACHE)
-            .build()
-
-        // Get the cached response
-        val cachedResponse = newCall(overrideRequest).execute()
-
-        // Extract and parse stale-if-error max age from Cache-Control header
-        val staleIfErrorMaxAge = cachedResponse.header("cache-Control")
-            ?.split(',')
-            ?.firstOrNull { it.trim().startsWith("stale-if-error") }
-            ?.substringAfter("=")
-            ?.toIntOrNull() ?: return null
-
-        // Parse the Date header
-        val responseDate = cachedResponse.headers.getDate("date")?.time ?: return null
-
-        // Calculate the current age
-        val currentAge = cachedResponse.header("age")?.toLongOrNull()?.let { ageHeader ->
-            ageHeader + TimeUnit.MILLISECONDS.toSeconds((System.currentTimeMillis() - responseDate))
-        } ?: TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - responseDate)
-
-        // Return the cached response if within stale-if-error max age, otherwise null
-        return if (currentAge <= staleIfErrorMaxAge) cachedResponse else null
     }
 
     private fun Response.getMimeTypeAndEncoding(): Pair<String, String> {

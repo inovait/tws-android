@@ -23,6 +23,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.Request
+import java.io.IOException
 
 @Singleton
 internal class SnippetWebLoaderImpl(
@@ -32,6 +33,11 @@ internal class SnippetWebLoaderImpl(
     override suspend fun response(snippet: TWSSnippet): ResponseMetaData = withContext(dispatcherIO) {
         val request = buildRequestWithHeaders(snippet.target, snippet.headers)
         val response = redirectHandler.value.execute(request)
+
+        if (!response.isSuccessful) {
+            throw IOException("HTTP ${response.code} ${response.message}")
+        }
+
         val finalUrl = response.request.url.toString()
 
         ResponseMetaData(url = finalUrl)
