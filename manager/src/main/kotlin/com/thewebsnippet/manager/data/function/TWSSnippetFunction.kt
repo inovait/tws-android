@@ -30,7 +30,7 @@ import retrofit2.http.Query
 
 @Singleton
 internal interface TWSSnippetFunction {
-    @GET("projects/{projectId}/snippets")
+    @GET("projects/{projectId}/snippets/v1")
     suspend fun getWebSnippets(
         @Path("projectId")
         projectId: String
