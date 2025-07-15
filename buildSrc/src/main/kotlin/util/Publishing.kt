@@ -154,5 +154,5 @@ private fun Project.forceArtifactName(artifactName: String) {
     }
 }
 
-private const val JRELEASER_RETRIES_SECONDS = 20
+private const val JRELEASER_RETRIES_SECONDS = 60
 private const val JRELEASER_MAX_RETRIES = 100
