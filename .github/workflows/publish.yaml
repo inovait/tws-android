@@ -58,8 +58,7 @@ jobs:
             -PprivateKeyPath=$(pwd)/private_key.pgp \
             -Psigning.secretKeyRingFile=$(pwd)/signing_key.gpg \
             -Psigning.password=''${{ secrets.GPG_SIGNING_PASSPHRASE }}'' \
-            -Psigning.keyId=${{ secrets.GPG_SIGNING_ID }} \
-            --debug --stacktrace
+            -Psigning.keyId=${{ secrets.GPG_SIGNING_ID }} 
 
       - name: 'Publish service to gradle portal'
         env:
