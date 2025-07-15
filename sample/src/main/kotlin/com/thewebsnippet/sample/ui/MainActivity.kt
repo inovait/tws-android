@@ -21,6 +21,7 @@ import androidx.activity.compose.setContent
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.thewebsnippet.sample.NativeViewUserEngagementExample
 import com.thewebsnippet.sample.TWSViewCustomInterceptorExample
 import com.thewebsnippet.sample.TWSViewCustomTabsExample
 import com.thewebsnippet.sample.TWSViewInjectionExample
@@ -57,6 +58,9 @@ internal class MainActivity : ComponentActivity() {
 					}
 					composable(Screen.TWSViewPermissionsExampleKey.route) {
 						TWSViewPermissionsExample()
+					}
+					composable(Screen.NativeViewUserEngagementExampleKey.route) {
+						NativeViewUserEngagementExample()
 					}
 				}
 			}

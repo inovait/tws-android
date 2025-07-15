@@ -15,8 +15,8 @@
  */
 package com.thewebsnippet.manager.fakes.manager
 
-import com.thewebsnippet.manager.manager.snippet.ProjectResponse
-import com.thewebsnippet.manager.manager.snippet.SnippetLoadingManager
+import com.thewebsnippet.manager.domain.datasource.SnippetLoadingManager
+import com.thewebsnippet.manager.domain.model.ProjectResponse
 import kotlinx.coroutines.delay
 
 internal class FakeSnippetLoadingManager : SnippetLoadingManager {

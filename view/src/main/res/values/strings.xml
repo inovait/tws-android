@@ -16,6 +16,6 @@
 
     <string name="oops_loading_failed">Ooops, loading failed.</string>
     <string name="error_general">Oops, something went wrong. Data may be outdated.</string>
-    <string name="error_no_network">Oops, no internet connection. Data may be outdated.</string>
+    <string name="error_no_network">Oops, no internet connection. Check your connection and try again.</string>
     <string name="refresh">Refresh</string>
 </resources>

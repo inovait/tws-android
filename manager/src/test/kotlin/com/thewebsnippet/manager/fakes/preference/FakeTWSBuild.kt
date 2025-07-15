@@ -17,7 +17,7 @@
 package com.thewebsnippet.manager.fakes.preference
 
 import android.content.Context
-import com.thewebsnippet.manager.preference.TWSBuild
+import com.thewebsnippet.manager.domain.preference.TWSBuild
 
 object FakeTWSBuild : TWSBuild {
     override fun safeInit(context: Context) {

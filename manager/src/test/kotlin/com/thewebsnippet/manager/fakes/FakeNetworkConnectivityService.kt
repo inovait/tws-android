@@ -15,8 +15,8 @@
  */
 package com.thewebsnippet.manager.fakes
 
-import com.thewebsnippet.manager.data.NetworkStatus
-import com.thewebsnippet.manager.service.NetworkConnectivityService
+import com.thewebsnippet.manager.domain.model.NetworkStatus
+import com.thewebsnippet.manager.domain.connectivity.NetworkConnectivityService
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 

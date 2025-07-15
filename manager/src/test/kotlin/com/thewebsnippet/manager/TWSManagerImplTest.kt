@@ -19,21 +19,26 @@ import android.content.Context
 import app.cash.turbine.test
 import com.thewebsnippet.data.TWSAttachment
 import com.thewebsnippet.data.TWSAttachmentType
-import com.thewebsnippet.manager.cache.CacheManager
-import com.thewebsnippet.manager.data.ActionBody
-import com.thewebsnippet.manager.data.ActionType
-import com.thewebsnippet.manager.data.NetworkStatus
-import com.thewebsnippet.manager.data.ProjectDto
-import com.thewebsnippet.manager.data.SnippetUpdateAction
+import com.thewebsnippet.manager.domain.datasource.CacheManager
+import com.thewebsnippet.manager.core.TWSConfiguration
+import com.thewebsnippet.manager.core.TWSManager
+import com.thewebsnippet.manager.data.manager.TWSManagerImpl
+import com.thewebsnippet.manager.domain.model.NetworkStatus
+import com.thewebsnippet.manager.domain.model.ProjectDto
+import com.thewebsnippet.manager.domain.model.SnippetUpdateAction
 import com.thewebsnippet.manager.fakes.FakeCacheManager
 import com.thewebsnippet.manager.fakes.FakeLocalSnippetHandler
 import com.thewebsnippet.manager.fakes.FakeNetworkConnectivityService
 import com.thewebsnippet.manager.fakes.FakeTWSSocket
 import com.thewebsnippet.manager.fakes.manager.FakeSnippetLoadingManager
-import com.thewebsnippet.manager.localhandler.LocalSnippetHandler
-import com.thewebsnippet.manager.manager.snippet.ProjectResponse
-import com.thewebsnippet.manager.manager.snippet.SnippetLoadingManager
-import com.thewebsnippet.manager.service.NetworkConnectivityService
+import com.thewebsnippet.manager.domain.datasource.LocalSnippetHandler
+import com.thewebsnippet.manager.domain.datasource.SnippetLoadingManager
+import com.thewebsnippet.manager.domain.connectivity.NetworkConnectivityService
+import com.thewebsnippet.manager.domain.datasource.RemoteCampaignLoader
+import com.thewebsnippet.manager.domain.intent.IntentLauncher
+import com.thewebsnippet.manager.domain.model.ActionBody
+import com.thewebsnippet.manager.domain.model.ActionType
+import com.thewebsnippet.manager.domain.model.ProjectResponse
 import com.thewebsnippet.manager.utils.FAKE_EXPOSED_SNIPPET_FIVE
 import com.thewebsnippet.manager.utils.FAKE_EXPOSED_SNIPPET_FOUR
 import com.thewebsnippet.manager.utils.FAKE_EXPOSED_SNIPPET_ONE
@@ -51,7 +56,10 @@ import com.thewebsnippet.manager.utils.shouldBeProgressWithData
 import com.thewebsnippet.manager.utils.shouldBeSuccessWithData
 import com.thewebsnippet.manager.utils.testScopeWithDispatcherProvider
 import com.thewebsnippet.manager.utils.toActionBody
-import com.thewebsnippet.manager.websocket.TWSSocket
+import com.thewebsnippet.manager.domain.websocket.TWSSocket
+import com.thewebsnippet.manager.fakes.FakeIntentLauncher
+import com.thewebsnippet.manager.fakes.FakeRemoteCampaignLoader
+import com.thewebsnippet.manager.fakes.function.FakeTWSSnippetFunction
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runCurrent
@@ -69,7 +77,9 @@ class TWSManagerImplTest {
     private val fakeHandler = FakeLocalSnippetHandler()
     private val fakeCache = FakeCacheManager()
     private val fakeLoader = FakeSnippetLoadingManager()
+    private val fakeCampaignLoader = FakeRemoteCampaignLoader()
     private val fakeNetworkConnectivityService = FakeNetworkConnectivityService()
+    private val fakeIntentLauncher = FakeIntentLauncher()
 
     private lateinit var webSnippetManager: TWSManager
 
@@ -747,6 +757,47 @@ class TWSManagerImplTest {
         }
     }
 
+    @Test
+    fun `logEvent launches popup for returned snippet`() = fakeScope.runTest {
+        fakeCampaignLoader.list = listOf(FAKE_SNIPPET_ONE)
+
+        webSnippetManager.logEvent("test")
+        runCurrent()
+
+        assert(fakeIntentLauncher.launchedPopups.size == 1)
+        assert(fakeIntentLauncher.launchedPopups.first() == FAKE_SNIPPET_ONE)
+    }
+
+    @Test
+    fun `logEvent launches popups for multiple returned snippets`() = fakeScope.runTest {
+        fakeCampaignLoader.list = listOf(FAKE_SNIPPET_ONE, FAKE_SNIPPET_TWO, FAKE_SNIPPET_THREE)
+
+        webSnippetManager.logEvent("test")
+        runCurrent()
+
+        assert(fakeIntentLauncher.launchedPopups == listOf(FAKE_SNIPPET_ONE, FAKE_SNIPPET_TWO, FAKE_SNIPPET_THREE))
+    }
+
+    @Test
+    fun `Should not establish socket connection if listenOn is null`() = fakeScope.runTest {
+        fakeLoader.loaderResponse = ProjectResponse(
+            ProjectDto(
+                snippets = listOf(FAKE_SNIPPET_ONE, FAKE_SNIPPET_TWO),
+                listenOn = null
+            ),
+            Instant.MIN
+        )
+
+        webSnippetManager.snippets.test {
+            awaitItem().shouldBeProgressWith()
+            awaitItem().shouldBeSuccessWithData(
+                listOf(FAKE_EXPOSED_SNIPPET_ONE, FAKE_EXPOSED_SNIPPET_TWO)
+            )
+
+            assert(!fakeSocket.isConnectionOpen)
+        }
+    }
+
     private fun copyTWSManagerImpl(
         context: Context? = null,
         tag: String? = null,
@@ -757,17 +808,24 @@ class TWSManagerImplTest {
         localSnippetHandler: LocalSnippetHandler? = null,
         cacheManager: CacheManager? = null,
         networkConnectivityService: NetworkConnectivityService? = null,
+        campaignLoader: RemoteCampaignLoader? = null,
+        intentLauncher: IntentLauncher? = null
     ): TWSManagerImpl {
         return TWSManagerImpl(
             context = context ?: mock(),
             tag = tag ?: "TestManager",
             configuration = configuration ?: TWSConfiguration.Basic("project"),
-            loader = loader ?: fakeLoader,
+            functions = FakeTWSSnippetFunction(),
+            remoteSnippetLoader = loader ?: fakeLoader,
             scope = scope ?: fakeScope.backgroundScope,
-            twsSocket = twsSocket ?: fakeSocket,
-            localSnippetHandler = localSnippetHandler ?: fakeHandler,
-            cacheManager = cacheManager ?: fakeCache,
-            networkConnectivityService = networkConnectivityService ?: fakeNetworkConnectivityService
-        )
+            remoteSnippetUpdater = twsSocket ?: fakeSocket,
+            localSnippetUpdater = localSnippetHandler ?: fakeHandler,
+            cacheSnippetLoader = cacheManager ?: fakeCache,
+            remoteCampaignLoader = campaignLoader ?: fakeCampaignLoader,
+            networkConnectivityService = networkConnectivityService ?: fakeNetworkConnectivityService,
+            popupLauncher = intentLauncher ?: fakeIntentLauncher
+        ).also {
+            it.register()
+        }
     }
 }

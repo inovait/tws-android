@@ -24,9 +24,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.thewebsnippet.data.TWSSnippet
-import com.thewebsnippet.manager.TWSManager
-import com.thewebsnippet.manager.TWSOutcome
-import com.thewebsnippet.manager.mapData
+import com.thewebsnippet.manager.core.TWSManager
+import com.thewebsnippet.manager.core.TWSOutcome
+import com.thewebsnippet.manager.core.mapData
 import com.thewebsnippet.sample.components.ErrorView
 import com.thewebsnippet.sample.components.LoadingView
 import com.thewebsnippet.sample.components.sampleErrorView
@@ -72,6 +72,7 @@ fun TWSViewCustomInterceptorExample(
                         urlString.contains("/mustacheExample") -> Screen.TWSViewMustacheExampleKey.route
                         urlString.contains("/injectionExample") -> Screen.TWSViewInjectionExampleKey.route
                         urlString.contains("/permissionsExample") -> Screen.TWSViewPermissionsExampleKey.route
+                        urlString.contains("/userEngagementExample") -> Screen.NativeViewUserEngagementExampleKey.route
                         else -> null
                     }
 

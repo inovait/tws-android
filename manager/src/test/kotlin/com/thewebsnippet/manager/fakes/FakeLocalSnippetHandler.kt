@@ -15,9 +15,9 @@
  */
 package com.thewebsnippet.manager.fakes
 
-import com.thewebsnippet.manager.data.SnippetUpdateAction
-import com.thewebsnippet.manager.data.TWSSnippetDto
-import com.thewebsnippet.manager.localhandler.LocalSnippetHandler
+import com.thewebsnippet.manager.domain.model.SnippetUpdateAction
+import com.thewebsnippet.manager.domain.model.TWSSnippetDto
+import com.thewebsnippet.manager.domain.datasource.LocalSnippetHandler
 import kotlinx.coroutines.flow.MutableSharedFlow
 import java.time.Instant
 

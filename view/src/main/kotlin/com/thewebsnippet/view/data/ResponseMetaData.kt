@@ -21,13 +21,7 @@ package com.thewebsnippet.view.data
  * including the final URL and content metadata.
  *
  * @property url The final resolved URL after redirects.
- * @property mimeType The MIME type of the content (e.g., "text/html").
- * @property encode The character encoding of the content (e.g., "UTF-8").
- * @property html The fully processed and modified HTML content.
  */
 data class ResponseMetaData(
-    val url: String,
-    val mimeType: String,
-    val encode: String,
-    val html: String
+    val url: String
 )

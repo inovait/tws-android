@@ -2,7 +2,6 @@ package com.thewebsnippet.view.client.okhttp
 
 import com.thewebsnippet.data.TWSSnippet
 import com.thewebsnippet.view.client.okhttp.web.SnippetWebLoaderImpl
-import com.thewebsnippet.view.fake.FakeHtmlModifierHelper
 import com.thewebsnippet.view.fake.FakeRedirectHandler
 import kotlinx.coroutines.test.runTest
 import okhttp3.mockwebserver.MockWebServer
@@ -24,10 +23,7 @@ class SnippetWebLoaderImplTest {
 
         fakeRedirectHandler = FakeRedirectHandler()
 
-        helper = SnippetWebLoaderImpl(
-            redirectHandler = lazy { fakeRedirectHandler },
-            htmlModifier = FakeHtmlModifierHelper()
-        )
+        helper = SnippetWebLoaderImpl(redirectHandler = lazy { fakeRedirectHandler })
     }
 
     @After
@@ -45,8 +41,5 @@ class SnippetWebLoaderImplTest {
         val result = helper.response(snippet)
 
         assertEquals(baseUrl, result.url)
-        assertEquals("text/html", result.mimeType)
-        assertEquals("UTF-8", result.encode)
-        assertEquals("Modify Added \n<html>testHtml</html>", result.html)
     }
 }

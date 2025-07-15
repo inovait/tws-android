@@ -18,46 +18,29 @@ package com.thewebsnippet.view.client.okhttp.web
 
 import com.thewebsnippet.data.TWSSnippet
 import com.thewebsnippet.view.data.ResponseMetaData
-import com.thewebsnippet.view.util.modifier.HtmlModifierHelper
-import com.thewebsnippet.view.util.modifier.HtmlModifierHelperImpl
 import jakarta.inject.Singleton
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.Request
+import java.io.IOException
 
 @Singleton
 internal class SnippetWebLoaderImpl(
     private val redirectHandler: Lazy<RedirectHandler>,
-    private val htmlModifier: HtmlModifierHelper = HtmlModifierHelperImpl(),
     private val dispatcherIO: CoroutineDispatcher = Dispatchers.IO
 ) : SnippetWebLoader {
     override suspend fun response(snippet: TWSSnippet): ResponseMetaData = withContext(dispatcherIO) {
         val request = buildRequestWithHeaders(snippet.target, snippet.headers)
-
         val response = redirectHandler.value.execute(request)
+
+        if (!response.isSuccessful) {
+            throw IOException("HTTP ${response.code} ${response.message}")
+        }
 
         val finalUrl = response.request.url.toString()
 
-        val (mimeType, encode) = getMimeTypeAndEncoding(
-            response.header("Content-Type") ?: "text/html; charset=UTF-8"
-        )
-
-        val updatedHtml = htmlModifier.modifyContent(
-            response.body?.string().orEmpty(),
-            snippet.dynamicResources,
-            snippet.props,
-            snippet.engine
-        )
-
-        response.close()
-
-        ResponseMetaData(
-            url = finalUrl,
-            mimeType = mimeType,
-            encode = encode,
-            html = updatedHtml
-        )
+        ResponseMetaData(url = finalUrl)
     }
 
     private fun buildRequestWithHeaders(url: String, headers: Map<String, String>): Request {
@@ -66,12 +49,5 @@ internal class SnippetWebLoaderImpl(
             builder.addHeader(key, value)
         }
         return builder.build()
-    }
-
-    private fun getMimeTypeAndEncoding(contentType: String): Pair<String, String> {
-        val mimeType = contentType.substringBefore(";").trim()
-        val encoding = contentType.substringAfter("charset=", "UTF-8").trim()
-
-        return Pair(mimeType, encoding)
     }
 }

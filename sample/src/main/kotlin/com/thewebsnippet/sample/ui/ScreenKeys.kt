@@ -25,4 +25,5 @@ internal sealed class Screen(val route: String) {
     data object TWSViewMustacheExampleKey : Screen("mustacheExample")
     data object TWSViewInjectionExampleKey : Screen("injectionExample")
     data object TWSViewPermissionsExampleKey : Screen("permissionsExample")
+    data object NativeViewUserEngagementExampleKey : Screen("userEngagementExample")
 }

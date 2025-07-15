@@ -3,4 +3,10 @@
     <string name="error_message">Oooops, loading failed</string>
     <string name="snippet_not_found">Snippet not found</string>
     <string name="error_try_again">Try again</string>
+
+    <string name="user_engagement">User Engagement</string>
+    <string name="notification_title">TWSNotifications</string>
+    <string name="notification_description">Explore how notifications can be used to display snippets. Tap to send a mock notification. Then, tap the notification to open and view a snippet instantly.</string>
+    <string name="campaign_title">TWSCampaign</string>
+    <string name="campaign_description">Display snippets when interacting with the app. Define and use custom triggers to effortlessly display snippets in response to user interactions. Tap to try it!</string>
 </resources>

@@ -1,5 +1,5 @@
 [versions]
-accompanistPermissions = "0.35.1-alpha"
+accompanistPermissions = "0.37.3"
 androidXTestRules = "1.6.1"
 androidXTestRunner = "1.6.2"
 agp = "8.4.0"

@@ -34,9 +34,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.thewebsnippet.data.TWSSnippet
-import com.thewebsnippet.manager.TWSManager
-import com.thewebsnippet.manager.TWSOutcome
-import com.thewebsnippet.manager.mapData
+import com.thewebsnippet.manager.core.TWSManager
+import com.thewebsnippet.manager.core.TWSOutcome
+import com.thewebsnippet.manager.core.mapData
 import com.thewebsnippet.sample.components.ErrorView
 import com.thewebsnippet.sample.components.LoadingView
 import com.thewebsnippet.sample.components.sampleErrorView
