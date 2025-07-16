@@ -1,0 +1,76 @@
+<!doctype html>
+<html class="no-js">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>displayNotification</title>
+<link href="../../../images/logo-icon.svg" rel="icon" type="image/svg">    <script>var pathToRoot = "../../../";</script>
+    <script>document.documentElement.classList.replace("no-js","js");</script>
+    <script>const storage = localStorage.getItem("dokka-dark-mode")
+    if (storage == null) {
+        const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (osDarkSchemePreferred === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    } else {
+        const savedDarkMode = JSON.parse(storage)
+        if(savedDarkMode === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    }
+    </script>
+<script type="text/javascript" src="https://unpkg.com/kotlin-playground@1/dist/playground.min.js" async></script>
+<script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async></script>
+<link href="../../../styles/style.css" rel="Stylesheet">
+<link href="../../../styles/main.css" rel="Stylesheet">
+<link href="../../../styles/prism.css" rel="Stylesheet">
+<link href="../../../styles/logo-styles.css" rel="Stylesheet">
+<link href="../../../styles/font-jb-sans-auto.css" rel="Stylesheet">
+<script type="text/javascript" src="../../../scripts/clipboard.js" async></script>
+<script type="text/javascript" src="../../../scripts/navigation-loader.js" async></script>
+<script type="text/javascript" src="../../../scripts/platform-content-handler.js" async></script>
+<script type="text/javascript" src="../../../scripts/main.js" defer></script>
+<script type="text/javascript" src="../../../scripts/prism.js" async></script>
+<script type="text/javascript" src="../../../scripts/symbol-parameters-wrapper_deferred.js" defer></script></head>
+<body>
+    <div class="root">
+<nav class="navigation" id="navigation-wrapper">
+    <div class="navigation--inner">
+        <div class="navigation-title">
+            <button class="menu-toggle" id="menu-toggle" type="button">toggle menu</button>
+            <div class="library-name">
+<a class="library-name--link" href="../../../index.html">
+                            TheWebSnippet SDK
+                    </a>            </div>
+            <div class="library-version">1.5.3
+            </div>
+        </div>
+        <div class="filter-section" id="filter-section">
+                <button class="platform-tag platform-selector jvm-like" data-active="" data-filter=":manager:dokkaHtmlPartial/release">androidJvm</button>
+        </div>
+    </div>
+    <div class="navigation-controls">
+        <button class="navigation-controls--btn navigation-controls--theme" id="theme-toggle-button" type="button">switch theme</button>
+        <div class="navigation-controls--btn navigation-controls--search" id="searchBar" role="button">search in API</div>
+    </div>
+</nav>
+        <div id="container">
+            <div class="sidebar" id="leftColumn">
+                <div class="sidebar--inner" id="sideMenu"></div>
+            </div>
+            <div id="main">
+<div class="main-content" data-page-type="member" id="content" pageids="manager::com.thewebsnippet.manager.core/TWSSdk/displayNotification/#android.content.Context#kotlin.String#kotlin.String#kotlin.collections.Map[kotlin.String,kotlin.String]#kotlin.Int#kotlin.Boolean#kotlin.Int#kotlin.collections.List[android.content.Intent]/PointingToDeclaration//-1024250728">
+  <div class="breadcrumbs"><a href="../../index.html">manager</a><span class="delimiter">/</span><a href="../index.html">com.thewebsnippet.manager.core</a><span class="delimiter">/</span><a href="index.html">TWSSdk</a><span class="delimiter">/</span><span class="current">displayNotification</span></div>
+  <div class="cover ">
+    <h1 class="cover"><span>display</span><wbr><span><span>Notification</span></span></h1>
+  </div>
+  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":manager:dokkaHtmlPartial/release"><div class="symbol monospace"><span class="token keyword">fun </span><a href="display-notification.html"><span class="token function">displayNotification</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">context<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/android/content/Context.html">Context</a><span class="token punctuation">, </span></span><span class="parameter ">contentTitle<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">contentText<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">payload<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin-stdlib/kotlin.collections/-map/index.html">Map</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">&gt;</span><span class="token punctuation">, </span></span><span class="parameter ">smallIcon<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin-stdlib/kotlin/-int/index.html">Int</a><span class="token operator"> = </span>R.drawable.ic_default_notification<span class="token punctuation">, </span></span><span class="parameter ">autoCancel<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token operator"> = </span><span class="token boolean">true</span><span class="token punctuation">, </span></span><span class="parameter ">priority<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin-stdlib/kotlin/-int/index.html">Int</a><span class="token operator"> = </span>NotificationCompat.PRIORITY_HIGH<span class="token punctuation">, </span></span><span class="parameter ">historyIntents<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin-stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><a href="https://developer.android.com/reference/kotlin/android/content/Intent.html">Intent</a><span class="token operator">&gt;</span><span class="token operator"> = </span>emptyList()</span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a></div><p class="paragraph">Handles and displays a push notification using the TWS SDK.</p><p class="paragraph">This method processes notification payloads (typically from FCM or similar services) and displays a notification to the user using the provided details. The notification is only shown if the SDK recognizes the payload as a supported TWS notification (i.e., it includes the necessary fields and a supported type).</p><p class="paragraph">Typical usage is from your <code class="lang-kotlin">FirebaseMessagingService.onMessageReceived</code>, passing in the relevant notification data. You may customize the notification appearance via <code class="lang-kotlin">contentTitle</code>, <code class="lang-kotlin">contentText</code>, <code class="lang-kotlin">smallIcon</code>, etc. Optionally, you can pass a navigation back stack (<code class="lang-kotlin">historyIntents</code>) for proper navigation when the notification is opened.</p><span class="kdoc-tag"><h4 class="">Return</h4><p class="paragraph"><code class="lang-kotlin">true</code> if the notification was handled and displayed by the SDK, <code class="lang-kotlin">false</code> otherwise.</p></span><h4 class="">Parameters</h4><div class="table"><div class="table-row" data-filterable-current=":manager:dokkaHtmlPartial/release" data-filterable-set=":manager:dokkaHtmlPartial/release"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><u><span><span>context</span></span></u></div></span></div><div><div class="title"><p class="paragraph">The context for displaying the notification (usually the application context).</p></div></div></div></div><div class="table-row" data-filterable-current=":manager:dokkaHtmlPartial/release" data-filterable-set=":manager:dokkaHtmlPartial/release"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><u><span>content</span><wbr><span><span>Title</span></span></u></div></span></div><div><div class="title"><p class="paragraph">The title to display in the notification.</p></div></div></div></div><div class="table-row" data-filterable-current=":manager:dokkaHtmlPartial/release" data-filterable-set=":manager:dokkaHtmlPartial/release"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><u><span>content</span><wbr><span><span>Text</span></span></u></div></span></div><div><div class="title"><p class="paragraph">The message/body to display in the notification.</p></div></div></div></div><div class="table-row" data-filterable-current=":manager:dokkaHtmlPartial/release" data-filterable-set=":manager:dokkaHtmlPartial/release"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><u><span><span>payload</span></span></u></div></span></div><div><div class="title"><p class="paragraph">The notification payload as a <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin-stdlib/kotlin.collections/-map/index.html">Map</a> (typically from FCM's <code class="lang-kotlin">remoteMessage.data</code>),     must include at least <code class="lang-kotlin">projectId</code>, <code class="lang-kotlin">snippetId</code>, and <code class="lang-kotlin">type</code> for SDK to recognize and handle notification.</p></div></div></div></div><div class="table-row" data-filterable-current=":manager:dokkaHtmlPartial/release" data-filterable-set=":manager:dokkaHtmlPartial/release"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><u><span>small</span><wbr><span><span>Icon</span></span></u></div></span></div><div><div class="title"><p class="paragraph">The resource ID of the small icon to show in the notification. Defaults to TWS SDK's default icon.</p></div></div></div></div><div class="table-row" data-filterable-current=":manager:dokkaHtmlPartial/release" data-filterable-set=":manager:dokkaHtmlPartial/release"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><u><span>auto</span><wbr><span><span>Cancel</span></span></u></div></span></div><div><div class="title"><p class="paragraph">Whether to dismiss the notification when tapped. Default is <code class="lang-kotlin">true</code>.</p></div></div></div></div><div class="table-row" data-filterable-current=":manager:dokkaHtmlPartial/release" data-filterable-set=":manager:dokkaHtmlPartial/release"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><u><span><span>priority</span></span></u></div></span></div><div><div class="title"><p class="paragraph">The notification priority (see <a href="https://developer.android.com/reference/kotlin/androidx/core/app/NotificationCompat.html">NotificationCompat</a>). Default is <a href="https://developer.android.com/reference/kotlin/androidx/core/app/NotificationCompat.html#PRIORITY_HIGH--">NotificationCompat.PRIORITY_HIGH</a>.</p></div></div></div></div><div class="table-row" data-filterable-current=":manager:dokkaHtmlPartial/release" data-filterable-set=":manager:dokkaHtmlPartial/release"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><u><span>history</span><wbr><span><span>Intents</span></span></u></div></span></div><div><div class="title"><p class="paragraph">An optional list of <a href="https://developer.android.com/reference/kotlin/android/content/Intent.html">Intent</a>s representing previous navigation history to construct the back stack.</p></div></div></div></div></div></div></div>
+</div>
+      <div class="footer">
+        <span class="go-to-top-icon"><a href="#content" id="go-to-top-link"></a></span><span>© 2025 Copyright</span><span class="pull-right"><span>Generated by </span><a href="https://github.com/Kotlin/dokka"><span>dokka</span><span class="padded-icon"></span></a></span>
+      </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
