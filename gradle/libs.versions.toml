@@ -41,7 +41,7 @@ composeBom = "2024.04.01"
 hiltAndroid = "2.51.1"
 hiltNavigationCompose = "1.2.0"
 lifecycleRuntimeComposeAndroid = "2.8.7"
-jreleaser = "1.17.0"
+jreleaser = "1.19.0"
 gradlePublish = "1.2.1"
 
 [libraries]
