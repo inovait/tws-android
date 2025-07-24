@@ -64,7 +64,11 @@ internal class FileWebViewStateManager : WebViewStateManager {
             val scrollY = bundle.getInt(SCROLL_Y_KEY, 0)
 
             webView.post {
-                webView.scrollTo(scrollX, scrollY)
+                val shouldScrollX = webView.scrollX == 0 && scrollX != 0
+                val shouldScrollY = webView.scrollY == 0 && scrollY != 0
+                if (shouldScrollX || shouldScrollY) {
+                    webView.scrollTo(scrollX, scrollY)
+                }
             }
 
             restored
