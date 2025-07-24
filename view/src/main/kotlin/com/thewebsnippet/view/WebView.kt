@@ -351,12 +351,12 @@ private fun createWebView(
         webChromeClient = chromeClient
         webViewClient = client
 
+        onCreated(this)
+
         state.viewStatePath?.let {
             stateManager.restoreWebViewState(this, it)
             stateManager.deleteWebViewState(it)
         }
-
-        onCreated(this)
 
         addJavascriptInterface(JavaScriptDownloadInterface(context), JAVASCRIPT_INTERFACE_NAME)
     }.also { state.webView = it }

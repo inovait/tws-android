@@ -28,10 +28,15 @@ internal class FileWebViewStateManager : WebViewStateManager {
         return try {
             val bundle = Bundle()
             webView.saveState(bundle)
+
+            bundle.putInt(SCROLL_X_KEY, webView.scrollX)
+            bundle.putInt(SCROLL_Y_KEY, webView.scrollY)
+
             val parcel = Parcel.obtain()
             bundle.writeToParcel(parcel, 0)
             val bytes = parcel.marshall()
             parcel.recycle()
+
             val file = File(context.cacheDir, "webview_state_$key.bin")
             file.outputStream().use { it.write(bytes) }
             file.absolutePath
@@ -45,13 +50,28 @@ internal class FileWebViewStateManager : WebViewStateManager {
         return try {
             val file = File(path)
             if (!file.exists()) return false
+
             val bytes = file.readBytes()
             val parcel = Parcel.obtain()
             parcel.unmarshall(bytes, 0, bytes.size)
             parcel.setDataPosition(0)
             val bundle = Bundle.CREATOR.createFromParcel(parcel)
             parcel.recycle()
-            webView.restoreState(bundle) != null
+
+            val restored = webView.restoreState(bundle) != null
+
+            val scrollX = bundle.getInt(SCROLL_X_KEY, 0)
+            val scrollY = bundle.getInt(SCROLL_Y_KEY, 0)
+
+            webView.post {
+                val shouldScrollX = webView.scrollX == 0 && scrollX != 0
+                val shouldScrollY = webView.scrollY == 0 && scrollY != 0
+                if (shouldScrollX || shouldScrollY) {
+                    webView.scrollTo(scrollX, scrollY)
+                }
+            }
+
+            restored
         } catch (e: Exception) {
             Log.e("FileWebViewStateManager", "Error restoring webview state", e)
             false
@@ -66,3 +86,6 @@ internal class FileWebViewStateManager : WebViewStateManager {
         }
     }
 }
+
+private const val SCROLL_X_KEY = "scrollX"
+private const val SCROLL_Y_KEY = "scrollY"
