@@ -47,6 +47,11 @@ import com.thewebsnippet.view.saver.WebViewStateManager
 @Stable
 class TWSViewState(webContent: WebContent) {
     /**
+     *  The content being loaded by the WebView
+     */
+    var content: WebContent by mutableStateOf(webContent)
+
+    /**
      * The URL of the last page that started loading.
      * This is updated when a new page load begins.
      */
@@ -60,11 +65,6 @@ class TWSViewState(webContent: WebContent) {
      */
     var currentUrl: String? by mutableStateOf(null)
         internal set
-
-    /**
-     *  The content being loaded by the WebView
-     */
-    var content: WebContent by mutableStateOf(webContent)
 
     /**
      * The URL of the initial page that started loading.
@@ -167,6 +167,7 @@ private fun createTWSViewStateSaver(
 ): Saver<TWSViewState, Any> {
     val pageTitleKey = "$key:pagetitle"
     val lastLoadedUrlKey = "$key:lastloaded"
+    val initialLoadedUrlKey = "$key:initialLoaded"
     val bundlePath = "$key:path"
 
     return mapSaver(
@@ -178,6 +179,7 @@ private fun createTWSViewStateSaver(
             mapOf(
                 pageTitleKey to state.title,
                 lastLoadedUrlKey to state.lastLoadedUrl,
+                initialLoadedUrlKey to state.initialLoadedUrl,
                 bundlePath to storePath
             )
         },
@@ -186,6 +188,7 @@ private fun createTWSViewStateSaver(
                 this.title = it[pageTitleKey] as String?
                 this.lastLoadedUrl = it[lastLoadedUrlKey] as String?
                 this.viewStatePath = it[bundlePath] as String?
+                this.initialLoadedUrl = it[initialLoadedUrlKey] as String?
             }
         }
     )
