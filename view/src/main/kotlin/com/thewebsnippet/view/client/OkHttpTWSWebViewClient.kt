@@ -85,7 +85,7 @@ internal class OkHttpTWSWebViewClient(
 
         if (request.method == "GET" &&
             request.isForMainFrame &&
-            state.initialLoadedUrl == request.url.toString()
+            state.shouldInjectDynamicModifiers(request.url.toString())
         ) {
             return try {
                 // Get cached or web response, depending on headers
@@ -109,6 +109,21 @@ internal class OkHttpTWSWebViewClient(
 
         // Use default behavior for other requests
         return super.shouldInterceptRequest(view, request)
+    }
+
+    private fun TWSViewState.shouldInjectDynamicModifiers(requestUrl: String): Boolean {
+        return when {
+            initialLoadedUrl == requestUrl -> {
+                // initial page is reloaded, need to inject
+                true
+            }
+            currentUrl == null && lastLoadedUrl == initialLoadedUrl -> {
+                // current page is reloading (restoration?), but nothing is injected, since nothing was loaded before
+                // inject only if SPA page
+                true
+            }
+            else -> false
+        }
     }
 
     private fun Response.modifyResponseAndServe(): WebResourceResponse? {
