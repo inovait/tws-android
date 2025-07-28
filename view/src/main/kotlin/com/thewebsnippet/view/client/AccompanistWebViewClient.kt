@@ -48,7 +48,15 @@ internal open class AccompanistWebViewClient : WebViewClient() {
         super.onPageStarted(view, url, favicon)
 
         state.webViewErrorsForCurrentRequest.clear()
-        state.lastLoadedUrl = url
+
+        if (state.currentUrl != null ||
+            state.lastLoadedUrl != state.initialLoadedUrl ||
+            state.lastLoadedUrl == null
+        ) {
+            // override last loaded URL if we are not loading SPA page
+            state.lastLoadedUrl = url
+        }
+
         (state.loadingState as? TWSLoadingState.Loading)?.let {
             state.loadingState = it.copy(mainFrameLoaded = false)
         }

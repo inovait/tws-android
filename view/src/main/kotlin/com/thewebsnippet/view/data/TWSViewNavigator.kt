@@ -87,6 +87,13 @@ class TWSViewNavigator(
     }
 
     /**
+     * Replaces current URL with new URL and triggers a navigation event.
+     */
+    fun replaceState(path: String) {
+        coroutineScope.launch { navigationEvents.emit(NavigationEvent.ReplaceState(path)) }
+    }
+
+    /**
      * Navigates back in the browser history.
      */
     fun popState() {
@@ -162,6 +169,15 @@ class TWSViewNavigator(
                     evaluateJavascript(jsScript, null)
                 }
 
+                is NavigationEvent.ReplaceState -> {
+                    @Suppress("StringTemplateIndent") // JavaScript
+                    val jsScript = """
+                        history.replaceState(null, "", '${event.path}');
+                        window.dispatchEvent(new Event("popstate"));
+                    """.trimIndent()
+                    evaluateJavascript(jsScript, null)
+                }
+
                 is NavigationEvent.LoadHtml -> loadDataWithBaseURL(
                     event.baseUrl,
                     event.html,
@@ -195,6 +211,7 @@ class TWSViewNavigator(
 
         data object PopState : NavigationEvent
         data class PushState(val path: String) : NavigationEvent
+        data class ReplaceState(val path: String) : NavigationEvent
 
         data class LoadSnippet(val snippet: TWSSnippet) : NavigationEvent
         data class LoadUrl(val url: String) : NavigationEvent
