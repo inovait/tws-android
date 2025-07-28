@@ -90,7 +90,7 @@ class TWSViewNavigator(
      * Replaces current URL with new URL and triggers a navigation event.
      */
     fun replaceState(path: String) {
-        coroutineScope.launch { navigationEvents.emit(NavigationEvent.PushState(path)) }
+        coroutineScope.launch { navigationEvents.emit(NavigationEvent.ReplaceState(path)) }
     }
 
     /**
