@@ -345,7 +345,8 @@ private fun SnippetErrors(
     refreshCallback: ErrorRefreshCallback
 ) {
     if (viewState.webViewErrorsForCurrentRequest.any { it.request?.isForMainFrame == true }) {
-        val message = viewState.webViewErrorsForCurrentRequest.firstOrNull()?.error?.description?.toString()
+        val error = viewState.webViewErrorsForCurrentRequest.firstOrNull()?.error
+        val message = error?.getUserFriendlyMessage() ?: error?.description?.toString()
             ?: stringResource(id = R.string.oops_loading_failed)
 
         errorViewContent(message, null, false)
