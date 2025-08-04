@@ -33,6 +33,7 @@ import okhttp3.Request
 import okhttp3.Response
 import okhttp3.ResponseBody
 import java.io.IOException
+import java.util.Locale
 
 /**
  * [OkHttpTWSWebViewClient] is a specialized subclass of [TWSWebViewClient] that integrates OkHttp for
@@ -166,8 +167,15 @@ internal class OkHttpTWSWebViewClient(
         return byteStream().bufferedReader().use { it.readText() }
     }
 
-    private fun WebResourceRequest.buildHeaders(): Headers =
-        Headers.headersOf(*requestHeaders.flatMap { listOf(it.key, it.value) }.toTypedArray())
+    private fun WebResourceRequest.buildHeaders(): Headers {
+        val headersMap = requestHeaders.toMutableMap()
+
+        if (!headersMap.containsKey("Accept-Language")) {
+            headersMap["Accept-Language"] = Locale.getDefault().toLanguageTag() // e.g., "en-US"
+        }
+
+        return Headers.headersOf(*headersMap.flatMap { listOf(it.key, it.value) }.toTypedArray())
+    }
 
     private fun WebResourceRequest.buildUrl(): String = url.toString()
 }
