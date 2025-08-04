@@ -200,6 +200,7 @@ internal fun WebView(
                 context = context,
                 navigator = navigator,
                 state = state,
+                enable = isRefreshable,
                 webView = createWebView(
                     context = context,
                     state = state,
@@ -366,10 +367,13 @@ private fun createSwipeRefreshLayout(
     context: Context,
     webView: WebView,
     navigator: TWSViewNavigator,
-    state: TWSViewState
+    state: TWSViewState,
+    enable: Boolean
 ): SwipeRefreshLayout {
     return SwipeRefreshLayout(context).apply {
+        isEnabled = enable
         setOnRefreshListener {
+            state.currentUrl = null // mark as null, so dynamic resources will be injected
             state.loadingState = TWSLoadingState.ForceRefreshInitiated
             navigator.reload()
         }

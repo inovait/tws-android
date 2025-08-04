@@ -17,5 +17,12 @@
     <string name="oops_loading_failed">Ooops, loading failed.</string>
     <string name="error_general">Oops, something went wrong. Data may be outdated.</string>
     <string name="error_no_network">Oops, no internet connection. Check your connection and try again.</string>
+    <string name="error_authentication">Authentication failed. Please verify your credentials.</string>
+    <string name="error_invalid_url">The link seems to be broken or invalid.</string>
+    <string name="error_file_not_found">The page or file you’re looking for could not be found.</string>
+    <string name="error_unsafe_resource">This page was blocked due to security concerns.</string>
+    <string name="error_ssl_handshake">We couldn’t establish a secure connection. Please try again later.</string>
+    <string name="error_too_many_requests">You’ve made too many requests in a short time. Please wait and try again.</string>
+    <string name="error_generic_io">Something went wrong while loading the page. Please try again.</string>
     <string name="refresh">Refresh</string>
 </resources>
