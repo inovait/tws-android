@@ -68,8 +68,8 @@ internal class HtmlModifierHelperImpl : HtmlModifierHelper {
             it.inject.orEmpty()
         }.trimIndent()
 
-        return if (contains("<head>")) {
-            replaceFirst("<head>", """<head>$combinedJsInjection""")
+        return if (contains("</head>")) {
+            replaceFirst("</head>", """$combinedJsInjection</head>""")
         } else {
             val htmlTagRegex = Regex("<html(\\s[^>]*)?>", RegexOption.IGNORE_CASE)
             if (htmlTagRegex.containsMatchIn(this)) {

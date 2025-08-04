@@ -48,8 +48,8 @@ class HtmlModifierHelperImplTest {
 
         val expected = """<html>""" +
             """<head>""" +
-            """<script type="text/javascript">var tws_injected = true;</script>""" +
             """<link rel="stylesheet" href="https://example.com/style.css">""" +
+            """<script type="text/javascript">var tws_injected = true;</script>""" +
             """</head>""" +
             """<body>Hello World</body>""" +
             """</html>"""
@@ -95,9 +95,9 @@ class HtmlModifierHelperImplTest {
 
         val expected = """<html>""" +
             """<head>""" +
+            """<link rel="stylesheet" href="https://example.com/style.css">""" +
             """<script type="text/javascript">var tws_injected = true;</script>""" +
             """<script src="https://example.com/script.js" type="text/javascript"></script>""" +
-            """<link rel="stylesheet" href="https://example.com/style.css">""" +
             """</head>""" +
             """<body>Hello World</body>""" +
             """</html>"""
@@ -178,9 +178,9 @@ class HtmlModifierHelperImplTest {
 
         val expected = """<html>""" +
             """<head>""" +
+            """<link rel="stylesheet" href="https://example.com/style.css">""" +
             """<script type="text/javascript">var tws_injected = true;</script>""" +
             """<script src="https://example.com/script.js" type="text/javascript"></script>""" +
-            """<link rel="stylesheet" href="https://example.com/style.css">""" +
             """</head>""" +
             """<body>Hello World</body>""" +
             """</html>"""
@@ -228,9 +228,9 @@ class HtmlModifierHelperImplTest {
 
         val expected = """<html>""" +
             """<head>""" +
-            """<script type="text/javascript">var tws_injected = true;</script>""" +
             """<link rel="stylesheet" href="https://example.com/style1.css">""" +
             """<link rel="stylesheet" href="https://example.com/style2.css">""" +
+            """<script type="text/javascript">var tws_injected = true;</script>""" +
             """</head>""" +
             """<body>Hello World</body>""" +
             """</html>"""
@@ -284,11 +284,11 @@ class HtmlModifierHelperImplTest {
 
         val expected = """<html>""" +
             """<head>""" +
+            """<link rel="stylesheet" href="https://example.com/style1.css">""" +
+            """<link rel="stylesheet" href="https://example.com/style2.css">""" +
             """<script type="text/javascript">var tws_injected = true;</script>""" +
             """<script src="https://example.com/script1.js" type="text/javascript"></script>""" +
             """<script src="https://example.com/script2.js" type="text/javascript"></script>""" +
-            """<link rel="stylesheet" href="https://example.com/style1.css">""" +
-            """<link rel="stylesheet" href="https://example.com/style2.css">""" +
             """</head>""" +
             """<body>Hello World</body>""" +
             """</html>"""
@@ -359,9 +359,9 @@ class HtmlModifierHelperImplTest {
 
         val expected = """<html>""" +
             """<head>""" +
+            """<link rel="stylesheet" href="https://example.com/style.css">""" +
             """<script type="text/javascript">var tws_injected = true;</script>""" +
             """<script src="https://example.com/script.js" type="text/javascript"></script>""" +
-            """<link rel="stylesheet" href="https://example.com/style.css">""" +
             """</head>""" +
             """<body>Hello World</body>""" +
             """</html>"""
@@ -548,9 +548,9 @@ class HtmlModifierHelperImplTest {
 
         val expected = """<html>""" +
             """<head>""" +
+            """<link rel="stylesheet" href="https://example.com/style.css">""" +
             """<script type="text/javascript">var tws_injected = true;</script>""" +
             """<script src="https://example.com/script.js" type="text/javascript"></script>""" +
-            """<link rel="stylesheet" href="https://example.com/style.css">""" +
             """</head>""" +
             "<body>" +
             "Hello World\n" +
@@ -593,6 +593,37 @@ class HtmlModifierHelperImplTest {
         val expected = """<html>""" +
             """<script type="text/javascript">var tws_injected = true;</script>""" +
             """<body> World</body>""" +
+            """</html>"""
+
+        assertEquals(expected, result)
+    }
+
+    @Test
+    fun `should inject resources after all other head content`() {
+        val html = "<html><head><meta-data><script>var test = true</script></head><body>Hello World</body></html>"
+        val jsResources = listOf(
+            TWSAttachment("https://example.com/style.css", TWSAttachmentType.CSS),
+            TWSAttachment("https://example.com/script1.js", TWSAttachmentType.JAVASCRIPT),
+            TWSAttachment("https://example.com/script2.js", TWSAttachmentType.JAVASCRIPT)
+        )
+
+        val result = helper.modifyContent(
+            htmlContent = html,
+            dynamicModifiers = jsResources,
+            mustacheProps = emptyMap(),
+            engine = TWSEngine.MUSTACHE
+        )
+
+        val expected = """<html>""" +
+            """<head>""" +
+            """<meta-data>""" +
+            """<script>var test = true</script>""" +
+            """<link rel="stylesheet" href="https://example.com/style.css">""" +
+            """<script type="text/javascript">var tws_injected = true;</script>""" +
+            """<script src="https://example.com/script1.js" type="text/javascript"></script>""" +
+            """<script src="https://example.com/script2.js" type="text/javascript"></script>""" +
+            """</head>""" +
+            """<body>Hello World</body>""" +
             """</html>"""
 
         assertEquals(expected, result)
