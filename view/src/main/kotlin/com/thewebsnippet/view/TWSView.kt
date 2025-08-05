@@ -83,7 +83,7 @@ import kotlinx.collections.immutable.toPersistentMap
  * @param errorViewContent A custom composable displayed when there is an error loading content.
  * Defaults to a [SnippetErrorView] with the same modifier as [TWSView].
  * @param loadingPlaceholderContent A custom composable displayed during loading.
- * Defaults to a [SnippetLoadingView] with the same modifier as [TWSView].
+ * Defaults to a [SnippetLoadingView] with the same modifier as [TWSView] that is displayed until mainFrame content is loaded.
  * @param interceptUrlCallback A [TWSViewInterceptor] invoked for URLs before navigation.
  * Return `true` to prevent navigation, `false` to allow it.
  * @param googleLoginRedirectUrl The URL the app should redirect to after a Google login
@@ -102,7 +102,7 @@ fun TWSView(
     modifier: Modifier = Modifier,
     navigator: TWSViewNavigator = rememberTWSViewNavigator(),
     errorViewContent: SnippetErrorContent = defaultErrorView(modifier),
-    loadingPlaceholderContent: @Composable () -> Unit = { SnippetLoadingView(modifier) },
+    loadingPlaceholderContent: @Composable (TWSLoadingState.Loading) -> Unit = { SnippetLoadingView(it, modifier) },
     interceptUrlCallback: TWSViewInterceptor = TWSViewDeepLinkInterceptor(LocalContext.current),
     googleLoginRedirectUrl: String? = null,
     isRefreshable: Boolean = true,
@@ -143,7 +143,7 @@ fun TWSView(
  * for the web snippet to be rendered.
  * @param modifier A [Modifier] to additionally customize the layout of the WebView.
  * @param errorViewContent A custom composable displayed when there is an error loading content.
- * Defaults to a [SnippetErrorView] with the same modifier as [TWSView].
+ * Defaults to a [SnippetLoadingView] with the same modifier as [TWSView] that is displayed until mainFrame content is loaded.
  * @param loadingPlaceholderContent A custom composable displayed during loading.
  * Defaults to a [SnippetLoadingView] with the same modifier as [TWSView].
  * @param interceptUrlCallback A [TWSViewInterceptor] invoked for URLs before navigation.
@@ -163,7 +163,7 @@ fun TWSView(
     snippet: TWSSnippet,
     modifier: Modifier = Modifier,
     errorViewContent: SnippetErrorContent = defaultErrorView(modifier),
-    loadingPlaceholderContent: @Composable () -> Unit = { SnippetLoadingView(modifier) },
+    loadingPlaceholderContent: @Composable (TWSLoadingState.Loading) -> Unit = { SnippetLoadingView(it, modifier) },
     interceptUrlCallback: TWSViewInterceptor = TWSViewDeepLinkInterceptor(LocalContext.current),
     googleLoginRedirectUrl: String? = null,
     isRefreshable: Boolean = true,
@@ -211,7 +211,7 @@ private fun SnippetContentWithPopup(
     navigator: TWSViewNavigator,
     viewState: TWSViewState,
     errorViewContent: SnippetErrorContent,
-    loadingPlaceholderContent: @Composable () -> Unit,
+    loadingPlaceholderContent: @Composable (TWSLoadingState.Loading) -> Unit,
     interceptUrlCallback: TWSViewInterceptor,
     googleLoginRedirectUrl: String?,
     isRefreshable: Boolean,
@@ -281,7 +281,7 @@ private fun SnippetContentWithPopup(
 private fun SnippetContentWithLoadingAndError(
     navigator: TWSViewNavigator,
     viewState: TWSViewState,
-    loadingPlaceholderContent: @Composable () -> Unit,
+    loadingPlaceholderContent: @Composable (TWSLoadingState.Loading) -> Unit,
     errorViewContent: SnippetErrorContent,
     interceptUrlCallback: TWSViewInterceptor,
     popupStateCallback: ((TWSViewState, Boolean) -> Unit)?,
@@ -322,7 +322,11 @@ private fun SnippetContentWithLoadingAndError(
             captureBackPresses = captureBackPresses
         )
 
-        SnippetLoading(viewState, loadingPlaceholderContent)
+        // display loading view, user can still override placeholder and return if he wants to hide loading view
+        // when certain conditions are met (i.e. see default implementation)
+        (viewState.loadingState as? TWSLoadingState.Loading)?.let {
+            loadingPlaceholderContent(it)
+        }
 
         SnippetErrors(viewState, errorViewContent) {
             val isInitialRequestError = viewState.customErrorsForCurrentRequest.isNotEmpty()
@@ -361,20 +365,9 @@ private fun SnippetErrors(
 }
 
 @Composable
-private fun SnippetLoading(
-    viewState: TWSViewState,
-    loadingPlaceholderContent: @Composable () -> Unit
-) {
-    val state = viewState.loadingState as? TWSLoadingState.Loading ?: return
-    if (!state.mainFrameLoaded && !state.isUserForceRefresh) {
-        loadingPlaceholderContent()
-    }
-}
-
-@Composable
 private fun PopUpWebView(
     popupState: TWSViewState,
-    loadingPlaceholderContent: @Composable () -> Unit,
+    loadingPlaceholderContent: @Composable (TWSLoadingState.Loading) -> Unit,
     errorViewContent: SnippetErrorContent,
     onDismissRequest: () -> Unit,
     interceptUrlCallback: TWSViewInterceptor,
