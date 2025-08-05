@@ -152,28 +152,12 @@ class TWSViewNavigator(
                 is NavigationEvent.Forward -> goForward()
                 is NavigationEvent.Reload -> reload()
                 is NavigationEvent.LoadUrl -> loadUrl(event.url)
+                is NavigationEvent.PushState -> navigateReactOrFallback(event.path, false)
+                is NavigationEvent.ReplaceState -> navigateReactOrFallback(event.path, true)
                 is NavigationEvent.PopState -> {
                     @Suppress("StringTemplateIndent") // JavaScript
                     val jsScript = """
                         history.back();
-                    """.trimIndent()
-                    evaluateJavascript(jsScript, null)
-                }
-
-                is NavigationEvent.PushState -> {
-                    @Suppress("StringTemplateIndent") // JavaScript
-                    val jsScript = """
-                        history.pushState(null, "", '${event.path}');
-                        window.dispatchEvent(new Event("popstate"));
-                    """.trimIndent()
-                    evaluateJavascript(jsScript, null)
-                }
-
-                is NavigationEvent.ReplaceState -> {
-                    @Suppress("StringTemplateIndent") // JavaScript
-                    val jsScript = """
-                        history.replaceState(null, "", '${event.path}');
-                        window.dispatchEvent(new Event("popstate"));
                     """.trimIndent()
                     evaluateJavascript(jsScript, null)
                 }
@@ -201,6 +185,25 @@ class TWSViewNavigator(
             }
 
             navigationEvents.resetReplayCache()
+        }
+    }
+
+    private fun WebView.navigateReactOrFallback(path: String, replace: Boolean) {
+        val checkNavigateFunction = "typeof window.navigateFromNative === 'function';"
+        evaluateJavascript(checkNavigateFunction) { result ->
+            if (result == "true") {
+                val jsNavigate = "navigateFromNative('$path', { replace: $replace });"
+                evaluateJavascript(jsNavigate, null)
+            } else {
+                val historyMethod = if (replace) "replaceState" else "pushState"
+
+                @Suppress("StringTemplateIndent") // JavaScript
+                val fallbackNavigate = """
+                    history.$historyMethod(null, "", '$path');
+                    window.dispatchEvent(new Event("popstate"));
+                """.trimIndent()
+                evaluateJavascript(fallbackNavigate, null)
+            }
         }
     }
 

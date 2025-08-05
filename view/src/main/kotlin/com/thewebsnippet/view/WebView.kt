@@ -46,6 +46,7 @@ import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.thewebsnippet.view.client.AccompanistWebChromeClient
 import com.thewebsnippet.view.client.AccompanistWebViewClient
+import com.thewebsnippet.view.client.OkHttpTWSWebViewClient
 import com.thewebsnippet.view.client.TWSWebChromeClient
 import com.thewebsnippet.view.data.TWSDownloadListener
 import com.thewebsnippet.view.data.TWSLoadingState
@@ -56,7 +57,7 @@ import com.thewebsnippet.view.data.rememberTWSViewNavigator
 import com.thewebsnippet.view.saver.FileWebViewStateManager
 import com.thewebsnippet.view.saver.WebViewStateManager
 import com.thewebsnippet.view.util.JavaScriptDownloadInterface
-import com.thewebsnippet.view.util.JavaScriptDownloadInterface.Companion.JAVASCRIPT_INTERFACE_NAME
+import com.thewebsnippet.view.util.NavigateNativeInterface
 
 /**
  *  A wrapper around the Android View WebView to provide a basic WebView composable.
@@ -341,6 +342,7 @@ private fun SetupFileChooserLauncher(chromeClient: TWSWebChromeClient) {
     }
 }
 
+@Suppress("DEPRECATION")
 private fun createWebView(
     context: Context,
     state: TWSViewState,
@@ -360,7 +362,17 @@ private fun createWebView(
             stateManager.deleteWebViewState(it)
         }
 
-        addJavascriptInterface(JavaScriptDownloadInterface(context), JAVASCRIPT_INTERFACE_NAME)
+        // download interface
+        addJavascriptInterface(
+            JavaScriptDownloadInterface(context),
+            JavaScriptDownloadInterface.JAVASCRIPT_INTERFACE_NAME
+        )
+
+        // intercept spa navigation interface
+        addJavascriptInterface(
+            NavigateNativeInterface { (client as OkHttpTWSWebViewClient).shouldOverrideUrlLoading(this, it) },
+            NavigateNativeInterface.JAVASCRIPT_INTERFACE_NAME
+        )
     }.also { state.webView = it }
 }
 

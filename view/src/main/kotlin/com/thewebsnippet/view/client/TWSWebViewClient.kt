@@ -26,6 +26,7 @@ import androidx.browser.customtabs.CustomTabsCallback
 import androidx.browser.customtabs.CustomTabsClient
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.browser.customtabs.CustomTabsServiceConnection
+import androidx.core.net.toUri
 import com.thewebsnippet.view.data.TWSViewInterceptor
 import com.thewebsnippet.view.data.TWSViewState
 
@@ -61,6 +62,13 @@ internal open class TWSWebViewClient(
         }
 
         return request?.url?.let {
+            interceptUrlCallback.handleUrl(it)
+        } == true
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
+        return url?.toUri()?.let {
             interceptUrlCallback.handleUrl(it)
         } == true
     }
