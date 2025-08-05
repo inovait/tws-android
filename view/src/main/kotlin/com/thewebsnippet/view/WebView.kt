@@ -41,6 +41,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.thewebsnippet.view.client.AccompanistWebChromeClient
@@ -372,6 +373,27 @@ private fun createSwipeRefreshLayout(
 ): SwipeRefreshLayout {
     return SwipeRefreshLayout(context).apply {
         isEnabled = enable
+
+        val typedArray = context.theme.obtainStyledAttributes(
+            null,
+            R.styleable.TWSViewAttributes,
+            0,
+            0
+        )
+        val spinnerColor = typedArray.getColor(
+            R.styleable.TWSViewAttributes_twsViewSwipeRefreshSpinnerColor,
+            ContextCompat.getColor(context, android.R.color.black) // default
+        )
+
+        val backgroundColor = typedArray.getColor(
+            R.styleable.TWSViewAttributes_twsViewSwipeRefreshBackgroundColor,
+            ContextCompat.getColor(context, android.R.color.white) // default
+        )
+        typedArray.recycle()
+
+        setColorSchemeColors(spinnerColor)
+        setProgressBackgroundColorSchemeColor(backgroundColor)
+
         setOnRefreshListener {
             state.currentUrl = null // mark as null, so dynamic resources will be injected
             state.loadingState = TWSLoadingState.ForceRefreshInitiated
