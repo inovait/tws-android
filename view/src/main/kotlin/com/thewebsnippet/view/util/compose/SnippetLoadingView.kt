@@ -28,14 +28,25 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.thewebsnippet.view.data.TWSLoadingState
 
 /**
- * A composable function that displays a loading indicator for snippets.
+ * A composable function that displays a loading indicator for snippets until main frame content is successfully loaded.
  *
+ * @param loadingState The current loading state containing information about progress,
+ * whether the main frame is loaded, and if the user has forced a refresh.
+ * If [TWSLoadingState.Loading.isUserForceRefresh] or [TWSLoadingState.Loading.mainFrameLoaded] are true,
+ * the loading view is skipped.
  * @param modifier A [Modifier] to configure the layout or styling of the loading view.
  */
 @Composable
-fun SnippetLoadingView(modifier: Modifier = Modifier) {
+fun SnippetLoadingView(
+    loadingState: TWSLoadingState.Loading,
+    modifier: Modifier = Modifier
+) {
+    // stop showing loading view after mainframe is loaded or if user forced refresh (pull to refresh indicator is shown)
+    if (loadingState.mainFrameLoaded || loadingState.isUserForceRefresh) return
+
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -54,5 +65,8 @@ fun SnippetLoadingView(modifier: Modifier = Modifier) {
 @Preview
 @Composable
 private fun SnippetLoadingFullScreenPreview() {
-    SnippetLoadingView(modifier = Modifier.fillMaxHeight())
+    SnippetLoadingView(
+        loadingState = TWSLoadingState.Loading(progress = 0.8f, mainFrameLoaded = false, isUserForceRefresh = false),
+        modifier = Modifier.fillMaxHeight()
+    )
 }

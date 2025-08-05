@@ -31,6 +31,7 @@ import com.thewebsnippet.manager.core.TWSFactory
 import com.thewebsnippet.manager.core.TWSOutcome
 import com.thewebsnippet.manager.core.mapData
 import com.thewebsnippet.view.TWSView
+import com.thewebsnippet.view.data.TWSLoadingState
 import com.thewebsnippet.view.util.compose.SnippetLoadingView
 import com.thewebsnippet.view.util.compose.error.SnippetErrorView
 
@@ -94,7 +95,10 @@ internal class TWSViewPopupActivity : ComponentActivity() {
             }
 
             pushSnippetOutcome is TWSOutcome.Progress -> {
-                SnippetLoadingView(modifier = Modifier.fillMaxSize())
+                SnippetLoadingView(
+                    modifier = Modifier.fillMaxSize(),
+                    loadingState = TWSLoadingState.Loading(progress = 0f, mainFrameLoaded = false, isUserForceRefresh = false)
+                )
             }
 
             pushSnippetOutcome is TWSOutcome.Error -> {
