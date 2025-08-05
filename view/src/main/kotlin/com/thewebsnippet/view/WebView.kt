@@ -23,9 +23,7 @@ import android.content.Intent
 import android.net.Uri
 import android.view.ViewGroup.LayoutParams
 import android.webkit.ValueCallback
-import android.webkit.WebChromeClient
 import android.webkit.WebView
-import android.webkit.WebViewClient
 import android.widget.FrameLayout
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -53,6 +51,7 @@ import com.thewebsnippet.view.data.TWSLoadingState
 import com.thewebsnippet.view.data.TWSViewNavigator
 import com.thewebsnippet.view.data.TWSViewState
 import com.thewebsnippet.view.data.WebContent
+import com.thewebsnippet.view.data.getSnippet
 import com.thewebsnippet.view.data.rememberTWSViewNavigator
 import com.thewebsnippet.view.saver.FileWebViewStateManager
 import com.thewebsnippet.view.saver.WebViewStateManager
@@ -161,6 +160,7 @@ internal fun WebView(
  * @param client Provides access to WebViewClient via subclassing.
  * @param chromeClient Provides access to WebChromeClient via subclassing.
  */
+@Suppress("DEPRECATION")
 @Composable
 internal fun WebView(
     state: TWSViewState,
@@ -196,6 +196,8 @@ internal fun WebView(
     client.navigator = navigator
     chromeClient.state = state
 
+    val stateManager = remember { FileWebViewStateManager() }
+
     AndroidView(
         factory = { context ->
             createSwipeRefreshLayout(
@@ -207,7 +209,11 @@ internal fun WebView(
                     context = context,
                     state = state,
                     onCreated = { wv ->
+                        wv.webChromeClient = chromeClient
+                        wv.webViewClient = client
+
                         onCreated(wv)
+
                         wv.layoutParams = layoutParams
                         wv.setDownloadListener(
                             TWSDownloadListener(context, wv) { permission, callback ->
@@ -215,15 +221,31 @@ internal fun WebView(
                                 permissionCallback.value = callback
                             }
                         )
+                        // download interface
+                        wv.addJavascriptInterface(
+                            JavaScriptDownloadInterface(context),
+                            JavaScriptDownloadInterface.JAVASCRIPT_INTERFACE_NAME
+                        )
+
+                        // intercept spa navigation interface
+                        wv.addJavascriptInterface(
+                            NavigateNativeInterface { (client as OkHttpTWSWebViewClient).shouldOverrideUrlLoading(wv, it) },
+                            NavigateNativeInterface.JAVASCRIPT_INTERFACE_NAME
+                        )
                     },
-                    client = client,
-                    chromeClient = chromeClient
+                    stateManager = stateManager
                 )
             )
         },
         modifier = modifier,
         onRelease = {
             val wv = state.webView ?: return@AndroidView
+
+            state.viewStatePath = stateManager.saveWebViewState(
+                context = wv.context,
+                webView = wv,
+                key = state.content.getSnippet()?.id.orEmpty()
+            )
             state.webView = null
 
             onDispose(wv)
@@ -342,37 +364,19 @@ private fun SetupFileChooserLauncher(chromeClient: TWSWebChromeClient) {
     }
 }
 
-@Suppress("DEPRECATION")
 private fun createWebView(
     context: Context,
     state: TWSViewState,
     onCreated: (WebView) -> Unit,
-    client: WebViewClient,
-    chromeClient: WebChromeClient,
-    stateManager: WebViewStateManager = FileWebViewStateManager()
+    stateManager: WebViewStateManager
 ): WebView {
     return WebView(context).apply {
-        webChromeClient = chromeClient
-        webViewClient = client
-
         onCreated(this)
 
         state.viewStatePath?.let {
             stateManager.restoreWebViewState(this, it)
             stateManager.deleteWebViewState(it)
         }
-
-        // download interface
-        addJavascriptInterface(
-            JavaScriptDownloadInterface(context),
-            JavaScriptDownloadInterface.JAVASCRIPT_INTERFACE_NAME
-        )
-
-        // intercept spa navigation interface
-        addJavascriptInterface(
-            NavigateNativeInterface { (client as OkHttpTWSWebViewClient).shouldOverrideUrlLoading(this, it) },
-            NavigateNativeInterface.JAVASCRIPT_INTERFACE_NAME
-        )
     }.also { state.webView = it }
 }
 
