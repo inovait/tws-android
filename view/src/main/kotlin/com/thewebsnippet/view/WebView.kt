@@ -200,42 +200,47 @@ internal fun WebView(
 
     AndroidView(
         factory = { context ->
-            createSwipeRefreshLayout(
+            val wv = createWebView(
                 context = context,
-                navigator = navigator,
                 state = state,
-                enable = isRefreshable,
-                webView = createWebView(
-                    context = context,
-                    state = state,
-                    onCreated = { wv ->
-                        wv.webChromeClient = chromeClient
-                        wv.webViewClient = client
+                onCreated = { wv ->
+                    wv.webChromeClient = chromeClient
+                    wv.webViewClient = client
 
-                        onCreated(wv)
+                    onCreated(wv)
 
-                        wv.layoutParams = layoutParams
-                        wv.setDownloadListener(
-                            TWSDownloadListener(context, wv) { permission, callback ->
-                                permissionLauncher.launch(permission)
-                                permissionCallback.value = callback
-                            }
-                        )
-                        // download interface
-                        wv.addJavascriptInterface(
-                            JavaScriptDownloadInterface(context),
-                            JavaScriptDownloadInterface.JAVASCRIPT_INTERFACE_NAME
-                        )
+                    wv.layoutParams = layoutParams
+                    wv.setDownloadListener(
+                        TWSDownloadListener(context, wv) { permission, callback ->
+                            permissionLauncher.launch(permission)
+                            permissionCallback.value = callback
+                        }
+                    )
+                    // download interface
+                    wv.addJavascriptInterface(
+                        JavaScriptDownloadInterface(context),
+                        JavaScriptDownloadInterface.JAVASCRIPT_INTERFACE_NAME
+                    )
 
-                        // intercept spa navigation interface
-                        wv.addJavascriptInterface(
-                            NavigateNativeInterface { (client as OkHttpTWSWebViewClient).shouldOverrideUrlLoading(wv, it) },
-                            NavigateNativeInterface.JAVASCRIPT_INTERFACE_NAME
-                        )
-                    },
-                    stateManager = stateManager
-                )
+                    // intercept spa navigation interface
+                    wv.addJavascriptInterface(
+                        NavigateNativeInterface { (client as OkHttpTWSWebViewClient).shouldOverrideUrlLoading(wv, it) },
+                        NavigateNativeInterface.JAVASCRIPT_INTERFACE_NAME
+                    )
+                },
+                stateManager = stateManager
             )
+
+            if (isRefreshable) {
+                createSwipeRefreshLayout(
+                    context = context,
+                    navigator = navigator,
+                    state = state,
+                    webView = wv
+                )
+            } else {
+                wv
+            }
         },
         modifier = modifier,
         onRelease = {
@@ -246,12 +251,13 @@ internal fun WebView(
                 webView = wv,
                 key = state.content.getSnippet()?.id.orEmpty()
             )
+            state.currentUrl = null // mark as null, so dynamic resources will be injected
             state.webView = null
 
             onDispose(wv)
         },
         update = {
-            if (isRefreshable) {
+            if (it is SwipeRefreshLayout) {
                 it.isRefreshing = (state.loadingState as? TWSLoadingState.Loading)?.isUserForceRefresh == true
             }
         }
@@ -385,11 +391,8 @@ private fun createSwipeRefreshLayout(
     webView: WebView,
     navigator: TWSViewNavigator,
     state: TWSViewState,
-    enable: Boolean
 ): SwipeRefreshLayout {
     return SwipeRefreshLayout(context).apply {
-        isEnabled = enable
-
         val typedArray = context.theme.obtainStyledAttributes(
             null,
             R.styleable.TWSViewAttributes,
