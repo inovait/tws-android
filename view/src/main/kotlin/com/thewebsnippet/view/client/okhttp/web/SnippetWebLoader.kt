@@ -27,7 +27,7 @@ import com.thewebsnippet.view.data.ResponseMetaData
  * - Parsing and modifying HTML content
  * - Returning metadata about the final result
  */
-interface SnippetWebLoader {
+internal interface SnippetWebLoader {
     /**
      * Loads a given [TWSSnippet], performs necessary network and transformation logic,
      * and returns the resulting HTML and metadata.
