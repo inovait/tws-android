@@ -26,7 +26,9 @@ import com.thewebsnippet.data.TWSEngine
 import com.thewebsnippet.manager.domain.auth.Auth
 import com.thewebsnippet.manager.data.preference.TWSBuildImpl
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.runBlocking
+import okhttp3.Authenticator
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import java.time.Instant
@@ -67,34 +69,56 @@ internal fun prepareBaseOkHttpClient(context: Context, auth: Auth?): OkHttpClien
     }
 
     return OkHttpClient.Builder()
+        .retryOnConnectionFailure(false)
         .apply {
             addInterceptor(userAgentInterceptor)
-            addInterceptor { chain ->
-                runBlocking {
-                    val token = auth?.getToken?.first() ?: TWSBuildImpl.token
-
-                    val request = chain.request()
-                        .newBuilder()
-                        .header("Authorization", "Bearer $token")
-                        .build()
-
-                    chain.proceed(request)
-                }
-            }
-            if (auth != null) {
-                authenticator { _, response ->
-                    runBlocking {
-                        auth.refreshToken()
-
-                        val token = auth.getToken.first()
-
-                        response.request.newBuilder()
-                            .header("Authorization", "Bearer $token")
-                            .build()
-                    }
-                }
-            }
+            addInterceptor(prepareAuthInterceptor(auth))
+            authenticator(prepareAuthenticator(auth))
         }
+}
+
+private fun prepareAuthenticator(auth: Auth?) = Authenticator { _, response ->
+    runBlocking {
+        val token: String? = if (auth != null) {
+            auth.refreshToken()
+            auth.getToken.firstOrNull()?.takeIf { it.isNotBlank() }
+        } else {
+            TWSBuildImpl.token
+        }
+
+        if (token.isNullOrBlank()) {
+            // Stop retrying if token is invalid or empty
+            null
+        } else {
+            response.request.newBuilder()
+                .header("Authorization", "Bearer $token")
+                .build()
+        }
+    }
+}
+
+private fun prepareAuthInterceptor(auth: Auth?) = Interceptor { chain ->
+    val original = chain.request()
+
+    val token: String = runBlocking {
+        if (auth != null) {
+            val token = auth.getToken.firstOrNull()?.takeIf { it.isNotBlank() }
+            if (token == null) {
+                auth.refreshToken()
+                auth.getToken.first()
+            } else {
+                token
+            }
+        } else {
+            TWSBuildImpl.token
+        }
+    }
+
+    chain.proceed(
+        original.newBuilder()
+            .header("Authorization", "Bearer $token")
+            .build()
+    )
 }
 
 internal fun String.toTWSUserAgent() = "$this TheWebSnippet"
