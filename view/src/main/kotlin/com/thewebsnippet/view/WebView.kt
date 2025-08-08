@@ -20,6 +20,7 @@ package com.thewebsnippet.view
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.net.Uri
 import android.view.ViewGroup.LayoutParams
 import android.webkit.ValueCallback
@@ -378,6 +379,8 @@ private fun createWebView(
 ): WebView {
     return WebView(context).apply {
         onCreated(this)
+
+        setBackgroundColor(Color.TRANSPARENT)
 
         state.viewStatePath?.let {
             stateManager.restoreWebViewState(this, it)
