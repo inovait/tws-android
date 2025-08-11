@@ -1,0 +1,4 @@
+/* hide jvm filter from packages and top bar navigation*/
+.platform-tags, .filter-section {
+    display: none !important;
+}
