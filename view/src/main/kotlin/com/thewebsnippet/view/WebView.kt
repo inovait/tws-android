@@ -20,12 +20,11 @@ package com.thewebsnippet.view
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.net.Uri
 import android.view.ViewGroup.LayoutParams
 import android.webkit.ValueCallback
-import android.webkit.WebChromeClient
 import android.webkit.WebView
-import android.webkit.WebViewClient
 import android.widget.FrameLayout
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -41,21 +40,24 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.thewebsnippet.view.client.AccompanistWebChromeClient
 import com.thewebsnippet.view.client.AccompanistWebViewClient
+import com.thewebsnippet.view.client.OkHttpTWSWebViewClient
 import com.thewebsnippet.view.client.TWSWebChromeClient
 import com.thewebsnippet.view.data.TWSDownloadListener
 import com.thewebsnippet.view.data.TWSLoadingState
 import com.thewebsnippet.view.data.TWSViewNavigator
 import com.thewebsnippet.view.data.TWSViewState
 import com.thewebsnippet.view.data.WebContent
+import com.thewebsnippet.view.data.getSnippet
 import com.thewebsnippet.view.data.rememberTWSViewNavigator
 import com.thewebsnippet.view.saver.FileWebViewStateManager
 import com.thewebsnippet.view.saver.WebViewStateManager
 import com.thewebsnippet.view.util.JavaScriptDownloadInterface
-import com.thewebsnippet.view.util.JavaScriptDownloadInterface.Companion.JAVASCRIPT_INTERFACE_NAME
+import com.thewebsnippet.view.util.NavigateNativeInterface
 
 /**
  *  A wrapper around the Android View WebView to provide a basic WebView composable.
@@ -159,6 +161,7 @@ internal fun WebView(
  * @param client Provides access to WebViewClient via subclassing.
  * @param chromeClient Provides access to WebChromeClient via subclassing.
  */
+@Suppress("DEPRECATION")
 @Composable
 internal fun WebView(
     state: TWSViewState,
@@ -194,40 +197,68 @@ internal fun WebView(
     client.navigator = navigator
     chromeClient.state = state
 
+    val stateManager = remember { FileWebViewStateManager() }
+
     AndroidView(
         factory = { context ->
-            createSwipeRefreshLayout(
+            val wv = createWebView(
                 context = context,
-                navigator = navigator,
                 state = state,
-                enable = isRefreshable,
-                webView = createWebView(
-                    context = context,
-                    state = state,
-                    onCreated = { wv ->
-                        onCreated(wv)
-                        wv.layoutParams = layoutParams
-                        wv.setDownloadListener(
-                            TWSDownloadListener(context, wv) { permission, callback ->
-                                permissionLauncher.launch(permission)
-                                permissionCallback.value = callback
-                            }
-                        )
-                    },
-                    client = client,
-                    chromeClient = chromeClient
-                )
+                onCreated = { wv ->
+                    wv.webChromeClient = chromeClient
+                    wv.webViewClient = client
+
+                    onCreated(wv)
+
+                    wv.layoutParams = layoutParams
+                    wv.setDownloadListener(
+                        TWSDownloadListener(context, wv) { permission, callback ->
+                            permissionLauncher.launch(permission)
+                            permissionCallback.value = callback
+                        }
+                    )
+                    // download interface
+                    wv.addJavascriptInterface(
+                        JavaScriptDownloadInterface(context),
+                        JavaScriptDownloadInterface.JAVASCRIPT_INTERFACE_NAME
+                    )
+
+                    // intercept spa navigation interface
+                    wv.addJavascriptInterface(
+                        NavigateNativeInterface { (client as OkHttpTWSWebViewClient).shouldOverrideUrlLoading(wv, it) },
+                        NavigateNativeInterface.JAVASCRIPT_INTERFACE_NAME
+                    )
+                },
+                stateManager = stateManager
             )
+
+            if (isRefreshable) {
+                createSwipeRefreshLayout(
+                    context = context,
+                    navigator = navigator,
+                    state = state,
+                    webView = wv
+                )
+            } else {
+                wv
+            }
         },
         modifier = modifier,
         onRelease = {
             val wv = state.webView ?: return@AndroidView
+
+            state.viewStatePath = stateManager.saveWebViewState(
+                context = wv.context,
+                webView = wv,
+                key = state.content.getSnippet()?.id.orEmpty()
+            )
+            state.currentUrl = null // mark as null, so dynamic resources will be injected
             state.webView = null
 
             onDispose(wv)
         },
         update = {
-            if (isRefreshable) {
+            if (it is SwipeRefreshLayout) {
                 it.isRefreshing = (state.loadingState as? TWSLoadingState.Loading)?.isUserForceRefresh == true
             }
         }
@@ -344,22 +375,17 @@ private fun createWebView(
     context: Context,
     state: TWSViewState,
     onCreated: (WebView) -> Unit,
-    client: WebViewClient,
-    chromeClient: WebChromeClient,
-    stateManager: WebViewStateManager = FileWebViewStateManager()
+    stateManager: WebViewStateManager
 ): WebView {
     return WebView(context).apply {
-        webChromeClient = chromeClient
-        webViewClient = client
-
         onCreated(this)
+
+        setBackgroundColor(Color.TRANSPARENT)
 
         state.viewStatePath?.let {
             stateManager.restoreWebViewState(this, it)
             stateManager.deleteWebViewState(it)
         }
-
-        addJavascriptInterface(JavaScriptDownloadInterface(context), JAVASCRIPT_INTERFACE_NAME)
     }.also { state.webView = it }
 }
 
@@ -368,10 +394,28 @@ private fun createSwipeRefreshLayout(
     webView: WebView,
     navigator: TWSViewNavigator,
     state: TWSViewState,
-    enable: Boolean
 ): SwipeRefreshLayout {
     return SwipeRefreshLayout(context).apply {
-        isEnabled = enable
+        val typedArray = context.theme.obtainStyledAttributes(
+            null,
+            R.styleable.TWSViewAttributes,
+            0,
+            0
+        )
+        val spinnerColor = typedArray.getColor(
+            R.styleable.TWSViewAttributes_twsViewSwipeRefreshSpinnerColor,
+            ContextCompat.getColor(context, android.R.color.black) // default
+        )
+
+        val backgroundColor = typedArray.getColor(
+            R.styleable.TWSViewAttributes_twsViewSwipeRefreshBackgroundColor,
+            ContextCompat.getColor(context, android.R.color.white) // default
+        )
+        typedArray.recycle()
+
+        setColorSchemeColors(spinnerColor)
+        setProgressBackgroundColorSchemeColor(backgroundColor)
+
         setOnRefreshListener {
             state.currentUrl = null // mark as null, so dynamic resources will be injected
             state.loadingState = TWSLoadingState.ForceRefreshInitiated

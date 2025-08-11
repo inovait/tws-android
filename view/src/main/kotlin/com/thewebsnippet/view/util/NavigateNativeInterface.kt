@@ -13,36 +13,21 @@
  *   BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.thewebsnippet.manager.data.auth
 
-import android.content.Context
-import com.thewebsnippet.manager.domain.auth.Auth
-import com.thewebsnippet.manager.data.factory.BaseServiceFactory
-import com.thewebsnippet.manager.data.factory.create
-import com.thewebsnippet.manager.data.function.TWSAuthFunction
-import com.thewebsnippet.manager.domain.preference.AuthPreference
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
+package com.thewebsnippet.view.util
 
-internal class AuthRegisterManagerImpl(
-    context: Context,
-    private val auth: AuthPreference,
-    private val twsAuth: TWSAuthFunction = BaseServiceFactory(context).create()
-) : Auth {
-    override val getToken: Flow<String>
-        get() = auth.refreshToken
+import android.webkit.JavascriptInterface
 
-    private val mutex = Mutex()
+class NavigateNativeInterface(
+    private val onNavigate: (String) -> Unit
+) {
+    @Suppress("unused")
+    @JavascriptInterface
+    fun navigate(path: String) {
+        onNavigate(path)
+    }
 
-    override suspend fun refreshToken() {
-        val wasLocked = mutex.isLocked
-
-        mutex.withLock {
-            if (wasLocked) return
-
-            val response = twsAuth.register()
-            auth.setRefreshToken(response.refreshToken)
-        }
+    companion object {
+        const val JAVASCRIPT_INTERFACE_NAME = "TWSSdk"
     }
 }

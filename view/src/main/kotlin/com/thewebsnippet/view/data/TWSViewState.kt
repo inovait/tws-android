@@ -151,7 +151,7 @@ fun rememberSavableTWSViewState(
     key: String = default?.id.orEmpty()
 ): TWSViewState {
     return rememberSaveable(
-        saver = createTWSViewStateSaver(LocalContext.current, key, default),
+        saver = createTWSViewStateSaver(LocalContext.current, default),
         key = key.takeIf { it.isNotEmpty() },
         inputs = inputs
     ) {
@@ -161,10 +161,11 @@ fun rememberSavableTWSViewState(
 
 private fun createTWSViewStateSaver(
     context: Context,
-    key: String,
     default: TWSSnippet?,
     stateManager: WebViewStateManager = FileWebViewStateManager()
 ): Saver<TWSViewState, Any> {
+    val key = default?.id.orEmpty()
+
     val pageTitleKey = "$key:pagetitle"
     val lastLoadedUrlKey = "$key:lastloaded"
     val initialLoadedUrlKey = "$key:initialLoaded"
