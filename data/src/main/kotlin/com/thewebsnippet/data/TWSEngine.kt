@@ -15,6 +15,7 @@
  */
 package com.thewebsnippet.data
 
+import androidx.annotation.Keep
 import com.squareup.moshi.Json
 
 /**
@@ -23,6 +24,7 @@ import com.squareup.moshi.Json
  * This enum defines the available content processing engines, determining how the input content
  * is processed and displayed in the SDK's TWSView.
  */
+@Keep
 enum class TWSEngine {
     /**
      * Content will be processed using the Mustache templating engine. The content is rendered dynamically
