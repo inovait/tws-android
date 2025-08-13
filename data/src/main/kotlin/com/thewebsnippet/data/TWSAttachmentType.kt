@@ -15,11 +15,13 @@
  */
 package com.thewebsnippet.data
 
+import androidx.annotation.Keep
 import com.squareup.moshi.Json
 
 /**
  * Enum class representing the types of injections that can be performed.
  */
+@Keep
 enum class TWSAttachmentType {
     @Json(name = "text/css")
     CSS,
