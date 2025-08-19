@@ -16,24 +16,31 @@
 
 package com.thewebsnippet.view.client.okhttp.web
 
-import com.thewebsnippet.data.TWSSnippet
 import com.thewebsnippet.view.data.ResponseMetaData
 
 /**
- * Defines the contract for loading and transforming a TWS snippet into structured web content.
+ * Defines the contract for loading and resolving an url into structured content.
  *
  * Implementations are responsible for:
- * - Executing HTTP requests (including redirects if needed)
- * - Parsing and modifying HTML content
- * - Returning metadata about the final result
+ * - Executing HTTP requests using the given target URL and headers
+ * - Following redirects until a final, resolved URL is reached
+ * - Optionally parsing or transforming the received content
+ * - Returning metadata describing the final result
+ *
+ * This abstraction decouples higher-level WebView logic from the underlying
+ * HTTP/redirect handling and content resolution.
  */
 interface SnippetWebLoader {
     /**
-     * Loads a given [TWSSnippet], performs necessary network and transformation logic,
-     * and returns the resulting HTML and metadata.
+     * Loads the given [target] URL, applying any provided [headers],
+     * and resolves the final state after redirects.
      *
-     * @param snippet The snippet to load, including target URL, headers, props, and dynamic resources.
-     * @return [ResponseMetaData] containing the final URL, MIME type, encoding, and transformed HTML content.
+     * Implementations may also transform or enrich the response before returning.
+     *
+     * @param target  The initial URL to load.
+     * @param headers Optional HTTP headers to include in the request.
+     * @return [ResponseMetaData] containing the final resolved URL, MIME type,
+     *         encoding, and optionally transformed content.
      */
-    suspend fun response(snippet: TWSSnippet): ResponseMetaData
+    suspend fun response(target: String, headers: Map<String, String> = emptyMap()): ResponseMetaData
 }

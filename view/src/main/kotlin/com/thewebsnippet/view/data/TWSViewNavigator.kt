@@ -107,13 +107,13 @@ class TWSViewNavigator(
         coroutineScope.launch { navigationEvents.emit(NavigationEvent.Reload) }
     }
 
-    internal fun loadSnippet(snippet: TWSSnippet) {
+    fun loadSnippet(snippet: TWSSnippet) {
         coroutineScope.launch {
             navigationEvents.emit(NavigationEvent.LoadSnippet(snippet))
         }
     }
 
-    internal fun loadUrl(url: String) {
+    fun loadUrl(url: String) {
         coroutineScope.launch {
             navigationEvents.emit(NavigationEvent.LoadUrl(url))
         }
@@ -151,7 +151,6 @@ class TWSViewNavigator(
                 is NavigationEvent.Back -> goBack()
                 is NavigationEvent.Forward -> goForward()
                 is NavigationEvent.Reload -> reload()
-                is NavigationEvent.LoadUrl -> loadUrl(event.url)
                 is NavigationEvent.PushState -> navigateReactOrFallback(event.path, false)
                 is NavigationEvent.ReplaceState -> navigateReactOrFallback(event.path, true)
                 is NavigationEvent.PopState -> {
@@ -170,21 +169,47 @@ class TWSViewNavigator(
                     event.historyUrl
                 )
 
-                is NavigationEvent.LoadSnippet -> {
-                    markLoadingCallback(true)
+                is NavigationEvent.LoadUrl -> {
+                    resolveRedirectAndLoad(
+                        event.url,
+                        emptyMap(),
+                        markLoadingCallback,
+                        markErrorCallback,
+                        saveResolvedUrlCallback
+                    )
+                }
 
-                    try {
-                        val response = snippetLoader.response(event.snippet)
-                        saveResolvedUrlCallback(response.url)
-                        loadUrl(response.url)
-                    } catch (e: Exception) {
-                        markLoadingCallback(false)
-                        markErrorCallback(e)
-                    }
+                is NavigationEvent.LoadSnippet -> {
+                    resolveRedirectAndLoad(
+                        event.snippet.target,
+                        event.snippet.headers,
+                        markLoadingCallback,
+                        markErrorCallback,
+                        saveResolvedUrlCallback
+                    )
                 }
             }
 
             navigationEvents.resetReplayCache()
+        }
+    }
+
+    private suspend fun WebView.resolveRedirectAndLoad(
+        target: String,
+        headers: Map<String, String>,
+        markLoadingCallback: (Boolean) -> Unit,
+        markErrorCallback: (Exception) -> Unit,
+        saveResolvedUrlCallback: (String) -> Unit
+    ) {
+        markLoadingCallback(true)
+
+        try {
+            val response = snippetLoader.response(target, headers)
+            saveResolvedUrlCallback(response.url)
+            loadUrl(response.url)
+        } catch (e: Exception) {
+            markLoadingCallback(false)
+            markErrorCallback(e)
         }
     }
 
