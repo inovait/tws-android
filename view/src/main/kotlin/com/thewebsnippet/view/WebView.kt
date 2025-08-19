@@ -22,6 +22,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.net.Uri
+import android.util.Log
 import android.view.ViewGroup.LayoutParams
 import android.webkit.ValueCallback
 import android.webkit.WebView
@@ -268,6 +269,7 @@ internal fun WebView(
 @Composable
 private fun HandleBackPresses(captureBackPresses: Boolean, navigator: TWSViewNavigator, webView: WebView?) {
     BackHandler(captureBackPresses && navigator.canGoBack) {
+        Log.d("BEZI", "Going back from TWSView!")
         webView?.goBack()
     }
 }
