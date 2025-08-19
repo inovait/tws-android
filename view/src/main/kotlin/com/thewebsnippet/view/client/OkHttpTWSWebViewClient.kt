@@ -92,7 +92,7 @@ internal class OkHttpTWSWebViewClient(
                 // Get cached or web response, depending on headers
                 val response = okHttpClient.duplicateAndExecuteRequest(request)
 
-                if (!response.isSuccessful) {
+                if (!response.isSuccessful && !response.isRedirect) {
                     throw IOException("HTTP error ${response.code}")
                 }
 
