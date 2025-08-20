@@ -494,10 +494,10 @@ private val webStateInitializing = TWSViewState(WebContent.NavigatorOnly(TWSSnip
     loadingState = TWSLoadingState.Initializing
 }
 private val webStateLoading = TWSViewState(WebContent.NavigatorOnly(TWSSnippet("id", "url"))).apply {
-    loadingState = TWSLoadingState.Loading(0.5f, mainFrameLoaded = false, false)
+    loadingState = TWSLoadingState.Loading(0.5f, false)
 }
 private val webStateLoadingForceRefresh = TWSViewState(WebContent.NavigatorOnly(TWSSnippet("id", "url"))).apply {
-    loadingState = TWSLoadingState.Loading(0.5f, mainFrameLoaded = false, true)
+    loadingState = TWSLoadingState.Loading(0.5f, true)
 }
 private val webStateLoadingFinished = TWSViewState(WebContent.NavigatorOnly(TWSSnippet("id", "url"))).apply {
     loadingState = TWSLoadingState.Finished

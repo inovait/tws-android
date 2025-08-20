@@ -16,7 +16,6 @@
 
 package com.thewebsnippet.view.client.okhttp.web
 
-import com.thewebsnippet.data.TWSSnippet
 import com.thewebsnippet.view.data.ResponseMetaData
 import jakarta.inject.Singleton
 import kotlinx.coroutines.CoroutineDispatcher
@@ -30,8 +29,8 @@ internal class SnippetWebLoaderImpl(
     private val redirectHandler: Lazy<RedirectHandler>,
     private val dispatcherIO: CoroutineDispatcher = Dispatchers.IO
 ) : SnippetWebLoader {
-    override suspend fun response(snippet: TWSSnippet): ResponseMetaData = withContext(dispatcherIO) {
-        val request = buildRequestWithHeaders(snippet.target, snippet.headers)
+    override suspend fun response(target: String, headers: Map<String, String>): ResponseMetaData = withContext(dispatcherIO) {
+        val request = buildRequestWithHeaders(target, headers)
         val response = redirectHandler.value.execute(request)
 
         if (!response.isSuccessful) {

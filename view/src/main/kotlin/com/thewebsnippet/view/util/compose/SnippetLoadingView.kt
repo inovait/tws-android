@@ -35,8 +35,7 @@ import com.thewebsnippet.view.data.TWSLoadingState
  *
  * @param loadingState The current loading state containing information about progress,
  * whether the main frame is loaded, and if the user has forced a refresh.
- * If [TWSLoadingState.Loading.isUserForceRefresh] or [TWSLoadingState.Loading.mainFrameLoaded] are true,
- * the loading view is skipped.
+ * If [TWSLoadingState.Loading.isUserForceRefresh] is true, the loading view is skipped.
  * @param modifier A [Modifier] to configure the layout or styling of the loading view.
  */
 @Composable
@@ -45,7 +44,7 @@ fun SnippetLoadingView(
     modifier: Modifier = Modifier
 ) {
     // stop showing loading view after mainframe is loaded or if user forced refresh (pull to refresh indicator is shown)
-    if (loadingState.mainFrameLoaded || loadingState.isUserForceRefresh) return
+    if (loadingState.isUserForceRefresh) return
 
     Box(
         modifier = modifier
@@ -66,7 +65,7 @@ fun SnippetLoadingView(
 @Composable
 private fun SnippetLoadingFullScreenPreview() {
     SnippetLoadingView(
-        loadingState = TWSLoadingState.Loading(progress = 0.8f, mainFrameLoaded = false, isUserForceRefresh = false),
+        loadingState = TWSLoadingState.Loading(progress = 0.8f, isUserForceRefresh = false),
         modifier = Modifier.fillMaxHeight()
     )
 }

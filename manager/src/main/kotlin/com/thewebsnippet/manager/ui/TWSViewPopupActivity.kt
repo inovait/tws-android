@@ -97,7 +97,7 @@ internal class TWSViewPopupActivity : ComponentActivity() {
             pushSnippetOutcome is TWSOutcome.Progress -> {
                 SnippetLoadingView(
                     modifier = Modifier.fillMaxSize(),
-                    loadingState = TWSLoadingState.Loading(progress = 0f, mainFrameLoaded = false, isUserForceRefresh = false)
+                    loadingState = TWSLoadingState.Loading(progress = 0f, isUserForceRefresh = false)
                 )
             }
 

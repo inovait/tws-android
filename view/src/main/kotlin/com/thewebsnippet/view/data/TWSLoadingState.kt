@@ -42,12 +42,10 @@ sealed class TWSLoadingState {
      * Describes a WebView.progress for all resources and page
      *
      * @property progress Current load progress (typically 0.0 to 1.0), provided by the webview.
-     * @property mainFrameLoaded Describes a loading state between `onPageStarted` and `onPageFinished` events
      * @property isUserForceRefresh True if the load was initiated by the user explicitly refreshing the page.
      */
     data class Loading(
         val progress: Float,
-        val mainFrameLoaded: Boolean,
         val isUserForceRefresh: Boolean
     ) : TWSLoadingState()
 

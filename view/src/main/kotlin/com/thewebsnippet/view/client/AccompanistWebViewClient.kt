@@ -56,17 +56,14 @@ internal open class AccompanistWebViewClient : WebViewClient() {
             // override last loaded URL if we are not loading SPA page
             state.lastLoadedUrl = url
         }
-
-        (state.loadingState as? TWSLoadingState.Loading)?.let {
-            state.loadingState = it.copy(mainFrameLoaded = false)
-        }
     }
 
     override fun onPageFinished(view: WebView, url: String?) {
         super.onPageFinished(view, url)
-        (state.loadingState as? TWSLoadingState.Loading)?.let {
-            state.loadingState = it.copy(mainFrameLoaded = true)
-        }
+        state.loadingState = TWSLoadingState.Finished
+
+        navigator.canGoBack = view.canGoBack()
+        navigator.canGoForward = view.canGoForward()
     }
 
     override fun doUpdateVisitedHistory(view: WebView, url: String?, isReload: Boolean) {
