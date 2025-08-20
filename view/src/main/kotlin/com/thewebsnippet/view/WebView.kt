@@ -285,7 +285,6 @@ private fun HandleNavigationEvents(wv: WebView, navigator: TWSViewNavigator, sta
 
                         TWSLoadingState.Loading(
                             progress = 0f,
-                            mainFrameLoaded = false,
                             isUserForceRefresh = false
                         )
                     } else {
