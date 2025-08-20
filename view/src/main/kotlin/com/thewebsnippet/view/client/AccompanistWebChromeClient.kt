@@ -46,20 +46,16 @@ internal open class AccompanistWebChromeClient : WebChromeClient() {
         super.onProgressChanged(view, newProgress)
         val loadingState = state.loadingState
 
-        state.loadingState = if (newProgress <= LOADING_PERCENT) {
-            TWSLoadingState.Loading(
+        if (state.loadingState is TWSLoadingState.Loading) {
+            state.loadingState = TWSLoadingState.Loading(
                 progress = newProgress / PERCENTAGE_DIVISOR,
-                mainFrameLoaded = (loadingState as? TWSLoadingState.Loading)?.mainFrameLoaded == true,
                 isUserForceRefresh = loadingState is TWSLoadingState.ForceRefreshInitiated ||
                     (loadingState as? TWSLoadingState.Loading)?.isUserForceRefresh == true
             )
-        } else {
-            TWSLoadingState.Finished
         }
     }
 
     companion object {
         private const val PERCENTAGE_DIVISOR = 100.0f
-        private const val LOADING_PERCENT = 99
     }
 }

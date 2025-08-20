@@ -38,7 +38,7 @@ class SnippetWebLoaderImplTest {
         val baseUrl = server.url("/").toString()
         val snippet = TWSSnippet("test-id", baseUrl)
 
-        val result = helper.response(snippet)
+        val result = helper.response(snippet.target, snippet.headers)
 
         assertEquals(baseUrl, result.url)
     }

@@ -81,7 +81,7 @@ class SnippetWebLoaderImplTest {
 
         val snippet = TWSSnippet(id = "testId", target = baseUrl)
         // Fetch snippet target content (and cookie), this is NOT fetched in webview
-        snippetLoad.response(snippet)
+        snippetLoad.response(snippet.target, snippet.headers)
 
         // Assert that cookie has been synced with web views cookie store
         assert(cookieManager.getCookie(baseUrl).contains("test_cookie=test_value"))
@@ -105,7 +105,7 @@ class SnippetWebLoaderImplTest {
 
         val snippet = TWSSnippet(id = "testId", target = baseUrl)
         // Fetch snippet target content (and cookie), this is NOT fetched in webview
-        snippetLoad.response(snippet)
+        snippetLoad.response(snippet.target, snippet.headers)
 
         // Assert that cookie has been synced with web views cookie store
         assert(cookieManager.getCookie(baseUrl).contains("test_cookie=test_value"))
