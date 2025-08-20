@@ -67,6 +67,9 @@ internal open class AccompanistWebViewClient : WebViewClient() {
         (state.loadingState as? TWSLoadingState.Loading)?.let {
             state.loadingState = it.copy(mainFrameLoaded = true)
         }
+
+        navigator.canGoBack = view.canGoBack()
+        navigator.canGoForward = view.canGoForward()
     }
 
     override fun doUpdateVisitedHistory(view: WebView, url: String?, isReload: Boolean) {

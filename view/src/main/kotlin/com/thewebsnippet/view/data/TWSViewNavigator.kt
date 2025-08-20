@@ -175,7 +175,8 @@ class TWSViewNavigator(
                         emptyMap(),
                         markLoadingCallback,
                         markErrorCallback,
-                        saveResolvedUrlCallback
+                        saveResolvedUrlCallback,
+                        true
                     )
                 }
 
@@ -199,7 +200,8 @@ class TWSViewNavigator(
         headers: Map<String, String>,
         markLoadingCallback: (Boolean) -> Unit,
         markErrorCallback: (Exception) -> Unit,
-        saveResolvedUrlCallback: (String) -> Unit
+        saveResolvedUrlCallback: (String) -> Unit,
+        clearHistory: Boolean = false
     ) {
         markLoadingCallback(true)
 
@@ -207,6 +209,10 @@ class TWSViewNavigator(
             val response = snippetLoader.response(target, headers)
             saveResolvedUrlCallback(response.url)
             loadUrl(response.url)
+
+            if (clearHistory) {
+                clearHistory()
+            }
         } catch (e: Exception) {
             markLoadingCallback(false)
             markErrorCallback(e)
