@@ -86,7 +86,7 @@ import kotlinx.collections.immutable.toPersistentMap
  * Defaults to a [SnippetLoadingView] with the same modifier as [TWSView] that is displayed until mainFrame content is loaded.
  * @param interceptUrlCallback A [TWSViewInterceptor] invoked for URLs before navigation.
  * Return `true` to prevent navigation, `false` to allow it.
- * @param googleLoginRedirectUrl The URL the app should redirect to after a Google login
+ * @param loginRedirectUrl The URL the app should redirect to after a Google login
  * via [Custom Tabs](https://developer.chrome.com/docs/android/custom-tabs).
  * Allows returning users to the app after authentication.
  * @param isRefreshable Enables pull-to-refresh action when set to `true`.
@@ -119,7 +119,7 @@ fun TWSView(
     errorViewContent: SnippetErrorContent = defaultErrorView(modifier),
     loadingPlaceholderContent: @Composable (TWSLoadingState.Loading) -> Unit = { SnippetLoadingView(it, modifier) },
     interceptUrlCallback: TWSViewInterceptor = TWSViewDeepLinkInterceptor(LocalContext.current),
-    googleLoginRedirectUrl: String? = null,
+    loginRedirectUrl: String? = null,
     isRefreshable: Boolean = true,
     captureBackPresses: Boolean = true,
     onCreated: (WebView) -> Unit = {}
@@ -139,7 +139,7 @@ fun TWSView(
             errorViewContent = errorViewContent,
             loadingPlaceholderContent = loadingPlaceholderContent,
             interceptUrlCallback = interceptUrlCallback,
-            googleLoginRedirectUrl = googleLoginRedirectUrl,
+            loginRedirectUrl = loginRedirectUrl,
             isRefreshable = isRefreshable,
             captureBackPresses = captureBackPresses,
             modifier = modifier,
@@ -163,7 +163,7 @@ fun TWSView(
  * Defaults to a [SnippetLoadingView] with the same modifier as [TWSView].
  * @param interceptUrlCallback A [TWSViewInterceptor] invoked for URLs before navigation.
  * Return `true` to prevent navigation, `false` to allow it.
- * @param googleLoginRedirectUrl The URL the app should redirect to after a Google login
+ * @param loginRedirectUrl The URL the app should redirect to after a Google login
  * via [Custom Tabs](https://developer.chrome.com/docs/android/custom-tabs).
  * Allows returning users to the app after authentication.
  * @param isRefreshable Enables pull-to-refresh functionality when set to `true`.
@@ -195,7 +195,7 @@ fun TWSView(
     errorViewContent: SnippetErrorContent = defaultErrorView(modifier),
     loadingPlaceholderContent: @Composable (TWSLoadingState.Loading) -> Unit = { SnippetLoadingView(it, modifier) },
     interceptUrlCallback: TWSViewInterceptor = TWSViewDeepLinkInterceptor(LocalContext.current),
-    googleLoginRedirectUrl: String? = null,
+    loginRedirectUrl: String? = null,
     isRefreshable: Boolean = true,
     captureBackPresses: Boolean = true,
     onCreated: (WebView) -> Unit = {}
@@ -210,7 +210,7 @@ fun TWSView(
         errorViewContent = errorViewContent,
         loadingPlaceholderContent = loadingPlaceholderContent,
         interceptUrlCallback = interceptUrlCallback,
-        googleLoginRedirectUrl = googleLoginRedirectUrl,
+        loginRedirectUrl = loginRedirectUrl,
         isRefreshable = isRefreshable,
         captureBackPresses = captureBackPresses,
         onCreated = onCreated
@@ -226,7 +226,7 @@ fun TWSView(
  * @param errorViewContent The composable content for rendering error messages.
  * @param loadingPlaceholderContent The composable content for rendering a loading state.
  * @param interceptUrlCallback A [TWSViewInterceptor] for handling intercepted URLs.
- * @param googleLoginRedirectUrl URL to redirect back after Google login via
+ * @param loginRedirectUrl URL to redirect back after Google login via
  * [Custom Tabs](https://developer.chrome.com/docs/android/custom-tabs).
  * @param isRefreshable Enables pull-to-refresh functionality.
  * @param captureBackPresses Set to true to have this Composable capture back presses and navigate
@@ -243,7 +243,7 @@ private fun SnippetContentWithPopup(
     errorViewContent: SnippetErrorContent,
     loadingPlaceholderContent: @Composable (TWSLoadingState.Loading) -> Unit,
     interceptUrlCallback: TWSViewInterceptor,
-    googleLoginRedirectUrl: String?,
+    loginRedirectUrl: String?,
     isRefreshable: Boolean,
     captureBackPresses: Boolean,
     modifier: Modifier = Modifier,
@@ -262,7 +262,7 @@ private fun SnippetContentWithPopup(
         }
     }
 
-    googleLoginRedirectUrl?.let {
+    loginRedirectUrl?.let {
         NewIntentListener { intent ->
             val data = intent.data?.toString()
             if (popupStates.value.isEmpty() && data?.startsWith(it) == true) {
@@ -299,7 +299,7 @@ private fun SnippetContentWithPopup(
             onDismissRequest = { popupStates.value = popupStates.value.filter { it != state } },
             popupStateCallback = popupStateCallback,
             interceptUrlCallback = interceptUrlCallback,
-            googleLoginRedirectUrl = googleLoginRedirectUrl,
+            loginRedirectUrl = loginRedirectUrl,
             isFullscreen = !msgState.isDialog,
             isRefreshable = isRefreshable,
             captureBackPresses = true
@@ -402,13 +402,13 @@ private fun PopUpWebView(
     onDismissRequest: () -> Unit,
     interceptUrlCallback: TWSViewInterceptor,
     popupStateCallback: ((TWSViewState, Boolean) -> Unit)?,
-    googleLoginRedirectUrl: String?,
+    loginRedirectUrl: String?,
     isRefreshable: Boolean,
     captureBackPresses: Boolean,
     isFullscreen: Boolean,
     popupNavigator: TWSViewNavigator = rememberTWSViewNavigator()
 ) {
-    googleLoginRedirectUrl?.let {
+    loginRedirectUrl?.let {
         NewIntentListener { intent ->
             val data = intent.data?.toString()
             if (data?.startsWith(it) == true) {
