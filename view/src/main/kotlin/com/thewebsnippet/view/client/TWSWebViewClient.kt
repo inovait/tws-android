@@ -27,6 +27,7 @@ import androidx.browser.customtabs.CustomTabsClient
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.browser.customtabs.CustomTabsServiceConnection
 import androidx.core.net.toUri
+import com.thewebsnippet.view.data.InterceptorResult
 import com.thewebsnippet.view.data.TWSViewInterceptor
 import com.thewebsnippet.view.data.TWSViewState
 
@@ -54,23 +55,29 @@ internal open class TWSWebViewClient(
     override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest?): Boolean {
         val url = request?.url
 
+        val interceptorResult = request?.url?.let {
+            interceptUrlCallback.handleUrl(it)
+        }
+
         url?.host?.let { host ->
-            if (host.startsWith(REDIRECT_URL_GOOGLE) || host.startsWith(REDIRECT_URL_FACEBOOK)) {
+            if (
+                host.startsWith(REDIRECT_URL_GOOGLE) ||
+                host.startsWith(REDIRECT_URL_FACEBOOK) ||
+                interceptorResult == InterceptorResult.OPEN_NATIVE
+            ) {
                 openCustomChromeTab(view.context, url.toString())
                 return true // Indicate that we've handled the URL
             }
         }
 
-        return request?.url?.let {
-            interceptUrlCallback.handleUrl(it)
-        } == true
+        return interceptorResult != InterceptorResult.LOAD_WEB_VIEW
     }
 
     @Deprecated("Deprecated in Java")
     override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
         return url?.toUri()?.let {
             interceptUrlCallback.handleUrl(it)
-        } == true
+        } != InterceptorResult.LOAD_WEB_VIEW
     }
 
     private fun openCustomChromeTab(context: Context, url: String) {

@@ -35,7 +35,7 @@ fun interface TWSViewInterceptor {
      * @param url Request received from the web.
      * @return Should return true if the function handled the url, and false if the url should loaded in to TWSView.
      */
-    fun handleUrl(url: Uri): Boolean
+    fun handleUrl(url: Uri): InterceptorResult
 }
 
 /**
@@ -52,7 +52,7 @@ fun interface TWSViewInterceptor {
  * @param context The application context used for intent handling and URL verification.
  */
 class TWSViewDeepLinkInterceptor(private val context: Context) : TWSViewInterceptor {
-    override fun handleUrl(url: Uri): Boolean {
+    override fun handleUrl(url: Uri): InterceptorResult {
         val intent = Intent(Intent.ACTION_VIEW, url)
 
         val isUrlSupported = context.packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY).any {
@@ -62,10 +62,10 @@ class TWSViewDeepLinkInterceptor(private val context: Context) : TWSViewIntercep
         return if (isUrlSupported) {
             // Force deep link processing and mark url as handled
             startActivity(context, Intent(Intent.ACTION_VIEW, url), null)
-            true
+            InterceptorResult.HANDLED_BY_USER
         } else {
             // Mark url as unhandled web view will display it
-            false
+            InterceptorResult.LOAD_WEB_VIEW
         }
     }
 }
@@ -74,7 +74,7 @@ class TWSViewDeepLinkInterceptor(private val context: Context) : TWSViewIntercep
  * `TWSViewNoOpInterceptor` is a [TWSViewInterceptor] that ignores all URLs, allowing the WebView to load them by default.
  */
 class TWSViewNoOpInterceptor : TWSViewInterceptor {
-    override fun handleUrl(url: Uri): Boolean {
-        return false
+    override fun handleUrl(url: Uri): InterceptorResult {
+        return InterceptorResult.LOAD_WEB_VIEW
     }
 }
