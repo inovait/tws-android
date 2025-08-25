@@ -32,6 +32,7 @@ import com.thewebsnippet.sample.components.LoadingView
 import com.thewebsnippet.sample.components.sampleErrorView
 import com.thewebsnippet.sample.ui.Screen
 import com.thewebsnippet.view.TWSView
+import com.thewebsnippet.view.data.InterceptorResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -77,7 +78,12 @@ fun TWSViewCustomInterceptorExample(
                     }
 
                     route?.let { navController.navigate(it) }
-                    route != null
+
+                    if (route != null) {
+                        InterceptorResult.HANDLED_BY_USER
+                    } else {
+                        InterceptorResult.LOAD_WEB_VIEW
+                    }
                 }
             )
         }
