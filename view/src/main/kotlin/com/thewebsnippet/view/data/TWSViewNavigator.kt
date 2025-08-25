@@ -53,6 +53,8 @@ class TWSViewNavigator(
 ) {
     private val navigationEvents: MutableSharedFlow<NavigationEvent> = MutableSharedFlow(replay = 1)
 
+    private var pendingClearHistory: Boolean = false
+
     /**
      * True when the web view is able to navigate backwards, false otherwise.
      */
@@ -139,6 +141,14 @@ class TWSViewNavigator(
         }
     }
 
+    /** Call this from WebViewClient when a page actually commits/finishes */
+    internal fun maybeClearHistoryOnCommit(view: WebView) {
+        if (pendingClearHistory) {
+            view.clearHistory()
+            pendingClearHistory = false // reset
+        }
+    }
+
     // Use Dispatchers.Main to ensure that the webview methods are called on UI thread
     @OptIn(ExperimentalCoroutinesApi::class)
     internal suspend fun WebView.handleNavigationEvents(
@@ -210,9 +220,7 @@ class TWSViewNavigator(
             saveResolvedUrlCallback(response.url)
             loadUrl(response.url)
 
-            if (clearHistory) {
-                clearHistory()
-            }
+            pendingClearHistory = clearHistory
         } catch (e: Exception) {
             markLoadingCallback(false)
             markErrorCallback(e)
