@@ -32,6 +32,7 @@ import com.thewebsnippet.view.client.okhttp.web.RedirectHandlerImpl
 import com.thewebsnippet.view.client.okhttp.web.SnippetWebLoader
 import com.thewebsnippet.view.client.okhttp.web.SnippetWebLoaderImpl
 import com.thewebsnippet.view.client.okhttp.web.webViewHttpClient
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -195,6 +196,7 @@ class TWSViewNavigator(
         }
     }
 
+    @Suppress("SwallowedException") // swallow cancellation exception
     private suspend fun WebView.resolveRedirectAndLoad(
         target: String,
         headers: Map<String, String>,
@@ -213,6 +215,8 @@ class TWSViewNavigator(
             if (clearHistory) {
                 clearHistory()
             }
+        } catch (e: CancellationException) {
+            // ignore cancellation exception
         } catch (e: Exception) {
             markLoadingCallback(false)
             markErrorCallback(e)
