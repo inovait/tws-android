@@ -62,6 +62,8 @@ internal open class AccompanistWebViewClient : WebViewClient() {
         super.onPageFinished(view, url)
         state.loadingState = TWSLoadingState.Finished
 
+        navigator.maybeClearHistoryOnCommit(view)
+
         navigator.canGoBack = view.canGoBack()
         navigator.canGoForward = view.canGoForward()
     }
@@ -72,6 +74,8 @@ internal open class AccompanistWebViewClient : WebViewClient() {
         view.evaluateJavascript("window.location.href") { result ->
             state.currentUrl = result.trim('"')
         }
+
+        navigator.maybeClearHistoryOnCommit(view)
 
         navigator.canGoBack = view.canGoBack()
         navigator.canGoForward = view.canGoForward()

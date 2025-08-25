@@ -32,6 +32,7 @@ import com.thewebsnippet.view.client.okhttp.web.RedirectHandlerImpl
 import com.thewebsnippet.view.client.okhttp.web.SnippetWebLoader
 import com.thewebsnippet.view.client.okhttp.web.SnippetWebLoaderImpl
 import com.thewebsnippet.view.client.okhttp.web.webViewHttpClient
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -52,6 +53,8 @@ class TWSViewNavigator(
     private val snippetLoader: SnippetWebLoader
 ) {
     private val navigationEvents: MutableSharedFlow<NavigationEvent> = MutableSharedFlow(replay = 1)
+
+    private var pendingClearHistory: Boolean = false
 
     /**
      * True when the web view is able to navigate backwards, false otherwise.
@@ -139,6 +142,14 @@ class TWSViewNavigator(
         }
     }
 
+    /** Call this from WebViewClient when a page actually commits/finishes */
+    internal fun maybeClearHistoryOnCommit(view: WebView) {
+        if (pendingClearHistory) {
+            view.clearHistory()
+            pendingClearHistory = false // reset
+        }
+    }
+
     // Use Dispatchers.Main to ensure that the webview methods are called on UI thread
     @OptIn(ExperimentalCoroutinesApi::class)
     internal suspend fun WebView.handleNavigationEvents(
@@ -195,6 +206,7 @@ class TWSViewNavigator(
         }
     }
 
+    @Suppress("SwallowedException") // swallow cancellation exception
     private suspend fun WebView.resolveRedirectAndLoad(
         target: String,
         headers: Map<String, String>,
@@ -210,9 +222,9 @@ class TWSViewNavigator(
             saveResolvedUrlCallback(response.url)
             loadUrl(response.url)
 
-            if (clearHistory) {
-                clearHistory()
-            }
+            pendingClearHistory = clearHistory
+        } catch (e: CancellationException) {
+            // ignore cancellation exception
         } catch (e: Exception) {
             markLoadingCallback(false)
             markErrorCallback(e)

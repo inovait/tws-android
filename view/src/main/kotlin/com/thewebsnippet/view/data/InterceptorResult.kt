@@ -1,0 +1,37 @@
+/*
+ * Copyright 2025 INOVA IT d.o.o.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation
+ * files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy,
+ * modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software
+ *  is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ *  OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+ *   BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+package com.thewebsnippet.view.data
+
+/**
+ * Represents the possible outcomes when a [TWSViewInterceptor] handles a URL intercepted from a WebView.
+ *
+ * - [LOAD_WEB_VIEW] → The URL is not intercepted and should be loaded directly inside the WebView.
+ * - [OPEN_NATIVE] → The URL should be opened using a native mechanism (e.g., Custom Chrome Tab or external app) and will
+ * be handled by TWSWebViewClient.
+ * - [HANDLED_BY_USER] → The URL has already been handled by the application (e.g., deep link launched)
+ *   and should not be further processed by the WebView.
+ *
+ * Usage:
+ * Implementations of [TWSViewInterceptor] return one of these results to control the navigation flow.
+ */
+enum class InterceptorResult {
+    LOAD_WEB_VIEW,
+
+    OPEN_NATIVE,
+
+    HANDLED_BY_USER
+}
