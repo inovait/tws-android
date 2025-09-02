@@ -1,0 +1,16 @@
+$dokka.format:html-v1
+$dokka.linkExtension:html
+
+module:data
+com.thewebsnippet.data
+module:manager
+com.thewebsnippet.manager.core
+module:sample
+com.thewebsnippet.sample
+module:view
+com.thewebsnippet.view
+com.thewebsnippet.view.client.okhttp.web
+com.thewebsnippet.view.data
+com.thewebsnippet.view.util
+com.thewebsnippet.view.util.compose
+com.thewebsnippet.view.util.compose.error
