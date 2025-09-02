@@ -116,9 +116,13 @@ class TWSViewNavigator(
         }
     }
 
-    fun loadUrl(url: String) {
+    fun loadUrl(
+        url: String,
+        clearHistory: Boolean = false,
+        behaveAsSpa: Boolean = false
+    ) {
         coroutineScope.launch {
-            navigationEvents.emit(NavigationEvent.LoadUrl(url))
+            navigationEvents.emit(NavigationEvent.LoadUrl(url, clearHistory, behaveAsSpa))
         }
     }
 
@@ -186,8 +190,8 @@ class TWSViewNavigator(
                         emptyMap(),
                         markLoadingCallback,
                         markErrorCallback,
-                        saveResolvedUrlCallback,
-                        true
+                        { if (event.behaveAsSpa) saveResolvedUrlCallback(it) },
+                        event.clearHistory
                     )
                 }
 
@@ -260,7 +264,11 @@ class TWSViewNavigator(
         data class ReplaceState(val path: String) : NavigationEvent
 
         data class LoadSnippet(val snippet: TWSSnippet) : NavigationEvent
-        data class LoadUrl(val url: String) : NavigationEvent
+        data class LoadUrl(
+            val url: String,
+            val clearHistory: Boolean,
+            val behaveAsSpa: Boolean
+        ) : NavigationEvent
 
         data class LoadHtml(
             val html: String,
