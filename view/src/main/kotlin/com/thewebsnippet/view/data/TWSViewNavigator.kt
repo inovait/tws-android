@@ -165,7 +165,10 @@ class TWSViewNavigator(
             when (event) {
                 is NavigationEvent.Back -> goBack()
                 is NavigationEvent.Forward -> goForward()
-                is NavigationEvent.Reload -> reload()
+                is NavigationEvent.Reload -> {
+                    markLoadingCallback(true)
+                    reload()
+                }
                 is NavigationEvent.PushState -> navigateReactOrFallback(event.path, false)
                 is NavigationEvent.ReplaceState -> navigateReactOrFallback(event.path, true)
                 is NavigationEvent.PopState -> {
