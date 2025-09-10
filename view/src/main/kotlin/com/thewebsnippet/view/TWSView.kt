@@ -384,7 +384,7 @@ private fun SnippetErrors(
         val message = error?.getUserFriendlyMessage() ?: error?.description?.toString()
             ?: stringResource(id = R.string.oops_loading_failed)
 
-        errorViewContent(message, null, false)
+        errorViewContent(message, refreshCallback, true)
     }
 
     if (viewState.customErrorsForCurrentRequest.size > 0) {
