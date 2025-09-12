@@ -20,7 +20,6 @@ package com.thewebsnippet.view.data
 
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
-import android.webkit.WebViewClient.ERROR_HOST_LOOKUP
 import androidx.compose.runtime.Immutable
 
 /**
@@ -41,5 +40,3 @@ data class WebViewError(
      */
     val error: WebResourceError
 )
-
-internal fun WebViewError.isDisplayable() = request?.isForMainFrame == true || error.errorCode == ERROR_HOST_LOOKUP
