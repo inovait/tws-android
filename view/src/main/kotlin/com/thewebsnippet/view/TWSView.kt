@@ -53,6 +53,7 @@ import com.thewebsnippet.view.data.TWSViewNavigator
 import com.thewebsnippet.view.data.TWSViewState
 import com.thewebsnippet.view.data.WebContent
 import com.thewebsnippet.view.data.getSnippet
+import com.thewebsnippet.view.data.isDisplayable
 import com.thewebsnippet.view.data.onCreateWindowStatus
 import com.thewebsnippet.view.data.rememberTWSViewNavigator
 import com.thewebsnippet.view.data.rememberTWSViewState
@@ -378,7 +379,7 @@ private fun SnippetErrors(
     errorViewContent: SnippetErrorContent,
     refreshCallback: ErrorRefreshCallback
 ) {
-    if (viewState.webViewErrorsForCurrentRequest.size > 0) {
+    if (viewState.webViewErrorsForCurrentRequest.any { it.isDisplayable() }) {
         val error = viewState.webViewErrorsForCurrentRequest.firstOrNull()?.error
         val message = error?.getUserFriendlyMessage() ?: error?.description?.toString()
             ?: stringResource(id = R.string.oops_loading_failed)
