@@ -72,14 +72,3 @@ internal fun WebResourceError.getUserFriendlyMessage(): String? {
         else -> null
     }
 }
-
-@Composable
-internal fun Exception.isRefreshable(): Boolean {
-    return when (this) {
-        is UnknownHostException,
-        is ConnectException,
-        is SocketTimeoutException -> true
-
-        else -> false
-    }
-}

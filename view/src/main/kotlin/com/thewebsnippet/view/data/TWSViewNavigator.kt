@@ -158,7 +158,7 @@ class TWSViewNavigator(
     @OptIn(ExperimentalCoroutinesApi::class)
     internal suspend fun WebView.handleNavigationEvents(
         markLoadingCallback: (Boolean) -> Unit,
-        markErrorCallback: (Exception) -> Unit,
+        markErrorCallback: (TWSViewError.InitialLoadError) -> Unit,
         saveResolvedUrlCallback: (String) -> Unit
     ): Nothing = withContext(Dispatchers.Main) {
         navigationEvents.collect { event ->
@@ -215,7 +215,7 @@ class TWSViewNavigator(
         target: String,
         headers: Map<String, String>,
         markLoadingCallback: (Boolean) -> Unit,
-        markErrorCallback: (Exception) -> Unit,
+        markErrorCallback: (TWSViewError.InitialLoadError) -> Unit,
         saveResolvedUrlCallback: (String) -> Unit,
         clearHistory: Boolean = false
     ) {
@@ -231,7 +231,7 @@ class TWSViewNavigator(
             // ignore cancellation exception
         } catch (e: Exception) {
             markLoadingCallback(false)
-            markErrorCallback(e)
+            markErrorCallback(TWSViewError.InitialLoadError(e, null))
         }
     }
 

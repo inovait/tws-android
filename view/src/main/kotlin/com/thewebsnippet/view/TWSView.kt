@@ -35,7 +35,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -53,7 +52,6 @@ import com.thewebsnippet.view.data.TWSViewNavigator
 import com.thewebsnippet.view.data.TWSViewState
 import com.thewebsnippet.view.data.WebContent
 import com.thewebsnippet.view.data.getSnippet
-import com.thewebsnippet.view.data.isDisplayable
 import com.thewebsnippet.view.data.onCreateWindowStatus
 import com.thewebsnippet.view.data.rememberTWSViewNavigator
 import com.thewebsnippet.view.data.rememberTWSViewState
@@ -62,8 +60,6 @@ import com.thewebsnippet.view.util.compose.SnippetLoadingView
 import com.thewebsnippet.view.util.compose.error.ErrorRefreshCallback
 import com.thewebsnippet.view.util.compose.error.SnippetErrorContent
 import com.thewebsnippet.view.util.compose.error.defaultErrorView
-import com.thewebsnippet.view.util.compose.getUserFriendlyMessage
-import com.thewebsnippet.view.util.compose.isRefreshable
 import com.thewebsnippet.view.util.initializeSettings
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.ImmutableMap
@@ -379,19 +375,16 @@ private fun SnippetErrors(
     errorViewContent: SnippetErrorContent,
     refreshCallback: ErrorRefreshCallback
 ) {
-    if (viewState.webViewErrorsForCurrentRequest.any { it.isDisplayable() }) {
-        val error = viewState.webViewErrorsForCurrentRequest.firstOrNull()?.error
-        val message = error?.getUserFriendlyMessage() ?: error?.description?.toString()
-            ?: stringResource(id = R.string.oops_loading_failed)
+    if (viewState.webViewErrorsForCurrentRequest.isNotEmpty()) {
+        val error = viewState.webViewErrorsForCurrentRequest.first()
 
-        errorViewContent(message, refreshCallback, true)
+        errorViewContent(error, refreshCallback)
     }
 
-    if (viewState.customErrorsForCurrentRequest.size > 0) {
+    if (viewState.customErrorsForCurrentRequest.isNotEmpty()) {
         val error = viewState.customErrorsForCurrentRequest.first()
-        val message = error.getUserFriendlyMessage() ?: error.message ?: stringResource(R.string.error_general)
 
-        errorViewContent(message, refreshCallback, error.isRefreshable())
+        errorViewContent(error, refreshCallback)
     }
 }
 

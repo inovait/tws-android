@@ -37,18 +37,19 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.thewebsnippet.view.R
+import com.thewebsnippet.view.data.TWSViewError
+import com.thewebsnippet.view.util.compose.getUserFriendlyMessage
 
 /**
  * A composable function signature for displaying error content in the WebView.
  *
- * @param message The error message to display.
+ * @param error The error that was thrown by its request.
  * @param callback An optional [ErrorRefreshCallback] to trigger a retry action.
  * @param refreshable A flag indicating whether the error view should include a refresh button.
  */
 typealias SnippetErrorContent = @Composable (
-    message: String,
-    callback: ErrorRefreshCallback?,
-    refreshable: Boolean
+    error: TWSViewError,
+    callback: ErrorRefreshCallback?
 ) -> Unit
 
 /**
@@ -57,11 +58,16 @@ typealias SnippetErrorContent = @Composable (
  * @param modifier A [Modifier] used to customize the layout of the default error view.
  * @return A [SnippetErrorContent] composable function that renders a default error UI.
  */
-fun defaultErrorView(modifier: Modifier): SnippetErrorContent = { message, callback, refreshable ->
+fun defaultErrorView(modifier: Modifier): SnippetErrorContent = { error, callback ->
+    val message = when (error) {
+        is TWSViewError.ResourceError -> error.error.getUserFriendlyMessage() ?: error.error.description
+        is TWSViewError.InitialLoadError -> error.error.getUserFriendlyMessage() ?: error.error.message
+    }
+
     SnippetErrorView(
-        errorMessage = message,
+        errorMessage = message?.toString() ?: stringResource(R.string.oops_loading_failed),
         modifier = modifier,
-        isRefreshable = refreshable,
+        isRefreshable = true,
         refreshCallback = callback
     )
 }
