@@ -24,9 +24,9 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import com.thewebsnippet.view.data.TWSLoadingState
+import com.thewebsnippet.view.data.TWSViewError
 import com.thewebsnippet.view.data.TWSViewNavigator
 import com.thewebsnippet.view.data.TWSViewState
-import com.thewebsnippet.view.data.WebViewError
 
 /**
  * A custom implementation of [WebViewClient] designed to manage the state and navigation of a WebView.
@@ -89,7 +89,7 @@ internal open class AccompanistWebViewClient : WebViewClient() {
         super.onReceivedError(view, request, error)
 
         if (error != null) {
-            state.webViewErrorsForCurrentRequest.add(WebViewError(request, error))
+            state.webViewErrorsForCurrentRequest.add(TWSViewError.ResourceError(error, request))
         }
     }
 }

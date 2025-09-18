@@ -20,23 +20,18 @@ package com.thewebsnippet.view.data
 
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
-import androidx.compose.runtime.Immutable
+import okhttp3.Request
 
 /**
- * A wrapper class to hold errors from the WebView.
+ * A wrapper class to hold errors from the TWSView.
  *
  * NOTE: This class is a modified version of the original Accompanist WebView error handling class.
  *
  * This class helps track errors that occur during the loading of web resources within the WebView.
  */
-@Immutable
-data class WebViewError(
-    /**
-     * The request the error came from.
-     */
-    val request: WebResourceRequest?,
-    /**
-     * The error that was reported.
-     */
-    val error: WebResourceError
-)
+
+sealed class TWSViewError {
+    class ResourceError(val error: WebResourceError, val request: WebResourceRequest?) : TWSViewError()
+
+    class InitialLoadError(val error: Exception, val request: Request?) : TWSViewError()
+}
