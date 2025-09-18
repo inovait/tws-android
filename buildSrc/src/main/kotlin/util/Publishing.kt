@@ -18,6 +18,7 @@ package util
 import org.gradle.api.Project
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.tasks.AbstractPublishToMaven
+import org.gradle.kotlin.dsl.getByName
 import org.gradle.kotlin.dsl.withType
 import org.gradle.plugins.signing.Sign
 import org.jreleaser.gradle.plugin.JReleaserExtension
@@ -83,6 +84,9 @@ private fun Project.setProjectMetadata(
 
 fun Project.configureForJReleaser() {
     if (!properties.containsKey("mavenUsername")) return
+    extensions.configure<org.gradle.plugins.signing.SigningExtension>("signing") {
+        sign(extensions.getByName<org.gradle.api.publish.PublishingExtension>("publishing").publications)
+    }
 
     // Workaround for the https://github.com/gradle/gradle/issues/26091
     tasks.withType<AbstractPublishToMaven>().configureEach {

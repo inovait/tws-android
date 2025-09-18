@@ -42,6 +42,9 @@ jobs:
       - name: 'Save private key'
         run: 'echo "${{ secrets.PGP_PRIVATE }}" | base64 -d > private_key.pgp'
 
+      - name: 'Save GPG secret key'
+        run: 'echo "${{ secrets.GPG_SIGNING_KEY }}" | base64 -d > signing_key.gpg'
+
       - name: 'Publish, deploy and release to maven central'
         env:
           JRELEASER_GPG_PASSPHRASE: ${{ secrets.GPG_SIGNING_PASSPHRASE }}
@@ -52,7 +55,10 @@ jobs:
             -PmavenUsername=''${{ secrets.MAVEN_CENTRAL_USERNAME }}'' \
             -PmavenPassword=''${{ secrets.MAVEN_CENTRAL_PASSWORD }}'' \
             -PpublicKeyPath=$(pwd)/public_key.pgp \
-            -PprivateKeyPath=$(pwd)/private_key.pgp
+            -PprivateKeyPath=$(pwd)/private_key.pgp \
+            -Psigning.secretKeyRingFile=$(pwd)/signing_key.gpg \
+            -Psigning.password=''${{ secrets.GPG_SIGNING_PASSPHRASE }}'' \
+            -Psigning.keyId=${{ secrets.GPG_SIGNING_ID }} 
 
       - name: 'Publish service to gradle portal'
         env:
