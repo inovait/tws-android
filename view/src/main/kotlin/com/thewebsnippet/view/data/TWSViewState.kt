@@ -88,13 +88,13 @@ class TWSViewState(webContent: WebContent) {
      * A list for errors captured in the last load. Reset when a new page is loaded.
      * Errors could be from any resource (iframe, image, etc.), not just for the main page.
      */
-    val webViewErrorsForCurrentRequest: SnapshotStateList<WebViewError> = mutableStateListOf()
+    val webViewErrorsForCurrentRequest: SnapshotStateList<TWSViewError> = mutableStateListOf()
 
     /**
      * A list for errors captured in the last load. Reset when a new page is loaded.
      * Errors could be only from the main page.
      */
-    val customErrorsForCurrentRequest: SnapshotStateList<Exception> = mutableStateListOf()
+    val customErrorsForCurrentRequest: SnapshotStateList<TWSViewError> = mutableStateListOf()
 
     /**
      * The saved view state from when the view was destroyed last. To restore state,

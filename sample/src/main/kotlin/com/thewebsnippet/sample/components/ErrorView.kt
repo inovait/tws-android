@@ -40,13 +40,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.thewebsnippet.sample.R
 import com.thewebsnippet.sample.ui.theme.SampleTheme
+import com.thewebsnippet.view.data.TWSViewError
 import com.thewebsnippet.view.util.compose.error.ErrorRefreshCallback
 import com.thewebsnippet.view.util.compose.error.SnippetErrorContent
 
-internal fun sampleErrorView(modifier: Modifier = Modifier): SnippetErrorContent = { message, callback, _ ->
+internal fun sampleErrorView(modifier: Modifier = Modifier): SnippetErrorContent = { error, callback ->
+    val message = when (error) {
+        is TWSViewError.ResourceError -> error.error.description
+        is TWSViewError.InitialLoadError -> error.error.message
+    }
+
     ErrorView(
         modifier = modifier.fillMaxSize(),
-        errorText = message,
+        errorText = message.toString(),
         callback = callback
     )
 }

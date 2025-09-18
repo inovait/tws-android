@@ -23,6 +23,7 @@ import com.thewebsnippet.data.TWSAttachment
 import com.thewebsnippet.data.TWSEngine
 import com.thewebsnippet.view.client.okhttp.web.webViewHttpClient
 import com.thewebsnippet.view.data.TWSLoadingState
+import com.thewebsnippet.view.data.TWSViewError
 import com.thewebsnippet.view.data.TWSViewInterceptor
 import com.thewebsnippet.view.data.TWSViewState
 import com.thewebsnippet.view.util.modifier.HtmlModifierHelper
@@ -103,7 +104,7 @@ internal class OkHttpTWSWebViewClient(
                 }
             } catch (e: Exception) {
                 // Fallback to default behavior in case of mustache exception and expose mustache exception to developer
-                state.customErrorsForCurrentRequest.add(e)
+                state.customErrorsForCurrentRequest.add(TWSViewError.InitialLoadError(e, null))
                 super.shouldInterceptRequest(view, request)
             }
         }
