@@ -114,8 +114,8 @@ internal open class TWSWebViewClient(
 
     private fun Context.getAlternativePackageName(): String? {
         // Get all apps that can handle VIEW intents and Custom Tab service connections.
-        val activityIntent = Intent(Intent.ACTION_VIEW, Uri.parse("http"))
-        val viewIntentHandlers = packageManager.queryIntentActivities(activityIntent, 0).map { it.resolvePackageName }
+        val activityIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.example.com"))
+        val viewIntentHandlers = packageManager.queryIntentActivities(activityIntent, 0).map { it.activityInfo.packageName }
 
         // Get a package that supports Custom Tabs
         val packageName = CustomTabsClient.getPackageName(
