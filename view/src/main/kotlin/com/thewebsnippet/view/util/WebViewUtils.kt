@@ -43,7 +43,7 @@ internal fun WebView.initializeSettings() {
         mediaPlaybackRequiresUserGesture = false
         setGeolocationEnabled(true)
         userAgentString = userAgentString.toTWSUserAgent()
-        settings.offscreenPreRaster = true
+        offscreenPreRaster = true
     }
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
