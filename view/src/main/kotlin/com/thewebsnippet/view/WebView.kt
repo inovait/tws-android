@@ -314,9 +314,11 @@ private fun HandleNavigationEvents(wv: WebView, navigator: TWSViewNavigator, sta
 private fun WebViewResumeOrPauseEffect(webView: WebView) {
     LifecycleResumeEffect(Unit) {
         webView.onResume()
+        webView.resumeTimers()
 
         onPauseOrDispose {
             webView.onPause()
+            webView.pauseTimers()
         }
     }
 }
