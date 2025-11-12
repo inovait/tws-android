@@ -16,6 +16,7 @@
 package com.thewebsnippet.view.util
 
 import android.annotation.SuppressLint
+import android.os.Build
 import android.view.View
 import android.webkit.CookieManager
 import android.webkit.WebSettings
@@ -42,6 +43,14 @@ internal fun WebView.initializeSettings() {
         mediaPlaybackRequiresUserGesture = false
         setGeolocationEnabled(true)
         userAgentString = userAgentString.toTWSUserAgent()
+        offscreenPreRaster = true
+    }
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        setRendererPriorityPolicy(
+            WebView.RENDERER_PRIORITY_IMPORTANT,
+            false
+        )
     }
 }
 
