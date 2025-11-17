@@ -32,6 +32,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -41,7 +42,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.compose.LifecycleResumeEffect
+import androidx.core.view.children
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.thewebsnippet.view.client.AccompanistWebChromeClient
 import com.thewebsnippet.view.client.AccompanistWebViewClient
@@ -179,7 +183,7 @@ internal fun WebView(
 
     HandleBackPresses(captureBackPresses, navigator, webView)
     webView?.let {
-        WebViewResumeOrPauseEffect(it)
+        WebViewLifecycleEffect(it)
     }
 
     val (permissionLauncher, permissionCallback) = createPermissionLauncher()
@@ -245,17 +249,23 @@ internal fun WebView(
         },
         modifier = modifier,
         onRelease = {
-            val wv = state.webView ?: return@AndroidView
+            val releasedWv =
+                (it as? WebView)
+                    ?: it.children.firstOrNull { child -> child is WebView } as? WebView
+                    ?: return@AndroidView
 
-            state.viewStatePath = stateManager.saveWebViewState(
-                context = wv.context,
-                webView = wv,
-                key = state.content.getSnippet()?.id.orEmpty()
-            )
-            state.currentUrl = null // mark as null, so dynamic resources will be injected
-            state.webView = null
+            if (state.webView == releasedWv) {
+                state.viewStatePath = stateManager.saveWebViewState(
+                    context = releasedWv.context,
+                    webView = releasedWv,
+                    key = state.content.getSnippet()?.id.orEmpty()
+                )
 
-            onDispose(wv)
+                state.currentUrl = null // mark as null, so dynamic resources will be injected
+                state.webView = null
+            }
+
+            onDispose(releasedWv)
         },
         update = {
             if (it is SwipeRefreshLayout) {
@@ -311,14 +321,29 @@ private fun HandleNavigationEvents(wv: WebView, navigator: TWSViewNavigator, sta
 }
 
 @Composable
-private fun WebViewResumeOrPauseEffect(webView: WebView) {
-    LifecycleResumeEffect(Unit) {
-        webView.onResume()
-        webView.resumeTimers()
+fun WebViewLifecycleEffect(webView: WebView) {
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner, webView) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_RESUME -> {
+                    webView.onResume()
+                    webView.resumeTimers()
+                }
 
-        onPauseOrDispose {
-            webView.onPause()
-            webView.pauseTimers()
+                Lifecycle.Event.ON_PAUSE -> {
+                    webView.onPause()
+                    webView.pauseTimers()
+                }
+
+                else -> Unit
+            }
+        }
+
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
         }
     }
 }
