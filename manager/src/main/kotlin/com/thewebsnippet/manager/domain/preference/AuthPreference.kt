@@ -19,8 +19,5 @@ import kotlinx.coroutines.flow.Flow
 
 internal interface AuthPreference {
     val refreshToken: Flow<String>
-    val accessToken: Flow<String>
-
     suspend fun setRefreshToken(refreshToken: String)
-    suspend fun setAccessToken(accessToken: String)
 }
