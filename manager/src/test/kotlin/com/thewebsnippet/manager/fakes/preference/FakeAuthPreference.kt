@@ -25,14 +25,7 @@ class FakeAuthPreference : AuthPreference {
     private val _refreshToken: MutableStateFlow<String?> = MutableStateFlow(null)
     override val refreshToken: Flow<String> = _refreshToken.filterNotNull()
 
-    private val _accessToken: MutableStateFlow<String?> = MutableStateFlow(null)
-    override val accessToken: Flow<String> = _accessToken.filterNotNull()
-
     override suspend fun setRefreshToken(refreshToken: String) {
         _refreshToken.value = refreshToken
-    }
-
-    override suspend fun setAccessToken(accessToken: String) {
-        _accessToken.value = accessToken
     }
 }
