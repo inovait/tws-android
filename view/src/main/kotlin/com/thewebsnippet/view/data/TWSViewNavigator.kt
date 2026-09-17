@@ -162,6 +162,14 @@ class TWSViewNavigator(
         }
     }
 
+    /**
+     * True while a [reload] with `bypassCache = true` is in flight, i.e. between the reload being triggered
+     * and the page finishing. WebViewClient implementations that fetch the main document themselves
+     * (bypassing WebView's own network/cache stack) should check this and force a network fetch too.
+     */
+    internal val isBypassingCache: Boolean
+        get() = pendingCacheModeRestore
+
     /** Call this from WebViewClient once a page finishes loading, to restore cache mode after a bypassCache reload */
     internal fun maybeRestoreCacheModeOnFinished(view: WebView) {
         if (pendingCacheModeRestore) {
