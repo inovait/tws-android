@@ -28,6 +28,7 @@ import com.thewebsnippet.view.data.TWSViewInterceptor
 import com.thewebsnippet.view.data.TWSViewState
 import com.thewebsnippet.view.util.modifier.HtmlModifierHelper
 import com.thewebsnippet.view.util.modifier.HtmlModifierHelperImpl
+import okhttp3.CacheControl
 import okhttp3.Headers
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -147,13 +148,16 @@ internal class OkHttpTWSWebViewClient(
     }
 
     private fun OkHttpClient.duplicateAndExecuteRequest(request: WebResourceRequest): Response {
-        val overrideRequest = Request.Builder()
+        val requestBuilder = Request.Builder()
             .url(request.buildUrl())
             .method(request.method, null)
             .headers(request.buildHeaders())
-            .build()
 
-        return newCall(overrideRequest).execute()
+        if (navigator.isBypassingCache) {
+            requestBuilder.cacheControl(CacheControl.FORCE_NETWORK)
+        }
+
+        return newCall(requestBuilder.build()).execute()
     }
 
     private fun Response.getMimeTypeAndEncoding(): Pair<String, String> {

@@ -63,6 +63,7 @@ internal open class AccompanistWebViewClient : WebViewClient() {
         state.loadingState = TWSLoadingState.Finished
 
         navigator.maybeClearHistoryOnCommit(view)
+        navigator.maybeRestoreCacheModeOnFinished(view)
 
         navigator.canGoBack = view.canGoBack()
         navigator.canGoForward = view.canGoForward()
