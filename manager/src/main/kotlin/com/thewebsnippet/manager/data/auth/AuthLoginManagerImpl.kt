@@ -22,6 +22,7 @@ import com.thewebsnippet.manager.data.factory.create
 import com.thewebsnippet.manager.data.function.TWSAuthFunction
 import com.thewebsnippet.manager.domain.preference.AuthPreference
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
@@ -31,7 +32,9 @@ internal class AuthLoginManagerImpl(
     private val twsAuth: TWSAuthFunction = BaseServiceFactory(context, AuthRegisterManagerImpl(context, auth)).create()
 ) : Auth {
     override val getToken: Flow<String>
-        get() = auth.accessToken
+        get() = _accessToken
+
+    private val _accessToken: MutableStateFlow<String> = MutableStateFlow("")
 
     private val mutex = Mutex()
 
@@ -42,7 +45,7 @@ internal class AuthLoginManagerImpl(
             if (wasLocked) return
 
             val response = twsAuth.login()
-            auth.setAccessToken(response.accessToken)
+            _accessToken.value = response.accessToken
         }
     }
 }

@@ -18,6 +18,7 @@
  */
 package com.thewebsnippet.view.data
 
+import android.webkit.WebSettings
 import android.webkit.WebView
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
@@ -55,6 +56,7 @@ class TWSViewNavigator(
     private val navigationEvents: MutableSharedFlow<NavigationEvent> = MutableSharedFlow(replay = 1)
 
     private var pendingClearHistory: Boolean = false
+    private var pendingCacheModeRestore: Boolean = false
 
     /**
      * True when the web view is able to navigate backwards, false otherwise.
@@ -105,9 +107,15 @@ class TWSViewNavigator(
 
     /**
      * Reloads the current page in the webview.
+     *
+     * @param bypassCache When true, forces the reload to skip the WebView's HTTP cache (equivalent to a
+     * browser "hard reload") so a fresh response is fetched from the network. Useful e.g. after cookies
+     * that affect server- or client-side rendering (such as an ads-related cookie) were just updated, since
+     * a normal reload can otherwise be served from a still-valid cached response. The WebView's cache mode
+     * is restored back to normal once this reload finishes.
      */
-    fun reload() {
-        coroutineScope.launch { navigationEvents.emit(NavigationEvent.Reload) }
+    fun reload(bypassCache: Boolean = false) {
+        coroutineScope.launch { navigationEvents.emit(NavigationEvent.Reload(bypassCache)) }
     }
 
     fun loadSnippet(snippet: TWSSnippet) {
@@ -154,6 +162,22 @@ class TWSViewNavigator(
         }
     }
 
+    /**
+     * True while a [reload] with `bypassCache = true` is in flight, i.e. between the reload being triggered
+     * and the page finishing. WebViewClient implementations that fetch the main document themselves
+     * (bypassing WebView's own network/cache stack) should check this and force a network fetch too.
+     */
+    internal val isBypassingCache: Boolean
+        get() = pendingCacheModeRestore
+
+    /** Call this from WebViewClient once a page finishes loading, to restore cache mode after a bypassCache reload */
+    internal fun maybeRestoreCacheModeOnFinished(view: WebView) {
+        if (pendingCacheModeRestore) {
+            view.settings.cacheMode = WebSettings.LOAD_DEFAULT
+            pendingCacheModeRestore = false
+        }
+    }
+
     // Use Dispatchers.Main to ensure that the webview methods are called on UI thread
     @OptIn(ExperimentalCoroutinesApi::class)
     internal suspend fun WebView.handleNavigationEvents(
@@ -167,6 +191,10 @@ class TWSViewNavigator(
                 is NavigationEvent.Forward -> goForward()
                 is NavigationEvent.Reload -> {
                     markLoadingCallback(true)
+                    if (event.bypassCache) {
+                        settings.cacheMode = WebSettings.LOAD_NO_CACHE
+                        pendingCacheModeRestore = true
+                    }
                     reload()
                 }
                 is NavigationEvent.PushState -> navigateReactOrFallback(event.path, false)
@@ -260,7 +288,7 @@ class TWSViewNavigator(
     private sealed interface NavigationEvent {
         data object Back : NavigationEvent
         data object Forward : NavigationEvent
-        data object Reload : NavigationEvent
+        data class Reload(val bypassCache: Boolean = false) : NavigationEvent
 
         data object PopState : NavigationEvent
         data class PushState(val path: String) : NavigationEvent

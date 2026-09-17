@@ -445,7 +445,7 @@ private fun createSwipeRefreshLayout(
         setOnRefreshListener {
             state.currentUrl = null // mark as null, so dynamic resources will be injected
             state.loadingState = TWSLoadingState.ForceRefreshInitiated
-            navigator.reload()
+            navigator.reload(bypassCache = true)
         }
         addView(webView)
     }

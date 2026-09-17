@@ -71,22 +71,9 @@ internal class AuthPreferenceImpl(
             }
     }
 
-    override val accessToken: Flow<String> by lazy {
-        authPreferences.data
-            .map { preferences ->
-                preferences[DATASTORE_ACCESS_TOKEN] ?: ""
-            }
-    }
-
     override suspend fun setRefreshToken(refreshToken: String) {
         authPreferences.edit { settings ->
             settings[DATASTORE_REFRESH_TOKEN] = refreshToken
-        }
-    }
-
-    override suspend fun setAccessToken(accessToken: String) {
-        authPreferences.edit { settings ->
-            settings[DATASTORE_ACCESS_TOKEN] = accessToken
         }
     }
 
@@ -113,7 +100,6 @@ internal class AuthPreferenceImpl(
     internal companion object {
         val DATASTORE_JWT = stringPreferencesKey("jwt")
         val DATASTORE_REFRESH_TOKEN = stringPreferencesKey("refreshToken")
-        val DATASTORE_ACCESS_TOKEN = stringPreferencesKey("accessToken")
 
         private const val DATASTORE_NAME = "authPreferences"
         val Context.authPreferences: DataStore<Preferences> by preferencesDataStore(name = DATASTORE_NAME)

@@ -16,6 +16,7 @@
 
 package com.thewebsnippet.manager
 
+import app.cash.turbine.test
 import com.thewebsnippet.manager.domain.model.AccessTokenDto
 import com.thewebsnippet.manager.fakes.function.FakeTWSAuthFunction
 import com.thewebsnippet.manager.fakes.preference.FakeAuthPreference
@@ -36,8 +37,7 @@ class AuthLoginManagerImplTest {
     fun setup() {
         authLoginManagerImpl = AuthLoginManagerImpl(mock(), fakePreference, fakeAuthFunctions)
 
-        val testToken = "token_123"
-        fakeAuthFunctions.accessToken = AccessTokenDto(accessToken = testToken)
+        fakeAuthFunctions.accessToken = AccessTokenDto(accessToken = TEST_TOKEN)
     }
 
     @Test
@@ -50,4 +50,22 @@ class AuthLoginManagerImplTest {
 
         assert(fakeAuthFunctions.loginCalled == 1)
     }
+
+    @Test
+    fun `Manager should store accessToken only for session`() = runTest {
+        authLoginManagerImpl.getToken.test {
+            assert(expectMostRecentItem() == "")
+
+            authLoginManagerImpl.refreshToken()
+
+            assert(expectMostRecentItem() == TEST_TOKEN)
+        }
+
+        val manager2 = AuthLoginManagerImpl(mock(), fakePreference, fakeAuthFunctions)
+        manager2.getToken.test {
+            assert(expectMostRecentItem() == "")
+        }
+    }
 }
+
+private const val TEST_TOKEN = "token_123"
