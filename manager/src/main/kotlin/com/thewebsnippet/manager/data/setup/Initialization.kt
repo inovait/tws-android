@@ -35,6 +35,9 @@ import java.time.Instant
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeFormatter.ISO_INSTANT
+import java.util.concurrent.TimeUnit
+
+private const val PING_INTERVAL_SECONDS = 20L
 
 internal fun twsMoshi(): Moshi {
     if (Thread.currentThread().name == "main") {
@@ -69,7 +72,7 @@ internal fun prepareBaseOkHttpClient(context: Context, auth: Auth?): OkHttpClien
     }
 
     return OkHttpClient.Builder()
-        .retryOnConnectionFailure(false)
+        .pingInterval(PING_INTERVAL_SECONDS, TimeUnit.SECONDS)
         .apply {
             addInterceptor(userAgentInterceptor)
             addInterceptor(prepareAuthInterceptor(auth))
